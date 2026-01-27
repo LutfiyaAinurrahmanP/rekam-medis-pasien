@@ -44,11 +44,12 @@ services:
     networks:
       - sirekam_network
     volumes:
-      - . :/app
+      - app_data:/data
     restart: unless-stopped
 
 volumes: 
-  postgres_data: 
+  postgres_data:
+  app_data:
 
 networks:
   sirekam_network:

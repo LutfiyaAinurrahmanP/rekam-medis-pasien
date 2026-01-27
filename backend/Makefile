@@ -1,4 +1,4 @@
-. PHONY: help build run test clean docker-build docker-up docker-down migrate
+. PHONY: help build run test clean docker-build docker-up docker-down migrate test-all
 
 help:  ## Display this help screen
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
@@ -54,6 +54,10 @@ fmt: ## Format code
 mod-download: ## Download dependencies
 	@echo "Downloading dependencies..."
 	@go mod download
+
+test-all:
+	@echo "Test all API"
+	@go test -v ./internal/routes/... -count=1
 
 mod-tidy: ## Tidy dependencies
 	@echo "Tidying dependencies..."
