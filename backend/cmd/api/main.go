@@ -89,12 +89,15 @@ func main() {
 type Dependencies struct {
 	// Repositories
 	UserRepository repository.UserRepository
+	DepartmentRepository repository.DepartmentRepository
 
 	// Services
 	UserService service.UserService
+	DepartmentService service.DepartmentService
 
 	// Handlers
 	UserHandler *handler.UserHandler
+	DepartmentHandler *handler.DepartmentHandler
 
 	// Tambahkan dependencies lain di sini
 	// PatientRepository repository.PatientRepository
@@ -106,17 +109,24 @@ type Dependencies struct {
 func initDependencies(db *gorm.DB, cfg *config.Config) *Dependencies {
 	// Initialize Repositories
 	userRepo := repository.NewUserRepository(db)
+	departmentRepo := repository.NewDepartmentRepository(db)
 
 	// Initialize Services
 	userService := service.NewUserService(userRepo, cfg)
+	departmentService := service.NewDepartmentService(departmentRepo, cfg)
 
 	// Initialize Handlers
 	userHandler := handler.NewUserHandler(userService)
+	departmentHandler := handler.NewDepartmentHandler(departmentService)
 
 	return &Dependencies{
 		UserRepository: userRepo,
 		UserService:    userService,
 		UserHandler:    userHandler,
+
+		DepartmentRepository: departmentRepo,
+		DepartmentService: departmentService,
+		DepartmentHandler: departmentHandler,
 	}
 }
 

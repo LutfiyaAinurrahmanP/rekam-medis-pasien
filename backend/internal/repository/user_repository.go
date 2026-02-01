@@ -16,8 +16,8 @@ type UserRepository interface {
 	FindByEmail(email string) (*models.User, error)
 	FindByPhone(phone string) (*models.User, error)
 	FindByUsernameOrEmail(usernameOrEmail string) (*models.User, error)
-	List(query *dto.PaginationQuery) ([]models.User, int64, error)
-	DeleteList(query *dto.PaginationQuery) ([]models.User, int64, error)
+	List(query *dto.UserPaginationQuery) ([]models.User, int64, error)
+	DeleteList(query *dto.UserPaginationQuery) ([]models.User, int64, error)
 	Update(user *models.User) error
 	SoftDelete(id uint) error
 	HardDelete(id uint) error
@@ -101,7 +101,7 @@ func (r *userRepository) FindByUsernameOrEmail(usernameOrEmail string) (*models.
 	return &user, nil
 }
 
-func (r *userRepository) List(query *dto.PaginationQuery) ([]models.User, int64, error) {
+func (r *userRepository) List(query *dto.UserPaginationQuery) ([]models.User, int64, error) {
 	var users []models.User
 	var total int64
 
@@ -130,7 +130,7 @@ func (r *userRepository) List(query *dto.PaginationQuery) ([]models.User, int64,
 	}
 	return users, total, nil
 }
-func (r *userRepository) DeleteList(query *dto.PaginationQuery) ([]models.User, int64, error) {
+func (r *userRepository) DeleteList(query *dto.UserPaginationQuery) ([]models.User, int64, error) {
 	var users []models.User
 	var total int64
 
@@ -169,11 +169,25 @@ func (r *userRepository) SoftDelete(id uint) error {
 }
 
 func (r *userRepository) HardDelete(id uint) error {
-	return r.db.Unscoped().Delete(&models.User{}, id).Error
+	result := r.db.Unscoped().Delete(&models.User{}, id)
+	if result.Error != nil {
+		return result.Error
+	}
+	if result.RowsAffected == 0 {
+		return errors.New("user not found")
+	}
+	return nil
 }
 
 func (r *userRepository) Restore(id uint) error {
-	return r.db.Model(&models.User{}).Unscoped().Where("id = ?", id).Update("deleted_at", nil).Error
+	result := r.db.Model(&models.User{}).Unscoped().Where("id = ?", id).Update("deleted_at", nil)
+	if result.Error != nil {
+		return result.Error
+	}
+	if result.RowsAffected == 0 {
+		return errors.New("user not found")
+	}
+	return nil
 }
 
 func (r *userRepository) IsUsernameExists(username string, excludeID ...uint) (bool, error) {

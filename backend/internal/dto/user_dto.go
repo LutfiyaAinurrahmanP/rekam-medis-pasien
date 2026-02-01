@@ -55,7 +55,7 @@ type LoginResponse struct {
 	User      UserResponse `json:"user"`
 }
 
-type PaginationQuery struct {
+type UserPaginationQuery struct {
 	Page     int    `form:"page,default=1" binding:"omitempty,min=1"`
 	PageSize int    `form:"page_size,default=10" binding:"omitempty,min=1,max=100"`
 	Search   string `form:"search" binding:"omitempty"`
@@ -65,7 +65,7 @@ type PaginationQuery struct {
 	SortDir  string `form:"sort_dir,default=desc" binding:"omitempty,oneof=asc desc"`
 }
 
-type PaginationMeta struct {
+type UserPaginationMeta struct {
 	Page       int   `json:"page"`
 	PageSize   int   `json:"page_size"`
 	TotalItems int64 `json:"total_items"`
@@ -73,8 +73,8 @@ type PaginationMeta struct {
 }
 
 type UserListResponse struct {
-	Data []UserResponse `json:"data"`
-	Meta PaginationMeta `json:"meta"`
+	Data []UserResponse     `json:"data"`
+	Meta UserPaginationMeta `json:"meta"`
 }
 
 type DeleteAccountRequest struct {
@@ -99,9 +99,9 @@ type DeletedUserResponse struct {
 	DeletedAt *time.Time `json:"deleted_at"`
 }
 
-type DeletedUserListResponse struct {
+type UserDeletedListResponse struct {
 	Data []DeletedUserResponse `json:"data"`
-	Meta PaginationMeta        `json:"meta"`
+	Meta UserPaginationMeta    `json:"meta"`
 }
 
 type ResetPasswordRequest struct {

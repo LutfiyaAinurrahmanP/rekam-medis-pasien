@@ -16,8 +16,8 @@ type UserService interface {
 	Login(req *dto.LoginRequest) (*dto.LoginResponse, error)
 	CreateUser(req *dto.CreateUserRequest) (*dto.UserResponse, error)
 	GetUserByID(id uint) (*dto.UserResponse, error)
-	ListUsers(query *dto.PaginationQuery) (*dto.UserListResponse, error)
-	DeleteListUsers(query *dto.PaginationQuery) (*dto.DeletedUserListResponse, error)
+	ListUsers(query *dto.UserPaginationQuery) (*dto.UserListResponse, error)
+	DeleteListUsers(query *dto.UserPaginationQuery) (*dto.UserDeletedListResponse, error)
 	UpdateUser(id uint, req *dto.UpdateUserRequest) (*dto.UserResponse, error)
 	SoftDeleteUser(id uint) error
 	HardDeleteUser(id uint) error
@@ -193,7 +193,7 @@ func (s *userService) GetUserByID(id uint) (*dto.UserResponse, error) {
 	return s.toUserResponse(user), nil
 }
 
-func (s *userService) ListUsers(query *dto.PaginationQuery) (*dto.UserListResponse, error) {
+func (s *userService) ListUsers(query *dto.UserPaginationQuery) (*dto.UserListResponse, error) {
 	if query.Page < 1 {
 		query.Page = 1
 	}
@@ -232,7 +232,7 @@ func (s *userService) ListUsers(query *dto.PaginationQuery) (*dto.UserListRespon
 
 	return &dto.UserListResponse{
 		Data: userResponses,
-		Meta: dto.PaginationMeta{
+		Meta: dto.UserPaginationMeta{
 			Page:       query.Page,
 			PageSize:   query.PageSize,
 			TotalItems: total,
@@ -241,7 +241,7 @@ func (s *userService) ListUsers(query *dto.PaginationQuery) (*dto.UserListRespon
 	}, nil
 }
 
-func (s *userService) DeleteListUsers(query *dto.PaginationQuery) (*dto.DeletedUserListResponse, error) {
+func (s *userService) DeleteListUsers(query *dto.UserPaginationQuery) (*dto.UserDeletedListResponse, error) {
 	if query.Page < 1 {
 		query.Page = 1
 	}
@@ -278,9 +278,9 @@ func (s *userService) DeleteListUsers(query *dto.PaginationQuery) (*dto.DeletedU
 
 	totalPages := int(math.Ceil(float64(total) / float64(query.PageSize)))
 
-	return &dto.DeletedUserListResponse{
+	return &dto.UserDeletedListResponse{
 		Data: deletedUsersReponses,
-		Meta: dto.PaginationMeta{
+		Meta: dto.UserPaginationMeta{
 			Page:       query.Page,
 			PageSize:   query.PageSize,
 			TotalItems: total,

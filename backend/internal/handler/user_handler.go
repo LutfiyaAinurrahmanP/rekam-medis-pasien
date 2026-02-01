@@ -46,6 +46,16 @@ func (h *UserHandler) Register(ctx *gin.Context) {
 
 	user, err := h.service.Register(&req)
 	if err != nil {
+		// Handle duplicate data errors with HTTP 409 Conflict
+		errMsg := err.Error()
+		if errMsg == "username already exists" ||
+		   errMsg == "email already exists" ||
+		   errMsg == "phone already exists" {
+			utils.ErrorResponse(ctx, http.StatusConflict, "Duplicate data", errMsg)
+			return
+		}
+
+		// Handle other errors with HTTP 400 Bad Request
 		utils.ErrorResponse(ctx, http.StatusBadRequest, "Failed to register user", err.Error())
 		return
 	}
@@ -82,6 +92,10 @@ func (h *UserHandler) ResetPassword(ctx *gin.Context) {
 	}
 
 	if err := h.service.ResetPassword(uint(id), req.NewPassword); err != nil {
+		if err.Error() == "user not found" {
+			utils.ErrorResponse(ctx, http.StatusNotFound, "User not found", err.Error())
+			return
+		}
 		utils.ErrorResponse(ctx, http.StatusBadRequest, "Failed to reset password", err.Error())
 		return
 	}
@@ -98,11 +112,21 @@ func (h *UserHandler) CreateUser(ctx *gin.Context) {
 
 	response, err := h.service.CreateUser(&req)
 	if err != nil {
-		utils.ErrorResponse(ctx, http.StatusBadRequest, "Failed to created user", err.Error())
+		// Handle duplicate data errors with HTTP 409 Conflict
+		errMsg := err.Error()
+		if errMsg == "username already exists" ||
+		   errMsg == "email already exists" ||
+		   errMsg == "phone already exists" {
+			utils.ErrorResponse(ctx, http.StatusConflict, "Duplicate data", errMsg)
+			return
+		}
+
+		// Handle other errors with HTTP 400 Bad Request
+		utils.ErrorResponse(ctx, http.StatusBadRequest, "Failed to create user", err.Error())
 		return
 	}
 
-	utils.SuccessResponse(ctx, http.StatusOK, "User created successfully", response)
+	utils.SuccessResponse(ctx, http.StatusCreated, "User created successfully", response)
 }
 
 func (h *UserHandler) GetUserByID(ctx *gin.Context) {
@@ -121,7 +145,7 @@ func (h *UserHandler) GetUserByID(ctx *gin.Context) {
 }
 
 func (h *UserHandler) ListUsers(ctx *gin.Context) {
-	var query dto.PaginationQuery
+	var query dto.UserPaginationQuery
 	if err := ctx.ShouldBindQuery(&query); err != nil {
 		utils.ValidationErrorResponse(ctx, err)
 		return
@@ -136,7 +160,7 @@ func (h *UserHandler) ListUsers(ctx *gin.Context) {
 }
 
 func (h *UserHandler) DeleteListUsers(ctx *gin.Context) {
-	var query dto.PaginationQuery
+	var query dto.UserPaginationQuery
 	if err := ctx.ShouldBindQuery(&query); err != nil {
 		utils.ValidationErrorResponse(ctx, err)
 		return
@@ -166,11 +190,27 @@ func (h *UserHandler) UpdateUser(ctx *gin.Context) {
 
 	user, err := h.service.UpdateUser(uint(id), &req)
 	if err != nil {
-		utils.ErrorResponse(ctx, http.StatusBadRequest, "Failed to updateuser", err.Error())
+		// Handle not found error with HTTP 404 Not Found
+		if err.Error() == "user not found" {
+			utils.ErrorResponse(ctx, http.StatusNotFound, "User not found", err.Error())
+			return
+		}
+
+		// Handle duplicate data errors with HTTP 409 Conflict
+		errMsg := err.Error()
+		if errMsg == "username already exists" ||
+		   errMsg == "email already exists" ||
+		   errMsg == "phone already exists" {
+			utils.ErrorResponse(ctx, http.StatusConflict, "Duplicate data", errMsg)
+			return
+		}
+
+		// Handle other errors with HTTP 400 Bad Request
+		utils.ErrorResponse(ctx, http.StatusBadRequest, "Failed to update user", err.Error())
 		return
 	}
 
-	utils.SuccessResponse(ctx, http.StatusOK, "User updated successfuly", user)
+	utils.SuccessResponse(ctx, http.StatusOK, "User updated successfully", user)
 }
 
 func (h *UserHandler) SoftDeleteUser(ctx *gin.Context) {
@@ -181,7 +221,14 @@ func (h *UserHandler) SoftDeleteUser(ctx *gin.Context) {
 	}
 
 	if err := h.service.SoftDeleteUser(uint(id)); err != nil {
-		utils.ErrorResponse(ctx, http.StatusNotFound, "Failed to delete user", err.Error())
+		// Handle not found error with HTTP 404 Not Found
+		if err.Error() == "user not found" {
+			utils.ErrorResponse(ctx, http.StatusNotFound, "User not found", err.Error())
+			return
+		}
+
+		// Handle other errors with HTTP 400 Bad Request
+		utils.ErrorResponse(ctx, http.StatusBadRequest, "Failed to delete user", err.Error())
 		return
 	}
 
@@ -196,11 +243,18 @@ func (h *UserHandler) HardDeleteUser(ctx *gin.Context) {
 	}
 
 	if err := h.service.HardDeleteUser(uint(id)); err != nil {
+		// Handle not found error with HTTP 404 Not Found
+		if err.Error() == "user not found" {
+			utils.ErrorResponse(ctx, http.StatusNotFound, "User not found", err.Error())
+			return
+		}
+
+		// Handle other errors with HTTP 400 Bad Request
 		utils.ErrorResponse(ctx, http.StatusBadRequest, "Failed to permanently delete user", err.Error())
 		return
 	}
 
-	utils.SuccessResponse(ctx, http.StatusOK, "User permanently delete successfully", nil)
+	utils.SuccessResponse(ctx, http.StatusOK, "User permanently deleted successfully", nil)
 }
 
 func (h *UserHandler) RestoreUser(ctx *gin.Context) {
@@ -211,6 +265,13 @@ func (h *UserHandler) RestoreUser(ctx *gin.Context) {
 	}
 
 	if err := h.service.RestoreUser(uint(id)); err != nil {
+		// Handle not found error with HTTP 404 Not Found
+		if err.Error() == "user not found" {
+			utils.ErrorResponse(ctx, http.StatusNotFound, "User not found", err.Error())
+			return
+		}
+
+		// Handle other errors with HTTP 400 Bad Request
 		utils.ErrorResponse(ctx, http.StatusBadRequest, "Failed to restore user", err.Error())
 		return
 	}
@@ -226,9 +287,18 @@ func (h *UserHandler) ActivateUser(ctx *gin.Context) {
 	}
 
 	if err := h.service.ActivateUser(uint(id)); err != nil {
-		utils.ErrorResponse(ctx, http.StatusBadRequest, "Failed to activated user", err.Error())
+		// Handle not found error with HTTP 404 Not Found
+		if err.Error() == "user not found" {
+			utils.ErrorResponse(ctx, http.StatusNotFound, "User not found", err.Error())
+			return
+		}
+
+		// Handle other errors with HTTP 400 Bad Request
+		utils.ErrorResponse(ctx, http.StatusBadRequest, "Failed to activate user", err.Error())
 		return
 	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "User activated successfully", nil)
 }
 
 func (h *UserHandler) DeactivateUser(ctx *gin.Context) {
@@ -239,6 +309,13 @@ func (h *UserHandler) DeactivateUser(ctx *gin.Context) {
 	}
 
 	if err := h.service.DeactivateUser(uint(id)); err != nil {
+		// Handle not found error with HTTP 404 Not Found
+		if err.Error() == "user not found" {
+			utils.ErrorResponse(ctx, http.StatusNotFound, "User not found", err.Error())
+			return
+		}
+
+		// Handle other errors with HTTP 400 Bad Request
 		utils.ErrorResponse(ctx, http.StatusBadRequest, "Failed to deactivate user", err.Error())
 		return
 	}
@@ -289,6 +366,16 @@ func (h *UserHandler) UpdateMyProfile(ctx *gin.Context) {
 
 	user, err := h.service.UpdateUser(userID, &req)
 	if err != nil {
+		// Handle duplicate data errors with HTTP 409 Conflict
+		errMsg := err.Error()
+		if errMsg == "username already exists" ||
+		   errMsg == "email already exists" ||
+		   errMsg == "phone already exists" {
+			utils.ErrorResponse(ctx, http.StatusConflict, "Duplicate data", errMsg)
+			return
+		}
+
+		// Handle other errors with HTTP 400 Bad Request
 		utils.ErrorResponse(ctx, http.StatusBadRequest, "Failed to update profile", err.Error())
 		return
 	}
@@ -331,7 +418,7 @@ func (h *UserHandler) DeleteMyAccount(ctx *gin.Context) {
 	}
 
 	if err := h.service.VerifyPasswordForDeletion(userID, req.Password); err != nil {
-		utils.ErrorResponse(ctx, http.StatusUnauthorized, "Invalid password", err.Error())
+		utils.ErrorResponse(ctx, http.StatusForbidden, "Invalid password", err.Error())
 		return
 	}
 
@@ -357,7 +444,7 @@ func (h *UserHandler) DeactivateMyAccount(ctx *gin.Context) {
 	}
 
 	if err := h.service.VerifyPasswordForDeletion(userID, req.Password); err != nil {
-		utils.ErrorResponse(ctx, http.StatusUnauthorized, "Invalid password", err.Error())
+		utils.ErrorResponse(ctx, http.StatusForbidden, "Invalid password", err.Error())
 		return
 	}
 

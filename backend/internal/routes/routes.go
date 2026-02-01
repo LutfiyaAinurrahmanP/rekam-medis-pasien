@@ -31,8 +31,8 @@ func SetupRouter(cfg *RouteConfig) *gin.Engine {
 
 	v1 := router.Group("/api/v1")
 	{
-		setupAuthRouter(v1, cfg)
-		setupAPIRouter(v1, cfg)
+		SetupAuthRouter(v1, cfg)
+		SetupAPIRouter(v1, cfg)
 	}
 
 	return router

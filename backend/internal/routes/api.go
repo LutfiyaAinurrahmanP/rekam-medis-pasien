@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func setupAPIRouter(rg *gin.RouterGroup, cfg *RouteConfig) {
+func SetupAPIRouter(rg *gin.RouterGroup, cfg *RouteConfig) {
 	apiGroup := rg.Group("/users")
 
 	apiGroup.Use(middleware.AuthMiddleware(cfg.Config))
