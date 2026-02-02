@@ -12,6 +12,7 @@ func RunMigration(db *gorm.DB) error {
 
 	err := db.AutoMigrate(
 		&models.User{},
+		&models.Department{},
 	)
 
 	if err != nil {

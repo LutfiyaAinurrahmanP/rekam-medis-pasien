@@ -50,6 +50,14 @@ func (r *departmentRepository) List(query *dto.DepartmentPaginationQuery) ([]mod
 		return nil, 0, err
 	}
 
+	orderClause := query.SortBy
+	if query.SortDir == "desc" {
+		orderClause += " desc"
+	} else {
+		orderClause += " asc"
+	}
+	db = db.Order(orderClause)
+
 	offset := (query.Page - 1) * query.PageSize
 	if err := db.Offset(offset).Limit(query.PageSize).Find(&departments).Error; err != nil {
 		return nil, 0, err
@@ -131,11 +139,28 @@ func (r *departmentRepository) SoftDelete(id uint) error {
 }
 
 func (r *departmentRepository) Restore(id uint) error {
-	return r.db.Model(&models.Department{}).Unscoped().Where("id = ?", id).Update("deleted_at", nil).Error
+	result := r.db.Model(&models.Department{}).Unscoped().Where("id = ?", id).Update("deleted_at", nil)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return errors.New("department not found")
+	}
+	return nil
 }
 
 func (r *departmentRepository) HardDelete(id uint) error {
-	return r.db.Unscoped().Delete(&models.Department{}, id).Error
+	result := r.db.Unscoped().Delete(&models.Department{}, id)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return errors.New("department not found")
+	}
+
+	return nil
 }
 
 func (r *departmentRepository) IsCodeExists(code string, excludeID ...uint) (bool, error) {

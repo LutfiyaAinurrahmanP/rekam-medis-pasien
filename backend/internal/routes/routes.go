@@ -11,8 +11,9 @@ import (
 )
 
 type RouteConfig struct {
-	Config      *config.Config
-	UserHandler *handler.UserHandler
+	Config            *config.Config
+	UserHandler       *handler.UserHandler
+	DepartmentHandler *handler.DepartmentHandler
 }
 
 func SetupRouter(cfg *RouteConfig) *gin.Engine {
@@ -31,7 +32,6 @@ func SetupRouter(cfg *RouteConfig) *gin.Engine {
 
 	v1 := router.Group("/api/v1")
 	{
-		SetupAuthRouter(v1, cfg)
 		SetupAPIRouter(v1, cfg)
 	}
 

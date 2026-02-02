@@ -15,7 +15,10 @@ test: ## Run all tests with Jest-like output
 	@powershell -File scripts/test-runner.ps1 -Path "./..." -Filter ""
 
 test-users: ## Run user API tests with Jest-like output
-	@powershell -File scripts/test-runner.ps1 -Path "./tests" -Filter "^Test_"
+	@powershell -File scripts/test-runner.ps1 -Path "./tests" -Filter "^Test_.*User"
+
+test-departments: ## Run department API tests with Jest-like output
+	@powershell -File scripts/test-runner.ps1 -Path "./tests" -Filter "^Test_.*Department"
 
 test-coverage: ## Run tests with coverage
 	@echo "Running tests with coverage..."

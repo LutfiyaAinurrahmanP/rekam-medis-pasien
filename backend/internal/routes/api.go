@@ -1,46 +1,19 @@
 package routes
 
 import (
-	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/middleware"
-	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/models"
 	"github.com/gin-gonic/gin"
 )
 
+// SetupAPIRouter sets up all API routes by calling individual router setups
 func SetupAPIRouter(rg *gin.RouterGroup, cfg *RouteConfig) {
-	apiGroup := rg.Group("/users")
+	// Setup Auth routes
+	SetupAuthRouter(rg, cfg)
 
-	apiGroup.Use(middleware.AuthMiddleware(cfg.Config))
-	{
-		meRoutes := apiGroup.Group("/me")
-		{
-			meRoutes.GET("", cfg.UserHandler.GetMyProfile)
-			meRoutes.PUT("", cfg.UserHandler.UpdateMyProfile)
-			meRoutes.PATCH("/change-password", cfg.UserHandler.ChangeMyPassword)
-			meRoutes.DELETE("", cfg.UserHandler.DeleteMyAccount)
-			meRoutes.PATCH("/deactivate", cfg.UserHandler.DeactivateMyAccount)
-		}
+	// Setup Users routes
+	SetupUsersRouter(rg, cfg)
 
-		// apiGroup.PATCH("/:id/change-password", cfg.UserHandler.ChangePassword)
-		adminRoutes := apiGroup.Group("")
-		adminRoutes.Use(middleware.RoleMiddleware(models.RoleAdmin, models.RoleSuperAdmin))
-		{
-			// Users
-			adminRoutes.POST("", cfg.UserHandler.CreateUser)
-			adminRoutes.GET("", cfg.UserHandler.ListUsers)
-			adminRoutes.GET("/deleted", cfg.UserHandler.DeleteListUsers)
-			adminRoutes.GET("/:id", cfg.UserHandler.GetUserByID)
-			adminRoutes.PUT("/:id", cfg.UserHandler.UpdateUser)
-			adminRoutes.DELETE("/:id", cfg.UserHandler.SoftDeleteUser)
-			adminRoutes.PATCH("/:id/restore", cfg.UserHandler.RestoreUser)
-			adminRoutes.PATCH("/:id/reset-password", cfg.UserHandler.ResetPassword)
-			adminRoutes.PATCH("/:id/activate", cfg.UserHandler.ActivateUser)
-			adminRoutes.PATCH("/:id/deactivate", cfg.UserHandler.DeactivateUser)
-		}
-
-		superAdminRoutes := apiGroup.Group("")
-		superAdminRoutes.Use(middleware.RoleMiddleware(models.RoleSuperAdmin))
-		{
-			superAdminRoutes.DELETE("/:id/hard-delete", cfg.UserHandler.HardDeleteUser)
-		}
+	// Setup Departments routes
+	if cfg.DepartmentHandler != nil {
+		SetupDepartmentsRouter(rg, cfg, cfg.DepartmentHandler)
 	}
 }

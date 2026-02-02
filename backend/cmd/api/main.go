@@ -49,8 +49,9 @@ func main() {
 
 	// Setup router with all routes
 	router := routes.SetupRouter(&routes.RouteConfig{
-		Config:      cfg,
-		UserHandler: dependencies.UserHandler,
+		Config:            cfg,
+		UserHandler:       dependencies.UserHandler,
+		DepartmentHandler: dependencies.DepartmentHandler,
 		// Tambahkan handler lain di sini
 		// PatientHandler:  dependencies.PatientHandler,
 		// DoctorHandler:   dependencies.DoctorHandler,

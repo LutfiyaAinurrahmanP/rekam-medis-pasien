@@ -135,7 +135,7 @@ func (s departmentService) CreateDepartment(req *dto.CreateDepartmentRequest) (*
 			return nil, err
 		}
 	if exists {
-		return nil, errors.New("Code already exists")
+		return nil, errors.New("code already exists")
 	}	
 
 	department := &models.Department{
@@ -156,6 +156,13 @@ func (s departmentService) UpdateDepartment(id uint, req *dto.UpdateDepartmentRe
 	if err != nil {
 		return nil, err
 	}
+
+	// Update Name if provided
+	if req.Name != nil {
+		department.Name = *req.Name
+	}
+
+	// Update Code if provided and different
 	if req.Code != nil && *req.Code != department.Code {
 		exists, err := s.repo.IsCodeExists(*req.Code, id)
 		if err != nil {
@@ -166,6 +173,17 @@ func (s departmentService) UpdateDepartment(id uint, req *dto.UpdateDepartmentRe
 		}
 		department.Code = *req.Code
 	}
+
+	// Update Description if provided
+	if req.Description != nil {
+		department.Description = *req.Description
+	}
+
+	// Update FloorLocation if provided
+	if req.FloorLocation != nil {
+		department.FloorLocation = *req.FloorLocation
+	}
+
 	if err := s.repo.Update(department); err != nil {
 		return nil, err
 	}
