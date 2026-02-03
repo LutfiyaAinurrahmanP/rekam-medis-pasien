@@ -20,6 +20,9 @@ test-users: ## Run user API tests with Jest-like output
 test-departments: ## Run department API tests with Jest-like output
 	@powershell -File scripts/test-runner.ps1 -Path "./tests" -Filter "^Test_.*Department"
 
+test-patients: ## Run patient API tests with Jest-like output
+	@powershell -File scripts/test-runner.ps1 -Path "./tests" -Filter "^Test_.*Patient"
+
 test-coverage: ## Run tests with coverage
 	@echo "Running tests with coverage..."
 	@go test -v -coverprofile=coverage.out ./...
