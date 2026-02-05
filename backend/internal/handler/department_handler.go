@@ -20,7 +20,7 @@ func NewDepartmentHandler(service service.DepartmentService) *DepartmentHandler 
 	}
 }
 
-func (h *DepartmentHandler) ListDepartments(ctx *gin.Context)  {
+func (h *DepartmentHandler) ListDepartments(ctx *gin.Context) {
 	var query dto.DepartmentPaginationQuery
 	if err := ctx.ShouldBindQuery(&query); err != nil {
 		utils.ValidationErrorResponse(ctx, err)

@@ -1,4 +1,4 @@
-package tests
+﻿package tests
 
 import (
 	"bytes"
@@ -46,7 +46,7 @@ func setupRealTestRouter() *gin.Engine {
 
 	// Initialize database (SQLite in-memory)
 	realTestDB = database.InitTestDB()
-	
+
 	// Run migrations
 	realTestDB.AutoMigrate(&models.User{})
 
@@ -61,7 +61,7 @@ func setupRealTestRouter() *gin.Engine {
 
 	// Setup router
 	router := gin.New()
-	
+
 	// Setup routes
 	api := router.Group("/api/v1")
 	routeConfig := &routes.RouteConfig{
@@ -130,7 +130,7 @@ func init() {
 
 func Test_GetMyProfile_Success(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	// Buat user terlebih dahulu
 	user, token, _ := createRealUser("testuser", "test@example.com", "081234567890", "password123", models.RolePatient, true)
 
@@ -155,7 +155,7 @@ func Test_GetMyProfile_Success(t *testing.T) {
 	assert.Equal(t, user.Role, data["role"])
 	assert.Equal(t, user.IsActive, data["is_active"])
 
-	t.Logf("✅ GET /api/v1/users/me - Success")
+	t.Logf("[PASS] GET /api/v1/users/me - Success")
 }
 
 func Test_GetMyProfile_Unauthorized(t *testing.T) {
@@ -167,7 +167,7 @@ func Test_GetMyProfile_Unauthorized(t *testing.T) {
 	// Validasi response
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
 
-	t.Logf("✅ GET /api/v1/users/me - Unauthorized")
+	t.Logf("[PASS] GET /api/v1/users/me - Unauthorized")
 }
 
 func Test_GetMyProfile_InvalidToken(t *testing.T) {
@@ -179,14 +179,14 @@ func Test_GetMyProfile_InvalidToken(t *testing.T) {
 	// Validasi response
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
 
-	t.Logf("✅ GET /api/v1/users/me - Invalid Token")
+	t.Logf("[PASS] GET /api/v1/users/me - Invalid Token")
 }
 
 // ==================== PUT /api/v1/users/me Tests ====================
 
 func Test_UpdateMyProfile_Success(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	_, token, _ := createRealUser("oldusername", "old@example.com", "081111111111", "password123", models.RolePatient, true)
 
 	// Request body seperti di Postman
@@ -210,12 +210,12 @@ func Test_UpdateMyProfile_Success(t *testing.T) {
 	assert.Equal(t, "new@example.com", data["email"])
 	assert.Equal(t, "081222222222", data["phone"])
 
-	t.Logf("✅ PUT /api/v1/users/me - Success")
+	t.Logf("[PASS] PUT /api/v1/users/me - Success")
 }
 
 func Test_UpdateMyProfile_InvalidEmail(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	_, token, _ := createRealUser("testuser", "test@example.com", "081234567890", "password123", models.RolePatient, true)
 
 	requestBody := map[string]interface{}{
@@ -226,12 +226,12 @@ func Test_UpdateMyProfile_InvalidEmail(t *testing.T) {
 
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 
-	t.Logf("✅ PUT /api/v1/users/me - Invalid Email")
+	t.Logf("[PASS] PUT /api/v1/users/me - Invalid Email")
 }
 
 func Test_UpdateMyProfile_UsernameTooShort(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	_, token, _ := createRealUser("testuser", "test@example.com", "081234567890", "password123", models.RolePatient, true)
 
 	requestBody := map[string]interface{}{
@@ -242,12 +242,12 @@ func Test_UpdateMyProfile_UsernameTooShort(t *testing.T) {
 
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 
-	t.Logf("✅ PUT /api/v1/users/me - Username Too Short")
+	t.Logf("[PASS] PUT /api/v1/users/me - Username Too Short")
 }
 
 func Test_UpdateMyProfile_PhoneTooShort(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	_, token, _ := createRealUser("testuser", "test@example.com", "081234567890", "password123", models.RolePatient, true)
 
 	requestBody := map[string]interface{}{
@@ -258,15 +258,15 @@ func Test_UpdateMyProfile_PhoneTooShort(t *testing.T) {
 
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 
-	t.Logf("✅ PUT /api/v1/users/me - Phone Too Short")
+	t.Logf("[PASS] PUT /api/v1/users/me - Phone Too Short")
 }
 
 func Test_UpdateMyProfile_DuplicateUsername(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	// Buat user existing
 	createRealUser("existinguser", "existing@example.com", "081111111111", "password123", models.RolePatient, true)
-	
+
 	// Buat user yang akan diupdate
 	_, token, _ := createRealUser("testuser", "test@example.com", "081234567890", "password123", models.RolePatient, true)
 
@@ -278,12 +278,12 @@ func Test_UpdateMyProfile_DuplicateUsername(t *testing.T) {
 
 	assert.Equal(t, http.StatusConflict, w.Code)
 
-	t.Logf("✅ PUT /api/v1/users/me - Duplicate Username")
+	t.Logf("[PASS] PUT /api/v1/users/me - Duplicate Username")
 }
 
 func Test_UpdateMyProfile_DuplicateEmail(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	createRealUser("existinguser", "existing@example.com", "081111111111", "password123", models.RolePatient, true)
 	_, token, _ := createRealUser("testuser", "test@example.com", "081234567890", "password123", models.RolePatient, true)
 
@@ -295,12 +295,12 @@ func Test_UpdateMyProfile_DuplicateEmail(t *testing.T) {
 
 	assert.Equal(t, http.StatusConflict, w.Code)
 
-	t.Logf("✅ PUT /api/v1/users/me - Duplicate Email")
+	t.Logf("[PASS] PUT /api/v1/users/me - Duplicate Email")
 }
 
 func Test_UpdateMyProfile_DuplicatePhone(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	createRealUser("existinguser", "existing@example.com", "081111111111", "password123", models.RolePatient, true)
 	_, token, _ := createRealUser("testuser", "test@example.com", "081234567890", "password123", models.RolePatient, true)
 
@@ -312,14 +312,14 @@ func Test_UpdateMyProfile_DuplicatePhone(t *testing.T) {
 
 	assert.Equal(t, http.StatusConflict, w.Code)
 
-	t.Logf("✅ PUT /api/v1/users/me - Duplicate Phone")
+	t.Logf("[PASS] PUT /api/v1/users/me - Duplicate Phone")
 }
 
 // ==================== PATCH /api/v1/users/me/change-password Tests ====================
 
 func Test_ChangeMyPassword_Success(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	_, token, _ := createRealUser("testuser", "test@example.com", "081234567890", "password123", models.RolePatient, true)
 
 	requestBody := map[string]interface{}{
@@ -331,12 +331,12 @@ func Test_ChangeMyPassword_Success(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	t.Logf("✅ PATCH /api/v1/users/me/change-password - Success")
+	t.Logf("[PASS] PATCH /api/v1/users/me/change-password - Success")
 }
 
 func Test_ChangeMyPassword_WrongOldPassword(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	_, token, _ := createRealUser("testuser", "test@example.com", "081234567890", "password123", models.RolePatient, true)
 
 	requestBody := map[string]interface{}{
@@ -348,12 +348,12 @@ func Test_ChangeMyPassword_WrongOldPassword(t *testing.T) {
 
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 
-	t.Logf("✅ PATCH /api/v1/users/me/change-password - Wrong Old Password")
+	t.Logf("[PASS] PATCH /api/v1/users/me/change-password - Wrong Old Password")
 }
 
 func Test_ChangeMyPassword_NewPasswordTooShort(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	_, token, _ := createRealUser("testuser", "test@example.com", "081234567890", "password123", models.RolePatient, true)
 
 	requestBody := map[string]interface{}{
@@ -365,12 +365,12 @@ func Test_ChangeMyPassword_NewPasswordTooShort(t *testing.T) {
 
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 
-	t.Logf("✅ PATCH /api/v1/users/me/change-password - New Password Too Short")
+	t.Logf("[PASS] PATCH /api/v1/users/me/change-password - New Password Too Short")
 }
 
 func Test_ChangeMyPassword_MissingOldPassword(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	_, token, _ := createRealUser("testuser", "test@example.com", "081234567890", "password123", models.RolePatient, true)
 
 	requestBody := map[string]interface{}{
@@ -381,14 +381,14 @@ func Test_ChangeMyPassword_MissingOldPassword(t *testing.T) {
 
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 
-	t.Logf("✅ PATCH /api/v1/users/me/change-password - Missing Old Password")
+	t.Logf("[PASS] PATCH /api/v1/users/me/change-password - Missing Old Password")
 }
 
 // ==================== DELETE /api/v1/users/me Tests ====================
 
 func Test_DeleteMyAccount_Success(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	_, token, _ := createRealUser("testuser", "test@example.com", "081234567890", "password123", models.RolePatient, true)
 
 	requestBody := map[string]interface{}{
@@ -400,12 +400,12 @@ func Test_DeleteMyAccount_Success(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	t.Logf("✅ DELETE /api/v1/users/me - Success")
+	t.Logf("[PASS] DELETE /api/v1/users/me - Success")
 }
 
 func Test_DeleteMyAccount_WrongPassword(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	_, token, _ := createRealUser("testuser", "test@example.com", "081234567890", "password123", models.RolePatient, true)
 
 	requestBody := map[string]interface{}{
@@ -416,12 +416,12 @@ func Test_DeleteMyAccount_WrongPassword(t *testing.T) {
 
 	assert.Equal(t, http.StatusForbidden, w.Code)
 
-	t.Logf("✅ DELETE /api/v1/users/me - Wrong Password")
+	t.Logf("[PASS] DELETE /api/v1/users/me - Wrong Password")
 }
 
 func Test_DeleteMyAccount_MissingPassword(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	_, token, _ := createRealUser("testuser", "test@example.com", "081234567890", "password123", models.RolePatient, true)
 
 	requestBody := map[string]interface{}{
@@ -432,14 +432,14 @@ func Test_DeleteMyAccount_MissingPassword(t *testing.T) {
 
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 
-	t.Logf("✅ DELETE /api/v1/users/me - Missing Password")
+	t.Logf("[PASS] DELETE /api/v1/users/me - Missing Password")
 }
 
 // ==================== PATCH /api/v1/users/me/deactivate Tests ====================
 
 func Test_DeactivateMyAccount_Success(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	_, token, _ := createRealUser("testuser", "test@example.com", "081234567890", "password123", models.RolePatient, true)
 
 	requestBody := map[string]interface{}{
@@ -451,12 +451,12 @@ func Test_DeactivateMyAccount_Success(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	t.Logf("✅ PATCH /api/v1/users/me/deactivate - Success")
+	t.Logf("[PASS] PATCH /api/v1/users/me/deactivate - Success")
 }
 
 func Test_DeactivateMyAccount_WrongPassword(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	_, token, _ := createRealUser("testuser", "test@example.com", "081234567890", "password123", models.RolePatient, true)
 
 	requestBody := map[string]interface{}{
@@ -467,14 +467,14 @@ func Test_DeactivateMyAccount_WrongPassword(t *testing.T) {
 
 	assert.Equal(t, http.StatusForbidden, w.Code)
 
-	t.Logf("✅ PATCH /api/v1/users/me/deactivate - Wrong Password")
+	t.Logf("[PASS] PATCH /api/v1/users/me/deactivate - Wrong Password")
 }
 
 // ==================== POST /api/v1/users (Admin) Tests ====================
 
 func Test_CreateUser_Success(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	// Login sebagai admin
 	_, adminToken, _ := createRealUser("admin", "admin@example.com", "081111111111", "password123", models.RoleAdmin, true)
 
@@ -500,12 +500,12 @@ func Test_CreateUser_Success(t *testing.T) {
 	assert.Equal(t, "081234567890", data["phone"])
 	assert.Equal(t, "patient", data["role"])
 
-	t.Logf("✅ POST /api/v1/users - Success")
+	t.Logf("[PASS] POST /api/v1/users - Success")
 }
 
 func Test_CreateUser_Forbidden_Patient(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	// Login sebagai patient
 	_, patientToken, _ := createRealUser("patient", "patient@example.com", "081111111111", "password123", models.RolePatient, true)
 
@@ -521,12 +521,12 @@ func Test_CreateUser_Forbidden_Patient(t *testing.T) {
 
 	assert.Equal(t, http.StatusForbidden, w.Code)
 
-	t.Logf("✅ POST /api/v1/users - Forbidden for Patient")
+	t.Logf("[PASS] POST /api/v1/users - Forbidden for Patient")
 }
 
 func Test_CreateUser_InvalidEmail(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	_, adminToken, _ := createRealUser("admin", "admin@example.com", "081111111111", "password123", models.RoleAdmin, true)
 
 	requestBody := map[string]interface{}{
@@ -541,12 +541,12 @@ func Test_CreateUser_InvalidEmail(t *testing.T) {
 
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 
-	t.Logf("✅ POST /api/v1/users - Invalid Email")
+	t.Logf("[PASS] POST /api/v1/users - Invalid Email")
 }
 
 func Test_CreateUser_UsernameTooShort(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	_, adminToken, _ := createRealUser("admin", "admin@example.com", "081111111111", "password123", models.RoleAdmin, true)
 
 	requestBody := map[string]interface{}{
@@ -561,12 +561,12 @@ func Test_CreateUser_UsernameTooShort(t *testing.T) {
 
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 
-	t.Logf("✅ POST /api/v1/users - Username Too Short")
+	t.Logf("[PASS] POST /api/v1/users - Username Too Short")
 }
 
 func Test_CreateUser_UsernameTooLong(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	_, adminToken, _ := createRealUser("admin", "admin@example.com", "081111111111", "password123", models.RoleAdmin, true)
 
 	requestBody := map[string]interface{}{
@@ -581,12 +581,12 @@ func Test_CreateUser_UsernameTooLong(t *testing.T) {
 
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 
-	t.Logf("✅ POST /api/v1/users - Username Too Long")
+	t.Logf("[PASS] POST /api/v1/users - Username Too Long")
 }
 
 func Test_CreateUser_PasswordTooShort(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	_, adminToken, _ := createRealUser("admin", "admin@example.com", "081111111111", "password123", models.RoleAdmin, true)
 
 	requestBody := map[string]interface{}{
@@ -601,12 +601,12 @@ func Test_CreateUser_PasswordTooShort(t *testing.T) {
 
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 
-	t.Logf("✅ POST /api/v1/users - Password Too Short")
+	t.Logf("[PASS] POST /api/v1/users - Password Too Short")
 }
 
 func Test_CreateUser_PhoneTooShort(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	_, adminToken, _ := createRealUser("admin", "admin@example.com", "081111111111", "password123", models.RoleAdmin, true)
 
 	requestBody := map[string]interface{}{
@@ -621,12 +621,12 @@ func Test_CreateUser_PhoneTooShort(t *testing.T) {
 
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 
-	t.Logf("✅ POST /api/v1/users - Phone Too Short")
+	t.Logf("[PASS] POST /api/v1/users - Phone Too Short")
 }
 
 func Test_CreateUser_PhoneTooLong(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	_, adminToken, _ := createRealUser("admin", "admin@example.com", "081111111111", "password123", models.RoleAdmin, true)
 
 	requestBody := map[string]interface{}{
@@ -641,12 +641,12 @@ func Test_CreateUser_PhoneTooLong(t *testing.T) {
 
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 
-	t.Logf("✅ POST /api/v1/users - Phone Too Long")
+	t.Logf("[PASS] POST /api/v1/users - Phone Too Long")
 }
 
 func Test_CreateUser_InvalidRole(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	_, adminToken, _ := createRealUser("admin", "admin@example.com", "081111111111", "password123", models.RoleAdmin, true)
 
 	requestBody := map[string]interface{}{
@@ -661,12 +661,12 @@ func Test_CreateUser_InvalidRole(t *testing.T) {
 
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 
-	t.Logf("✅ POST /api/v1/users - Invalid Role")
+	t.Logf("[PASS] POST /api/v1/users - Invalid Role")
 }
 
 func Test_CreateUser_DuplicateUsername(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	_, adminToken, _ := createRealUser("admin", "admin@example.com", "081111111111", "password123", models.RoleAdmin, true)
 	createRealUser("existinguser", "existing@example.com", "081222222222", "password123", models.RolePatient, true)
 
@@ -682,12 +682,12 @@ func Test_CreateUser_DuplicateUsername(t *testing.T) {
 
 	assert.Equal(t, http.StatusConflict, w.Code)
 
-	t.Logf("✅ POST /api/v1/users - Duplicate Username")
+	t.Logf("[PASS] POST /api/v1/users - Duplicate Username")
 }
 
 func Test_CreateUser_DuplicateEmail(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	_, adminToken, _ := createRealUser("admin", "admin@example.com", "081111111111", "password123", models.RoleAdmin, true)
 	createRealUser("existinguser", "existing@example.com", "081222222222", "password123", models.RolePatient, true)
 
@@ -703,12 +703,12 @@ func Test_CreateUser_DuplicateEmail(t *testing.T) {
 
 	assert.Equal(t, http.StatusConflict, w.Code)
 
-	t.Logf("✅ POST /api/v1/users - Duplicate Email")
+	t.Logf("[PASS] POST /api/v1/users - Duplicate Email")
 }
 
 func Test_CreateUser_DuplicatePhone(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	_, adminToken, _ := createRealUser("admin", "admin@example.com", "081111111111", "password123", models.RoleAdmin, true)
 	createRealUser("existinguser", "existing@example.com", "081222222222", "password123", models.RolePatient, true)
 
@@ -724,12 +724,12 @@ func Test_CreateUser_DuplicatePhone(t *testing.T) {
 
 	assert.Equal(t, http.StatusConflict, w.Code)
 
-	t.Logf("✅ POST /api/v1/users - Duplicate Phone")
+	t.Logf("[PASS] POST /api/v1/users - Duplicate Phone")
 }
 
 func Test_CreateUser_MissingRequiredFields(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	_, adminToken, _ := createRealUser("admin", "admin@example.com", "081111111111", "password123", models.RoleAdmin, true)
 
 	requestBody := map[string]interface{}{}
@@ -738,14 +738,14 @@ func Test_CreateUser_MissingRequiredFields(t *testing.T) {
 
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 
-	t.Logf("✅ POST /api/v1/users - Missing Required Fields")
+	t.Logf("[PASS] POST /api/v1/users - Missing Required Fields")
 }
 
 // ==================== GET /api/v1/users (List Users) Tests ====================
 
 func Test_ListUsers_Success(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	_, adminToken, _ := createRealUser("admin", "admin@example.com", "081111111111", "password123", models.RoleAdmin, true)
 	createRealUser("user1", "user1@example.com", "081222222222", "password123", models.RolePatient, true)
 	createRealUser("user2", "user2@example.com", "081333333333", "password123", models.RoleDoctor, true)
@@ -759,36 +759,36 @@ func Test_ListUsers_Success(t *testing.T) {
 
 	// Debug: print response
 	t.Logf("Response: %+v", response)
-	
+
 	// Response structure: { success, message, data: { data: [], meta: {} } }
 	dataVal := response["data"]
 	if dataVal == nil {
 		t.Fatal("Response data is nil")
 	}
-	
+
 	// data should be a map with "data" and "meta" fields
 	dataMap, ok := dataVal.(map[string]interface{})
 	if !ok {
 		t.Fatalf("Expected data to be object, got: %T - value: %+v", dataVal, dataVal)
 	}
-	
+
 	// Debug: print dataMap
 	t.Logf("dataMap: %+v", dataMap)
-	
+
 	// Get the actual users array from data.data
 	usersVal, ok := dataMap["data"]
 	if !ok || usersVal == nil {
 		t.Fatalf("Response data.data is nil or missing. dataMap keys: %+v", dataMap)
 	}
-	
+
 	users := usersVal.([]interface{})
 	assert.GreaterOrEqual(t, len(users), 3)
-	t.Logf("✅ GET /api/v1/users - Success (Total: %d users)", len(users))
+	t.Logf("[PASS] GET /api/v1/users - Success (Total: %d users)", len(users))
 }
 
 func Test_ListUsers_WithPagination(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	_, adminToken, _ := createRealUser("admin", "admin@example.com", "081111111111", "password123", models.RoleAdmin, true)
 	createRealUser("user1", "user1@example.com", "081222222222", "password123", models.RolePatient, true)
 	createRealUser("user2", "user2@example.com", "081333333333", "password123", models.RoleDoctor, true)
@@ -805,26 +805,26 @@ func Test_ListUsers_WithPagination(t *testing.T) {
 	if dataVal == nil {
 		t.Fatal("Response data is nil")
 	}
-	
+
 	data, ok := dataVal.(map[string]interface{})
 	if !ok {
 		t.Fatalf("Expected data to be object, got: %T", dataVal)
 	}
-	
+
 	meta, ok := data["meta"].(map[string]interface{})
 	if !ok {
 		t.Fatal("Response data.meta is nil or invalid")
 	}
-	
+
 	assert.Equal(t, float64(1), meta["page"])
 	assert.Equal(t, float64(2), meta["page_size"])
 
-	t.Logf("✅ GET /api/v1/users - With Pagination")
+	t.Logf("[PASS] GET /api/v1/users - With Pagination")
 }
 
 func Test_ListUsers_WithSearch(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	_, adminToken, _ := createRealUser("admin", "admin@example.com", "081111111111", "password123", models.RoleAdmin, true)
 	createRealUser("searchuser", "searchuser@example.com", "081222222222", "password123", models.RolePatient, true)
 	createRealUser("otheruser", "other@example.com", "081333333333", "password123", models.RoleDoctor, true)
@@ -833,12 +833,12 @@ func Test_ListUsers_WithSearch(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	t.Logf("✅ GET /api/v1/users - With Search")
+	t.Logf("[PASS] GET /api/v1/users - With Search")
 }
 
 func Test_ListUsers_WithRoleFilter(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	_, adminToken, _ := createRealUser("admin", "admin@example.com", "081111111111", "password123", models.RoleAdmin, true)
 	createRealUser("patient1", "patient1@example.com", "081222222222", "password123", models.RolePatient, true)
 	createRealUser("doctor1", "doctor1@example.com", "081333333333", "password123", models.RoleDoctor, true)
@@ -847,26 +847,26 @@ func Test_ListUsers_WithRoleFilter(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	t.Logf("✅ GET /api/v1/users - With Role Filter")
+	t.Logf("[PASS] GET /api/v1/users - With Role Filter")
 }
 
 func Test_ListUsers_Forbidden_Patient(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	_, patientToken, _ := createRealUser("patient", "patient@example.com", "081111111111", "password123", models.RolePatient, true)
 
 	w := performRealRequest("GET", "/api/v1/users", patientToken, nil)
 
 	assert.Equal(t, http.StatusForbidden, w.Code)
 
-	t.Logf("✅ GET /api/v1/users - Forbidden for Patient")
+	t.Logf("[PASS] GET /api/v1/users - Forbidden for Patient")
 }
 
 // ==================== GET /api/v1/users/:id Tests ====================
 
 func Test_GetUserByID_Success(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	_, adminToken, _ := createRealUser("admin", "admin@example.com", "081111111111", "password123", models.RoleAdmin, true)
 	user, _, _ := createRealUser("testuser", "test@example.com", "081234567890", "password123", models.RolePatient, true)
 
@@ -881,24 +881,24 @@ func Test_GetUserByID_Success(t *testing.T) {
 	assert.Equal(t, user.Username, data["username"])
 	assert.Equal(t, user.Email, data["email"])
 
-	t.Logf("✅ GET /api/v1/users/:id - Success")
+	t.Logf("[PASS] GET /api/v1/users/:id - Success")
 }
 
 func Test_GetUserByID_NotFound(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	_, adminToken, _ := createRealUser("admin", "admin@example.com", "081111111111", "password123", models.RoleAdmin, true)
 
 	w := performRealRequest("GET", "/api/v1/users/99999", adminToken, nil)
 
 	assert.Equal(t, http.StatusNotFound, w.Code)
 
-	t.Logf("✅ GET /api/v1/users/:id - Not Found")
+	t.Logf("[PASS] GET /api/v1/users/:id - Not Found")
 }
 
 func Test_GetUserByID_Forbidden_Patient(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	_, patientToken, _ := createRealUser("patient", "patient@example.com", "081111111111", "password123", models.RolePatient, true)
 	user, _, _ := createRealUser("testuser", "test@example.com", "081234567890", "password123", models.RolePatient, true)
 
@@ -906,14 +906,14 @@ func Test_GetUserByID_Forbidden_Patient(t *testing.T) {
 
 	assert.Equal(t, http.StatusForbidden, w.Code)
 
-	t.Logf("✅ GET /api/v1/users/:id - Forbidden for Patient")
+	t.Logf("[PASS] GET /api/v1/users/:id - Forbidden for Patient")
 }
 
 // ==================== PUT /api/v1/users/:id Tests ====================
 
 func Test_UpdateUser_Success(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	_, adminToken, _ := createRealUser("admin", "admin@example.com", "081111111111", "password123", models.RoleAdmin, true)
 	user, _, _ := createRealUser("testuser", "test@example.com", "081234567890", "password123", models.RolePatient, true)
 
@@ -934,12 +934,12 @@ func Test_UpdateUser_Success(t *testing.T) {
 	assert.Equal(t, "updateduser", data["username"])
 	assert.Equal(t, "updated@example.com", data["email"])
 
-	t.Logf("✅ PUT /api/v1/users/:id - Success")
+	t.Logf("[PASS] PUT /api/v1/users/:id - Success")
 }
 
 func Test_UpdateUser_NotFound(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	_, adminToken, _ := createRealUser("admin", "admin@example.com", "081111111111", "password123", models.RoleAdmin, true)
 
 	requestBody := map[string]interface{}{
@@ -950,12 +950,12 @@ func Test_UpdateUser_NotFound(t *testing.T) {
 
 	assert.Equal(t, http.StatusNotFound, w.Code)
 
-	t.Logf("✅ PUT /api/v1/users/:id - Not Found")
+	t.Logf("[PASS] PUT /api/v1/users/:id - Not Found")
 }
 
 func Test_UpdateUser_Forbidden_Patient(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	_, patientToken, _ := createRealUser("patient", "patient@example.com", "081111111111", "password123", models.RolePatient, true)
 	user, _, _ := createRealUser("testuser", "test@example.com", "081234567890", "password123", models.RolePatient, true)
 
@@ -967,14 +967,14 @@ func Test_UpdateUser_Forbidden_Patient(t *testing.T) {
 
 	assert.Equal(t, http.StatusForbidden, w.Code)
 
-	t.Logf("✅ PUT /api/v1/users/:id - Forbidden for Patient")
+	t.Logf("[PASS] PUT /api/v1/users/:id - Forbidden for Patient")
 }
 
 // ==================== DELETE /api/v1/users/:id (Soft Delete) Tests ====================
 
 func Test_SoftDeleteUser_Success(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	_, adminToken, _ := createRealUser("admin", "admin@example.com", "081111111111", "password123", models.RoleAdmin, true)
 	user, _, _ := createRealUser("testuser", "test@example.com", "081234567890", "password123", models.RolePatient, true)
 
@@ -982,24 +982,24 @@ func Test_SoftDeleteUser_Success(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	t.Logf("✅ DELETE /api/v1/users/:id - Success (Soft Delete)")
+	t.Logf("[PASS] DELETE /api/v1/users/:id - Success (Soft Delete)")
 }
 
 func Test_SoftDeleteUser_NotFound(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	_, adminToken, _ := createRealUser("admin", "admin@example.com", "081111111111", "password123", models.RoleAdmin, true)
 
 	w := performRealRequest("DELETE", "/api/v1/users/99999", adminToken, nil)
 
 	assert.Equal(t, http.StatusNotFound, w.Code)
 
-	t.Logf("✅ DELETE /api/v1/users/:id - Not Found")
+	t.Logf("[PASS] DELETE /api/v1/users/:id - Not Found")
 }
 
 func Test_SoftDeleteUser_Forbidden_Patient(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	_, patientToken, _ := createRealUser("patient", "patient@example.com", "081111111111", "password123", models.RolePatient, true)
 	user, _, _ := createRealUser("testuser", "test@example.com", "081234567890", "password123", models.RolePatient, true)
 
@@ -1007,14 +1007,14 @@ func Test_SoftDeleteUser_Forbidden_Patient(t *testing.T) {
 
 	assert.Equal(t, http.StatusForbidden, w.Code)
 
-	t.Logf("✅ DELETE /api/v1/users/:id - Forbidden for Patient")
+	t.Logf("[PASS] DELETE /api/v1/users/:id - Forbidden for Patient")
 }
 
 // ==================== GET /api/v1/users/deleted Tests ====================
 
 func Test_ListDeletedUsers_Success(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	_, adminToken, _ := createRealUser("admin", "admin@example.com", "081111111111", "password123", models.RoleAdmin, true)
 	user, _, _ := createRealUser("deleteduser", "deleted@example.com", "081234567890", "password123", models.RolePatient, true)
 
@@ -1025,26 +1025,26 @@ func Test_ListDeletedUsers_Success(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	t.Logf("✅ GET /api/v1/users/deleted - Success")
+	t.Logf("[PASS] GET /api/v1/users/deleted - Success")
 }
 
 func Test_ListDeletedUsers_Forbidden_Patient(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	_, patientToken, _ := createRealUser("patient", "patient@example.com", "081111111111", "password123", models.RolePatient, true)
 
 	w := performRealRequest("GET", "/api/v1/users/deleted", patientToken, nil)
 
 	assert.Equal(t, http.StatusForbidden, w.Code)
 
-	t.Logf("✅ GET /api/v1/users/deleted - Forbidden for Patient")
+	t.Logf("[PASS] GET /api/v1/users/deleted - Forbidden for Patient")
 }
 
 // ==================== PATCH /api/v1/users/:id/restore Tests ====================
 
 func Test_RestoreUser_Success(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	_, adminToken, _ := createRealUser("admin", "admin@example.com", "081111111111", "password123", models.RoleAdmin, true)
 	user, _, _ := createRealUser("deleteduser", "deleted@example.com", "081234567890", "password123", models.RolePatient, true)
 
@@ -1055,24 +1055,24 @@ func Test_RestoreUser_Success(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	t.Logf("✅ PATCH /api/v1/users/:id/restore - Success")
+	t.Logf("[PASS] PATCH /api/v1/users/:id/restore - Success")
 }
 
 func Test_RestoreUser_NotFound(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	_, adminToken, _ := createRealUser("admin", "admin@example.com", "081111111111", "password123", models.RoleAdmin, true)
 
 	w := performRealRequest("PATCH", "/api/v1/users/99999/restore", adminToken, nil)
 
 	assert.Equal(t, http.StatusNotFound, w.Code)
 
-	t.Logf("✅ PATCH /api/v1/users/:id/restore - Not Found")
+	t.Logf("[PASS] PATCH /api/v1/users/:id/restore - Not Found")
 }
 
 func Test_RestoreUser_Forbidden_Patient(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	_, patientToken, _ := createRealUser("patient", "patient@example.com", "081111111111", "password123", models.RolePatient, true)
 	user, _, _ := createRealUser("deleteduser", "deleted@example.com", "081234567890", "password123", models.RolePatient, true)
 
@@ -1082,14 +1082,14 @@ func Test_RestoreUser_Forbidden_Patient(t *testing.T) {
 
 	assert.Equal(t, http.StatusForbidden, w.Code)
 
-	t.Logf("✅ PATCH /api/v1/users/:id/restore - Forbidden for Patient")
+	t.Logf("[PASS] PATCH /api/v1/users/:id/restore - Forbidden for Patient")
 }
 
 // ==================== PATCH /api/v1/users/:id/reset-password Tests ====================
 
 func Test_ResetPassword_Success(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	_, adminToken, _ := createRealUser("admin", "admin@example.com", "081111111111", "password123", models.RoleAdmin, true)
 	user, _, _ := createRealUser("testuser", "test@example.com", "081234567890", "password123", models.RolePatient, true)
 
@@ -1101,12 +1101,12 @@ func Test_ResetPassword_Success(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	t.Logf("✅ PATCH /api/v1/users/:id/reset-password - Success")
+	t.Logf("[PASS] PATCH /api/v1/users/:id/reset-password - Success")
 }
 
 func Test_ResetPassword_PasswordTooShort(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	_, adminToken, _ := createRealUser("admin", "admin@example.com", "081111111111", "password123", models.RoleAdmin, true)
 	user, _, _ := createRealUser("testuser", "test@example.com", "081234567890", "password123", models.RolePatient, true)
 
@@ -1118,12 +1118,12 @@ func Test_ResetPassword_PasswordTooShort(t *testing.T) {
 
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 
-	t.Logf("✅ PATCH /api/v1/users/:id/reset-password - Password Too Short")
+	t.Logf("[PASS] PATCH /api/v1/users/:id/reset-password - Password Too Short")
 }
 
 func Test_ResetPassword_NotFound(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	_, adminToken, _ := createRealUser("admin", "admin@example.com", "081111111111", "password123", models.RoleAdmin, true)
 
 	requestBody := map[string]interface{}{
@@ -1134,12 +1134,12 @@ func Test_ResetPassword_NotFound(t *testing.T) {
 
 	assert.Equal(t, http.StatusNotFound, w.Code)
 
-	t.Logf("✅ PATCH /api/v1/users/:id/reset-password - Not Found")
+	t.Logf("[PASS] PATCH /api/v1/users/:id/reset-password - Not Found")
 }
 
 func Test_ResetPassword_Forbidden_Patient(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	_, patientToken, _ := createRealUser("patient", "patient@example.com", "081111111111", "password123", models.RolePatient, true)
 	user, _, _ := createRealUser("testuser", "test@example.com", "081234567890", "password123", models.RolePatient, true)
 
@@ -1151,14 +1151,14 @@ func Test_ResetPassword_Forbidden_Patient(t *testing.T) {
 
 	assert.Equal(t, http.StatusForbidden, w.Code)
 
-	t.Logf("✅ PATCH /api/v1/users/:id/reset-password - Forbidden for Patient")
+	t.Logf("[PASS] PATCH /api/v1/users/:id/reset-password - Forbidden for Patient")
 }
 
 // ==================== PATCH /api/v1/users/:id/activate Tests ====================
 
 func Test_ActivateUser_Success(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	_, adminToken, _ := createRealUser("admin", "admin@example.com", "081111111111", "password123", models.RoleAdmin, true)
 	user, _, _ := createRealUser("testuser", "test@example.com", "081234567890", "password123", models.RolePatient, false)
 
@@ -1166,24 +1166,24 @@ func Test_ActivateUser_Success(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	t.Logf("✅ PATCH /api/v1/users/:id/activate - Success")
+	t.Logf("[PASS] PATCH /api/v1/users/:id/activate - Success")
 }
 
 func Test_ActivateUser_NotFound(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	_, adminToken, _ := createRealUser("admin", "admin@example.com", "081111111111", "password123", models.RoleAdmin, true)
 
 	w := performRealRequest("PATCH", "/api/v1/users/99999/activate", adminToken, nil)
 
 	assert.Equal(t, http.StatusNotFound, w.Code)
 
-	t.Logf("✅ PATCH /api/v1/users/:id/activate - Not Found")
+	t.Logf("[PASS] PATCH /api/v1/users/:id/activate - Not Found")
 }
 
 func Test_ActivateUser_Forbidden_Patient(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	_, patientToken, _ := createRealUser("patient", "patient@example.com", "081111111111", "password123", models.RolePatient, true)
 	user, _, _ := createRealUser("testuser", "test@example.com", "081234567890", "password123", models.RolePatient, false)
 
@@ -1191,14 +1191,14 @@ func Test_ActivateUser_Forbidden_Patient(t *testing.T) {
 
 	assert.Equal(t, http.StatusForbidden, w.Code)
 
-	t.Logf("✅ PATCH /api/v1/users/:id/activate - Forbidden for Patient")
+	t.Logf("[PASS] PATCH /api/v1/users/:id/activate - Forbidden for Patient")
 }
 
 // ==================== PATCH /api/v1/users/:id/deactivate Tests ====================
 
 func Test_DeactivateUser_Success(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	_, adminToken, _ := createRealUser("admin", "admin@example.com", "081111111111", "password123", models.RoleAdmin, true)
 	user, _, _ := createRealUser("testuser", "test@example.com", "081234567890", "password123", models.RolePatient, true)
 
@@ -1206,24 +1206,24 @@ func Test_DeactivateUser_Success(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	t.Logf("✅ PATCH /api/v1/users/:id/deactivate - Success")
+	t.Logf("[PASS] PATCH /api/v1/users/:id/deactivate - Success")
 }
 
 func Test_DeactivateUser_NotFound(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	_, adminToken, _ := createRealUser("admin", "admin@example.com", "081111111111", "password123", models.RoleAdmin, true)
 
 	w := performRealRequest("PATCH", "/api/v1/users/99999/deactivate", adminToken, nil)
 
 	assert.Equal(t, http.StatusNotFound, w.Code)
 
-	t.Logf("✅ PATCH /api/v1/users/:id/deactivate - Not Found")
+	t.Logf("[PASS] PATCH /api/v1/users/:id/deactivate - Not Found")
 }
 
 func Test_DeactivateUser_Forbidden_Patient(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	_, patientToken, _ := createRealUser("patient", "patient@example.com", "081111111111", "password123", models.RolePatient, true)
 	user, _, _ := createRealUser("testuser", "test@example.com", "081234567890", "password123", models.RolePatient, true)
 
@@ -1231,14 +1231,14 @@ func Test_DeactivateUser_Forbidden_Patient(t *testing.T) {
 
 	assert.Equal(t, http.StatusForbidden, w.Code)
 
-	t.Logf("✅ PATCH /api/v1/users/:id/deactivate - Forbidden for Patient")
+	t.Logf("[PASS] PATCH /api/v1/users/:id/deactivate - Forbidden for Patient")
 }
 
 // ==================== DELETE /api/v1/users/:id/hard-delete Tests ====================
 
 func Test_HardDeleteUser_Success_SuperAdmin(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	_, superAdminToken, _ := createRealUser("superadmin", "superadmin@example.com", "081111111111", "password123", models.RoleSuperAdmin, true)
 	user, _, _ := createRealUser("testuser", "test@example.com", "081234567890", "password123", models.RolePatient, true)
 
@@ -1249,12 +1249,12 @@ func Test_HardDeleteUser_Success_SuperAdmin(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	t.Logf("✅ DELETE /api/v1/users/:id/hard-delete - Success (Super Admin)")
+	t.Logf("[PASS] DELETE /api/v1/users/:id/hard-delete - Success (Super Admin)")
 }
 
 func Test_HardDeleteUser_Forbidden_Admin(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	_, adminToken, _ := createRealUser("admin", "admin@example.com", "081111111111", "password123", models.RoleAdmin, true)
 	user, _, _ := createRealUser("testuser", "test@example.com", "081234567890", "password123", models.RolePatient, true)
 
@@ -1262,24 +1262,24 @@ func Test_HardDeleteUser_Forbidden_Admin(t *testing.T) {
 
 	assert.Equal(t, http.StatusForbidden, w.Code)
 
-	t.Logf("✅ DELETE /api/v1/users/:id/hard-delete - Forbidden for Admin")
+	t.Logf("[PASS] DELETE /api/v1/users/:id/hard-delete - Forbidden for Admin")
 }
 
 func Test_HardDeleteUser_NotFound(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	_, superAdminToken, _ := createRealUser("superadmin", "superadmin@example.com", "081111111111", "password123", models.RoleSuperAdmin, true)
 
 	w := performRealRequest("DELETE", "/api/v1/users/99999/hard-delete", superAdminToken, nil)
 
 	assert.Equal(t, http.StatusNotFound, w.Code)
 
-	t.Logf("✅ DELETE /api/v1/users/:id/hard-delete - Not Found")
+	t.Logf("[PASS] DELETE /api/v1/users/:id/hard-delete - Not Found")
 }
 
 func Test_HardDeleteUser_Forbidden_Patient(t *testing.T) {
 	cleanupRealTestDB()
-	
+
 	_, patientToken, _ := createRealUser("patient", "patient@example.com", "081111111111", "password123", models.RolePatient, true)
 	user, _, _ := createRealUser("testuser", "test@example.com", "081234567890", "password123", models.RolePatient, true)
 
@@ -1287,5 +1287,5 @@ func Test_HardDeleteUser_Forbidden_Patient(t *testing.T) {
 
 	assert.Equal(t, http.StatusForbidden, w.Code)
 
-	t.Logf("✅ DELETE /api/v1/users/:id/hard-delete - Forbidden for Patient")
+	t.Logf("[PASS] DELETE /api/v1/users/:id/hard-delete - Forbidden for Patient")
 }

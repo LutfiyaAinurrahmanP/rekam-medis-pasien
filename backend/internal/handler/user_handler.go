@@ -49,8 +49,8 @@ func (h *UserHandler) Register(ctx *gin.Context) {
 		// Handle duplicate data errors with HTTP 409 Conflict
 		errMsg := err.Error()
 		if errMsg == "username already exists" ||
-		   errMsg == "email already exists" ||
-		   errMsg == "phone already exists" {
+			errMsg == "email already exists" ||
+			errMsg == "phone already exists" {
 			utils.ErrorResponse(ctx, http.StatusConflict, "Duplicate data", errMsg)
 			return
 		}
@@ -115,8 +115,8 @@ func (h *UserHandler) CreateUser(ctx *gin.Context) {
 		// Handle duplicate data errors with HTTP 409 Conflict
 		errMsg := err.Error()
 		if errMsg == "username already exists" ||
-		   errMsg == "email already exists" ||
-		   errMsg == "phone already exists" {
+			errMsg == "email already exists" ||
+			errMsg == "phone already exists" {
 			utils.ErrorResponse(ctx, http.StatusConflict, "Duplicate data", errMsg)
 			return
 		}
@@ -199,8 +199,8 @@ func (h *UserHandler) UpdateUser(ctx *gin.Context) {
 		// Handle duplicate data errors with HTTP 409 Conflict
 		errMsg := err.Error()
 		if errMsg == "username already exists" ||
-		   errMsg == "email already exists" ||
-		   errMsg == "phone already exists" {
+			errMsg == "email already exists" ||
+			errMsg == "phone already exists" {
 			utils.ErrorResponse(ctx, http.StatusConflict, "Duplicate data", errMsg)
 			return
 		}
@@ -369,8 +369,8 @@ func (h *UserHandler) UpdateMyProfile(ctx *gin.Context) {
 		// Handle duplicate data errors with HTTP 409 Conflict
 		errMsg := err.Error()
 		if errMsg == "username already exists" ||
-		   errMsg == "email already exists" ||
-		   errMsg == "phone already exists" {
+			errMsg == "email already exists" ||
+			errMsg == "phone already exists" {
 			utils.ErrorResponse(ctx, http.StatusConflict, "Duplicate data", errMsg)
 			return
 		}

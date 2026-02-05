@@ -52,9 +52,7 @@ func main() {
 		Config:            cfg,
 		UserHandler:       dependencies.UserHandler,
 		DepartmentHandler: dependencies.DepartmentHandler,
-		// Tambahkan handler lain di sini
-		// PatientHandler:  dependencies.PatientHandler,
-		// DoctorHandler:   dependencies.DoctorHandler,
+		PatientHandler:    dependencies.PatientHandler,
 	})
 
 	// Setup HTTP server
@@ -89,21 +87,19 @@ func main() {
 // Dependencies holds all application dependencies
 type Dependencies struct {
 	// Repositories
-	UserRepository repository.UserRepository
+	UserRepository       repository.UserRepository
 	DepartmentRepository repository.DepartmentRepository
+	PatientRepository    repository.PatientRepository
 
 	// Services
-	UserService service.UserService
+	UserService       service.UserService
 	DepartmentService service.DepartmentService
+	PatientService    service.PatientService
 
 	// Handlers
-	UserHandler *handler.UserHandler
+	UserHandler       *handler.UserHandler
 	DepartmentHandler *handler.DepartmentHandler
-
-	// Tambahkan dependencies lain di sini
-	// PatientRepository repository.PatientRepository
-	// PatientService    service.PatientService
-	// PatientHandler    *handler.PatientHandler
+	PatientHandler    *handler.PatientHandler
 }
 
 // initDependencies initializes all application dependencies
@@ -111,14 +107,17 @@ func initDependencies(db *gorm.DB, cfg *config.Config) *Dependencies {
 	// Initialize Repositories
 	userRepo := repository.NewUserRepository(db)
 	departmentRepo := repository.NewDepartmentRepository(db)
+	patientRepo := repository.NewPatientRepository(db)
 
 	// Initialize Services
 	userService := service.NewUserService(userRepo, cfg)
 	departmentService := service.NewDepartmentService(departmentRepo, cfg)
+	patientService := service.NewPatientService(patientRepo, cfg)
 
 	// Initialize Handlers
 	userHandler := handler.NewUserHandler(userService)
 	departmentHandler := handler.NewDepartmentHandler(departmentService)
+	patientHandler := handler.NewPatientHandler(patientService)
 
 	return &Dependencies{
 		UserRepository: userRepo,
@@ -126,8 +125,12 @@ func initDependencies(db *gorm.DB, cfg *config.Config) *Dependencies {
 		UserHandler:    userHandler,
 
 		DepartmentRepository: departmentRepo,
-		DepartmentService: departmentService,
-		DepartmentHandler: departmentHandler,
+		DepartmentService:    departmentService,
+		DepartmentHandler:    departmentHandler,
+
+		PatientRepository: patientRepo,
+		PatientService:    patientService,
+		PatientHandler:    patientHandler,
 	}
 }
 

@@ -113,8 +113,8 @@ func (s departmentService) DeleteListDepartments(query *dto.DepartmentPagination
 	return &dto.DepartmentDeletedListResponse{
 		Data: deletedDepartmentsResponses,
 		Meta: dto.DepartmentPaginationMeta{
-			Page: query.Page,
-			PageSize: query.PageSize,
+			Page:       query.Page,
+			PageSize:   query.PageSize,
 			TotalItems: total,
 			TotalPages: totalPages,
 		},
@@ -130,18 +130,18 @@ func (s departmentService) GetDepartmentByID(id uint) (*dto.DepartmentResponse, 
 }
 
 func (s departmentService) CreateDepartment(req *dto.CreateDepartmentRequest) (*dto.DepartmentResponse, error) {
-	exists, err := s.repo.IsCodeExists(req.Code) 
-		if err != nil {
-			return nil, err
-		}
+	exists, err := s.repo.IsCodeExists(req.Code)
+	if err != nil {
+		return nil, err
+	}
 	if exists {
 		return nil, errors.New("code already exists")
-	}	
+	}
 
 	department := &models.Department{
-		Name: req.Name,
-		Code: req.Code,
-		Description: req.Description,
+		Name:          req.Name,
+		Code:          req.Code,
+		Description:   req.Description,
 		FloorLocation: req.FloorLocation,
 	}
 

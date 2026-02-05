@@ -1,4 +1,4 @@
-package tests
+﻿package tests
 
 import (
 	"bytes"
@@ -46,7 +46,7 @@ func setupDepartmentTestRouter() *gin.Engine {
 
 	// Initialize database (SQLite in-memory)
 	deptTestDB = database.InitTestDB()
-	
+
 	// Run migrations
 	deptTestDB.AutoMigrate(&models.User{}, &models.Department{})
 
@@ -64,7 +64,7 @@ func setupDepartmentTestRouter() *gin.Engine {
 
 	// Setup router
 	router := gin.New()
-	
+
 	// Setup routes
 	api := router.Group("/api/v1")
 	routeConfig := &routes.RouteConfig{
@@ -152,7 +152,7 @@ func init() {
 
 func Test_CreateDepartment_Success(t *testing.T) {
 	cleanupDeptTestDB()
-	
+
 	// Login sebagai admin
 	_, adminToken, _ := createDeptTestUser("admin", "admin@example.com", "081234567890", "password123", models.RoleAdmin, true)
 
@@ -180,12 +180,12 @@ func Test_CreateDepartment_Success(t *testing.T) {
 	assert.Equal(t, "Departemen jantung dan pembuluh darah", data["description"])
 	assert.Equal(t, "Lantai 3", data["floor_location"])
 
-	t.Logf("✅ POST /api/v1/departments - Success")
+	t.Logf("[PASS] POST /api/v1/departments - Success")
 }
 
 func Test_CreateDepartment_Forbidden_Patient(t *testing.T) {
 	cleanupDeptTestDB()
-	
+
 	// Login sebagai patient
 	_, patientToken, _ := createDeptTestUser("patient", "patient@example.com", "081234567890", "password123", models.RolePatient, true)
 
@@ -198,12 +198,12 @@ func Test_CreateDepartment_Forbidden_Patient(t *testing.T) {
 
 	assert.Equal(t, http.StatusForbidden, w.Code)
 
-	t.Logf("✅ POST /api/v1/departments - Forbidden Patient")
+	t.Logf("[PASS] POST /api/v1/departments - Forbidden Patient")
 }
 
 func Test_CreateDepartment_Forbidden_Doctor(t *testing.T) {
 	cleanupDeptTestDB()
-	
+
 	// Login sebagai doctor
 	_, doctorToken, _ := createDeptTestUser("doctor", "doctor@example.com", "081234567890", "password123", models.RoleDoctor, true)
 
@@ -216,12 +216,12 @@ func Test_CreateDepartment_Forbidden_Doctor(t *testing.T) {
 
 	assert.Equal(t, http.StatusForbidden, w.Code)
 
-	t.Logf("✅ POST /api/v1/departments - Forbidden Doctor")
+	t.Logf("[PASS] POST /api/v1/departments - Forbidden Doctor")
 }
 
 func Test_CreateDepartment_Forbidden_Receptionist(t *testing.T) {
 	cleanupDeptTestDB()
-	
+
 	// Login sebagai receptionist
 	_, receptionistToken, _ := createDeptTestUser("receptionist", "receptionist@example.com", "081234567890", "password123", models.RoleReceptionist, true)
 
@@ -234,12 +234,12 @@ func Test_CreateDepartment_Forbidden_Receptionist(t *testing.T) {
 
 	assert.Equal(t, http.StatusForbidden, w.Code)
 
-	t.Logf("✅ POST /api/v1/departments - Forbidden Receptionist")
+	t.Logf("[PASS] POST /api/v1/departments - Forbidden Receptionist")
 }
 
 func Test_CreateDepartment_Success_SuperAdmin(t *testing.T) {
 	cleanupDeptTestDB()
-	
+
 	// Login sebagai super admin
 	_, superAdminToken, _ := createDeptTestUser("superadmin", "superadmin@example.com", "081234567890", "password123", models.RoleSuperAdmin, true)
 
@@ -254,12 +254,12 @@ func Test_CreateDepartment_Success_SuperAdmin(t *testing.T) {
 
 	assert.Equal(t, http.StatusCreated, w.Code)
 
-	t.Logf("✅ POST /api/v1/departments - Success SuperAdmin")
+	t.Logf("[PASS] POST /api/v1/departments - Success SuperAdmin")
 }
 
 func Test_CreateDepartment_MissingName(t *testing.T) {
 	cleanupDeptTestDB()
-	
+
 	_, adminToken, _ := createDeptTestUser("admin", "admin@example.com", "081234567890", "password123", models.RoleAdmin, true)
 
 	requestBody := map[string]interface{}{
@@ -270,12 +270,12 @@ func Test_CreateDepartment_MissingName(t *testing.T) {
 
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 
-	t.Logf("✅ POST /api/v1/departments - Missing Name")
+	t.Logf("[PASS] POST /api/v1/departments - Missing Name")
 }
 
 func Test_CreateDepartment_MissingCode(t *testing.T) {
 	cleanupDeptTestDB()
-	
+
 	_, adminToken, _ := createDeptTestUser("admin", "admin@example.com", "081234567890", "password123", models.RoleAdmin, true)
 
 	requestBody := map[string]interface{}{
@@ -286,12 +286,12 @@ func Test_CreateDepartment_MissingCode(t *testing.T) {
 
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 
-	t.Logf("✅ POST /api/v1/departments - Missing Code")
+	t.Logf("[PASS] POST /api/v1/departments - Missing Code")
 }
 
 func Test_CreateDepartment_NameTooLong(t *testing.T) {
 	cleanupDeptTestDB()
-	
+
 	_, adminToken, _ := createDeptTestUser("admin", "admin@example.com", "081234567890", "password123", models.RoleAdmin, true)
 
 	// Name lebih dari 100 karakter
@@ -306,12 +306,12 @@ func Test_CreateDepartment_NameTooLong(t *testing.T) {
 
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 
-	t.Logf("✅ POST /api/v1/departments - Name Too Long")
+	t.Logf("[PASS] POST /api/v1/departments - Name Too Long")
 }
 
 func Test_CreateDepartment_CodeTooLong(t *testing.T) {
 	cleanupDeptTestDB()
-	
+
 	_, adminToken, _ := createDeptTestUser("admin", "admin@example.com", "081234567890", "password123", models.RoleAdmin, true)
 
 	// Code lebih dari 20 karakter
@@ -324,12 +324,12 @@ func Test_CreateDepartment_CodeTooLong(t *testing.T) {
 
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 
-	t.Logf("✅ POST /api/v1/departments - Code Too Long")
+	t.Logf("[PASS] POST /api/v1/departments - Code Too Long")
 }
 
 func Test_CreateDepartment_FloorLocationTooLong(t *testing.T) {
 	cleanupDeptTestDB()
-	
+
 	_, adminToken, _ := createDeptTestUser("admin", "admin@example.com", "081234567890", "password123", models.RoleAdmin, true)
 
 	// FloorLocation lebih dari 50 karakter
@@ -343,12 +343,12 @@ func Test_CreateDepartment_FloorLocationTooLong(t *testing.T) {
 
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 
-	t.Logf("✅ POST /api/v1/departments - FloorLocation Too Long")
+	t.Logf("[PASS] POST /api/v1/departments - FloorLocation Too Long")
 }
 
 func Test_CreateDepartment_DuplicateCode(t *testing.T) {
 	cleanupDeptTestDB()
-	
+
 	_, adminToken, _ := createDeptTestUser("admin", "admin@example.com", "081234567890", "password123", models.RoleAdmin, true)
 
 	// Buat department existing
@@ -364,7 +364,7 @@ func Test_CreateDepartment_DuplicateCode(t *testing.T) {
 
 	assert.Equal(t, http.StatusConflict, w.Code)
 
-	t.Logf("✅ POST /api/v1/departments - Duplicate Code")
+	t.Logf("[PASS] POST /api/v1/departments - Duplicate Code")
 }
 
 func Test_CreateDepartment_Unauthorized(t *testing.T) {
@@ -379,14 +379,14 @@ func Test_CreateDepartment_Unauthorized(t *testing.T) {
 
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
 
-	t.Logf("✅ POST /api/v1/departments - Unauthorized")
+	t.Logf("[PASS] POST /api/v1/departments - Unauthorized")
 }
 
 // ==================== GET /api/v1/departments Tests ====================
 
 func Test_ListDepartments_Success(t *testing.T) {
 	cleanupDeptTestDB()
-	
+
 	// Buat beberapa departments
 	createDeptTestDepartment("Kardiologi", "KARDIO", "Dept jantung", "Lantai 3")
 	createDeptTestDepartment("Neurologi", "NEURO", "Dept saraf", "Lantai 2")
@@ -403,19 +403,19 @@ func Test_ListDepartments_Success(t *testing.T) {
 	json.Unmarshal(w.Body.Bytes(), &response)
 
 	assert.Equal(t, true, response["success"])
-	
+
 	// Response structure: { success, message, data: { data: [], meta: {} } }
 	dataMap := response["data"].(map[string]interface{})
 	departments := dataMap["data"].([]interface{})
-	
+
 	assert.GreaterOrEqual(t, len(departments), 3)
 
-	t.Logf("✅ GET /api/v1/departments - Success")
+	t.Logf("[PASS] GET /api/v1/departments - Success")
 }
 
 func Test_ListDepartments_WithPagination(t *testing.T) {
 	cleanupDeptTestDB()
-	
+
 	// Buat 5 departments
 	for i := 1; i <= 5; i++ {
 		createDeptTestDepartment(fmt.Sprintf("Dept %d", i), fmt.Sprintf("DEPT%d", i), "Description", "Lantai 1")
@@ -438,12 +438,12 @@ func Test_ListDepartments_WithPagination(t *testing.T) {
 	assert.Equal(t, float64(1), meta["page"])
 	assert.Equal(t, float64(2), meta["page_size"])
 
-	t.Logf("✅ GET /api/v1/departments - With Pagination")
+	t.Logf("[PASS] GET /api/v1/departments - With Pagination")
 }
 
 func Test_ListDepartments_WithSearch(t *testing.T) {
 	cleanupDeptTestDB()
-	
+
 	createDeptTestDepartment("Kardiologi", "KARDIO", "Dept jantung", "Lantai 3")
 	createDeptTestDepartment("Neurologi", "NEURO", "Dept saraf", "Lantai 2")
 
@@ -458,16 +458,16 @@ func Test_ListDepartments_WithSearch(t *testing.T) {
 
 	dataMap := response["data"].(map[string]interface{})
 	departments := dataMap["data"].([]interface{})
-	
+
 	// Should find at least 1 department with "kardio"
 	assert.GreaterOrEqual(t, len(departments), 1)
 
-	t.Logf("✅ GET /api/v1/departments - With Search")
+	t.Logf("[PASS] GET /api/v1/departments - With Search")
 }
 
 func Test_ListDepartments_WithSorting(t *testing.T) {
 	cleanupDeptTestDB()
-	
+
 	createDeptTestDepartment("Zebra Dept", "ZEBRA", "Dept Z", "Lantai 1")
 	createDeptTestDepartment("Alpha Dept", "ALPHA", "Dept A", "Lantai 2")
 
@@ -482,14 +482,14 @@ func Test_ListDepartments_WithSorting(t *testing.T) {
 
 	dataMap := response["data"].(map[string]interface{})
 	departments := dataMap["data"].([]interface{})
-	
+
 	if len(departments) >= 2 {
 		first := departments[0].(map[string]interface{})
 		// First should be "Alpha Dept" when sorted by name ascending
 		assert.Equal(t, "Alpha Dept", first["name"])
 	}
 
-	t.Logf("✅ GET /api/v1/departments - With Sorting")
+	t.Logf("[PASS] GET /api/v1/departments - With Sorting")
 }
 
 func Test_ListDepartments_Unauthorized(t *testing.T) {
@@ -499,14 +499,14 @@ func Test_ListDepartments_Unauthorized(t *testing.T) {
 
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
 
-	t.Logf("✅ GET /api/v1/departments - Unauthorized")
+	t.Logf("[PASS] GET /api/v1/departments - Unauthorized")
 }
 
 // ==================== GET /api/v1/departments/:id Tests ====================
 
 func Test_GetDepartmentByID_Success(t *testing.T) {
 	cleanupDeptTestDB()
-	
+
 	dept, _ := createDeptTestDepartment("Kardiologi", "KARDIO", "Dept jantung", "Lantai 3")
 
 	_, patientToken, _ := createDeptTestUser("patient", "patient@example.com", "081234567890", "password123", models.RolePatient, true)
@@ -523,7 +523,7 @@ func Test_GetDepartmentByID_Success(t *testing.T) {
 	assert.Equal(t, "Kardiologi", data["name"])
 	assert.Equal(t, "KARDIO", data["code"])
 
-	t.Logf("✅ GET /api/v1/departments/:id - Success")
+	t.Logf("[PASS] GET /api/v1/departments/:id - Success")
 }
 
 func Test_GetDepartmentByID_NotFound(t *testing.T) {
@@ -535,26 +535,26 @@ func Test_GetDepartmentByID_NotFound(t *testing.T) {
 
 	assert.Equal(t, http.StatusNotFound, w.Code)
 
-	t.Logf("✅ GET /api/v1/departments/:id - Not Found")
+	t.Logf("[PASS] GET /api/v1/departments/:id - Not Found")
 }
 
 func Test_GetDepartmentByID_Unauthorized(t *testing.T) {
 	cleanupDeptTestDB()
-	
+
 	dept, _ := createDeptTestDepartment("Kardiologi", "KARDIO", "Dept jantung", "Lantai 3")
 
 	w := performDeptRequest("GET", fmt.Sprintf("/api/v1/departments/%d", dept.ID), "", nil)
 
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
 
-	t.Logf("✅ GET /api/v1/departments/:id - Unauthorized")
+	t.Logf("[PASS] GET /api/v1/departments/:id - Unauthorized")
 }
 
 // ==================== PUT /api/v1/departments/:id Tests ====================
 
 func Test_UpdateDepartment_Success(t *testing.T) {
 	cleanupDeptTestDB()
-	
+
 	dept, _ := createDeptTestDepartment("Kardiologi", "KARDIO", "Dept jantung", "Lantai 3")
 
 	_, adminToken, _ := createDeptTestUser("admin", "admin@example.com", "081234567890", "password123", models.RoleAdmin, true)
@@ -578,12 +578,12 @@ func Test_UpdateDepartment_Success(t *testing.T) {
 	assert.Equal(t, "KARDIO-NEW", data["code"])
 	assert.Equal(t, "Lantai 4", data["floor_location"])
 
-	t.Logf("✅ PUT /api/v1/departments/:id - Success")
+	t.Logf("[PASS] PUT /api/v1/departments/:id - Success")
 }
 
 func Test_UpdateDepartment_Success_SuperAdmin(t *testing.T) {
 	cleanupDeptTestDB()
-	
+
 	dept, _ := createDeptTestDepartment("Kardiologi", "KARDIO", "Dept jantung", "Lantai 3")
 
 	_, superAdminToken, _ := createDeptTestUser("superadmin", "superadmin@example.com", "081234567890", "password123", models.RoleSuperAdmin, true)
@@ -596,7 +596,7 @@ func Test_UpdateDepartment_Success_SuperAdmin(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	t.Logf("✅ PUT /api/v1/departments/:id - Success SuperAdmin")
+	t.Logf("[PASS] PUT /api/v1/departments/:id - Success SuperAdmin")
 }
 
 func Test_UpdateDepartment_NotFound(t *testing.T) {
@@ -612,12 +612,12 @@ func Test_UpdateDepartment_NotFound(t *testing.T) {
 
 	assert.Equal(t, http.StatusNotFound, w.Code)
 
-	t.Logf("✅ PUT /api/v1/departments/:id - Not Found")
+	t.Logf("[PASS] PUT /api/v1/departments/:id - Not Found")
 }
 
 func Test_UpdateDepartment_Forbidden_Patient(t *testing.T) {
 	cleanupDeptTestDB()
-	
+
 	dept, _ := createDeptTestDepartment("Kardiologi", "KARDIO", "Dept jantung", "Lantai 3")
 
 	_, patientToken, _ := createDeptTestUser("patient", "patient@example.com", "081234567890", "password123", models.RolePatient, true)
@@ -630,12 +630,12 @@ func Test_UpdateDepartment_Forbidden_Patient(t *testing.T) {
 
 	assert.Equal(t, http.StatusForbidden, w.Code)
 
-	t.Logf("✅ PUT /api/v1/departments/:id - Forbidden Patient")
+	t.Logf("[PASS] PUT /api/v1/departments/:id - Forbidden Patient")
 }
 
 func Test_UpdateDepartment_Forbidden_Doctor(t *testing.T) {
 	cleanupDeptTestDB()
-	
+
 	dept, _ := createDeptTestDepartment("Kardiologi", "KARDIO", "Dept jantung", "Lantai 3")
 
 	_, doctorToken, _ := createDeptTestUser("doctor", "doctor@example.com", "081234567890", "password123", models.RoleDoctor, true)
@@ -648,12 +648,12 @@ func Test_UpdateDepartment_Forbidden_Doctor(t *testing.T) {
 
 	assert.Equal(t, http.StatusForbidden, w.Code)
 
-	t.Logf("✅ PUT /api/v1/departments/:id - Forbidden Doctor")
+	t.Logf("[PASS] PUT /api/v1/departments/:id - Forbidden Doctor")
 }
 
 func Test_UpdateDepartment_DuplicateCode(t *testing.T) {
 	cleanupDeptTestDB()
-	
+
 	createDeptTestDepartment("Dept Existing", "EXISTING", "Existing dept", "Lantai 1")
 	dept, _ := createDeptTestDepartment("Kardiologi", "KARDIO", "Dept jantung", "Lantai 3")
 
@@ -667,12 +667,12 @@ func Test_UpdateDepartment_DuplicateCode(t *testing.T) {
 
 	assert.Equal(t, http.StatusConflict, w.Code)
 
-	t.Logf("✅ PUT /api/v1/departments/:id - Duplicate Code")
+	t.Logf("[PASS] PUT /api/v1/departments/:id - Duplicate Code")
 }
 
 func Test_UpdateDepartment_NameTooLong(t *testing.T) {
 	cleanupDeptTestDB()
-	
+
 	dept, _ := createDeptTestDepartment("Kardiologi", "KARDIO", "Dept jantung", "Lantai 3")
 
 	_, adminToken, _ := createDeptTestUser("admin", "admin@example.com", "081234567890", "password123", models.RoleAdmin, true)
@@ -687,12 +687,12 @@ func Test_UpdateDepartment_NameTooLong(t *testing.T) {
 
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 
-	t.Logf("✅ PUT /api/v1/departments/:id - Name Too Long")
+	t.Logf("[PASS] PUT /api/v1/departments/:id - Name Too Long")
 }
 
 func Test_UpdateDepartment_CodeTooLong(t *testing.T) {
 	cleanupDeptTestDB()
-	
+
 	dept, _ := createDeptTestDepartment("Kardiologi", "KARDIO", "Dept jantung", "Lantai 3")
 
 	_, adminToken, _ := createDeptTestUser("admin", "admin@example.com", "081234567890", "password123", models.RoleAdmin, true)
@@ -705,14 +705,14 @@ func Test_UpdateDepartment_CodeTooLong(t *testing.T) {
 
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 
-	t.Logf("✅ PUT /api/v1/departments/:id - Code Too Long")
+	t.Logf("[PASS] PUT /api/v1/departments/:id - Code Too Long")
 }
 
 // ==================== DELETE /api/v1/departments/:id (Soft Delete) Tests ====================
 
 func Test_SoftDeleteDepartment_Success(t *testing.T) {
 	cleanupDeptTestDB()
-	
+
 	dept, _ := createDeptTestDepartment("Kardiologi", "KARDIO", "Dept jantung", "Lantai 3")
 
 	_, adminToken, _ := createDeptTestUser("admin", "admin@example.com", "081234567890", "password123", models.RoleAdmin, true)
@@ -726,12 +726,12 @@ func Test_SoftDeleteDepartment_Success(t *testing.T) {
 
 	assert.Equal(t, true, response["success"])
 
-	t.Logf("✅ DELETE /api/v1/departments/:id - Success")
+	t.Logf("[PASS] DELETE /api/v1/departments/:id - Success")
 }
 
 func Test_SoftDeleteDepartment_Success_SuperAdmin(t *testing.T) {
 	cleanupDeptTestDB()
-	
+
 	dept, _ := createDeptTestDepartment("Kardiologi", "KARDIO", "Dept jantung", "Lantai 3")
 
 	_, superAdminToken, _ := createDeptTestUser("superadmin", "superadmin@example.com", "081234567890", "password123", models.RoleSuperAdmin, true)
@@ -740,7 +740,7 @@ func Test_SoftDeleteDepartment_Success_SuperAdmin(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	t.Logf("✅ DELETE /api/v1/departments/:id - Success SuperAdmin")
+	t.Logf("[PASS] DELETE /api/v1/departments/:id - Success SuperAdmin")
 }
 
 func Test_SoftDeleteDepartment_NotFound(t *testing.T) {
@@ -752,12 +752,12 @@ func Test_SoftDeleteDepartment_NotFound(t *testing.T) {
 
 	assert.Equal(t, http.StatusNotFound, w.Code)
 
-	t.Logf("✅ DELETE /api/v1/departments/:id - Not Found")
+	t.Logf("[PASS] DELETE /api/v1/departments/:id - Not Found")
 }
 
 func Test_SoftDeleteDepartment_Forbidden_Patient(t *testing.T) {
 	cleanupDeptTestDB()
-	
+
 	dept, _ := createDeptTestDepartment("Kardiologi", "KARDIO", "Dept jantung", "Lantai 3")
 
 	_, patientToken, _ := createDeptTestUser("patient", "patient@example.com", "081234567890", "password123", models.RolePatient, true)
@@ -766,12 +766,12 @@ func Test_SoftDeleteDepartment_Forbidden_Patient(t *testing.T) {
 
 	assert.Equal(t, http.StatusForbidden, w.Code)
 
-	t.Logf("✅ DELETE /api/v1/departments/:id - Forbidden Patient")
+	t.Logf("[PASS] DELETE /api/v1/departments/:id - Forbidden Patient")
 }
 
 func Test_SoftDeleteDepartment_Forbidden_Doctor(t *testing.T) {
 	cleanupDeptTestDB()
-	
+
 	dept, _ := createDeptTestDepartment("Kardiologi", "KARDIO", "Dept jantung", "Lantai 3")
 
 	_, doctorToken, _ := createDeptTestUser("doctor", "doctor@example.com", "081234567890", "password123", models.RoleDoctor, true)
@@ -780,12 +780,12 @@ func Test_SoftDeleteDepartment_Forbidden_Doctor(t *testing.T) {
 
 	assert.Equal(t, http.StatusForbidden, w.Code)
 
-	t.Logf("✅ DELETE /api/v1/departments/:id - Forbidden Doctor")
+	t.Logf("[PASS] DELETE /api/v1/departments/:id - Forbidden Doctor")
 }
 
 func Test_SoftDeleteDepartment_Forbidden_Receptionist(t *testing.T) {
 	cleanupDeptTestDB()
-	
+
 	dept, _ := createDeptTestDepartment("Kardiologi", "KARDIO", "Dept jantung", "Lantai 3")
 
 	_, receptionistToken, _ := createDeptTestUser("receptionist", "receptionist@example.com", "081234567890", "password123", models.RoleReceptionist, true)
@@ -794,14 +794,14 @@ func Test_SoftDeleteDepartment_Forbidden_Receptionist(t *testing.T) {
 
 	assert.Equal(t, http.StatusForbidden, w.Code)
 
-	t.Logf("✅ DELETE /api/v1/departments/:id - Forbidden Receptionist")
+	t.Logf("[PASS] DELETE /api/v1/departments/:id - Forbidden Receptionist")
 }
 
 // ==================== GET /api/v1/departments/deleted Tests ====================
 
 func Test_ListDeletedDepartments_Success(t *testing.T) {
 	cleanupDeptTestDB()
-	
+
 	dept, _ := createDeptTestDepartment("Kardiologi", "KARDIO", "Dept jantung", "Lantai 3")
 
 	_, adminToken, _ := createDeptTestUser("admin", "admin@example.com", "081234567890", "password123", models.RoleAdmin, true)
@@ -819,12 +819,12 @@ func Test_ListDeletedDepartments_Success(t *testing.T) {
 
 	assert.Equal(t, true, response["success"])
 
-	t.Logf("✅ GET /api/v1/departments/deleted - Success")
+	t.Logf("[PASS] GET /api/v1/departments/deleted - Success")
 }
 
 func Test_ListDeletedDepartments_Success_SuperAdmin(t *testing.T) {
 	cleanupDeptTestDB()
-	
+
 	dept, _ := createDeptTestDepartment("Kardiologi", "KARDIO", "Dept jantung", "Lantai 3")
 
 	_, superAdminToken, _ := createDeptTestUser("superadmin", "superadmin@example.com", "081234567890", "password123", models.RoleSuperAdmin, true)
@@ -837,7 +837,7 @@ func Test_ListDeletedDepartments_Success_SuperAdmin(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	t.Logf("✅ GET /api/v1/departments/deleted - Success SuperAdmin")
+	t.Logf("[PASS] GET /api/v1/departments/deleted - Success SuperAdmin")
 }
 
 func Test_ListDeletedDepartments_Forbidden_Patient(t *testing.T) {
@@ -849,7 +849,7 @@ func Test_ListDeletedDepartments_Forbidden_Patient(t *testing.T) {
 
 	assert.Equal(t, http.StatusForbidden, w.Code)
 
-	t.Logf("✅ GET /api/v1/departments/deleted - Forbidden Patient")
+	t.Logf("[PASS] GET /api/v1/departments/deleted - Forbidden Patient")
 }
 
 func Test_ListDeletedDepartments_Forbidden_Doctor(t *testing.T) {
@@ -861,7 +861,7 @@ func Test_ListDeletedDepartments_Forbidden_Doctor(t *testing.T) {
 
 	assert.Equal(t, http.StatusForbidden, w.Code)
 
-	t.Logf("✅ GET /api/v1/departments/deleted - Forbidden Doctor")
+	t.Logf("[PASS] GET /api/v1/departments/deleted - Forbidden Doctor")
 }
 
 func Test_ListDeletedDepartments_Forbidden_Receptionist(t *testing.T) {
@@ -873,14 +873,14 @@ func Test_ListDeletedDepartments_Forbidden_Receptionist(t *testing.T) {
 
 	assert.Equal(t, http.StatusForbidden, w.Code)
 
-	t.Logf("✅ GET /api/v1/departments/deleted - Forbidden Receptionist")
+	t.Logf("[PASS] GET /api/v1/departments/deleted - Forbidden Receptionist")
 }
 
 // ==================== PATCH /api/v1/departments/:id/restore Tests ====================
 
 func Test_RestoreDepartment_Success(t *testing.T) {
 	cleanupDeptTestDB()
-	
+
 	dept, _ := createDeptTestDepartment("Kardiologi", "KARDIO", "Dept jantung", "Lantai 3")
 
 	_, adminToken, _ := createDeptTestUser("admin", "admin@example.com", "081234567890", "password123", models.RoleAdmin, true)
@@ -898,12 +898,12 @@ func Test_RestoreDepartment_Success(t *testing.T) {
 
 	assert.Equal(t, true, response["success"])
 
-	t.Logf("✅ PATCH /api/v1/departments/:id/restore - Success")
+	t.Logf("[PASS] PATCH /api/v1/departments/:id/restore - Success")
 }
 
 func Test_RestoreDepartment_Success_SuperAdmin(t *testing.T) {
 	cleanupDeptTestDB()
-	
+
 	dept, _ := createDeptTestDepartment("Kardiologi", "KARDIO", "Dept jantung", "Lantai 3")
 
 	_, superAdminToken, _ := createDeptTestUser("superadmin", "superadmin@example.com", "081234567890", "password123", models.RoleSuperAdmin, true)
@@ -916,7 +916,7 @@ func Test_RestoreDepartment_Success_SuperAdmin(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	t.Logf("✅ PATCH /api/v1/departments/:id/restore - Success SuperAdmin")
+	t.Logf("[PASS] PATCH /api/v1/departments/:id/restore - Success SuperAdmin")
 }
 
 func Test_RestoreDepartment_NotFound(t *testing.T) {
@@ -928,12 +928,12 @@ func Test_RestoreDepartment_NotFound(t *testing.T) {
 
 	assert.Equal(t, http.StatusNotFound, w.Code)
 
-	t.Logf("✅ PATCH /api/v1/departments/:id/restore - Not Found")
+	t.Logf("[PASS] PATCH /api/v1/departments/:id/restore - Not Found")
 }
 
 func Test_RestoreDepartment_Forbidden_Patient(t *testing.T) {
 	cleanupDeptTestDB()
-	
+
 	dept, _ := createDeptTestDepartment("Kardiologi", "KARDIO", "Dept jantung", "Lantai 3")
 
 	_, adminToken, _ := createDeptTestUser("admin", "admin@example.com", "081234567890", "password123", models.RoleAdmin, true)
@@ -947,12 +947,12 @@ func Test_RestoreDepartment_Forbidden_Patient(t *testing.T) {
 
 	assert.Equal(t, http.StatusForbidden, w.Code)
 
-	t.Logf("✅ PATCH /api/v1/departments/:id/restore - Forbidden Patient")
+	t.Logf("[PASS] PATCH /api/v1/departments/:id/restore - Forbidden Patient")
 }
 
 func Test_RestoreDepartment_Forbidden_Doctor(t *testing.T) {
 	cleanupDeptTestDB()
-	
+
 	dept, _ := createDeptTestDepartment("Kardiologi", "KARDIO", "Dept jantung", "Lantai 3")
 
 	_, adminToken, _ := createDeptTestUser("admin", "admin@example.com", "081234567890", "password123", models.RoleAdmin, true)
@@ -966,14 +966,14 @@ func Test_RestoreDepartment_Forbidden_Doctor(t *testing.T) {
 
 	assert.Equal(t, http.StatusForbidden, w.Code)
 
-	t.Logf("✅ PATCH /api/v1/departments/:id/restore - Forbidden Doctor")
+	t.Logf("[PASS] PATCH /api/v1/departments/:id/restore - Forbidden Doctor")
 }
 
 // ==================== DELETE /api/v1/departments/:id/hard-delete Tests ====================
 
 func Test_HardDeleteDepartment_Success_SuperAdmin(t *testing.T) {
 	cleanupDeptTestDB()
-	
+
 	dept, _ := createDeptTestDepartment("Kardiologi", "KARDIO", "Dept jantung", "Lantai 3")
 
 	_, superAdminToken, _ := createDeptTestUser("superadmin", "superadmin@example.com", "081234567890", "password123", models.RoleSuperAdmin, true)
@@ -991,12 +991,12 @@ func Test_HardDeleteDepartment_Success_SuperAdmin(t *testing.T) {
 
 	assert.Equal(t, true, response["success"])
 
-	t.Logf("✅ DELETE /api/v1/departments/:id/hard-delete - Success SuperAdmin")
+	t.Logf("[PASS] DELETE /api/v1/departments/:id/hard-delete - Success SuperAdmin")
 }
 
 func Test_HardDeleteDepartment_Forbidden_Admin(t *testing.T) {
 	cleanupDeptTestDB()
-	
+
 	dept, _ := createDeptTestDepartment("Kardiologi", "KARDIO", "Dept jantung", "Lantai 3")
 
 	_, adminToken, _ := createDeptTestUser("admin", "admin@example.com", "081234567890", "password123", models.RoleAdmin, true)
@@ -1009,12 +1009,12 @@ func Test_HardDeleteDepartment_Forbidden_Admin(t *testing.T) {
 
 	assert.Equal(t, http.StatusForbidden, w.Code)
 
-	t.Logf("✅ DELETE /api/v1/departments/:id/hard-delete - Forbidden Admin")
+	t.Logf("[PASS] DELETE /api/v1/departments/:id/hard-delete - Forbidden Admin")
 }
 
 func Test_HardDeleteDepartment_Forbidden_Patient(t *testing.T) {
 	cleanupDeptTestDB()
-	
+
 	dept, _ := createDeptTestDepartment("Kardiologi", "KARDIO", "Dept jantung", "Lantai 3")
 
 	_, superAdminToken, _ := createDeptTestUser("superadmin", "superadmin@example.com", "081234567890", "password123", models.RoleSuperAdmin, true)
@@ -1028,7 +1028,7 @@ func Test_HardDeleteDepartment_Forbidden_Patient(t *testing.T) {
 
 	assert.Equal(t, http.StatusForbidden, w.Code)
 
-	t.Logf("✅ DELETE /api/v1/departments/:id/hard-delete - Forbidden Patient")
+	t.Logf("[PASS] DELETE /api/v1/departments/:id/hard-delete - Forbidden Patient")
 }
 
 func Test_HardDeleteDepartment_NotFound(t *testing.T) {
@@ -1040,14 +1040,14 @@ func Test_HardDeleteDepartment_NotFound(t *testing.T) {
 
 	assert.Equal(t, http.StatusNotFound, w.Code)
 
-	t.Logf("✅ DELETE /api/v1/departments/:id/hard-delete - Not Found")
+	t.Logf("[PASS] DELETE /api/v1/departments/:id/hard-delete - Not Found")
 }
 
 // ==================== Additional Edge Cases ====================
 
 func Test_CreateDepartment_OnlyRequiredFields(t *testing.T) {
 	cleanupDeptTestDB()
-	
+
 	_, adminToken, _ := createDeptTestUser("admin", "admin@example.com", "081234567890", "password123", models.RoleAdmin, true)
 
 	// Only name and code (description and floor_location are optional)
@@ -1067,12 +1067,12 @@ func Test_CreateDepartment_OnlyRequiredFields(t *testing.T) {
 	assert.Equal(t, "Minimal Dept", data["name"])
 	assert.Equal(t, "MINIMAL", data["code"])
 
-	t.Logf("✅ POST /api/v1/departments - Only Required Fields")
+	t.Logf("[PASS] POST /api/v1/departments - Only Required Fields")
 }
 
 func Test_UpdateDepartment_PartialUpdate(t *testing.T) {
 	cleanupDeptTestDB()
-	
+
 	dept, _ := createDeptTestDepartment("Kardiologi", "KARDIO", "Original description", "Lantai 3")
 
 	_, adminToken, _ := createDeptTestUser("admin", "admin@example.com", "081234567890", "password123", models.RoleAdmin, true)
@@ -1095,7 +1095,7 @@ func Test_UpdateDepartment_PartialUpdate(t *testing.T) {
 	// Floor location should be updated
 	assert.Equal(t, "Lantai 5", data["floor_location"])
 
-	t.Logf("✅ PUT /api/v1/departments/:id - Partial Update")
+	t.Logf("[PASS] PUT /api/v1/departments/:id - Partial Update")
 }
 
 func Test_ListDepartments_EmptyResult(t *testing.T) {
@@ -1112,7 +1112,7 @@ func Test_ListDepartments_EmptyResult(t *testing.T) {
 
 	assert.Equal(t, true, response["success"])
 
-	t.Logf("✅ GET /api/v1/departments - Empty Result")
+	t.Logf("[PASS] GET /api/v1/departments - Empty Result")
 }
 
 func Test_GetDepartmentByID_InvalidID(t *testing.T) {
@@ -1125,5 +1125,5 @@ func Test_GetDepartmentByID_InvalidID(t *testing.T) {
 	// Should return 400 Bad Request or 404 Not Found depending on implementation
 	assert.True(t, w.Code == http.StatusBadRequest || w.Code == http.StatusNotFound)
 
-	t.Logf("✅ GET /api/v1/departments/:id - Invalid ID")
+	t.Logf("[PASS] GET /api/v1/departments/:id - Invalid ID")
 }

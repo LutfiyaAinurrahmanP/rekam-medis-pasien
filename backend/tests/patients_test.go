@@ -1,4 +1,4 @@
-package tests
+﻿package tests
 
 import (
 	"bytes"
@@ -46,7 +46,7 @@ func setupPatientTestRouter() *gin.Engine {
 
 	// Initialize database (SQLite in-memory)
 	patientTestDB = database.InitTestDB()
-	
+
 	// Run migrations
 	patientTestDB.AutoMigrate(&models.User{}, &models.Patient{})
 
@@ -64,7 +64,7 @@ func setupPatientTestRouter() *gin.Engine {
 
 	// Setup router
 	router := gin.New()
-	
+
 	// Setup routes
 	api := router.Group("/api/v1")
 	routeConfig := &routes.RouteConfig{
@@ -112,15 +112,15 @@ func createPatientTestUser(username, email, phone, password, role string, isActi
 // Helper function untuk membuat patient langsung di database
 func createPatientTestPatient(userID *uint, patientCode, fullName, dateOfBirth, gender, bloodType, phone, email, address string) (*models.Patient, error) {
 	patient := &models.Patient{
-		UserID:       userID,
-		PatientCode:  patientCode,
-		FullName:     fullName,
-		DateOfBirth:  dateOfBirth,
-		Gender:       gender,
-		BloodType:    bloodType,
-		Phone:        phone,
-		Email:        email,
-		Address:      address,
+		UserID:      userID,
+		PatientCode: patientCode,
+		FullName:    fullName,
+		DateOfBirth: dateOfBirth,
+		Gender:      gender,
+		BloodType:   bloodType,
+		Phone:       phone,
+		Email:       email,
+		Address:     address,
 	}
 
 	result := patientTestDB.Create(patient)
@@ -157,7 +157,7 @@ func init() {
 
 func Test_GetMyPatientData_Success(t *testing.T) {
 	cleanupPatientTestDB()
-	
+
 	// Create user and patient
 	user, token, _ := createPatientTestUser("patient1", "patient1@example.com", "081234567890", "password123", models.RolePatient, true)
 	createPatientTestPatient(&user.ID, "P-2024-001", "John Doe", "1990-05-15", "male", "O+", "081234567890", "patient1@example.com", "Jl. Merdeka No. 123")
@@ -174,12 +174,12 @@ func Test_GetMyPatientData_Success(t *testing.T) {
 	assert.Equal(t, "P-2024-001", data["patient_code"])
 	assert.Equal(t, "John Doe", data["full_name"])
 
-	t.Logf("✅ GET /api/v1/patients/me - Success")
+	t.Logf("[PASS] GET /api/v1/patients/me - Success")
 }
 
 func Test_GetMyPatientData_NotFound(t *testing.T) {
 	cleanupPatientTestDB()
-	
+
 	// Create user but no patient record
 	_, token, _ := createPatientTestUser("patient2", "patient2@example.com", "081234567891", "password123", models.RolePatient, true)
 
@@ -187,7 +187,7 @@ func Test_GetMyPatientData_NotFound(t *testing.T) {
 
 	assert.Equal(t, http.StatusNotFound, w.Code)
 
-	t.Logf("✅ GET /api/v1/patients/me - Not Found")
+	t.Logf("[PASS] GET /api/v1/patients/me - Not Found")
 }
 
 func Test_GetMyPatientData_Unauthorized(t *testing.T) {
@@ -197,14 +197,14 @@ func Test_GetMyPatientData_Unauthorized(t *testing.T) {
 
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
 
-	t.Logf("✅ GET /api/v1/patients/me - Unauthorized")
+	t.Logf("[PASS] GET /api/v1/patients/me - Unauthorized")
 }
 
 // ==================== PUT /api/v1/patients/me Tests ====================
 
 func Test_UpdateMyPatientData_Success(t *testing.T) {
 	cleanupPatientTestDB()
-	
+
 	user, token, _ := createPatientTestUser("patient1", "patient1@example.com", "081234567890", "password123", models.RolePatient, true)
 	createPatientTestPatient(&user.ID, "P-2024-001", "John Doe", "1990-05-15", "male", "O+", "081234567890", "patient1@example.com", "Jl. Merdeka No. 123")
 
@@ -225,12 +225,12 @@ func Test_UpdateMyPatientData_Success(t *testing.T) {
 	assert.Equal(t, "John Doe Updated", data["full_name"])
 	assert.Equal(t, "081234567899", data["phone"])
 
-	t.Logf("✅ PUT /api/v1/patients/me - Success")
+	t.Logf("[PASS] PUT /api/v1/patients/me - Success")
 }
 
 func Test_UpdateMyPatientData_CannotUpdatePatientCode(t *testing.T) {
 	cleanupPatientTestDB()
-	
+
 	user, token, _ := createPatientTestUser("patient1", "patient1@example.com", "081234567890", "password123", models.RolePatient, true)
 	createPatientTestPatient(&user.ID, "P-2024-001", "John Doe", "1990-05-15", "male", "O+", "081234567890", "patient1@example.com", "Jl. Merdeka No. 123")
 
@@ -243,33 +243,38 @@ func Test_UpdateMyPatientData_CannotUpdatePatientCode(t *testing.T) {
 	// Should either ignore or return error
 	assert.True(t, w.Code == http.StatusOK || w.Code == http.StatusBadRequest)
 
-	t.Logf("✅ PUT /api/v1/patients/me - Cannot Update Patient Code")
+	t.Logf("[PASS] PUT /api/v1/patients/me - Cannot Update Patient Code")
 }
 
 // ==================== POST /api/v1/patients Tests ====================
 
 func Test_CreatePatient_Success_Receptionist(t *testing.T) {
 	cleanupPatientTestDB()
-	
+
 	_, receptionistToken, _ := createPatientTestUser("receptionist", "receptionist@example.com", "081234567890", "password123", models.RoleReceptionist, true)
 
 	requestBody := map[string]interface{}{
-		"patient_code":             "P-2024-010",
-		"full_name":                "Jane Smith",
-		"date_of_birth":            "1992-08-20",
-		"gender":                   "female",
-		"blood_type":               "A+",
-		"phone":                    "081234567891",
-		"email":                    "jane@example.com",
-		"address":                  "Jl. Sudirman No. 456",
-		"emergency_contact_name":   "John Smith",
-		"emergency_contact_phone":  "081234567892",
-		"insurance_number":         "INS-123456",
-		"insurance_provider":       "BPJS Kesehatan",
-		"allergies":                "Penicillin",
+		"patient_code":            "P-2024-010",
+		"full_name":               "Jane Smith",
+		"date_of_birth":           "1992-08-20",
+		"gender":                  "female",
+		"blood_type":              "A+",
+		"phone":                   "081234567891",
+		"email":                   "jane@example.com",
+		"address":                 "Jl. Sudirman No. 456",
+		"emergency_contact_name":  "John Smith",
+		"emergency_contact_phone": "081234567892",
+		"insurance_number":        "INS-123456",
+		"insurance_provider":      "BPJS Kesehatan",
+		"allergies":               "Penicillin",
 	}
 
 	w := performPatientRequest("POST", "/api/v1/patients", receptionistToken, requestBody)
+
+	// Debug: print response body
+	if w.Code != http.StatusCreated {
+		t.Logf("Response Body: %s", w.Body.String())
+	}
 
 	assert.Equal(t, http.StatusCreated, w.Code)
 
@@ -281,12 +286,12 @@ func Test_CreatePatient_Success_Receptionist(t *testing.T) {
 	assert.Equal(t, "P-2024-010", data["patient_code"])
 	assert.Equal(t, "Jane Smith", data["full_name"])
 
-	t.Logf("✅ POST /api/v1/patients - Success Receptionist")
+	t.Logf("[PASS] POST /api/v1/patients - Success Receptionist")
 }
 
 func Test_CreatePatient_Success_Admin(t *testing.T) {
 	cleanupPatientTestDB()
-	
+
 	_, adminToken, _ := createPatientTestUser("admin", "admin@example.com", "081234567890", "password123", models.RoleAdmin, true)
 
 	requestBody := map[string]interface{}{
@@ -300,12 +305,12 @@ func Test_CreatePatient_Success_Admin(t *testing.T) {
 
 	assert.Equal(t, http.StatusCreated, w.Code)
 
-	t.Logf("✅ POST /api/v1/patients - Success Admin")
+	t.Logf("[PASS] POST /api/v1/patients - Success Admin")
 }
 
 func Test_CreatePatient_Success_SuperAdmin(t *testing.T) {
 	cleanupPatientTestDB()
-	
+
 	_, superAdminToken, _ := createPatientTestUser("superadmin", "superadmin@example.com", "081234567890", "password123", models.RoleSuperAdmin, true)
 
 	requestBody := map[string]interface{}{
@@ -319,12 +324,12 @@ func Test_CreatePatient_Success_SuperAdmin(t *testing.T) {
 
 	assert.Equal(t, http.StatusCreated, w.Code)
 
-	t.Logf("✅ POST /api/v1/patients - Success SuperAdmin")
+	t.Logf("[PASS] POST /api/v1/patients - Success SuperAdmin")
 }
 
 func Test_CreatePatient_Forbidden_Patient(t *testing.T) {
 	cleanupPatientTestDB()
-	
+
 	_, patientToken, _ := createPatientTestUser("patient", "patient@example.com", "081234567890", "password123", models.RolePatient, true)
 
 	requestBody := map[string]interface{}{
@@ -338,12 +343,12 @@ func Test_CreatePatient_Forbidden_Patient(t *testing.T) {
 
 	assert.Equal(t, http.StatusForbidden, w.Code)
 
-	t.Logf("✅ POST /api/v1/patients - Forbidden Patient")
+	t.Logf("[PASS] POST /api/v1/patients - Forbidden Patient")
 }
 
 func Test_CreatePatient_Forbidden_Doctor(t *testing.T) {
 	cleanupPatientTestDB()
-	
+
 	_, doctorToken, _ := createPatientTestUser("doctor", "doctor@example.com", "081234567890", "password123", models.RoleDoctor, true)
 
 	requestBody := map[string]interface{}{
@@ -357,12 +362,12 @@ func Test_CreatePatient_Forbidden_Doctor(t *testing.T) {
 
 	assert.Equal(t, http.StatusForbidden, w.Code)
 
-	t.Logf("✅ POST /api/v1/patients - Forbidden Doctor")
+	t.Logf("[PASS] POST /api/v1/patients - Forbidden Doctor")
 }
 
 func Test_CreatePatient_MissingRequiredFields(t *testing.T) {
 	cleanupPatientTestDB()
-	
+
 	_, receptionistToken, _ := createPatientTestUser("receptionist", "receptionist@example.com", "081234567890", "password123", models.RoleReceptionist, true)
 
 	requestBody := map[string]interface{}{
@@ -374,12 +379,12 @@ func Test_CreatePatient_MissingRequiredFields(t *testing.T) {
 
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 
-	t.Logf("✅ POST /api/v1/patients - Missing Required Fields")
+	t.Logf("[PASS] POST /api/v1/patients - Missing Required Fields")
 }
 
 func Test_CreatePatient_DuplicatePatientCode(t *testing.T) {
 	cleanupPatientTestDB()
-	
+
 	_, receptionistToken, _ := createPatientTestUser("receptionist", "receptionist@example.com", "081234567890", "password123", models.RoleReceptionist, true)
 
 	// Create existing patient
@@ -396,12 +401,12 @@ func Test_CreatePatient_DuplicatePatientCode(t *testing.T) {
 
 	assert.Equal(t, http.StatusConflict, w.Code)
 
-	t.Logf("✅ POST /api/v1/patients - Duplicate Patient Code")
+	t.Logf("[PASS] POST /api/v1/patients - Duplicate Patient Code")
 }
 
 func Test_CreatePatient_InvalidGender(t *testing.T) {
 	cleanupPatientTestDB()
-	
+
 	_, receptionistToken, _ := createPatientTestUser("receptionist", "receptionist@example.com", "081234567890", "password123", models.RoleReceptionist, true)
 
 	requestBody := map[string]interface{}{
@@ -415,12 +420,12 @@ func Test_CreatePatient_InvalidGender(t *testing.T) {
 
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 
-	t.Logf("✅ POST /api/v1/patients - Invalid Gender")
+	t.Logf("[PASS] POST /api/v1/patients - Invalid Gender")
 }
 
 func Test_CreatePatient_InvalidEmail(t *testing.T) {
 	cleanupPatientTestDB()
-	
+
 	_, receptionistToken, _ := createPatientTestUser("receptionist", "receptionist@example.com", "081234567890", "password123", models.RoleReceptionist, true)
 
 	requestBody := map[string]interface{}{
@@ -435,14 +440,14 @@ func Test_CreatePatient_InvalidEmail(t *testing.T) {
 
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 
-	t.Logf("✅ POST /api/v1/patients - Invalid Email")
+	t.Logf("[PASS] POST /api/v1/patients - Invalid Email")
 }
 
 // ==================== GET /api/v1/patients Tests ====================
 
 func Test_ListPatients_Success(t *testing.T) {
 	cleanupPatientTestDB()
-	
+
 	// Create some patients
 	createPatientTestPatient(nil, "P-2024-030", "Patient One", "1990-01-01", "male", "O+", "081111111111", "patient1@test.com", "Address 1")
 	createPatientTestPatient(nil, "P-2024-031", "Patient Two", "1991-02-02", "female", "A+", "081222222222", "patient2@test.com", "Address 2")
@@ -460,15 +465,15 @@ func Test_ListPatients_Success(t *testing.T) {
 	assert.Equal(t, true, response["success"])
 	dataMap := response["data"].(map[string]interface{})
 	patients := dataMap["data"].([]interface{})
-	
+
 	assert.GreaterOrEqual(t, len(patients), 3)
 
-	t.Logf("✅ GET /api/v1/patients - Success")
+	t.Logf("[PASS] GET /api/v1/patients - Success")
 }
 
 func Test_ListPatients_WithPagination(t *testing.T) {
 	cleanupPatientTestDB()
-	
+
 	// Create 5 patients
 	for i := 1; i <= 5; i++ {
 		createPatientTestPatient(nil, fmt.Sprintf("P-2024-%03d", 40+i), fmt.Sprintf("Patient %d", i), "1990-01-01", "male", "O+", fmt.Sprintf("08111111%04d", i), fmt.Sprintf("patient%d@test.com", i), "Address")
@@ -491,12 +496,12 @@ func Test_ListPatients_WithPagination(t *testing.T) {
 	assert.Equal(t, float64(1), meta["page"])
 	assert.Equal(t, float64(2), meta["page_size"])
 
-	t.Logf("✅ GET /api/v1/patients - With Pagination")
+	t.Logf("[PASS] GET /api/v1/patients - With Pagination")
 }
 
 func Test_ListPatients_WithSearch(t *testing.T) {
 	cleanupPatientTestDB()
-	
+
 	createPatientTestPatient(nil, "P-2024-050", "John Doe", "1990-01-01", "male", "O+", "081111111111", "john@test.com", "Address")
 	createPatientTestPatient(nil, "P-2024-051", "Jane Smith", "1991-02-02", "female", "A+", "081222222222", "jane@test.com", "Address")
 
@@ -511,15 +516,15 @@ func Test_ListPatients_WithSearch(t *testing.T) {
 
 	dataMap := response["data"].(map[string]interface{})
 	patients := dataMap["data"].([]interface{})
-	
+
 	assert.GreaterOrEqual(t, len(patients), 1)
 
-	t.Logf("✅ GET /api/v1/patients - With Search")
+	t.Logf("[PASS] GET /api/v1/patients - With Search")
 }
 
 func Test_ListPatients_WithGenderFilter(t *testing.T) {
 	cleanupPatientTestDB()
-	
+
 	createPatientTestPatient(nil, "P-2024-060", "Male Patient", "1990-01-01", "male", "O+", "081111111111", "male@test.com", "Address")
 	createPatientTestPatient(nil, "P-2024-061", "Female Patient", "1991-02-02", "female", "A+", "081222222222", "female@test.com", "Address")
 
@@ -529,12 +534,12 @@ func Test_ListPatients_WithGenderFilter(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	t.Logf("✅ GET /api/v1/patients - With Gender Filter")
+	t.Logf("[PASS] GET /api/v1/patients - With Gender Filter")
 }
 
 func Test_ListPatients_WithBloodTypeFilter(t *testing.T) {
 	cleanupPatientTestDB()
-	
+
 	createPatientTestPatient(nil, "P-2024-070", "Patient O+", "1990-01-01", "male", "O+", "081111111111", "oplus@test.com", "Address")
 	createPatientTestPatient(nil, "P-2024-071", "Patient A+", "1991-02-02", "female", "A+", "081222222222", "aplus@test.com", "Address")
 
@@ -544,7 +549,7 @@ func Test_ListPatients_WithBloodTypeFilter(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	t.Logf("✅ GET /api/v1/patients - With Blood Type Filter")
+	t.Logf("[PASS] GET /api/v1/patients - With Blood Type Filter")
 }
 
 func Test_ListPatients_Forbidden_Patient(t *testing.T) {
@@ -556,7 +561,7 @@ func Test_ListPatients_Forbidden_Patient(t *testing.T) {
 
 	assert.Equal(t, http.StatusForbidden, w.Code)
 
-	t.Logf("✅ GET /api/v1/patients - Forbidden Patient")
+	t.Logf("[PASS] GET /api/v1/patients - Forbidden Patient")
 }
 
 func Test_ListPatients_Unauthorized(t *testing.T) {
@@ -566,14 +571,14 @@ func Test_ListPatients_Unauthorized(t *testing.T) {
 
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
 
-	t.Logf("✅ GET /api/v1/patients - Unauthorized")
+	t.Logf("[PASS] GET /api/v1/patients - Unauthorized")
 }
 
 // ==================== GET /api/v1/patients/:id Tests ====================
 
 func Test_GetPatientByID_Success_Staff(t *testing.T) {
 	cleanupPatientTestDB()
-	
+
 	patient, _ := createPatientTestPatient(nil, "P-2024-080", "John Doe", "1990-05-15", "male", "O+", "081111111111", "john@test.com", "Jl. Merdeka No. 123")
 
 	_, doctorToken, _ := createPatientTestUser("doctor", "doctor@example.com", "081234567890", "password123", models.RoleDoctor, true)
@@ -589,12 +594,12 @@ func Test_GetPatientByID_Success_Staff(t *testing.T) {
 	data := response["data"].(map[string]interface{})
 	assert.Equal(t, "P-2024-080", data["patient_code"])
 
-	t.Logf("✅ GET /api/v1/patients/:id - Success Staff")
+	t.Logf("[PASS] GET /api/v1/patients/:id - Success Staff")
 }
 
 func Test_GetPatientByID_Success_OwnData(t *testing.T) {
 	cleanupPatientTestDB()
-	
+
 	user, token, _ := createPatientTestUser("patient", "patient@example.com", "081234567890", "password123", models.RolePatient, true)
 	patient, _ := createPatientTestPatient(&user.ID, "P-2024-081", "John Doe", "1990-05-15", "male", "O+", "081234567890", "patient@example.com", "Address")
 
@@ -602,12 +607,12 @@ func Test_GetPatientByID_Success_OwnData(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	t.Logf("✅ GET /api/v1/patients/:id - Success Own Data")
+	t.Logf("[PASS] GET /api/v1/patients/:id - Success Own Data")
 }
 
 func Test_GetPatientByID_Forbidden_OtherPatient(t *testing.T) {
 	cleanupPatientTestDB()
-	
+
 	// Create another patient's data
 	patient, _ := createPatientTestPatient(nil, "P-2024-082", "Other Patient", "1990-01-01", "male", "O+", "081111111111", "other@test.com", "Address")
 
@@ -618,7 +623,7 @@ func Test_GetPatientByID_Forbidden_OtherPatient(t *testing.T) {
 
 	assert.Equal(t, http.StatusForbidden, w.Code)
 
-	t.Logf("✅ GET /api/v1/patients/:id - Forbidden Other Patient")
+	t.Logf("[PASS] GET /api/v1/patients/:id - Forbidden Other Patient")
 }
 
 func Test_GetPatientByID_NotFound(t *testing.T) {
@@ -630,14 +635,14 @@ func Test_GetPatientByID_NotFound(t *testing.T) {
 
 	assert.Equal(t, http.StatusNotFound, w.Code)
 
-	t.Logf("✅ GET /api/v1/patients/:id - Not Found")
+	t.Logf("[PASS] GET /api/v1/patients/:id - Not Found")
 }
 
 // ==================== GET /api/v1/patients/code/:code Tests ====================
 
 func Test_GetPatientByCode_Success(t *testing.T) {
 	cleanupPatientTestDB()
-	
+
 	createPatientTestPatient(nil, "P-2024-090", "John Doe", "1990-05-15", "male", "O+", "081111111111", "john@test.com", "Address")
 
 	_, receptionistToken, _ := createPatientTestUser("receptionist", "receptionist@example.com", "081234567890", "password123", models.RoleReceptionist, true)
@@ -653,7 +658,7 @@ func Test_GetPatientByCode_Success(t *testing.T) {
 	data := response["data"].(map[string]interface{})
 	assert.Equal(t, "P-2024-090", data["patient_code"])
 
-	t.Logf("✅ GET /api/v1/patients/code/:code - Success")
+	t.Logf("[PASS] GET /api/v1/patients/code/:code - Success")
 }
 
 func Test_GetPatientByCode_NotFound(t *testing.T) {
@@ -665,7 +670,7 @@ func Test_GetPatientByCode_NotFound(t *testing.T) {
 
 	assert.Equal(t, http.StatusNotFound, w.Code)
 
-	t.Logf("✅ GET /api/v1/patients/code/:code - Not Found")
+	t.Logf("[PASS] GET /api/v1/patients/code/:code - Not Found")
 }
 
 func Test_GetPatientByCode_Forbidden_Patient(t *testing.T) {
@@ -677,14 +682,14 @@ func Test_GetPatientByCode_Forbidden_Patient(t *testing.T) {
 
 	assert.Equal(t, http.StatusForbidden, w.Code)
 
-	t.Logf("✅ GET /api/v1/patients/code/:code - Forbidden Patient")
+	t.Logf("[PASS] GET /api/v1/patients/code/:code - Forbidden Patient")
 }
 
 // ==================== GET /api/v1/patients/search Tests ====================
 
 func Test_SearchPatients_Success(t *testing.T) {
 	cleanupPatientTestDB()
-	
+
 	createPatientTestPatient(nil, "P-2024-100", "Search Test Patient", "1990-05-15", "male", "O+", "081111111111", "search@test.com", "Address")
 
 	_, adminToken, _ := createPatientTestUser("admin", "admin@example.com", "081234567890", "password123", models.RoleAdmin, true)
@@ -693,12 +698,12 @@ func Test_SearchPatients_Success(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	t.Logf("✅ GET /api/v1/patients/search - Success")
+	t.Logf("[PASS] GET /api/v1/patients/search - Success")
 }
 
 func Test_SearchPatients_ByDateOfBirth(t *testing.T) {
 	cleanupPatientTestDB()
-	
+
 	createPatientTestPatient(nil, "P-2024-101", "DOB Test", "1990-05-15", "male", "O+", "081111111111", "dob@test.com", "Address")
 
 	_, doctorToken, _ := createPatientTestUser("doctor", "doctor@example.com", "081234567890", "password123", models.RoleDoctor, true)
@@ -707,7 +712,7 @@ func Test_SearchPatients_ByDateOfBirth(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	t.Logf("✅ GET /api/v1/patients/search - By Date of Birth")
+	t.Logf("[PASS] GET /api/v1/patients/search - By Date of Birth")
 }
 
 func Test_SearchPatients_Forbidden_Patient(t *testing.T) {
@@ -719,14 +724,14 @@ func Test_SearchPatients_Forbidden_Patient(t *testing.T) {
 
 	assert.Equal(t, http.StatusForbidden, w.Code)
 
-	t.Logf("✅ GET /api/v1/patients/search - Forbidden Patient")
+	t.Logf("[PASS] GET /api/v1/patients/search - Forbidden Patient")
 }
 
 // ==================== PUT /api/v1/patients/:id Tests ====================
 
 func Test_UpdatePatient_Success(t *testing.T) {
 	cleanupPatientTestDB()
-	
+
 	patient, _ := createPatientTestPatient(nil, "P-2024-110", "Original Name", "1990-01-01", "male", "O+", "081111111111", "original@test.com", "Original Address")
 
 	_, receptionistToken, _ := createPatientTestUser("receptionist", "receptionist@example.com", "081234567890", "password123", models.RoleReceptionist, true)
@@ -747,12 +752,12 @@ func Test_UpdatePatient_Success(t *testing.T) {
 	data := response["data"].(map[string]interface{})
 	assert.Equal(t, "Updated Name", data["full_name"])
 
-	t.Logf("✅ PUT /api/v1/patients/:id - Success")
+	t.Logf("[PASS] PUT /api/v1/patients/:id - Success")
 }
 
 func Test_UpdatePatient_Success_Admin(t *testing.T) {
 	cleanupPatientTestDB()
-	
+
 	patient, _ := createPatientTestPatient(nil, "P-2024-111", "Test Patient", "1990-01-01", "male", "O+", "081111111111", "test@test.com", "Address")
 
 	_, adminToken, _ := createPatientTestUser("admin", "admin@example.com", "081234567890", "password123", models.RoleAdmin, true)
@@ -765,7 +770,7 @@ func Test_UpdatePatient_Success_Admin(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	t.Logf("✅ PUT /api/v1/patients/:id - Success Admin")
+	t.Logf("[PASS] PUT /api/v1/patients/:id - Success Admin")
 }
 
 func Test_UpdatePatient_NotFound(t *testing.T) {
@@ -781,12 +786,12 @@ func Test_UpdatePatient_NotFound(t *testing.T) {
 
 	assert.Equal(t, http.StatusNotFound, w.Code)
 
-	t.Logf("✅ PUT /api/v1/patients/:id - Not Found")
+	t.Logf("[PASS] PUT /api/v1/patients/:id - Not Found")
 }
 
 func Test_UpdatePatient_Forbidden_Patient(t *testing.T) {
 	cleanupPatientTestDB()
-	
+
 	patient, _ := createPatientTestPatient(nil, "P-2024-112", "Test Patient", "1990-01-01", "male", "O+", "081111111111", "test@test.com", "Address")
 
 	_, patientToken, _ := createPatientTestUser("patient", "patient@example.com", "081234567890", "password123", models.RolePatient, true)
@@ -799,12 +804,12 @@ func Test_UpdatePatient_Forbidden_Patient(t *testing.T) {
 
 	assert.Equal(t, http.StatusForbidden, w.Code)
 
-	t.Logf("✅ PUT /api/v1/patients/:id - Forbidden Patient")
+	t.Logf("[PASS] PUT /api/v1/patients/:id - Forbidden Patient")
 }
 
 func Test_UpdatePatient_Forbidden_Doctor(t *testing.T) {
 	cleanupPatientTestDB()
-	
+
 	patient, _ := createPatientTestPatient(nil, "P-2024-113", "Test Patient", "1990-01-01", "male", "O+", "081111111111", "test@test.com", "Address")
 
 	_, doctorToken, _ := createPatientTestUser("doctor", "doctor@example.com", "081234567890", "password123", models.RoleDoctor, true)
@@ -817,14 +822,14 @@ func Test_UpdatePatient_Forbidden_Doctor(t *testing.T) {
 
 	assert.Equal(t, http.StatusForbidden, w.Code)
 
-	t.Logf("✅ PUT /api/v1/patients/:id - Forbidden Doctor")
+	t.Logf("[PASS] PUT /api/v1/patients/:id - Forbidden Doctor")
 }
 
 // ==================== DELETE /api/v1/patients/:id (Soft Delete) Tests ====================
 
 func Test_SoftDeletePatient_Success(t *testing.T) {
 	cleanupPatientTestDB()
-	
+
 	patient, _ := createPatientTestPatient(nil, "P-2024-120", "Delete Test", "1990-01-01", "male", "O+", "081111111111", "delete@test.com", "Address")
 
 	_, receptionistToken, _ := createPatientTestUser("receptionist", "receptionist@example.com", "081234567890", "password123", models.RoleReceptionist, true)
@@ -833,12 +838,12 @@ func Test_SoftDeletePatient_Success(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	t.Logf("✅ DELETE /api/v1/patients/:id - Success")
+	t.Logf("[PASS] DELETE /api/v1/patients/:id - Success")
 }
 
 func Test_SoftDeletePatient_Success_Admin(t *testing.T) {
 	cleanupPatientTestDB()
-	
+
 	patient, _ := createPatientTestPatient(nil, "P-2024-121", "Delete Test", "1990-01-01", "male", "O+", "081111111111", "delete@test.com", "Address")
 
 	_, adminToken, _ := createPatientTestUser("admin", "admin@example.com", "081234567890", "password123", models.RoleAdmin, true)
@@ -847,7 +852,7 @@ func Test_SoftDeletePatient_Success_Admin(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	t.Logf("✅ DELETE /api/v1/patients/:id - Success Admin")
+	t.Logf("[PASS] DELETE /api/v1/patients/:id - Success Admin")
 }
 
 func Test_SoftDeletePatient_NotFound(t *testing.T) {
@@ -859,12 +864,12 @@ func Test_SoftDeletePatient_NotFound(t *testing.T) {
 
 	assert.Equal(t, http.StatusNotFound, w.Code)
 
-	t.Logf("✅ DELETE /api/v1/patients/:id - Not Found")
+	t.Logf("[PASS] DELETE /api/v1/patients/:id - Not Found")
 }
 
 func Test_SoftDeletePatient_Forbidden_Patient(t *testing.T) {
 	cleanupPatientTestDB()
-	
+
 	patient, _ := createPatientTestPatient(nil, "P-2024-122", "Delete Test", "1990-01-01", "male", "O+", "081111111111", "delete@test.com", "Address")
 
 	_, patientToken, _ := createPatientTestUser("patient", "patient@example.com", "081234567890", "password123", models.RolePatient, true)
@@ -873,12 +878,12 @@ func Test_SoftDeletePatient_Forbidden_Patient(t *testing.T) {
 
 	assert.Equal(t, http.StatusForbidden, w.Code)
 
-	t.Logf("✅ DELETE /api/v1/patients/:id - Forbidden Patient")
+	t.Logf("[PASS] DELETE /api/v1/patients/:id - Forbidden Patient")
 }
 
 func Test_SoftDeletePatient_Forbidden_Doctor(t *testing.T) {
 	cleanupPatientTestDB()
-	
+
 	patient, _ := createPatientTestPatient(nil, "P-2024-123", "Delete Test", "1990-01-01", "male", "O+", "081111111111", "delete@test.com", "Address")
 
 	_, doctorToken, _ := createPatientTestUser("doctor", "doctor@example.com", "081234567890", "password123", models.RoleDoctor, true)
@@ -887,14 +892,14 @@ func Test_SoftDeletePatient_Forbidden_Doctor(t *testing.T) {
 
 	assert.Equal(t, http.StatusForbidden, w.Code)
 
-	t.Logf("✅ DELETE /api/v1/patients/:id - Forbidden Doctor")
+	t.Logf("[PASS] DELETE /api/v1/patients/:id - Forbidden Doctor")
 }
 
 // ==================== GET /api/v1/patients/deleted Tests ====================
 
 func Test_ListDeletedPatients_Success(t *testing.T) {
 	cleanupPatientTestDB()
-	
+
 	patient, _ := createPatientTestPatient(nil, "P-2024-130", "Deleted Patient", "1990-01-01", "male", "O+", "081111111111", "deleted@test.com", "Address")
 
 	_, receptionistToken, _ := createPatientTestUser("receptionist", "receptionist@example.com", "081234567890", "password123", models.RoleReceptionist, true)
@@ -907,12 +912,12 @@ func Test_ListDeletedPatients_Success(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	t.Logf("✅ GET /api/v1/patients/deleted - Success")
+	t.Logf("[PASS] GET /api/v1/patients/deleted - Success")
 }
 
 func Test_ListDeletedPatients_Success_Admin(t *testing.T) {
 	cleanupPatientTestDB()
-	
+
 	patient, _ := createPatientTestPatient(nil, "P-2024-131", "Deleted Patient", "1990-01-01", "male", "O+", "081111111111", "deleted@test.com", "Address")
 
 	_, adminToken, _ := createPatientTestUser("admin", "admin@example.com", "081234567890", "password123", models.RoleAdmin, true)
@@ -925,7 +930,7 @@ func Test_ListDeletedPatients_Success_Admin(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	t.Logf("✅ GET /api/v1/patients/deleted - Success Admin")
+	t.Logf("[PASS] GET /api/v1/patients/deleted - Success Admin")
 }
 
 func Test_ListDeletedPatients_Forbidden_Patient(t *testing.T) {
@@ -937,7 +942,7 @@ func Test_ListDeletedPatients_Forbidden_Patient(t *testing.T) {
 
 	assert.Equal(t, http.StatusForbidden, w.Code)
 
-	t.Logf("✅ GET /api/v1/patients/deleted - Forbidden Patient")
+	t.Logf("[PASS] GET /api/v1/patients/deleted - Forbidden Patient")
 }
 
 func Test_ListDeletedPatients_Forbidden_Doctor(t *testing.T) {
@@ -949,14 +954,14 @@ func Test_ListDeletedPatients_Forbidden_Doctor(t *testing.T) {
 
 	assert.Equal(t, http.StatusForbidden, w.Code)
 
-	t.Logf("✅ GET /api/v1/patients/deleted - Forbidden Doctor")
+	t.Logf("[PASS] GET /api/v1/patients/deleted - Forbidden Doctor")
 }
 
 // ==================== PATCH /api/v1/patients/:id/restore Tests ====================
 
 func Test_RestorePatient_Success(t *testing.T) {
 	cleanupPatientTestDB()
-	
+
 	patient, _ := createPatientTestPatient(nil, "P-2024-140", "Restore Test", "1990-01-01", "male", "O+", "081111111111", "restore@test.com", "Address")
 
 	_, receptionistToken, _ := createPatientTestUser("receptionist", "receptionist@example.com", "081234567890", "password123", models.RoleReceptionist, true)
@@ -969,12 +974,12 @@ func Test_RestorePatient_Success(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	t.Logf("✅ PATCH /api/v1/patients/:id/restore - Success")
+	t.Logf("[PASS] PATCH /api/v1/patients/:id/restore - Success")
 }
 
 func Test_RestorePatient_Success_Admin(t *testing.T) {
 	cleanupPatientTestDB()
-	
+
 	patient, _ := createPatientTestPatient(nil, "P-2024-141", "Restore Test", "1990-01-01", "male", "O+", "081111111111", "restore@test.com", "Address")
 
 	_, adminToken, _ := createPatientTestUser("admin", "admin@example.com", "081234567890", "password123", models.RoleAdmin, true)
@@ -987,7 +992,7 @@ func Test_RestorePatient_Success_Admin(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	t.Logf("✅ PATCH /api/v1/patients/:id/restore - Success Admin")
+	t.Logf("[PASS] PATCH /api/v1/patients/:id/restore - Success Admin")
 }
 
 func Test_RestorePatient_NotFound(t *testing.T) {
@@ -999,12 +1004,12 @@ func Test_RestorePatient_NotFound(t *testing.T) {
 
 	assert.Equal(t, http.StatusNotFound, w.Code)
 
-	t.Logf("✅ PATCH /api/v1/patients/:id/restore - Not Found")
+	t.Logf("[PASS] PATCH /api/v1/patients/:id/restore - Not Found")
 }
 
 func Test_RestorePatient_Forbidden_Patient(t *testing.T) {
 	cleanupPatientTestDB()
-	
+
 	patient, _ := createPatientTestPatient(nil, "P-2024-142", "Restore Test", "1990-01-01", "male", "O+", "081111111111", "restore@test.com", "Address")
 
 	_, receptionistToken, _ := createPatientTestUser("receptionist", "receptionist@example.com", "081234567890", "password123", models.RoleReceptionist, true)
@@ -1018,12 +1023,12 @@ func Test_RestorePatient_Forbidden_Patient(t *testing.T) {
 
 	assert.Equal(t, http.StatusForbidden, w.Code)
 
-	t.Logf("✅ PATCH /api/v1/patients/:id/restore - Forbidden Patient")
+	t.Logf("[PASS] PATCH /api/v1/patients/:id/restore - Forbidden Patient")
 }
 
 func Test_RestorePatient_Forbidden_Doctor(t *testing.T) {
 	cleanupPatientTestDB()
-	
+
 	patient, _ := createPatientTestPatient(nil, "P-2024-143", "Restore Test", "1990-01-01", "male", "O+", "081111111111", "restore@test.com", "Address")
 
 	_, receptionistToken, _ := createPatientTestUser("receptionist", "receptionist@example.com", "081234567890", "password123", models.RoleReceptionist, true)
@@ -1037,14 +1042,14 @@ func Test_RestorePatient_Forbidden_Doctor(t *testing.T) {
 
 	assert.Equal(t, http.StatusForbidden, w.Code)
 
-	t.Logf("✅ PATCH /api/v1/patients/:id/restore - Forbidden Doctor")
+	t.Logf("[PASS] PATCH /api/v1/patients/:id/restore - Forbidden Doctor")
 }
 
 // ==================== DELETE /api/v1/patients/:id/hard-delete Tests ====================
 
 func Test_HardDeletePatient_Success_SuperAdmin(t *testing.T) {
 	cleanupPatientTestDB()
-	
+
 	patient, _ := createPatientTestPatient(nil, "P-2024-150", "Hard Delete Test", "1990-01-01", "male", "O+", "081111111111", "harddelete@test.com", "Address")
 
 	_, superAdminToken, _ := createPatientTestUser("superadmin", "superadmin@example.com", "081234567890", "password123", models.RoleSuperAdmin, true)
@@ -1057,12 +1062,12 @@ func Test_HardDeletePatient_Success_SuperAdmin(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	t.Logf("✅ DELETE /api/v1/patients/:id/hard-delete - Success SuperAdmin")
+	t.Logf("[PASS] DELETE /api/v1/patients/:id/hard-delete - Success SuperAdmin")
 }
 
 func Test_HardDeletePatient_Forbidden_Admin(t *testing.T) {
 	cleanupPatientTestDB()
-	
+
 	patient, _ := createPatientTestPatient(nil, "P-2024-151", "Hard Delete Test", "1990-01-01", "male", "O+", "081111111111", "harddelete@test.com", "Address")
 
 	_, adminToken, _ := createPatientTestUser("admin", "admin@example.com", "081234567890", "password123", models.RoleAdmin, true)
@@ -1075,12 +1080,12 @@ func Test_HardDeletePatient_Forbidden_Admin(t *testing.T) {
 
 	assert.Equal(t, http.StatusForbidden, w.Code)
 
-	t.Logf("✅ DELETE /api/v1/patients/:id/hard-delete - Forbidden Admin")
+	t.Logf("[PASS] DELETE /api/v1/patients/:id/hard-delete - Forbidden Admin")
 }
 
 func Test_HardDeletePatient_Forbidden_Receptionist(t *testing.T) {
 	cleanupPatientTestDB()
-	
+
 	patient, _ := createPatientTestPatient(nil, "P-2024-152", "Hard Delete Test", "1990-01-01", "male", "O+", "081111111111", "harddelete@test.com", "Address")
 
 	_, superAdminToken, _ := createPatientTestUser("superadmin", "superadmin@example.com", "081234567890", "password123", models.RoleSuperAdmin, true)
@@ -1094,7 +1099,7 @@ func Test_HardDeletePatient_Forbidden_Receptionist(t *testing.T) {
 
 	assert.Equal(t, http.StatusForbidden, w.Code)
 
-	t.Logf("✅ DELETE /api/v1/patients/:id/hard-delete - Forbidden Receptionist")
+	t.Logf("[PASS] DELETE /api/v1/patients/:id/hard-delete - Forbidden Receptionist")
 }
 
 func Test_HardDeletePatient_NotFound(t *testing.T) {
@@ -1106,14 +1111,14 @@ func Test_HardDeletePatient_NotFound(t *testing.T) {
 
 	assert.Equal(t, http.StatusNotFound, w.Code)
 
-	t.Logf("✅ DELETE /api/v1/patients/:id/hard-delete - Not Found")
+	t.Logf("[PASS] DELETE /api/v1/patients/:id/hard-delete - Not Found")
 }
 
 // ==================== Additional Edge Cases ====================
 
 func Test_CreatePatient_OnlyRequiredFields(t *testing.T) {
 	cleanupPatientTestDB()
-	
+
 	_, receptionistToken, _ := createPatientTestUser("receptionist", "receptionist@example.com", "081234567890", "password123", models.RoleReceptionist, true)
 
 	requestBody := map[string]interface{}{
@@ -1127,12 +1132,12 @@ func Test_CreatePatient_OnlyRequiredFields(t *testing.T) {
 
 	assert.Equal(t, http.StatusCreated, w.Code)
 
-	t.Logf("✅ POST /api/v1/patients - Only Required Fields")
+	t.Logf("[PASS] POST /api/v1/patients - Only Required Fields")
 }
 
 func Test_UpdatePatient_PartialUpdate(t *testing.T) {
 	cleanupPatientTestDB()
-	
+
 	patient, _ := createPatientTestPatient(nil, "P-2024-170", "Original Name", "1990-01-01", "male", "O+", "081111111111", "original@test.com", "Original Address")
 
 	_, receptionistToken, _ := createPatientTestUser("receptionist", "receptionist@example.com", "081234567890", "password123", models.RoleReceptionist, true)
@@ -1155,7 +1160,7 @@ func Test_UpdatePatient_PartialUpdate(t *testing.T) {
 	// Phone should be updated
 	assert.Equal(t, "081999999999", data["phone"])
 
-	t.Logf("✅ PUT /api/v1/patients/:id - Partial Update")
+	t.Logf("[PASS] PUT /api/v1/patients/:id - Partial Update")
 }
 
 func Test_ListPatients_EmptyResult(t *testing.T) {
@@ -1167,7 +1172,7 @@ func Test_ListPatients_EmptyResult(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	t.Logf("✅ GET /api/v1/patients - Empty Result")
+	t.Logf("[PASS] GET /api/v1/patients - Empty Result")
 }
 
 func Test_GetPatientByID_InvalidID(t *testing.T) {
@@ -1180,5 +1185,5 @@ func Test_GetPatientByID_InvalidID(t *testing.T) {
 	// Should return 400 Bad Request or 404 Not Found
 	assert.True(t, w.Code == http.StatusBadRequest || w.Code == http.StatusNotFound)
 
-	t.Logf("✅ GET /api/v1/patients/:id - Invalid ID")
+	t.Logf("[PASS] GET /api/v1/patients/:id - Invalid ID")
 }
