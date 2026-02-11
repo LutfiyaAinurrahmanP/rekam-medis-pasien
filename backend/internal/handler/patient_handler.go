@@ -124,7 +124,7 @@ func (h *PatientHandler) GetPatientByID(ctx *gin.Context) {
 	// Ownership check for Patient role
 	role, roleExists := ctx.Get("role")
 	userID, userIDExists := ctx.Get("user_id")
-	
+
 	if roleExists && userIDExists && role == models.RolePatient {
 		// Patient can only view their own data
 		if patient.UserID == nil || *patient.UserID != userID.(uint) {
@@ -138,7 +138,7 @@ func (h *PatientHandler) GetPatientByID(ctx *gin.Context) {
 
 func (h *PatientHandler) GetPatientByCode(ctx *gin.Context) {
 	code := ctx.Param("code")
-	
+
 	patient, err := h.service.GetPatientByCode(code)
 	if err != nil {
 		utils.ErrorResponse(ctx, http.StatusNotFound, "Patient not found", err.Error())

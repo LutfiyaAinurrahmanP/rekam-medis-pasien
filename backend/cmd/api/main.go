@@ -53,6 +53,7 @@ func main() {
 		UserHandler:       dependencies.UserHandler,
 		DepartmentHandler: dependencies.DepartmentHandler,
 		PatientHandler:    dependencies.PatientHandler,
+		DoctorHandler: dependencies.DoctorHandler,
 	})
 
 	// Setup HTTP server
@@ -90,16 +91,19 @@ type Dependencies struct {
 	UserRepository       repository.UserRepository
 	DepartmentRepository repository.DepartmentRepository
 	PatientRepository    repository.PatientRepository
+	DoctorRepository     repository.DoctorRepository
 
 	// Services
 	UserService       service.UserService
 	DepartmentService service.DepartmentService
 	PatientService    service.PatientService
+	DoctorService     service.DoctorService
 
 	// Handlers
 	UserHandler       *handler.UserHandler
 	DepartmentHandler *handler.DepartmentHandler
 	PatientHandler    *handler.PatientHandler
+	DoctorHandler     *handler.DoctorHandler
 }
 
 // initDependencies initializes all application dependencies
@@ -108,16 +112,19 @@ func initDependencies(db *gorm.DB, cfg *config.Config) *Dependencies {
 	userRepo := repository.NewUserRepository(db)
 	departmentRepo := repository.NewDepartmentRepository(db)
 	patientRepo := repository.NewPatientRepository(db)
+	doctorRepo := repository.NewDoctorRepository(db)
 
 	// Initialize Services
 	userService := service.NewUserService(userRepo, cfg)
 	departmentService := service.NewDepartmentService(departmentRepo, cfg)
 	patientService := service.NewPatientService(patientRepo, cfg)
+	doctorService := service.NewDoctorService(doctorRepo, cfg)
 
 	// Initialize Handlers
 	userHandler := handler.NewUserHandler(userService)
 	departmentHandler := handler.NewDepartmentHandler(departmentService)
 	patientHandler := handler.NewPatientHandler(patientService)
+	doctorHandler := handler.NewDoctorHandler(doctorService)
 
 	return &Dependencies{
 		UserRepository: userRepo,
@@ -131,6 +138,10 @@ func initDependencies(db *gorm.DB, cfg *config.Config) *Dependencies {
 		PatientRepository: patientRepo,
 		PatientService:    patientService,
 		PatientHandler:    patientHandler,
+
+		DoctorRepository: doctorRepo,
+		DoctorService:    doctorService,
+		DoctorHandler:    doctorHandler,
 	}
 }
 
