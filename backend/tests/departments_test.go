@@ -79,8 +79,9 @@ func setupDepartmentTestRouter() *gin.Engine {
 
 // Cleanup database sebelum test
 func cleanupDeptTestDB() {
-	deptTestDB.Exec("DELETE FROM departments")
-	deptTestDB.Exec("DELETE FROM users")
+	// Use raw SQL to truncate tables (more reliable for PostgreSQL)
+	deptTestDB.Exec("TRUNCATE TABLE departments RESTART IDENTITY CASCADE")
+	deptTestDB.Exec("TRUNCATE TABLE users RESTART IDENTITY CASCADE")
 }
 
 // Helper function untuk membuat user langsung di database

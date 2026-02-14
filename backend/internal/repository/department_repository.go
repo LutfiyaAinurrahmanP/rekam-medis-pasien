@@ -165,7 +165,7 @@ func (r *departmentRepository) HardDelete(id uint) error {
 
 func (r *departmentRepository) IsCodeExists(code string, excludeID ...uint) (bool, error) {
 	var count int64
-	query := r.db.Model(&models.Department{}).Where("code = ?", code)
+	query := r.db.Unscoped().Model(&models.Department{}).Where("code = ?", code)
 
 	if len(excludeID) > 0 {
 		query = query.Where("id != ?", excludeID[0])

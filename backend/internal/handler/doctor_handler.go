@@ -58,7 +58,7 @@ func (h *DoctorHandler) UpdateMyDoctorData(ctx *gin.Context) {
 	}
 	utils.SuccessResponse(ctx, http.StatusOK, "Doctor data updated successfully", doctor)
 }
-func (h *DoctorHandler) ListDoctors(ctx *gin.Context)               {
+func (h *DoctorHandler) ListDoctors(ctx *gin.Context) {
 	var query dto.DoctorPaginationQuery
 	if err := ctx.ShouldBindQuery(&query); err != nil {
 		utils.ValidationErrorResponse(ctx, err)
@@ -72,7 +72,7 @@ func (h *DoctorHandler) ListDoctors(ctx *gin.Context)               {
 	}
 	utils.SuccessResponse(ctx, http.StatusOK, "Doctors retrieved successfully", doctors)
 }
-func (h *DoctorHandler) DeletedListDoctors(ctx *gin.Context)        {
+func (h *DoctorHandler) DeletedListDoctors(ctx *gin.Context) {
 	var query dto.DoctorPaginationQuery
 	if err := ctx.ShouldBindQuery(&query); err != nil {
 		utils.ValidationErrorResponse(ctx, err)
@@ -86,7 +86,7 @@ func (h *DoctorHandler) DeletedListDoctors(ctx *gin.Context)        {
 	}
 	utils.SuccessResponse(ctx, http.StatusOK, "Deleted doctors retrieved successfully", doctors)
 }
-func (h *DoctorHandler) GetDoctorByID(ctx *gin.Context)             {
+func (h *DoctorHandler) GetDoctorByID(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
 		utils.ErrorResponse(ctx, http.StatusBadRequest, "Invalid doctor ID", err.Error())
@@ -112,7 +112,7 @@ func (h *DoctorHandler) GetDoctorBySpecialization(ctx *gin.Context) {
 
 	utils.SuccessResponse(ctx, http.StatusOK, "Doctor retrieved successfully", doctor)
 }
-func (h *DoctorHandler) CreateDoctor(ctx *gin.Context)              {
+func (h *DoctorHandler) CreateDoctor(ctx *gin.Context) {
 	var req dto.CreateDoctorRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		utils.ValidationErrorResponse(ctx, err)

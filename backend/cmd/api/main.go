@@ -53,7 +53,8 @@ func main() {
 		UserHandler:       dependencies.UserHandler,
 		DepartmentHandler: dependencies.DepartmentHandler,
 		PatientHandler:    dependencies.PatientHandler,
-		DoctorHandler: dependencies.DoctorHandler,
+		DoctorHandler:     dependencies.DoctorHandler,
+		RoomHandler:       dependencies.RoomHandler,
 	})
 
 	// Setup HTTP server
@@ -92,18 +93,21 @@ type Dependencies struct {
 	DepartmentRepository repository.DepartmentRepository
 	PatientRepository    repository.PatientRepository
 	DoctorRepository     repository.DoctorRepository
+	RoomRepository       repository.RoomRepository
 
 	// Services
 	UserService       service.UserService
 	DepartmentService service.DepartmentService
 	PatientService    service.PatientService
 	DoctorService     service.DoctorService
+	RoomService       service.RoomService
 
 	// Handlers
 	UserHandler       *handler.UserHandler
 	DepartmentHandler *handler.DepartmentHandler
 	PatientHandler    *handler.PatientHandler
 	DoctorHandler     *handler.DoctorHandler
+	RoomHandler       *handler.RoomHandler
 }
 
 // initDependencies initializes all application dependencies
@@ -113,18 +117,21 @@ func initDependencies(db *gorm.DB, cfg *config.Config) *Dependencies {
 	departmentRepo := repository.NewDepartmentRepository(db)
 	patientRepo := repository.NewPatientRepository(db)
 	doctorRepo := repository.NewDoctorRepository(db)
+	roomRepo := repository.NewRoomRepository(db)
 
 	// Initialize Services
 	userService := service.NewUserService(userRepo, cfg)
 	departmentService := service.NewDepartmentService(departmentRepo, cfg)
 	patientService := service.NewPatientService(patientRepo, cfg)
 	doctorService := service.NewDoctorService(doctorRepo, cfg)
+	roomService := service.NewRoomService(roomRepo, cfg)
 
 	// Initialize Handlers
 	userHandler := handler.NewUserHandler(userService)
 	departmentHandler := handler.NewDepartmentHandler(departmentService)
 	patientHandler := handler.NewPatientHandler(patientService)
 	doctorHandler := handler.NewDoctorHandler(doctorService)
+	roomHandler := handler.NewRoomHandler(roomService)
 
 	return &Dependencies{
 		UserRepository: userRepo,
@@ -142,6 +149,10 @@ func initDependencies(db *gorm.DB, cfg *config.Config) *Dependencies {
 		DoctorRepository: doctorRepo,
 		DoctorService:    doctorService,
 		DoctorHandler:    doctorHandler,
+
+		RoomRepository: roomRepo,
+		RoomService:    roomService,
+		RoomHandler:    roomHandler,
 	}
 }
 

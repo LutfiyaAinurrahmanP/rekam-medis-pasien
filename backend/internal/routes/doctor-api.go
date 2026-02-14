@@ -29,8 +29,8 @@ func SetupDoctorRouter(rg *gin.RouterGroup, cfg *RouteConfig, doctorHandler *han
 			adminRoutes.GET("/deleted", doctorHandler.DeletedListDoctors)
 			adminRoutes.POST("", doctorHandler.CreateDoctor)
 			adminRoutes.PUT("/:id", doctorHandler.UpdateDoctor)
-		adminRoutes.PATCH("/:id/activate", doctorHandler.ActivateDoctor)
-		adminRoutes.PATCH("/:id/deactivate", doctorHandler.DeactivateDoctor)
+			adminRoutes.PATCH("/:id/activate", doctorHandler.ActivateDoctor)
+			adminRoutes.PATCH("/:id/deactivate", doctorHandler.DeactivateDoctor)
 			adminRoutes.DELETE("/:id", doctorHandler.SoftDeleteDoctor)
 			adminRoutes.PATCH("/:id/restore", doctorHandler.RestoreDoctor)
 		}

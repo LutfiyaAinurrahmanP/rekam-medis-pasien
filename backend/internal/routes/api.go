@@ -26,4 +26,9 @@ func SetupAPIRouter(rg *gin.RouterGroup, cfg *RouteConfig) {
 	if cfg.PatientHandler != nil {
 		SetupPatientsRouter(rg, cfg, cfg.PatientHandler)
 	}
+
+	// Setup Rooms routes
+	if cfg.RoomHandler != nil {
+		SetupRoomsRouter(rg, cfg, cfg.RoomHandler)
+	}
 }

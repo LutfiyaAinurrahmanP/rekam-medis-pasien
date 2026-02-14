@@ -179,7 +179,7 @@ func (s doctorService) GetDoctorByID(id uint) (*dto.DoctorResponse, error) {
 	return s.toDoctorResponse(doctor), nil
 }
 
-func (s doctorService) GetDoctorBySpecialization(specialization string) (*dto.DoctorResponse, error){
+func (s doctorService) GetDoctorBySpecialization(specialization string) (*dto.DoctorResponse, error) {
 	spec, err := s.repo.FindBySpecialization(specialization)
 	if err != nil {
 		return nil, err
