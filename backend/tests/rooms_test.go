@@ -155,7 +155,7 @@ func createRoomTestRoom(roomNumber, roomType string, departmentID *uint, bedCapa
 	if availableBeds == 0 {
 		updates["available_beds"] = 0
 	}
-	
+
 	if len(updates) > 0 {
 		roomTestDB.Model(room).Updates(updates)
 	}
@@ -245,7 +245,7 @@ func Test_GetRooms_WithFilters(t *testing.T) {
 	room := rooms[0].(map[string]interface{})
 	roomNumber := room["room_number"].(string)
 	roomType := room["room_type"].(string)
-	assert.True(t, 
+	assert.True(t,
 		roomType == "vip" || roomNumber == "301-A",
 		"Room should match search term 'vip'")
 
@@ -321,7 +321,7 @@ func Test_GetOccupiedRooms_Success_Doctor(t *testing.T) {
 	assert.Equal(t, true, response["success"])
 	data := response["data"].(map[string]interface{})
 	rooms := data["data"].([]interface{})
-	
+
 	// Should return 1 occupied room (301-A with 0 available beds)
 	assert.Equal(t, 1, len(rooms), "Expected 1 occupied room")
 

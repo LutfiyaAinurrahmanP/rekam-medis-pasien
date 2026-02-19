@@ -55,6 +55,7 @@ func main() {
 		PatientHandler:    dependencies.PatientHandler,
 		DoctorHandler:     dependencies.DoctorHandler,
 		RoomHandler:       dependencies.RoomHandler,
+		TypeTestHandler:   dependencies.TypeTestHandler,
 	})
 
 	// Setup HTTP server
@@ -94,6 +95,7 @@ type Dependencies struct {
 	PatientRepository    repository.PatientRepository
 	DoctorRepository     repository.DoctorRepository
 	RoomRepository       repository.RoomRepository
+	TypeTestRepository   repository.TypeTestRepository
 
 	// Services
 	UserService       service.UserService
@@ -101,6 +103,7 @@ type Dependencies struct {
 	PatientService    service.PatientService
 	DoctorService     service.DoctorService
 	RoomService       service.RoomService
+	TypeTestService   service.TypeTestService
 
 	// Handlers
 	UserHandler       *handler.UserHandler
@@ -108,6 +111,7 @@ type Dependencies struct {
 	PatientHandler    *handler.PatientHandler
 	DoctorHandler     *handler.DoctorHandler
 	RoomHandler       *handler.RoomHandler
+	TypeTestHandler   *handler.TypeTestHandler
 }
 
 // initDependencies initializes all application dependencies
@@ -118,6 +122,7 @@ func initDependencies(db *gorm.DB, cfg *config.Config) *Dependencies {
 	patientRepo := repository.NewPatientRepository(db)
 	doctorRepo := repository.NewDoctorRepository(db)
 	roomRepo := repository.NewRoomRepository(db)
+	typeTestRepo := repository.NewTypeTestRepository(db)
 
 	// Initialize Services
 	userService := service.NewUserService(userRepo, cfg)
@@ -125,6 +130,7 @@ func initDependencies(db *gorm.DB, cfg *config.Config) *Dependencies {
 	patientService := service.NewPatientService(patientRepo, cfg)
 	doctorService := service.NewDoctorService(doctorRepo, cfg)
 	roomService := service.NewRoomService(roomRepo, cfg)
+	typeTestService := service.NewTypeTestService(typeTestRepo, cfg)
 
 	// Initialize Handlers
 	userHandler := handler.NewUserHandler(userService)
@@ -132,6 +138,7 @@ func initDependencies(db *gorm.DB, cfg *config.Config) *Dependencies {
 	patientHandler := handler.NewPatientHandler(patientService)
 	doctorHandler := handler.NewDoctorHandler(doctorService)
 	roomHandler := handler.NewRoomHandler(roomService)
+	typeTestHandler := handler.NewTypeTestHandler(typeTestService)
 
 	return &Dependencies{
 		UserRepository: userRepo,
@@ -153,6 +160,10 @@ func initDependencies(db *gorm.DB, cfg *config.Config) *Dependencies {
 		RoomRepository: roomRepo,
 		RoomService:    roomService,
 		RoomHandler:    roomHandler,
+
+		TypeTestRepository: typeTestRepo,
+		TypeTestService:    typeTestService,
+		TypeTestHandler:    typeTestHandler,
 	}
 }
 
