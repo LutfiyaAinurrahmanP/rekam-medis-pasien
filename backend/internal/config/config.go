@@ -13,6 +13,7 @@ type Config struct {
 	Database   DatabaseConfig
 	JWT        JWTConfig
 	Pagination PaginationConfig
+	Redis      RedisConfig
 }
 
 type AppConfig struct {
@@ -41,6 +42,14 @@ type PaginationConfig struct {
 	MaxPageSize     int
 }
 
+type RedisConfig struct {
+	Host       string
+	Port       string
+	Password   string
+	DB         int
+	DefaultTTL time.Duration
+}
+
 func LoadConfig() (*Config, error) {
 	viper.SetConfigFile(".env")
 	viper.AutomaticEnv()
@@ -59,10 +68,20 @@ func LoadConfig() (*Config, error) {
 	viper.SetDefault("JWT_EXPIRED_TIME", "24h")
 	viper.SetDefault("DEFAULT_PAGE_SIZE", 10)
 	viper.SetDefault("MAX_PAGE_SIZE", 100)
+	viper.SetDefault("REDIS_HOST", "localhost")
+	viper.SetDefault("REDIS_PORT", "6379")
+	viper.SetDefault("REDIS_PASSWORD", "")
+	viper.SetDefault("REDIS_DB", 0)
+	viper.SetDefault("REDIS_TTL", "5m")
 
 	jwtExpired, err := time.ParseDuration(viper.GetString("JWT_EXPIRED_TIME"))
 	if err != nil {
 		jwtExpired = 24 * time.Hour
+	}
+
+	redisTTL, err := time.ParseDuration(viper.GetString("REDIS_TTL"))
+	if err != nil {
+		redisTTL = 5 * time.Minute
 	}
 
 	config := &Config{
@@ -87,6 +106,13 @@ func LoadConfig() (*Config, error) {
 		Pagination: PaginationConfig{
 			DefaultPageSize: viper.GetInt("DEFAULT_PAGE_SIZE"),
 			MaxPageSize:     viper.GetInt("MAX_PAGE_SIZE"),
+		},
+		Redis: RedisConfig{
+			Host:       viper.GetString("REDIS_HOST"),
+			Port:       viper.GetString("REDIS_PORT"),
+			Password:   viper.GetString("REDIS_PASSWORD"),
+			DB:         viper.GetInt("REDIS_DB"),
+			DefaultTTL: redisTTL,
 		},
 	}
 

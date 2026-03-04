@@ -10,6 +10,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/cache"
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/config"
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/database"
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/handler"
@@ -44,8 +45,16 @@ func main() {
 	// 	}
 	// }
 
+	// Initialize Redis (optional — app tetap berjalan bila Redis tidak tersedia)
+	var redisClient *cache.RedisClient
+	if rc, err := cache.NewRedisClient(&cfg.Redis); err != nil {
+		log.Printf("⚠️  Redis tidak tersedia, cache dinonaktifkan: %v", err)
+	} else {
+		redisClient = rc
+	}
+
 	// Initialize dependencies
-	dependencies := initDependencies(db, cfg)
+	dependencies := initDependencies(db, cfg, redisClient)
 
 	// Setup router with all routes
 	router := routes.SetupRouter(&routes.RouteConfig{
@@ -84,7 +93,7 @@ func main() {
 	}()
 
 	// Graceful shutdown
-	gracefulShutdown(srv, db)
+	gracefulShutdown(srv, db, redisClient)
 }
 
 // Dependencies holds all application dependencies
@@ -115,7 +124,7 @@ type Dependencies struct {
 }
 
 // initDependencies initializes all application dependencies
-func initDependencies(db *gorm.DB, cfg *config.Config) *Dependencies {
+func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisClient) *Dependencies {
 	// Initialize Repositories
 	userRepo := repository.NewUserRepository(db)
 	departmentRepo := repository.NewDepartmentRepository(db)
@@ -125,12 +134,24 @@ func initDependencies(db *gorm.DB, cfg *config.Config) *Dependencies {
 	typeTestRepo := repository.NewTypeTestRepository(db)
 
 	// Initialize Services
-	userService := service.NewUserService(userRepo, cfg)
-	departmentService := service.NewDepartmentService(departmentRepo, cfg)
-	patientService := service.NewPatientService(patientRepo, cfg)
-	doctorService := service.NewDoctorService(doctorRepo, cfg)
-	roomService := service.NewRoomService(roomRepo, cfg)
-	typeTestService := service.NewTypeTestService(typeTestRepo, cfg)
+	userService := service.NewCachedUserService(
+		service.NewUserService(userRepo, cfg), redisClient,
+	)
+	departmentService := service.NewCachedDepartmentService(
+		service.NewDepartmentService(departmentRepo, cfg), redisClient,
+	)
+	patientService := service.NewCachedPatientService(
+		service.NewPatientService(patientRepo, cfg), redisClient,
+	)
+	doctorService := service.NewCachedDoctorService(
+		service.NewDoctorService(doctorRepo, cfg), redisClient,
+	)
+	roomService := service.NewCachedRoomService(
+		service.NewRoomService(roomRepo, cfg), redisClient,
+	)
+	typeTestService := service.NewCachedTypeTestService(
+		service.NewTypeTestService(typeTestRepo, cfg), redisClient,
+	)
 
 	// Initialize Handlers
 	userHandler := handler.NewUserHandler(userService)
@@ -168,7 +189,7 @@ func initDependencies(db *gorm.DB, cfg *config.Config) *Dependencies {
 }
 
 // gracefulShutdown handles graceful shutdown of the server
-func gracefulShutdown(srv *http.Server, db *gorm.DB) {
+func gracefulShutdown(srv *http.Server, db *gorm.DB, redisClient *cache.RedisClient) {
 	// Wait for interrupt signal to gracefully shutdown the server
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
@@ -192,6 +213,15 @@ func gracefulShutdown(srv *http.Server, db *gorm.DB) {
 			log.Printf("❌ Failed to close database connection: %v", err)
 		} else {
 			log.Println("✅ Database connection closed")
+		}
+	}
+
+	// Close Redis connection
+	if redisClient != nil {
+		if err := redisClient.Close(); err != nil {
+			log.Printf("❌ Failed to close Redis connection: %v", err)
+		} else {
+			log.Println("✅ Redis connection closed")
 		}
 	}
 

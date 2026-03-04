@@ -53,4 +53,3 @@ func SetupTypeTestRouter(rg *gin.RouterGroup, cfg *RouteConfig, th *handler.Type
 		g.GET("/:id", th.GetTypeTestByID)
 	}
 }
-

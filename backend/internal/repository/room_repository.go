@@ -208,6 +208,7 @@ func (r *roomRepository) FindByID(id uint) (*models.Room, error) {
 	}
 	return &room, nil
 }
+
 // FindByIDIncludingDeleted finds a room by ID including soft-deleted records
 func (r *roomRepository) FindByIDIncludingDeleted(id uint) (*models.Room, error) {
 	var room models.Room
