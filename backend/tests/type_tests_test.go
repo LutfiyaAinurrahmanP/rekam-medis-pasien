@@ -15,7 +15,8 @@ import (
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/models"
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/repository"
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/routes"
-	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service"
+	typetestservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/typetest"
+	userservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/user"
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -49,8 +50,8 @@ func setupTypeTestRouter() *gin.Engine {
 	userRepo := repository.NewUserRepository(ttTestDB)
 	typeTestRepo := repository.NewTypeTestRepository(ttTestDB)
 
-	userService := service.NewUserService(userRepo, ttTestConfig)
-	typeTestService := service.NewTypeTestService(typeTestRepo, ttTestConfig)
+	userService := userservice.NewUserService(userRepo, ttTestConfig)
+	typeTestService := typetestservice.NewTypeTestService(typeTestRepo, ttTestConfig)
 
 	userHandler := handler.NewUserHandler(userService)
 	typeTestHandler := handler.NewTypeTestHandler(typeTestService)

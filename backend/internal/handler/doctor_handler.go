@@ -5,16 +5,16 @@ import (
 	"strconv"
 
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/dto"
-	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service"
+	doctorservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/doctor"
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/utils"
 	"github.com/gin-gonic/gin"
 )
 
 type DoctorHandler struct {
-	service service.DoctorService
+	service doctorservice.DoctorService
 }
 
-func NewDoctorHandler(service service.DoctorService) *DoctorHandler {
+func NewDoctorHandler(service doctorservice.DoctorService) *DoctorHandler {
 	return &DoctorHandler{
 		service: service,
 	}

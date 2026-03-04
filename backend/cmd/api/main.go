@@ -13,10 +13,17 @@ import (
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/cache"
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/config"
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/database"
+	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/eventhandler"
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/handler"
+	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/kafka"
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/repository"
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/routes"
-	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service"
+	departmentservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/department"
+	doctorservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/doctor"
+	patientservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/patient"
+	roomservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/room"
+	typetestservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/typetest"
+	userservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/user"
 	"gorm.io/gorm"
 )
 
@@ -53,8 +60,33 @@ func main() {
 		redisClient = rc
 	}
 
+	// Initialize Kafka producer (opsional — app tetap berjalan bila Kafka tidak tersedia)
+	var kafkaProducer kafka.EventPublisher
+	if cfg.Kafka.Enabled {
+		producer := kafka.NewProducer(cfg.Kafka.Brokers, cfg.Kafka.ClientID)
+		kafkaProducer = producer
+		log.Printf("✅ Kafka producer aktif — brokers: %v", cfg.Kafka.Brokers)
+	} else {
+		log.Println("⚠️  Kafka dinonaktifkan — event publishing tidak aktif")
+	}
+
+	// Context untuk consumer goroutines (dibatalkan saat shutdown)
+	consumerCtx, cancelConsumers := context.WithCancel(context.Background())
+
+	// Start Kafka consumers jika Kafka aktif
+	var auditHandler *eventhandler.AuditEventHandler
+	var notifHandler *eventhandler.NotificationEventHandler
+	if cfg.Kafka.Enabled {
+		auditHandler = eventhandler.NewAuditEventHandler(cfg.Kafka.Brokers, kafka.AllTopics())
+		notifHandler = eventhandler.NewNotificationEventHandler(cfg.Kafka.Brokers)
+
+		go auditHandler.Start(consumerCtx)
+		go notifHandler.Start(consumerCtx)
+		log.Println("✅ Kafka consumers started (audit, notification)")
+	}
+
 	// Initialize dependencies
-	dependencies := initDependencies(db, cfg, redisClient)
+	dependencies := initDependencies(db, cfg, redisClient, kafkaProducer)
 
 	// Setup router with all routes
 	router := routes.SetupRouter(&routes.RouteConfig{
@@ -93,7 +125,7 @@ func main() {
 	}()
 
 	// Graceful shutdown
-	gracefulShutdown(srv, db, redisClient)
+	gracefulShutdown(srv, db, redisClient, kafkaProducer, cancelConsumers, auditHandler, notifHandler)
 }
 
 // Dependencies holds all application dependencies
@@ -107,12 +139,12 @@ type Dependencies struct {
 	TypeTestRepository   repository.TypeTestRepository
 
 	// Services
-	UserService       service.UserService
-	DepartmentService service.DepartmentService
-	PatientService    service.PatientService
-	DoctorService     service.DoctorService
-	RoomService       service.RoomService
-	TypeTestService   service.TypeTestService
+	UserService       userservice.UserService
+	DepartmentService departmentservice.DepartmentService
+	PatientService    patientservice.PatientService
+	DoctorService     doctorservice.DoctorService
+	RoomService       roomservice.RoomService
+	TypeTestService   typetestservice.TypeTestService
 
 	// Handlers
 	UserHandler       *handler.UserHandler
@@ -124,7 +156,7 @@ type Dependencies struct {
 }
 
 // initDependencies initializes all application dependencies
-func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisClient) *Dependencies {
+func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisClient, publisher kafka.EventPublisher) *Dependencies {
 	// Initialize Repositories
 	userRepo := repository.NewUserRepository(db)
 	departmentRepo := repository.NewDepartmentRepository(db)
@@ -134,23 +166,30 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 	typeTestRepo := repository.NewTypeTestRepository(db)
 
 	// Initialize Services
-	userService := service.NewCachedUserService(
-		service.NewUserService(userRepo, cfg), redisClient,
+	// Layer order: base → cache → event
+	userService := userservice.NewEventUserService(
+		userservice.NewCachedUserService(userservice.NewUserService(userRepo, cfg), redisClient),
+		publisher,
 	)
-	departmentService := service.NewCachedDepartmentService(
-		service.NewDepartmentService(departmentRepo, cfg), redisClient,
+	departmentService := departmentservice.NewEventDepartmentService(
+		departmentservice.NewCachedDepartmentService(departmentservice.NewDepartmentService(departmentRepo, cfg), redisClient),
+		publisher,
 	)
-	patientService := service.NewCachedPatientService(
-		service.NewPatientService(patientRepo, cfg), redisClient,
+	patientService := patientservice.NewEventPatientService(
+		patientservice.NewCachedPatientService(patientservice.NewPatientService(patientRepo, cfg), redisClient),
+		publisher,
 	)
-	doctorService := service.NewCachedDoctorService(
-		service.NewDoctorService(doctorRepo, cfg), redisClient,
+	doctorService := doctorservice.NewEventDoctorService(
+		doctorservice.NewCachedDoctorService(doctorservice.NewDoctorService(doctorRepo, cfg), redisClient),
+		publisher,
 	)
-	roomService := service.NewCachedRoomService(
-		service.NewRoomService(roomRepo, cfg), redisClient,
+	roomService := roomservice.NewEventRoomService(
+		roomservice.NewCachedRoomService(roomservice.NewRoomService(roomRepo, cfg), redisClient),
+		publisher,
 	)
-	typeTestService := service.NewCachedTypeTestService(
-		service.NewTypeTestService(typeTestRepo, cfg), redisClient,
+	typeTestService := typetestservice.NewEventTypeTestService(
+		typetestservice.NewCachedTypeTestService(typetestservice.NewTypeTestService(typeTestRepo, cfg), redisClient),
+		publisher,
 	)
 
 	// Initialize Handlers
@@ -189,7 +228,15 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 }
 
 // gracefulShutdown handles graceful shutdown of the server
-func gracefulShutdown(srv *http.Server, db *gorm.DB, redisClient *cache.RedisClient) {
+func gracefulShutdown(
+	srv *http.Server,
+	db *gorm.DB,
+	redisClient *cache.RedisClient,
+	kafkaProducer kafka.EventPublisher,
+	cancelConsumers context.CancelFunc,
+	auditHandler *eventhandler.AuditEventHandler,
+	notifHandler *eventhandler.NotificationEventHandler,
+) {
 	// Wait for interrupt signal to gracefully shutdown the server
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
@@ -222,6 +269,33 @@ func gracefulShutdown(srv *http.Server, db *gorm.DB, redisClient *cache.RedisCli
 			log.Printf("❌ Failed to close Redis connection: %v", err)
 		} else {
 			log.Println("✅ Redis connection closed")
+		}
+	}
+
+	// Stop Kafka consumers
+	cancelConsumers()
+	time.Sleep(500 * time.Millisecond) // beri waktu goroutine selesai
+	if auditHandler != nil {
+		if err := auditHandler.Close(); err != nil {
+			log.Printf("❌ Failed to close audit consumer: %v", err)
+		} else {
+			log.Println("✅ Audit consumer closed")
+		}
+	}
+	if notifHandler != nil {
+		if err := notifHandler.Close(); err != nil {
+			log.Printf("❌ Failed to close notification consumer: %v", err)
+		} else {
+			log.Println("✅ Notification consumer closed")
+		}
+	}
+
+	// Close Kafka producer
+	if kafkaProducer != nil {
+		if err := kafkaProducer.Close(); err != nil {
+			log.Printf("❌ Failed to close Kafka producer: %v", err)
+		} else {
+			log.Println("✅ Kafka producer closed")
 		}
 	}
 

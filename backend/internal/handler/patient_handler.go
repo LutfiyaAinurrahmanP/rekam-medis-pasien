@@ -6,16 +6,16 @@ import (
 
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/dto"
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/models"
-	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service"
+	patientservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/patient"
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/utils"
 	"github.com/gin-gonic/gin"
 )
 
 type PatientHandler struct {
-	service service.PatientService
+	service patientservice.PatientService
 }
 
-func NewPatientHandler(service service.PatientService) *PatientHandler {
+func NewPatientHandler(service patientservice.PatientService) *PatientHandler {
 	return &PatientHandler{
 		service: service,
 	}

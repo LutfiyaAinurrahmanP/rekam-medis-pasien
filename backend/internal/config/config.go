@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/spf13/viper"
@@ -14,6 +15,18 @@ type Config struct {
 	JWT        JWTConfig
 	Pagination PaginationConfig
 	Redis      RedisConfig
+	Kafka      KafkaConfig
+}
+
+// KafkaConfig menyimpan konfigurasi koneksi ke Apache Kafka.
+type KafkaConfig struct {
+	// Brokers adalah daftar alamat Kafka broker yang dipisahkan koma,
+	// contoh: "localhost:9092,kafka2:9092"
+	Brokers  []string
+	ClientID string
+	// Enabled menentukan apakah Kafka diaktifkan. Jika false,
+	// event publishing dinonaktifkan dan aplikasi tetap berjalan.
+	Enabled  bool
 }
 
 type AppConfig struct {
@@ -73,6 +86,9 @@ func LoadConfig() (*Config, error) {
 	viper.SetDefault("REDIS_PASSWORD", "")
 	viper.SetDefault("REDIS_DB", 0)
 	viper.SetDefault("REDIS_TTL", "5m")
+	viper.SetDefault("KAFKA_BROKERS", "localhost:9092")
+	viper.SetDefault("KAFKA_CLIENT_ID", "sirekam-medis")
+	viper.SetDefault("KAFKA_ENABLED", true)
 
 	jwtExpired, err := time.ParseDuration(viper.GetString("JWT_EXPIRED_TIME"))
 	if err != nil {
@@ -113,6 +129,11 @@ func LoadConfig() (*Config, error) {
 			Password:   viper.GetString("REDIS_PASSWORD"),
 			DB:         viper.GetInt("REDIS_DB"),
 			DefaultTTL: redisTTL,
+		},
+		Kafka: KafkaConfig{
+			Brokers:  strings.Split(viper.GetString("KAFKA_BROKERS"), ","),
+			ClientID: viper.GetString("KAFKA_CLIENT_ID"),
+			Enabled:  viper.GetBool("KAFKA_ENABLED"),
 		},
 	}
 

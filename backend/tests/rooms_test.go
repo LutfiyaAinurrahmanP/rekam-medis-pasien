@@ -15,7 +15,8 @@ import (
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/models"
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/repository"
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/routes"
-	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service"
+	roomservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/room"
+	userservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/user"
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -55,8 +56,8 @@ func setupRoomTestRouter() *gin.Engine {
 	roomRepo := repository.NewRoomRepository(roomTestDB)
 
 	// Initialize services
-	userService := service.NewUserService(userRepo, roomTestConfig)
-	roomService := service.NewRoomService(roomRepo, roomTestConfig)
+	userService := userservice.NewUserService(userRepo, roomTestConfig)
+	roomService := roomservice.NewRoomService(roomRepo, roomTestConfig)
 
 	// Initialize handlers
 	userHandler := handler.NewUserHandler(userService)

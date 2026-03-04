@@ -6,16 +6,16 @@ import (
 	"strconv"
 
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/dto"
-	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service"
+	userservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/user"
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/utils"
 	"github.com/gin-gonic/gin"
 )
 
 type UserHandler struct {
-	service service.UserService
+	service userservice.UserService
 }
 
-func NewUserHandler(service service.UserService) *UserHandler {
+func NewUserHandler(service userservice.UserService) *UserHandler {
 	return &UserHandler{
 		service: service,
 	}

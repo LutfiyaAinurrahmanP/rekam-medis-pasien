@@ -15,7 +15,7 @@ import (
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/models"
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/repository"
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/routes"
-	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service"
+	userservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/user"
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -54,7 +54,7 @@ func setupRealTestRouter() *gin.Engine {
 	userRepo := repository.NewUserRepository(realTestDB)
 
 	// Initialize services
-	userService := service.NewUserService(userRepo, realTestConfig)
+	userService := userservice.NewUserService(userRepo, realTestConfig)
 
 	// Initialize handlers
 	userHandler := handler.NewUserHandler(userService)

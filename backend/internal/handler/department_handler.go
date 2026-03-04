@@ -5,16 +5,16 @@ import (
 	"strconv"
 
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/dto"
-	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service"
+	departmentservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/department"
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/utils"
 	"github.com/gin-gonic/gin"
 )
 
 type DepartmentHandler struct {
-	service service.DepartmentService
+	service departmentservice.DepartmentService
 }
 
-func NewDepartmentHandler(service service.DepartmentService) *DepartmentHandler {
+func NewDepartmentHandler(service departmentservice.DepartmentService) *DepartmentHandler {
 	return &DepartmentHandler{
 		service: service,
 	}

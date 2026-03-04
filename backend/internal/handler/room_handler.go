@@ -5,16 +5,16 @@ import (
 	"strconv"
 
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/dto"
-	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service"
+	roomservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/room"
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/utils"
 	"github.com/gin-gonic/gin"
 )
 
 type RoomHandler struct {
-	service service.RoomService
+	service roomservice.RoomService
 }
 
-func NewRoomHandler(service service.RoomService) *RoomHandler {
+func NewRoomHandler(service roomservice.RoomService) *RoomHandler {
 	return &RoomHandler{
 		service: service,
 	}

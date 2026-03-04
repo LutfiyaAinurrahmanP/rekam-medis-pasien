@@ -15,7 +15,8 @@ import (
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/models"
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/repository"
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/routes"
-	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service"
+	patientservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/patient"
+	userservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/user"
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -55,8 +56,8 @@ func setupPatientTestRouter() *gin.Engine {
 	patientRepo := repository.NewPatientRepository(patientTestDB)
 
 	// Initialize services
-	userService := service.NewUserService(userRepo, patientTestConfig)
-	patientService := service.NewPatientService(patientRepo, patientTestConfig)
+	userService := userservice.NewUserService(userRepo, patientTestConfig)
+	patientService := patientservice.NewPatientService(patientRepo, patientTestConfig)
 
 	// Initialize handlers
 	userHandler := handler.NewUserHandler(userService)

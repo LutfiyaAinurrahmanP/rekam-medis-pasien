@@ -15,7 +15,9 @@ import (
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/models"
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/repository"
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/routes"
-	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service"
+	departmentservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/department"
+	doctorservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/doctor"
+	userservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/user"
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -56,9 +58,9 @@ func setupDoctorTestRouter() *gin.Engine {
 	deptRepo := repository.NewDepartmentRepository(doctorTestDB)
 
 	// Initialize services
-	userService := service.NewUserService(userRepo, doctorTestConfig)
-	doctorService := service.NewDoctorService(doctorRepo, doctorTestConfig)
-	deptService := service.NewDepartmentService(deptRepo, doctorTestConfig)
+	userService := userservice.NewUserService(userRepo, doctorTestConfig)
+	doctorService := doctorservice.NewDoctorService(doctorRepo, doctorTestConfig)
+	deptService := departmentservice.NewDepartmentService(deptRepo, doctorTestConfig)
 
 	// Initialize handlers
 	userHandler := handler.NewUserHandler(userService)

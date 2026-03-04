@@ -1,4 +1,4 @@
-package service
+package department
 
 import (
 	"errors"

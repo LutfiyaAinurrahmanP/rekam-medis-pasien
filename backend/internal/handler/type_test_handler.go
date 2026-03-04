@@ -5,16 +5,16 @@ import (
 	"strconv"
 
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/dto"
-	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service"
+	typetestservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/typetest"
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/utils"
 	"github.com/gin-gonic/gin"
 )
 
 type TypeTestHandler struct {
-	service service.TypeTestService
+	service typetestservice.TypeTestService
 }
 
-func NewTypeTestHandler(s service.TypeTestService) *TypeTestHandler {
+func NewTypeTestHandler(s typetestservice.TypeTestService) *TypeTestHandler {
 	return &TypeTestHandler{service: s}
 }
 
