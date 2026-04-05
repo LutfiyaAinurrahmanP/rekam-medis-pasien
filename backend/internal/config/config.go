@@ -26,7 +26,7 @@ type KafkaConfig struct {
 	ClientID string
 	// Enabled menentukan apakah Kafka diaktifkan. Jika false,
 	// event publishing dinonaktifkan dan aplikasi tetap berjalan.
-	Enabled  bool
+	Enabled bool
 }
 
 type AppConfig struct {

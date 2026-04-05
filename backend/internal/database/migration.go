@@ -14,6 +14,10 @@ func RunMigration(db *gorm.DB) error {
 		&models.User{},
 		&models.Department{},
 		&models.Patient{},
+		&models.Doctor{},
+		&models.Room{},
+		&models.TypeTest{},
+		&models.Medicine{},
 	)
 
 	if err != nil {

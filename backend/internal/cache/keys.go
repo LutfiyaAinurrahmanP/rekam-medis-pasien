@@ -55,6 +55,9 @@ func TypeTestSearchKey(q string, page, size int) string {
 	return fmt.Sprintf("typetest:search:%s:p%d:s%d", q, page, size)
 }
 
+// ─── TypeTest ──────────────────────────────────────────────────────────────
+func MedicineListKey(page, size int) string { return fmt.Sprintf("medicine:list:p%d:s%d", page, size)}
+
 // ─── Invalidation patterns ─────────────────────────────────────────────────
 
 const (

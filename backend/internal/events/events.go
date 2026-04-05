@@ -230,13 +230,13 @@ func NewPatientRestoredEvent(id uint, code, fullName string) PatientRestoredEven
 // ─── Doctor Events ────────────────────────────────────────────────────────────
 
 type DoctorPayload struct {
-	ID             uint    `json:"id"`
-	FullName       string  `json:"full_name"`
-	Specialization string  `json:"specialization"`
-	Phone          string  `json:"phone"`
-	Email          string  `json:"email"`
-	DepartmentID   *uint   `json:"department_id,omitempty"`
-	IsActive       bool    `json:"is_active"`
+	ID             uint   `json:"id"`
+	FullName       string `json:"full_name"`
+	Specialization string `json:"specialization"`
+	Phone          string `json:"phone"`
+	Email          string `json:"email"`
+	DepartmentID   *uint  `json:"department_id,omitempty"`
+	IsActive       bool   `json:"is_active"`
 }
 
 type DoctorCreatedEvent struct {
@@ -456,12 +456,12 @@ func NewRoomRestoredEvent(id uint, roomNumber string) RoomRestoredEvent {
 // ─── TypeTest Events ──────────────────────────────────────────────────────────
 
 type TypeTestPayload struct {
-	ID          uint    `json:"id"`
-	Code        string  `json:"code"`
-	Name        string  `json:"name"`
-	Category    string  `json:"category"`
-	Price       float64 `json:"price"`
-	IsActive    bool    `json:"is_active"`
+	ID       uint    `json:"id"`
+	Code     string  `json:"code"`
+	Name     string  `json:"name"`
+	Category string  `json:"category"`
+	Price    float64 `json:"price"`
+	IsActive bool    `json:"is_active"`
 }
 
 type TypeTestCreatedEvent struct {
@@ -529,4 +529,22 @@ func NewTypeTestRestoredEvent(id uint, code, name string) TypeTestRestoredEvent 
 	e.Payload.Code = code
 	e.Payload.Name = name
 	return e
+}
+
+
+// Medicine Events
+type MedicinePayload struct {
+	ID            uint      `json:"id"`
+	Name          string    `json:"name"`
+	GenericName   string    `json:"generic_name"`
+	BrandName     string    `json:"brand_name"`
+	Type          string    `json:"type"`
+	Strength      string    `json:"strength"`
+	Manufacturer  string    `json:"manufacturer"`
+	Unit          string    `json:"unit"`
+	StockQuantity int       `json:"stock_quantity"`
+	Price         float64   `json:"price"`
+	IsActive      bool      `json:"is_active"`
+	IsLowStock    bool      `json:"is_low_stock"`
+	IsOutOfStock  bool      `json:"is_out_of_stock"`
 }
