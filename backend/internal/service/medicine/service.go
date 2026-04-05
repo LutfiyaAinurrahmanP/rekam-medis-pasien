@@ -52,7 +52,7 @@ if query.Page < 1 {
 		query.PageSize = s.config.Pagination.DefaultPageSize
 	}
 
-	if query.PageSize < s.config.Pagination.MaxPageSize {
+	if query.PageSize > s.config.Pagination.MaxPageSize {
 		query.PageSize = s.config.Pagination.MaxPageSize
 	}
 
