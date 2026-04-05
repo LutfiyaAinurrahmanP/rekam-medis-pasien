@@ -1,4 +1,4 @@
-.PHONY: help build run test test-users test-departments test-patients test-doctors test-rooms test-type-tests test-coverage clean docker-build docker-up docker-down migrate lint fmt mod-download test-all mod-tidy dev prod-build
+.PHONY: help build run seed test test-users test-departments test-patients test-doctors test-rooms test-type-tests test-coverage clean docker-build docker-up docker-down migrate lint fmt mod-download test-all mod-tidy dev prod-build
 
 help: ## Display this help screen
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
@@ -10,6 +10,10 @@ build: ## Build the application
 run: ## Run the application
 	@echo "Running application..."
 	@go run cmd/api/main.go
+
+seed: ## Seed database with sample data
+	@echo "Seeding database..."
+	@go run cmd/seed/main.go
 
 test: ## Run all tests with Jest-like output
 	@if command -v powershell >/dev/null 2>&1; then \
