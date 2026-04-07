@@ -23,7 +23,7 @@ func seedMedicines(tx *gorm.DB, count int) ([]models.Medicine, error) {
 			Strength:      fmt.Sprintf("%d mg", 50+((i-1)%10)*50),
 			Manufacturer:  manufacturers[(i-1)%len(manufacturers)],
 			Unit:          units[(i-1)%len(units)],
-			StockQuantity: 50 + (i * 12),
+			StockQuantity: 5 + (i * 2),
 			Price:         float64(5000 + (i * 750)),
 			IsActive:      i%10 != 0,
 		}

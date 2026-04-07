@@ -27,11 +27,13 @@ type MedicineTypeCount struct {
 }
 
 type MedicineLowStockResponse struct {
-	Threshold     int                    `json:"threshold"`
-	TotalLowStock int64                  `json:"total_low_stock"`
-	CriticalCount int64                  `json:"critical_count"`
-	Data          []MedicineLowStockItem `json:"data"`
-	Meta          MedicinePaginationMeta `json:"meta"`
+	Threshold          int                    `json:"threshold"`
+	TotalLowStock      int64                  `json:"total_low_stock"`
+	TotalStockQuantity int64                  `json:"total_stock_quantity"`
+	TotalStockValue    float64                `json:"total_stock_value"`
+	CriticalCount      int64                  `json:"critical_count"`
+	Data               []MedicineLowStockItem `json:"data"`
+	Meta               MedicinePaginationMeta `json:"meta"`
 }
 
 type MedicineLowStockItem struct {

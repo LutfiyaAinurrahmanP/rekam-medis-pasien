@@ -3,6 +3,7 @@ package routes
 import (
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/handler"
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/middleware"
+	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/models"
 	"github.com/gin-gonic/gin"
 )
 
@@ -12,5 +13,14 @@ func SetupMedicineRouter(rg *gin.RouterGroup, cfg *RouteConfig, m *handler.Medic
 	{
 		g.GET("", m.ListMedicines)
 		g.GET("/available", m.GetByAvailable)
+
+		// Stock routes ! patient
+		stockRoutes := g.Group("")
+		stockRoutes.Use(middleware.RoleMiddleware(
+			models.RoleDoctor, models.RoleReceptionist, models.RoleAdmin, models.RoleSuperAdmin,
+		))
+		{
+			stockRoutes.GET("/low-stock", m.GetByLowStock)
+		}
 	}
 }

@@ -15,6 +15,8 @@ type MedicineRepository interface {
 	GetTotalStockValueByAvailable(query *dto.MedicinePaginationQuery) (float64, error)
 	GetTotalStockQuantityByAvailable(query *dto.MedicinePaginationQuery) (int64, error)
 	ListByLowStock(query *dto.MedicinePaginationQuery) ([]models.Medicine, int64, error)
+	GetTotalStockValueByLowStock(query *dto.MedicinePaginationQuery) (float64, error)
+	GetTotalStockQuantityByLowStock(query *dto.MedicinePaginationQuery) (int64, error)
 	ListByOutStock(query *dto.MedicinePaginationQuery) ([]models.Medicine, int64, error)
 	ListByInactive(query *dto.MedicinePaginationQuery) ([]models.Medicine, int64, error)
 	FindByID(id uint) (*models.Medicine, error)
@@ -186,8 +188,51 @@ func (r *medicineRepository) GetTotalStockQuantityByAvailable(query *dto.Medicin
 	return totalQuantity, nil
 }
 
+
+
 func (r *medicineRepository) ListByLowStock(query *dto.MedicinePaginationQuery) ([]models.Medicine, int64, error) {
-	panic("not implemented") // TODO: Implement
+	queryForFilter := *query
+	
+	// Set low stock threshold
+	lowStockThreshold := 10
+	queryForFilter.MaxStock = lowStockThreshold
+	queryForFilter.MinStock = 0
+	
+	return r.List(&queryForFilter)
+}
+
+func (r *medicineRepository) GetTotalStockValueByLowStock(query *dto.MedicinePaginationQuery) (float64, error) {
+	var totalValue float64
+
+	queryForFilter := *query
+	lowStockThreshold := 10
+	queryForFilter.MaxStock = lowStockThreshold
+	queryForFilter.MinStock = 0
+	db := r.buildBaseQuery(&queryForFilter)
+
+	// Calculate SUM(stock_quantity * price) for all low stock medicines
+	if err := db.Select("COALESCE(SUM(stock_quantity * price), 0)").Row().Scan(&totalValue); err != nil {
+		return 0, err
+	}
+
+	return totalValue, nil
+}
+
+func (r *medicineRepository) GetTotalStockQuantityByLowStock(query *dto.MedicinePaginationQuery) (int64, error) {
+	var totalQuantity int64
+
+	queryForFilter := *query
+	lowStockThreshold := 10
+	queryForFilter.MaxStock = lowStockThreshold
+	queryForFilter.MinStock = 0
+	db := r.buildBaseQuery(&queryForFilter)
+
+	// Calculate SUM(stock_quantity) for all low stock medicines
+	if err := db.Select("COALESCE(SUM(stock_quantity), 0)").Row().Scan(&totalQuantity); err != nil {
+		return 0, err
+	}
+
+	return totalQuantity, nil
 }
 
 func (r *medicineRepository) ListByOutStock(query *dto.MedicinePaginationQuery) ([]models.Medicine, int64, error) {
