@@ -33,3 +33,17 @@ func (h *MedicineHandler) ListMedicines(ctx *gin.Context) {
 	}
 	utils.SuccessResponse(ctx, http.StatusOK, "Medicines retrieved successfully", res)
 }
+
+func (h *MedicineHandler) GetByAvailable(ctx *gin.Context) {
+	var query dto.MedicinePaginationQuery
+	if err := ctx.ShouldBindQuery(&query); err != nil {
+		utils.ValidationErrorResponse(ctx, err)
+		return
+	}
+	res, err := h.service.GetByAvailable(&query)
+	if err != nil {
+		utils.ValidationErrorResponse(ctx, err)
+		return
+	}
+	utils.SuccessResponse(ctx, http.StatusOK, "Available Medicines retrieved successfully", res)
+}

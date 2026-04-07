@@ -1,4 +1,4 @@
-.PHONY: help build run seed test test-users test-departments test-patients test-doctors test-rooms test-type-tests test-coverage clean docker-build docker-up docker-down migrate lint fmt mod-download test-all mod-tidy dev prod-build
+.PHONY: help build run seed test test-users test-departments test-patients test-doctors test-rooms test-type-tests test-coverage clean docker-build docker-up docker-up-deps docker-down migrate lint fmt mod-download test-all mod-tidy dev prod-build
 
 help: ## Display this help screen
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
@@ -7,7 +7,7 @@ build: ## Build the application
 	@echo "Building application..."
 	@go build -o main cmd/api/main.go
 
-run: ## Run the application
+run: check-docker docker-up-deps stop-app-container wait-db ## Run local app with auto dependency setup
 	@echo "Running application..."
 	@go run cmd/api/main.go
 
@@ -77,22 +77,57 @@ clean: ## Clean build files
 
 docker-build: ## Build docker images
 	@echo "Building docker images..."
-	@docker-compose build
+	@docker compose build
 
 docker-up: ## Start docker containers
 	@echo "Starting docker containers..."
-	@docker-compose up -d
+	@docker compose up -d
+
+docker-up-deps: ## Start only dependency containers (without app)
+	@echo "Starting dependency containers (postgres, redis, kafka, zookeeper)..."
+	@docker compose up -d postgres redis zookeeper kafka kafka-ui
 
 docker-down: ## Stop docker containers
 	@echo "Stopping docker containers..."
-	@docker-compose down
+	@docker compose down
 
 docker-logs: ## View docker logs
-	@docker-compose logs -f
+	@docker compose logs -f
 
 docker-clean: ## Remove docker containers and volumes
 	@echo "Removing docker containers and volumes..."
-	@docker-compose down -v
+	@docker compose down -v
+
+# ─── Helper targets ────────────────────────────────────────────────────────
+
+check-docker: ## Check if docker and docker-compose are available
+	@if ! command -v docker >/dev/null 2>&1; then \
+		echo "❌ Docker is not installed. Please install Docker first."; \
+		exit 1; \
+	fi
+	@if ! docker compose version >/dev/null 2>&1; then \
+		echo "❌ Docker Compose is not available. Please install Docker Compose first."; \
+		exit 1; \
+	fi
+	@echo "✅ Docker and Docker Compose are available"
+
+wait-db: ## Wait for database to be ready
+	@echo "⏳ Waiting for database to be ready..."
+	@for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30; do \
+		if nc -z 127.0.0.1 5432 2>/dev/null; then \
+			echo "✅ Database is ready!"; \
+			sleep 1; \
+			exit 0; \
+		fi; \
+		echo "Attempt $$i/30 - Database not ready yet, waiting..."; \
+		sleep 2; \
+	done; \
+	echo "❌ Database failed to start after 60 seconds"; \
+	exit 1
+
+stop-app-container: ## Stop docker app container to avoid port conflicts with local go run
+	@docker compose stop app >/dev/null 2>&1 || true
+	@docker compose rm -f app >/dev/null 2>&1 || true
 
 migrate: ## Run database migrations
 	@echo "Running migrations..."
@@ -118,7 +153,7 @@ mod-tidy: ## Tidy dependencies
 	@echo "Tidying dependencies..."
 	@go mod tidy
 
-dev: docker-up ## Start development environment
+dev: docker-up-deps ## Start development dependencies only
 	@echo "Development environment started!"
 
 prod-build: ## Build for production

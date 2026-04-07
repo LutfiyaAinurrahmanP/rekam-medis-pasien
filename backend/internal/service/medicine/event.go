@@ -23,3 +23,7 @@ func NewMedicineEventService(inner MedicineService, publisher kafka.EventPublish
 func (s *eventMedicineService) List(query *dto.MedicinePaginationQuery) (*dto.MedicineListResponse, error) {
 	return s.inner.List(query)
 }
+
+func (s *eventMedicineService) GetByAvailable(query *dto.MedicinePaginationQuery) (*dto.MedicineAvailableResponse, error) {
+	return s.inner.GetByAvailable(query)
+}

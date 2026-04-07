@@ -55,8 +55,22 @@ func TypeTestSearchKey(q string, page, size int) string {
 	return fmt.Sprintf("typetest:search:%s:p%d:s%d", q, page, size)
 }
 
-// ─── TypeTest ──────────────────────────────────────────────────────────────
-func MedicineListKey(page, size int) string { return fmt.Sprintf("medicine:list:p%d:s%d", page, size)}
+// ─── Medicine ──────────────────────────────────────────────────────────────
+
+func MedicineKey(id uint) string            { return fmt.Sprintf("medicine:id:%d", id) }
+func MedicineListKey(page, size int) string { return fmt.Sprintf("medicine:list:p%d:s%d", page, size) }
+func MedicineAvailableKey(page, size int) string {
+	return fmt.Sprintf("medicine:available:p%d:s%d", page, size)
+}
+func MedicineLowStockKey(page, size int) string {
+	return fmt.Sprintf("medicine:lowstock:p%d:s%d", page, size)
+}
+func MedicineOutOfStockKey(page, size int) string {
+	return fmt.Sprintf("medicine:outofstock:p%d:s%d", page, size)
+}
+func MedicineInactiveKey(page, size int) string {
+	return fmt.Sprintf("medicine:inactive:p%d:s%d", page, size)
+}
 
 // ─── Invalidation patterns ─────────────────────────────────────────────────
 
@@ -67,4 +81,5 @@ const (
 	PatternDoctorAll     = "doctor:*"
 	PatternRoomAll       = "room:*"
 	PatternTypeTestAll   = "typetest:*"
+	PatternMedicineAll   = "medicine:*"
 )

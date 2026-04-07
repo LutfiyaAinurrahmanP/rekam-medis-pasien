@@ -13,11 +13,12 @@ type MedicineDeletedListResponse struct {
 }
 
 type MedicineAvailableResponse struct {
-	TotalAvailable  int64                  `json:"total_available"`
-	TotalStockValue float64                `json:"total_stock_value"`
-	MedicineTypes   []MedicineTypeCount    `json:"medicine_types"`
-	Data            []MedicineResponse     `json:"data"`
-	Meta            MedicinePaginationMeta `json:"meta"`
+	TotalAvailable     int64                  `json:"total_available"`
+	TotalStockQuantity int64                  `json:"total_stock_quantity"`
+	TotalStockValue    float64                `json:"total_stock_value"`
+	MedicineTypes      []MedicineTypeCount    `json:"medicine_types"`
+	Data               []MedicineResponse     `json:"data"`
+	Meta               MedicinePaginationMeta `json:"meta"`
 }
 
 type MedicineTypeCount struct {

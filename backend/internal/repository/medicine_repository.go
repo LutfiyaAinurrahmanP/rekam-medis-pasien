@@ -12,6 +12,8 @@ type MedicineRepository interface {
 	List(query *dto.MedicinePaginationQuery) ([]models.Medicine, int64, error)
 	DeletedList(query *dto.MedicinePaginationQuery) ([]models.Medicine, int64, error)
 	ListByAvailable(query *dto.MedicinePaginationQuery) ([]models.Medicine, int64, error)
+	GetTotalStockValueByAvailable(query *dto.MedicinePaginationQuery) (float64, error)
+	GetTotalStockQuantityByAvailable(query *dto.MedicinePaginationQuery) (int64, error)
 	ListByLowStock(query *dto.MedicinePaginationQuery) ([]models.Medicine, int64, error)
 	ListByOutStock(query *dto.MedicinePaginationQuery) ([]models.Medicine, int64, error)
 	ListByInactive(query *dto.MedicinePaginationQuery) ([]models.Medicine, int64, error)
@@ -51,7 +53,11 @@ func (r *medicineRepository) buildBaseQuery(query *dto.MedicinePaginationQuery) 
 	}
 
 	if query.HasStock != nil {
-		db = db.Where("has_stock = ?", *query.HasStock)
+		if *query.HasStock {
+			db = db.Where("stock_quantity > ?", 0)
+		} else {
+			db = db.Where("stock_quantity = ?", 0)
+		}
 	}
 
 	if query.IsActive != nil {
@@ -114,7 +120,70 @@ func (r *medicineRepository) DeletedList(query *dto.MedicinePaginationQuery) ([]
 }
 
 func (r *medicineRepository) ListByAvailable(query *dto.MedicinePaginationQuery) ([]models.Medicine, int64, error) {
-	panic("not implemented") // TODO: Implement
+	var (
+		medicines []models.Medicine
+		total int64
+	)
+
+	queryForFilter := *query
+	available := true
+	queryForFilter.HasStock = &available
+	db := r.buildBaseQuery(&queryForFilter)
+
+	if err := db.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	sortBy := "name"
+	if query.SortBy != "" {
+		sortBy = query.SortBy
+	}
+
+	sortDir := "asc"
+	if query.SortDir == "desc" {
+		sortDir = "desc"
+	}
+
+	db = db.Order(fmt.Sprintf("%s %s", sortBy, sortDir))
+	offset := (query.Page - 1) * query.PageSize
+	if err := db.Offset(offset).Limit(query.PageSize).Find(&medicines).Error; err != nil {
+		return nil, 0, err
+	}
+
+	return medicines, total, nil
+
+}
+
+func (r *medicineRepository) GetTotalStockValueByAvailable(query *dto.MedicinePaginationQuery) (float64, error) {
+	var totalValue float64
+
+	queryForFilter := *query
+	available := true
+	queryForFilter.HasStock = &available
+	db := r.buildBaseQuery(&queryForFilter)
+
+	// Calculate SUM(stock_quantity * price) for all available medicines
+	if err := db.Model(&models.Medicine{}).Select("COALESCE(SUM(stock_quantity * price), 0)").Row().Scan(&totalValue); err != nil {
+		return 0, err
+	}
+
+	return totalValue, nil
+}
+
+func (r *medicineRepository) GetTotalStockQuantityByAvailable(query *dto.MedicinePaginationQuery) (int64, error) {
+	var totalQuantity int64
+
+	queryForFilter := *query
+	available := true
+	queryForFilter.HasStock = &available
+	db := r.buildBaseQuery(&queryForFilter)
+
+	// Calculate SUM(stock_quantity) for all available medicines
+	if err := db.Model(&models.Medicine{}).Select("COALESCE(SUM(stock_quantity), 0)").Row().Scan(&totalQuantity); err != nil {
+		return 0, err
+	}
+
+	return totalQuantity, nil
 }
 
 func (r *medicineRepository) ListByLowStock(query *dto.MedicinePaginationQuery) ([]models.Medicine, int64, error) {
