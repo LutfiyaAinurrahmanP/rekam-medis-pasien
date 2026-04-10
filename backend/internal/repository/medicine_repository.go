@@ -122,38 +122,10 @@ func (r *medicineRepository) DeletedList(query *dto.MedicinePaginationQuery) ([]
 }
 
 func (r *medicineRepository) ListByAvailable(query *dto.MedicinePaginationQuery) ([]models.Medicine, int64, error) {
-	var (
-		medicines []models.Medicine
-		total int64
-	)
-
 	queryForFilter := *query
 	available := true
 	queryForFilter.HasStock = &available
-	db := r.buildBaseQuery(&queryForFilter)
-
-	if err := db.Count(&total).Error; err != nil {
-		return nil, 0, err
-	}
-
-	sortBy := "name"
-	if query.SortBy != "" {
-		sortBy = query.SortBy
-	}
-
-	sortDir := "asc"
-	if query.SortDir == "desc" {
-		sortDir = "desc"
-	}
-
-	db = db.Order(fmt.Sprintf("%s %s", sortBy, sortDir))
-	offset := (query.Page - 1) * query.PageSize
-	if err := db.Offset(offset).Limit(query.PageSize).Find(&medicines).Error; err != nil {
-		return nil, 0, err
-	}
-
-	return medicines, total, nil
-
+	return r.List(&queryForFilter)
 }
 
 func (r *medicineRepository) GetTotalStockValueByAvailable(query *dto.MedicinePaginationQuery) (float64, error) {
@@ -165,7 +137,7 @@ func (r *medicineRepository) GetTotalStockValueByAvailable(query *dto.MedicinePa
 	db := r.buildBaseQuery(&queryForFilter)
 
 	// Calculate SUM(stock_quantity * price) for all available medicines
-	if err := db.Model(&models.Medicine{}).Select("COALESCE(SUM(stock_quantity * price), 0)").Row().Scan(&totalValue); err != nil {
+	if err := db.Select("COALESCE(SUM(stock_quantity * price), 0)").Row().Scan(&totalValue); err != nil {
 		return 0, err
 	}
 
@@ -181,7 +153,7 @@ func (r *medicineRepository) GetTotalStockQuantityByAvailable(query *dto.Medicin
 	db := r.buildBaseQuery(&queryForFilter)
 
 	// Calculate SUM(stock_quantity) for all available medicines
-	if err := db.Model(&models.Medicine{}).Select("COALESCE(SUM(stock_quantity), 0)").Row().Scan(&totalQuantity); err != nil {
+	if err := db.Select("COALESCE(SUM(stock_quantity), 0)").Row().Scan(&totalQuantity); err != nil {
 		return 0, err
 	}
 
