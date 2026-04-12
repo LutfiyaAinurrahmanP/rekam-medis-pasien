@@ -13,6 +13,7 @@ func SetupMedicineRouter(rg *gin.RouterGroup, cfg *RouteConfig, m *handler.Medic
 	{
 		g.GET("", m.ListMedicines)
 		g.GET("/available", m.GetByAvailable)
+		g.GET("/:id", m.FindByID)
 
 		// Stock routes ! patient
 		stockRoutes := g.Group("")

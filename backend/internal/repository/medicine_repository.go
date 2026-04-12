@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/dto"
@@ -216,7 +217,15 @@ func (r *medicineRepository) ListByInactive(query *dto.MedicinePaginationQuery) 
 }
 
 func (r *medicineRepository) FindByID(id uint) (*models.Medicine, error) {
-	panic("not implemented") // TODO: Implement
+	var m models.Medicine
+	err := r.db.First(&m, id).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound){
+			return nil, errors.New("medicine not found")
+		}
+		return nil, err
+	}
+	return &m, nil
 }
 
 func (r *medicineRepository) FindByName(name string) (*models.Medicine, error) {

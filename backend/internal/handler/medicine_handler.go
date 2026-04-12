@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/dto"
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/medicine"
@@ -61,4 +62,18 @@ func (h *MedicineHandler) GetByLowStock(ctx *gin.Context) {
 	}
 
 	utils.SuccessResponse(ctx, http.StatusOK, "Low Stock Medicines retrieved successfully", res)
+}
+
+func (h *MedicineHandler) FindByID(ctx *gin.Context) {
+	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
+	if err != nil {
+		utils.ErrorResponse(ctx, http.StatusBadRequest, "Invalid id", err.Error())
+		return
+	}
+	res, err := h.service.FindByID(uint(id))
+	if err != nil {
+		utils.ErrorResponse(ctx, http.StatusNotFound, "Medicine not found", err.Error())
+		return
+	}
+	utils.SuccessResponse(ctx, http.StatusOK, "Medicine retrieved successfully", res)
 }

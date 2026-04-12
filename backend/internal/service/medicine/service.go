@@ -16,7 +16,7 @@ type MedicineService interface {
 	GetByLowStock(query *dto.MedicinePaginationQuery) (*dto.MedicineLowStockResponse, error)
 	// GetByOutStock()
 	// GetByInactive()
-	// GetByID()
+	FindByID(id uint) (*dto.MedicineResponse, error)
 	// GetByName()
 	// GetByType()
 	// Search()
@@ -195,6 +195,14 @@ func (s *medicineService) GetByLowStock(query *dto.MedicinePaginationQuery) (*dt
 			TotalPages: totalPages,
 		},
 	}, nil
+} 
+
+func (s *medicineService) FindByID(id uint) (*dto.MedicineResponse, error) {
+	m, err := s.repo.FindByID(id)
+	if err != nil {
+		return nil, err
+	}
+	return s.toResponse(m), nil
 }
 
 

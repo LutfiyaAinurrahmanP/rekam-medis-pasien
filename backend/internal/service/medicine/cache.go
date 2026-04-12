@@ -69,6 +69,20 @@ func (s *cachedMedicineService) GetByLowStock(query *dto.MedicinePaginationQuery
 	return result, nil
 }
 
+func (s *cachedMedicineService) FindByID(id uint) (*dto.MedicineResponse, error) {
+	key := cache.MedicineKey(id)
+	var resp dto.MedicineResponse
+	if err := s.redis.Get(context.Background(), key, &resp); err == nil {
+		return &resp, nil
+	}
+	result, err := s.inner.FindByID(id)
+	if err != nil {
+		return  nil, err
+	}
+	s.setCache(key, result)
+	return result, nil
+}
+
 func (s *cachedMedicineService) setCache(key string, value any) {
 	if err := s.redis.Set(context.Background(), key, value, 0); err != nil {
 		log.Printf("⚠️  Redis set failed for key %q: %v", key, err)
