@@ -83,6 +83,20 @@ func (s *cachedMedicineService) FindByID(id uint) (*dto.MedicineResponse, error)
 	return result, nil
 }
 
+func (s *cachedMedicineService) FindByName(name string) (*dto.MedicineResponse, error) {
+	key := cache.MedicineNameKey(name)
+	var resp dto.MedicineResponse
+	if err := s.redis.Get(context.Background(), key, &resp); err == nil {
+		return &resp, nil
+	}
+	result, err := s.inner.FindByName(name)
+	if err != nil {
+		return nil, err
+	}
+	s.setCache(key, result)
+	return result, nil
+}
+
 func (s *cachedMedicineService) setCache(key string, value any) {
 	if err := s.redis.Set(context.Background(), key, value, 0); err != nil {
 		log.Printf("⚠️  Redis set failed for key %q: %v", key, err)

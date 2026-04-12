@@ -58,6 +58,7 @@ func TypeTestSearchKey(q string, page, size int) string {
 // ─── Medicine ──────────────────────────────────────────────────────────────
 
 func MedicineKey(id uint) string            { return fmt.Sprintf("medicine:id:%d", id) }
+func MedicineNameKey(name string) string            { return fmt.Sprintf("medicine:name:%d", name) }
 func MedicineListKey(page, size int) string { return fmt.Sprintf("medicine:list:p%d:s%d", page, size) }
 func MedicineAvailableKey(page, size int) string {
 	return fmt.Sprintf("medicine:available:p%d:s%d", page, size)

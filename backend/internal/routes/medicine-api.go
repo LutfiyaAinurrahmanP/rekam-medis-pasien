@@ -13,9 +13,10 @@ func SetupMedicineRouter(rg *gin.RouterGroup, cfg *RouteConfig, m *handler.Medic
 	{
 		g.GET("", m.ListMedicines)
 		g.GET("/available", m.GetByAvailable)
+		g.GET("/name/:name", m.FindByName)
 		g.GET("/:id", m.FindByID)
 
-		// Stock routes ! patient
+		// Stock routes (requires doctor, receptionist, admin, or superadmin)
 		stockRoutes := g.Group("")
 		stockRoutes.Use(middleware.RoleMiddleware(
 			models.RoleDoctor, models.RoleReceptionist, models.RoleAdmin, models.RoleSuperAdmin,

@@ -229,7 +229,15 @@ func (r *medicineRepository) FindByID(id uint) (*models.Medicine, error) {
 }
 
 func (r *medicineRepository) FindByName(name string) (*models.Medicine, error) {
-	panic("not implemented") // TODO: Implement
+	var m models.Medicine
+	err := r.db.Where("name = ?", name).First(&m).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound){
+			return nil, errors.New("medicine not found")
+		}
+		return nil, err
+	}
+	return &m, nil
 }
 
 func (r *medicineRepository) FindByType(types string) (*models.Medicine, error) {

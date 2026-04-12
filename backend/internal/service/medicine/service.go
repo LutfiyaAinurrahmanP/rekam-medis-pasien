@@ -17,7 +17,7 @@ type MedicineService interface {
 	// GetByOutStock()
 	// GetByInactive()
 	FindByID(id uint) (*dto.MedicineResponse, error)
-	// GetByName()
+	FindByName(name string) (*dto.MedicineResponse, error)
 	// GetByType()
 	// Search()
 	// Create()
@@ -199,6 +199,14 @@ func (s *medicineService) GetByLowStock(query *dto.MedicinePaginationQuery) (*dt
 
 func (s *medicineService) FindByID(id uint) (*dto.MedicineResponse, error) {
 	m, err := s.repo.FindByID(id)
+	if err != nil {
+		return nil, err
+	}
+	return s.toResponse(m), nil
+}
+
+func (s *medicineService) FindByName(name string) (*dto.MedicineResponse, error) {
+	m, err := s.repo.FindByName(name)
 	if err != nil {
 		return nil, err
 	}

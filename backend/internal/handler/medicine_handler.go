@@ -77,3 +77,17 @@ func (h *MedicineHandler) FindByID(ctx *gin.Context) {
 	}
 	utils.SuccessResponse(ctx, http.StatusOK, "Medicine retrieved successfully", res)
 }
+
+func (h *MedicineHandler) FindByName(ctx *gin.Context) {
+	name := ctx.Param("name")
+	if name == "" {
+		utils.ErrorResponse(ctx, http.StatusBadRequest, "Invalid name", "name parameter is required")
+		return
+	}
+	res, err := h.service.FindByName(name)
+	if err != nil {
+		utils.ErrorResponse(ctx, http.StatusNotFound, "Medicine not found", err.Error())
+		return
+	}
+	utils.SuccessResponse(ctx, http.StatusOK, "Medicine retrieved successfully", res)
+}
