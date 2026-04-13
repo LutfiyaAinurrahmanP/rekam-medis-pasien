@@ -67,9 +67,11 @@ func MedicineAvailableKey(page, size int) string {
 func MedicineLowStockKey(page, size int) string {
 	return fmt.Sprintf("medicine:lowstock:p%d:s%d", page, size)
 }
+
 func MedicineOutOfStockKey(page, size int) string {
 	return fmt.Sprintf("medicine:outofstock:p%d:s%d", page, size)
 }
+
 func MedicineInactiveKey(page, size int) string {
 	return fmt.Sprintf("medicine:inactive:p%d:s%d", page, size)
 }

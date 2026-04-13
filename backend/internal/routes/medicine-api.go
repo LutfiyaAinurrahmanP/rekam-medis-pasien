@@ -23,6 +23,7 @@ func SetupMedicineRouter(rg *gin.RouterGroup, cfg *RouteConfig, m *handler.Medic
 		))
 		{
 			stockRoutes.GET("/low-stock", m.ListByLowStock)
+			stockRoutes.GET("/out-of-stock", m.ListByOutStock)
 		}
 
 		// Admin, Super Admin only

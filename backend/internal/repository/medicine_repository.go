@@ -206,7 +206,10 @@ func (r *medicineRepository) ListByLowStock(query *dto.MedicinePaginationQuery) 
 }
 
 func (r *medicineRepository) ListByOutStock(query *dto.MedicinePaginationQuery) ([]models.Medicine, int64, error) {
-	panic("not implemented") // TODO: Implement
+	queryForFilter := *query
+	available :=  false
+	queryForFilter.HasStock = &available
+	return r.List(&queryForFilter)
 }
 
 func (r *medicineRepository) ListByInactive(query *dto.MedicinePaginationQuery) ([]models.Medicine, int64, error) {

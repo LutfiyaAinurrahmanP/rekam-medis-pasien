@@ -14,7 +14,7 @@ type MedicineService interface {
 	DeletedList(query *dto.MedicinePaginationQuery) (*dto.MedicineDeletedListResponse, error)
 	ListByAvailable(query *dto.MedicinePaginationQuery) (*dto.MedicineAvailableResponse, error)
 	ListByLowStock(query *dto.MedicinePaginationQuery) (*dto.MedicineLowStockResponse, error)
-	// GetByOutStock()
+	ListByOutStock(query *dto.MedicinePaginationQuery) (*dto.MedicineOutOfStockResponse, error)
 	// GetByInactive()
 	FindByID(id uint) (*dto.MedicineResponse, error)
 	FindByName(name string) (*dto.MedicineResponse, error)
@@ -167,6 +167,34 @@ func (s *medicineService) ListByLowStock(query *dto.MedicinePaginationQuery) (*d
 		},
 	}, nil
 } 
+
+func (s *medicineService) ListByOutStock(query *dto.MedicinePaginationQuery) (*dto.MedicineOutOfStockResponse, error) {
+	s.normalizeQuery(query, "name", "asc")
+
+	medicines, total, err := s.repo.ListByOutStock(query)
+	if err != nil {
+		return nil, err
+	}
+
+	responses := make([]dto.MedicineResponse, len(medicines))
+	for i, m := range medicines {
+		responses[i] = *s.toResponse(&m)
+	}
+
+	totalPages := int(math.Ceil(float64(total) / float64(query.PageSize)))
+	return &dto.MedicineOutOfStockResponse{
+		TotalOutOfStock: total,
+		Data:               responses,
+		Meta: dto.MedicinePaginationMeta{
+			Page:       query.Page,
+			PageSize:   query.PageSize,
+			TotalItems: total,
+			TotalPages: totalPages,
+		},
+	}, nil
+}
+
+
 
 func (s *medicineService) FindByID(id uint) (*dto.MedicineResponse, error) {
 	m, err := s.repo.FindByID(id)

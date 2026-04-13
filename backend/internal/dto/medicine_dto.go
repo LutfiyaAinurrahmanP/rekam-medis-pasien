@@ -32,20 +32,8 @@ type MedicineLowStockResponse struct {
 
 type MedicineOutOfStockResponse struct {
 	TotalOutOfStock int64                    `json:"total_out_of_stock"`
-	Data            []MedicineOutOfStockItem `json:"data"`
+	Data            []MedicineResponse `json:"data"`
 	Meta            MedicinePaginationMeta   `json:"meta"`
-}
-
-type MedicineOutOfStockItem struct {
-	ID             uint       `json:"id"`
-	Name           string     `json:"name"`
-	GenericName    string     `json:"generic_name"`
-	Type           string     `json:"type"`
-	StockQuantity  int        `json:"stock_quantity"`
-	Price          float64    `json:"price"`
-	LastStockDate  *time.Time `json:"last_stock_date"`
-	DaysOutOfStock int        `json:"days_out_of_stock"`
-	IsActive       bool       `json:"is_active"`
 }
 
 type MedicineInactiveResponse struct {
