@@ -8,7 +8,7 @@ type MedicineListResponse struct {
 }
 
 type MedicineDeletedListResponse struct {
-	Data []DeletedMedicineResponse `json:"data"`
+	Data []MedicineDeletedResponse `json:"data"`
 	Meta MedicinePaginationMeta    `json:"meta"`
 }
 
@@ -191,20 +191,22 @@ type MedicineDetails struct {
 	ExpiryTracking bool   `json:"expiry_tracking"`
 }
 
-type DeletedMedicineResponse struct {
-	ID            uint       `json:"id"`
-	Name          string     `json:"name"`
-	GenericName   string     `json:"generic_name"`
-	BrandName     string     `json:"brand_name"`
-	Type          string     `json:"type"`
-	Strength      string     `json:"strength"`
-	Manufacturer  string     `json:"manufacturer"`
-	Unit          string     `json:"unit"`
-	StockQuantity int        `json:"stock_quantity"`
-	Price         float64    `json:"price"`
-	IsActive      bool       `json:"is_active"`
-	CreatedAt     time.Time  `json:"created_at"`
-	UpdatedAt     time.Time  `json:"updated_at"`
+type MedicineDeletedResponse struct {
+	ID            uint      `json:"id"`
+	Name          string    `json:"name"`
+	GenericName   string    `json:"generic_name"`
+	BrandName     string    `json:"brand_name"`
+	Type          string    `json:"type"`
+	Strength      string    `json:"strength"`
+	Manufacturer  string    `json:"manufacturer"`
+	Unit          string    `json:"unit"`
+	StockQuantity int       `json:"stock_quantity"`
+	Price         float64   `json:"price"`
+	IsActive      bool      `json:"is_active"`
+	IsLowStock    bool      `json:"is_low_stock"`
+	IsOutOfStock  bool      `json:"is_out_of_stock"`
+	CreatedAt     time.Time `json:"created_at"`
+	UpdatedAt     time.Time `json:"updated_at"`
 	DeletedAt     *time.Time `json:"deleted_at"`
 }
 

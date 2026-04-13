@@ -82,6 +82,47 @@ func (r *medicineRepository) buildBaseQuery(query *dto.MedicinePaginationQuery) 
 	return db
 }
 
+func (r *medicineRepository) buildDeletedBaseQuery(query *dto.MedicinePaginationQuery) *gorm.DB {
+	db := r.db.Unscoped().Model(&models.Medicine{}).Where("deleted_at IS NOT NULL")
+
+	if query.Search != "" {
+		pattern := fmt.Sprintf("%%%s%%", query.Search)
+		db = db.Where(
+			"name ILIKE ? OR generic_name ILIKE ? OR brand_name ILIKE ? OR type ILIKE ?",
+			pattern, pattern, pattern, pattern)
+	}
+
+	if query.HasStock != nil {
+		if *query.HasStock {
+			db = db.Where("stock_quantity > ?", 0)
+		} else {
+			db = db.Where("stock_quantity = ?", 0)
+		}
+	}
+
+	if query.IsActive != nil {
+		db = db.Where("is_active = ?", *query.IsActive)
+	}
+
+	if query.Manufacturer != "" {
+		db = db.Where("manufacturer = ?", query.Manufacturer)
+	}
+
+	if query.Type != "" {
+		db = db.Where("type = ?", query.Type)
+	}
+
+	if query.MinStock > 0 {
+		db = db.Where("stock_quantity >= ?", query.MinStock)
+	}
+
+	if query.MaxStock > 0 {
+		db = db.Where("stock_quantity <= ?", query.MaxStock)
+	}
+
+	return db
+}
+
 func (r *medicineRepository) List(query *dto.MedicinePaginationQuery) ([]models.Medicine, int64, error) {
 	var (
 		medicines []models.Medicine
@@ -115,7 +156,35 @@ func (r *medicineRepository) List(query *dto.MedicinePaginationQuery) ([]models.
 }
 
 func (r *medicineRepository) DeletedList(query *dto.MedicinePaginationQuery) ([]models.Medicine, int64, error) {
-	panic("not implemented") // TODO: Implement
+	var (
+		medicines []models.Medicine
+		total int64
+	)
+
+	db := r.buildDeletedBaseQuery(query)
+
+	if err := db.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	sortBy := "name"
+	if query.SortBy != "" {
+		sortBy = query.SortBy
+	}
+
+	sortDir := "asc"
+	if query.SortDir == "desc" {
+		sortDir = "desc"
+	}
+
+	db = db.Order(fmt.Sprintf("%s %s", sortBy, sortDir))
+
+	offset := (query.Page - 1) * query.PageSize
+	if err := db.Offset(offset).Limit(query.PageSize).Find(&medicines).Error; err != nil {
+		return nil, 0, err
+	}
+
+	return medicines, total, nil
 }
 
 func (r *medicineRepository) ListByAvailable(query *dto.MedicinePaginationQuery) ([]models.Medicine, int64, error) {

@@ -11,7 +11,7 @@ import (
 
 type MedicineService interface {
 	List(query *dto.MedicinePaginationQuery) (*dto.MedicineListResponse, error)
-	// DeletedList()
+	DeletedList(query *dto.MedicinePaginationQuery) (*dto.MedicineDeletedListResponse, error)
 	ListByAvailable(query *dto.MedicinePaginationQuery) (*dto.MedicineAvailableResponse, error)
 	ListByLowStock(query *dto.MedicinePaginationQuery) (*dto.MedicineLowStockResponse, error)
 	// GetByOutStock()
@@ -80,6 +80,31 @@ func (s *medicineService) List(query *dto.MedicinePaginationQuery) (*dto.Medicin
 
 	totalPages := int(math.Ceil(float64(total) / float64(query.PageSize)))
 	return &dto.MedicineListResponse{
+		Data: responses,
+		Meta: dto.MedicinePaginationMeta{
+			Page: query.Page,
+			PageSize: query.PageSize,
+			TotalItems: total,
+			TotalPages: totalPages,
+		},
+	}, nil
+}
+
+func (s *medicineService) DeletedList(query *dto.MedicinePaginationQuery) (*dto.MedicineDeletedListResponse, error) {
+	s.normalizeQuery(query, "name", "asc")
+
+	medicines, total, err :=s.repo.DeletedList(query)
+	if err != nil {
+		return nil, err
+	}
+
+	responses := make([]dto.MedicineDeletedResponse, len(medicines))
+	for i, m := range medicines{
+		responses[i] = *s.toDeletedResponse(&m)
+	}
+
+	totalPages := int(math.Ceil(float64(total) / float64(query.PageSize)))
+	return &dto.MedicineDeletedListResponse{
 		Data: responses,
 		Meta: dto.MedicinePaginationMeta{
 			Page: query.Page,
@@ -177,5 +202,26 @@ func (s *medicineService) toResponse(m *models.Medicine) *dto.MedicineResponse{
 		IsOutOfStock: m.StockQuantity == 0,
 		CreatedAt: m.CreatedAt,
 		UpdatedAt: m.UpdatedAt,
+	}
+} 
+
+func (s *medicineService) toDeletedResponse(m *models.Medicine) *dto.MedicineDeletedResponse{
+	return &dto.MedicineDeletedResponse{
+		ID: m.ID,
+		Name: m.Name,
+		GenericName: m.GenericName,
+		BrandName: m.BrandName,
+		Type: m.Type,
+		Strength: m.Strength,
+		Manufacturer: m.Manufacturer,
+		Unit: m.Unit,
+		StockQuantity: m.StockQuantity,
+		Price: m.Price,
+		IsActive: m.IsActive,
+		IsLowStock: m.StockQuantity == 10,
+		IsOutOfStock: m.StockQuantity == 0,
+		CreatedAt: m.CreatedAt,
+		UpdatedAt: m.UpdatedAt,
+		DeletedAt: &m.DeletedAt.Time,
 	}
 } 

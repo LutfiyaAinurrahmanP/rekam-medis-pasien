@@ -35,6 +35,20 @@ func (h *MedicineHandler) ListMedicines(ctx *gin.Context) {
 	utils.SuccessResponse(ctx, http.StatusOK, "Medicines retrieved successfully", res)
 }
 
+func (h *MedicineHandler) DeletedListMedicines(ctx *gin.Context) {
+	var query dto.MedicinePaginationQuery
+	if err := ctx.ShouldBindQuery(&query); err != nil {
+		utils.ValidationErrorResponse(ctx, err)
+		return
+	}
+	res, err := h.service.DeletedList(&query)
+	if err != nil {
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to retrieve deleted medicines", err.Error())
+		return
+	}
+	utils.SuccessResponse(ctx, http.StatusOK, "Medicines retrieved successfully", res)
+}
+
 func (h *MedicineHandler) ListByAvailable(ctx *gin.Context) {
 	var query dto.MedicinePaginationQuery
 	if err := ctx.ShouldBindQuery(&query); err != nil {

@@ -38,6 +38,20 @@ func (s *cachedMedicineService) List(query *dto.MedicinePaginationQuery) (*dto.M
 	return result, nil
 }
 
+func (s *cachedMedicineService) DeletedList(query *dto.MedicinePaginationQuery) (*dto.MedicineDeletedListResponse, error) {
+	key := cache.MedicineDeletedListKey(query.Page, query.PageSize)
+	var resp dto.MedicineDeletedListResponse
+	if err := s.redis.Get(context.Background(), key, resp); err == nil {
+		return &resp, nil
+	}
+	result, err := s.inner.DeletedList(query)
+	if err != nil {
+		return nil, err
+	}
+	s.setCache(key, result)
+	return result, nil
+}
+
 func (s *cachedMedicineService) ListByAvailable(query *dto.MedicinePaginationQuery) (*dto.MedicineAvailableResponse, error) {
 	key := cache.MedicineAvailableKey(query.Page, query.PageSize)
 	var resp dto.MedicineAvailableResponse

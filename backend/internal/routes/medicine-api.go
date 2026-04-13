@@ -24,5 +24,12 @@ func SetupMedicineRouter(rg *gin.RouterGroup, cfg *RouteConfig, m *handler.Medic
 		{
 			stockRoutes.GET("/low-stock", m.ListByLowStock)
 		}
+
+		// Admin, Super Admin only
+		adminRoutes := g.Group("")
+		adminRoutes.Use(middleware.RoleMiddleware(models.RoleAdmin, models.RoleSuperAdmin))
+		{
+			adminRoutes.GET("/deleted", m.DeletedListMedicines)
+		}
 	}
 }

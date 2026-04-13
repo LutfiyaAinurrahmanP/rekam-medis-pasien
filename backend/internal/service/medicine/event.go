@@ -24,6 +24,10 @@ func (s *eventMedicineService) List(query *dto.MedicinePaginationQuery) (*dto.Me
 	return s.inner.List(query)
 }
 
+func (s *eventMedicineService) DeletedList(query *dto.MedicinePaginationQuery) (*dto.MedicineDeletedListResponse, error) {
+	return s.inner.DeletedList(query)
+}
+
 func (s *eventMedicineService) ListByAvailable(query *dto.MedicinePaginationQuery) (*dto.MedicineAvailableResponse, error) {
 	return s.inner.ListByAvailable(query)
 }
