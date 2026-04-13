@@ -37,20 +37,9 @@ type MedicineOutOfStockResponse struct {
 }
 
 type MedicineInactiveResponse struct {
-	Data []MedicineInactiveItem `json:"data"`
+	TotalInactive int64 `json:"total_inactive"`
+	Data []MedicineResponse `json:"data"`
 	Meta MedicinePaginationMeta `json:"meta"`
-}
-
-type MedicineInactiveItem struct {
-	ID                uint      `json:"id"`
-	Name              string    `json:"name"`
-	GenericName       string    `json:"generic_name"`
-	Type              string    `json:"type"`
-	StockQuantity     int       `json:"stock_quantity"`
-	IsActive          bool      `json:"is_active"`
-	DeactivatedReason string    `json:"deactivated_reason,omitempty"`
-	CreatedAt         time.Time `json:"created_at"`
-	UpdatedAt         time.Time `json:"updated_at"`
 }
 
 type MedicineByTypeResponse struct {

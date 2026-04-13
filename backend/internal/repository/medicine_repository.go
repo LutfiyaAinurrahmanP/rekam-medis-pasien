@@ -213,7 +213,10 @@ func (r *medicineRepository) ListByOutStock(query *dto.MedicinePaginationQuery) 
 }
 
 func (r *medicineRepository) ListByInactive(query *dto.MedicinePaginationQuery) ([]models.Medicine, int64, error) {
-	panic("not implemented") // TODO: Implement
+	queryForFilter := *query
+	isActive := false
+	queryForFilter.IsActive = &isActive
+	return r.List(&queryForFilter)
 }
 
 func (r *medicineRepository) FindByID(id uint) (*models.Medicine, error) {

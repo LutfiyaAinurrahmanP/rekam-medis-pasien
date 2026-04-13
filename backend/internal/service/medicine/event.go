@@ -40,6 +40,10 @@ func (s *eventMedicineService) ListByOutStock(query *dto.MedicinePaginationQuery
 	return s.inner.ListByOutStock(query)
 }
 
+func (s *eventMedicineService) ListByInactive(query *dto.MedicinePaginationQuery) (*dto.MedicineInactiveResponse, error) {
+	return  s.inner.ListByInactive(query)
+}
+
 func (s *eventMedicineService) FindByID(id uint) (*dto.MedicineResponse, error) {
 	return s.inner.FindByID(id)
 } 

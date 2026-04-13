@@ -92,6 +92,20 @@ func (h *MedicineHandler) ListByOutStock(ctx *gin.Context) {
 	utils.SuccessResponse(ctx, http.StatusOK, "Out Stock Medicines retrieved successfully", res)
 }
 
+func (h *MedicineHandler) ListInactive(ctx *gin.Context) {
+	var query dto.MedicinePaginationQuery
+	if err := ctx.ShouldBindQuery(&query); err != nil {
+		utils.ValidationErrorResponse(ctx, err)
+		return
+	}
+	res, err := h.service.ListByInactive(&query)
+	if err != nil {
+		utils.ValidationErrorResponse(ctx, err)
+		return
+	}
+	utils.SuccessResponse(ctx, http.StatusOK, "Inactive Medicines retrieved successfully", res)
+}
+
 func (h *MedicineHandler) FindByID(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {

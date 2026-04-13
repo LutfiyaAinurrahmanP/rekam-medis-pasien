@@ -26,6 +26,12 @@ func SetupMedicineRouter(rg *gin.RouterGroup, cfg *RouteConfig, m *handler.Medic
 			stockRoutes.GET("/out-of-stock", m.ListByOutStock)
 		}
 
+		receptionistRoutes := g.Group("")
+		receptionistRoutes.Use(middleware.RoleMiddleware(models.RoleReceptionist, models.RoleAdmin, models.RoleSuperAdmin))
+		{
+			receptionistRoutes.GET("inactive", m.ListInactive)
+		}
+
 		// Admin, Super Admin only
 		adminRoutes := g.Group("")
 		adminRoutes.Use(middleware.RoleMiddleware(models.RoleAdmin, models.RoleSuperAdmin))

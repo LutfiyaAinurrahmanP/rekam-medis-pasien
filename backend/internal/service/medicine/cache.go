@@ -98,6 +98,21 @@ func (s *cachedMedicineService) ListByOutStock(query *dto.MedicinePaginationQuer
 	return result, nil
 }
 
+func (s *cachedMedicineService) ListByInactive(query *dto.MedicinePaginationQuery) (*dto.MedicineInactiveResponse, error) {
+	key := cache.MedicineInactiveKey(query.Page, query.PageSize)
+	var resp dto.MedicineInactiveResponse
+
+	if err := s.redis.Get(context.Background(), key, resp); err == nil {
+		return &resp, nil
+	}
+	result, err := s.inner.ListByInactive(query)
+	if err != nil {
+		return nil, err
+	}
+	s.setCache(key, result)
+	return result, nil
+}
+
 func (s *cachedMedicineService) FindByID(id uint) (*dto.MedicineResponse, error) {
 	key := cache.MedicineKey(id)
 	var resp dto.MedicineResponse
