@@ -2,6 +2,7 @@ package database
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/models"
 	"gorm.io/gorm"
@@ -53,4 +54,27 @@ func seedDepartments(tx *gorm.DB, count int) ([]models.Department, error) {
 	}
 
 	return departments, nil
+}
+
+func seedDeletedDepartments(tx *gorm.DB) error {
+	deletedTime := time.Now().AddDate(0, -1, 0) // 1 bulan yang lalu
+	deletedAt := gorm.DeletedAt{Time: deletedTime, Valid: true}
+
+	departments := make([]models.Department, 0, 12)
+	for i := 1; i <= 12; i++ {
+		department := models.Department{
+			Name:          fmt.Sprintf("Deleted Department %02d", i),
+			Code:          fmt.Sprintf("DEL%03d", i),
+			Description:   fmt.Sprintf("Departemen yang telah dihapus - #%02d", i),
+			FloorLocation: fmt.Sprintf("Lantai %d", (i%6)+1),
+			DeletedAt:     deletedAt,
+		}
+		departments = append(departments, department)
+	}
+
+	if err := tx.Create(&departments).Error; err != nil {
+		return fmt.Errorf("failed to seed deleted departments: %w", err)
+	}
+
+	return nil
 }

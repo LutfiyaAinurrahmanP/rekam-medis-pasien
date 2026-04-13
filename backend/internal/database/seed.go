@@ -74,6 +74,42 @@ func SeedDatabaseWithCount(db *gorm.DB, count int) error {
 		return err
 	}
 
+	// Seed deleted records (soft-deleted data with 12 records each)
+	if err := seedDeletedUsers(tx); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := seedDeletedDepartments(tx); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := seedDeletedPatients(tx); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := seedDeletedDoctors(tx); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := seedDeletedRooms(tx); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := seedDeletedTypeTests(tx); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := seedDeletedMedicines(tx); err != nil {
+		tx.Rollback()
+		return err
+	}
+
 	if err := tx.Commit().Error; err != nil {
 		return fmt.Errorf("failed to commit seed transaction: %w", err)
 	}

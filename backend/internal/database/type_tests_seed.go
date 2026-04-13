@@ -2,6 +2,7 @@ package database
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/models"
 	"gorm.io/gorm"
@@ -48,4 +49,32 @@ func codePrefix(category string) string {
 	default:
 		return "GEN"
 	}
+}
+
+func seedDeletedTypeTests(tx *gorm.DB) error {
+	testCategories := []string{"Hematologi", "Kimia Darah", "Mikrobiologi", "Urinalisis", "Imunologi", "Serologi"}
+
+	deletedTime := time.Now().AddDate(0, -1, 0) // 1 bulan yang lalu
+	deletedAt := gorm.DeletedAt{Time: deletedTime, Valid: true}
+
+	typeTests := make([]models.TypeTest, 0, 12)
+	for i := 5001; i <= 5012; i++ {
+		category := testCategories[(i-1)%len(testCategories)]
+		typeTest := models.TypeTest{
+			Name:        fmt.Sprintf("(Deleted) %s Test %02d", category, i-5000),
+			Code:        fmt.Sprintf("LAB-DEL-%s-%03d", codePrefix(category), i-5000),
+			Category:    category,
+			Description: fmt.Sprintf("Pemeriksaan %s yang telah dihapus - #%02d", category, i-5000),
+			Price:       float64(75000 + ((i - 5000) * 5000)),
+			IsActive:    false,
+			DeletedAt:   deletedAt,
+		}
+		typeTests = append(typeTests, typeTest)
+	}
+
+	if err := tx.Create(&typeTests).Error; err != nil {
+		return fmt.Errorf("failed to seed deleted type tests: %w", err)
+	}
+
+	return nil
 }
