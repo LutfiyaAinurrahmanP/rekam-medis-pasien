@@ -38,13 +38,13 @@ func (s *cachedMedicineService) List(query *dto.MedicinePaginationQuery) (*dto.M
 	return result, nil
 }
 
-func (s *cachedMedicineService) GetByAvailable(query *dto.MedicinePaginationQuery) (*dto.MedicineAvailableResponse, error) {
+func (s *cachedMedicineService) ListByAvailable(query *dto.MedicinePaginationQuery) (*dto.MedicineAvailableResponse, error) {
 	key := cache.MedicineAvailableKey(query.Page, query.PageSize)
 	var resp dto.MedicineAvailableResponse
 	if err := s.redis.Get(context.Background(), key, resp); err == nil {
 		return &resp, nil
 	}
-	result, err := s.inner.GetByAvailable(query)
+	result, err := s.inner.ListByAvailable(query)
 	if err != nil {
 		return nil, err
 	}

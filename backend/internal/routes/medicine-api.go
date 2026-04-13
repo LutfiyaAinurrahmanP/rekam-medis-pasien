@@ -12,7 +12,7 @@ func SetupMedicineRouter(rg *gin.RouterGroup, cfg *RouteConfig, m *handler.Medic
 	g.Use(middleware.AuthMiddleware(cfg.Config))
 	{
 		g.GET("", m.ListMedicines)
-		g.GET("/available", m.GetByAvailable)
+		g.GET("/available", m.ListByAvailable)
 		g.GET("/name/:name", m.FindByName)
 		g.GET("/:id", m.FindByID)
 

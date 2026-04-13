@@ -13,8 +13,6 @@ type MedicineRepository interface {
 	List(query *dto.MedicinePaginationQuery) ([]models.Medicine, int64, error)
 	DeletedList(query *dto.MedicinePaginationQuery) ([]models.Medicine, int64, error)
 	ListByAvailable(query *dto.MedicinePaginationQuery) ([]models.Medicine, int64, error)
-	GetTotalStockValueByAvailable(query *dto.MedicinePaginationQuery) (float64, error)
-	GetTotalStockQuantityByAvailable(query *dto.MedicinePaginationQuery) (int64, error)
 	ListByLowStock(query *dto.MedicinePaginationQuery) ([]models.Medicine, int64, error)
 	GetTotalStockValueByLowStock(query *dto.MedicinePaginationQuery) (float64, error)
 	GetTotalStockQuantityByLowStock(query *dto.MedicinePaginationQuery) (int64, error)
@@ -128,40 +126,6 @@ func (r *medicineRepository) ListByAvailable(query *dto.MedicinePaginationQuery)
 	queryForFilter.HasStock = &available
 	return r.List(&queryForFilter)
 }
-
-func (r *medicineRepository) GetTotalStockValueByAvailable(query *dto.MedicinePaginationQuery) (float64, error) {
-	var totalValue float64
-
-	queryForFilter := *query
-	available := true
-	queryForFilter.HasStock = &available
-	db := r.buildBaseQuery(&queryForFilter)
-
-	// Calculate SUM(stock_quantity * price) for all available medicines
-	if err := db.Select("COALESCE(SUM(stock_quantity * price), 0)").Row().Scan(&totalValue); err != nil {
-		return 0, err
-	}
-
-	return totalValue, nil
-}
-
-func (r *medicineRepository) GetTotalStockQuantityByAvailable(query *dto.MedicinePaginationQuery) (int64, error) {
-	var totalQuantity int64
-
-	queryForFilter := *query
-	available := true
-	queryForFilter.HasStock = &available
-	db := r.buildBaseQuery(&queryForFilter)
-
-	// Calculate SUM(stock_quantity) for all available medicines
-	if err := db.Select("COALESCE(SUM(stock_quantity), 0)").Row().Scan(&totalQuantity); err != nil {
-		return 0, err
-	}
-
-	return totalQuantity, nil
-}
-
-
 
 func (r *medicineRepository) ListByLowStock(query *dto.MedicinePaginationQuery) ([]models.Medicine, int64, error) {
 	queryForFilter := *query

@@ -12,7 +12,7 @@ import (
 type MedicineService interface {
 	List(query *dto.MedicinePaginationQuery) (*dto.MedicineListResponse, error)
 	// DeletedList()
-	GetByAvailable(query *dto.MedicinePaginationQuery) (*dto.MedicineAvailableResponse, error)
+	ListByAvailable(query *dto.MedicinePaginationQuery) (*dto.MedicineAvailableResponse, error)
 	GetByLowStock(query *dto.MedicinePaginationQuery) (*dto.MedicineLowStockResponse, error)
 	// GetByOutStock()
 	// GetByInactive()
@@ -90,7 +90,7 @@ func (s *medicineService) List(query *dto.MedicinePaginationQuery) (*dto.Medicin
 	}, nil
 }
 
-func (s *medicineService) GetByAvailable(query *dto.MedicinePaginationQuery) (*dto.MedicineAvailableResponse, error) {
+func (s *medicineService) ListByAvailable(query *dto.MedicinePaginationQuery) (*dto.MedicineAvailableResponse, error) {
 	s.normalizeQuery(query, "name", "asc")
 
 	medicines, total, err := s.repo.ListByAvailable(query)
@@ -98,41 +98,14 @@ func (s *medicineService) GetByAvailable(query *dto.MedicinePaginationQuery) (*d
 		return nil, err
 	}
 
-	// Convert medicines to response format
 	responses := make([]dto.MedicineResponse, len(medicines))
-	medicineTypeMap := make(map[string]int64)
 	for i, m := range medicines {
 		responses[i] = *s.toResponse(&m)
-		medicineTypeMap[m.Type]++
-	}
-
-	// Get total stock value from ALL available medicines (not just current page)
-	totalStockValue, err := s.repo.GetTotalStockValueByAvailable(query)
-	if err != nil {
-		return nil, err
-	}
-
-	// Get total stock quantity from ALL available medicines (not just current page)
-	totalStockQuantity, err := s.repo.GetTotalStockQuantityByAvailable(query)
-	if err != nil {
-		return nil, err
-	}
-
-	// Convert map to slice for response
-	medicineTypes := make([]dto.MedicineTypeCount, 0, len(medicineTypeMap))
-	for t, count := range medicineTypeMap {
-		medicineTypes = append(medicineTypes, dto.MedicineTypeCount{
-			Type:  t,
-			Count: count,
-		})
 	}
 
 	totalPages := int(math.Ceil(float64(total) / float64(query.PageSize)))
 	return &dto.MedicineAvailableResponse{
 		TotalAvailable:     total,
-		TotalStockQuantity: totalStockQuantity,
-		TotalStockValue:    totalStockValue,
-		MedicineTypes:      medicineTypes,
 		Data:               responses,
 		Meta: dto.MedicinePaginationMeta{
 			Page:       query.Page,
