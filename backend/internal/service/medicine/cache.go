@@ -52,7 +52,7 @@ func (s *cachedMedicineService) ListByAvailable(query *dto.MedicinePaginationQue
 	return result, nil
 }
 
-func (s *cachedMedicineService) GetByLowStock(query *dto.MedicinePaginationQuery) (*dto.MedicineLowStockResponse, error) {
+func (s *cachedMedicineService) ListByLowStock(query *dto.MedicinePaginationQuery) (*dto.MedicineLowStockResponse, error) {
 	key := cache.MedicineLowStockKey(query.Page, query.PageSize)
 	var resp dto.MedicineLowStockResponse
 
@@ -60,7 +60,7 @@ func (s *cachedMedicineService) GetByLowStock(query *dto.MedicinePaginationQuery
 		return &resp, nil
 	}
 
-	result, err := s.inner.GetByLowStock(query)
+	result, err := s.inner.ListByLowStock(query)
 	if err != nil {
 		return nil, err
 	}

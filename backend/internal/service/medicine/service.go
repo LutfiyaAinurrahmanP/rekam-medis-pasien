@@ -13,7 +13,7 @@ type MedicineService interface {
 	List(query *dto.MedicinePaginationQuery) (*dto.MedicineListResponse, error)
 	// DeletedList()
 	ListByAvailable(query *dto.MedicinePaginationQuery) (*dto.MedicineAvailableResponse, error)
-	GetByLowStock(query *dto.MedicinePaginationQuery) (*dto.MedicineLowStockResponse, error)
+	ListByLowStock(query *dto.MedicinePaginationQuery) (*dto.MedicineLowStockResponse, error)
 	// GetByOutStock()
 	// GetByInactive()
 	FindByID(id uint) (*dto.MedicineResponse, error)
@@ -116,7 +116,7 @@ func (s *medicineService) ListByAvailable(query *dto.MedicinePaginationQuery) (*
 	}, nil
 }
 
-func (s *medicineService) GetByLowStock(query *dto.MedicinePaginationQuery) (*dto.MedicineLowStockResponse, error) {
+func (s *medicineService) ListByLowStock(query *dto.MedicinePaginationQuery) (*dto.MedicineLowStockResponse, error) {
 	s.normalizeQuery(query, "name", "asc")
 
 	medicines, total, err := s.repo.ListByLowStock(query)
@@ -124,43 +124,16 @@ func (s *medicineService) GetByLowStock(query *dto.MedicinePaginationQuery) (*dt
 		return nil, err
 	}
 
-	// Get total stock value from ALL low stock medicines
-	totalStockValue, err := s.repo.GetTotalStockValueByLowStock(query)
-	if err != nil {
-		return nil, err
-	}
-
-	// Get total stock quantity from ALL low stock medicines
-	totalStockQuantity, err := s.repo.GetTotalStockQuantityByLowStock(query)
-	if err != nil {
-		return nil, err
-	}
-
-	// Convert medicines to response format
-	data := make([]dto.MedicineLowStockItem, len(medicines))
-	for i, m := range medicines {
-		data[i] = dto.MedicineLowStockItem{
-			ID:            m.ID,
-			Name:          m.Name,
-			GenericName:   m.GenericName,
-			Type:          m.Type,
-			StockQuantity: m.StockQuantity,
-			MinimumStock:  10, // Low stock threshold
-			Price:         m.Price,
-			StockStatus:   "low",
-			DaysUntilStockout: 0, // Can be calculated based on usage
-			IsActive:      m.IsActive,
-		}
+	responses := make([]dto.MedicineResponse, len(medicines))
+	for i, m := range medicines{
+		responses[i] = *s.toResponse(&m)
 	}
 
 	totalPages := int(math.Ceil(float64(total) / float64(query.PageSize)))
 	return &dto.MedicineLowStockResponse{
-		Threshold:          10, // Low stock threshold
+		Threshold:          10, 
 		TotalLowStock:      total,
-		TotalStockQuantity: totalStockQuantity,
-		TotalStockValue:    totalStockValue,
-		CriticalCount:      total, // All low stock are critical
-		Data:               data,
+		Data:               responses,
 		Meta: dto.MedicinePaginationMeta{
 			Page:       query.Page,
 			PageSize:   query.PageSize,

@@ -28,8 +28,8 @@ func (s *eventMedicineService) ListByAvailable(query *dto.MedicinePaginationQuer
 	return s.inner.ListByAvailable(query)
 }
 
-func (s *eventMedicineService) GetByLowStock(query *dto.MedicinePaginationQuery) (*dto.MedicineLowStockResponse, error) {
-	return s.inner.GetByLowStock(query)
+func (s *eventMedicineService) ListByLowStock(query *dto.MedicinePaginationQuery) (*dto.MedicineLowStockResponse, error) {
+	return s.inner.ListByLowStock(query)
 }
 
 func (s *eventMedicineService) FindByID(id uint) (*dto.MedicineResponse, error) {

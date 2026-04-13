@@ -26,24 +26,8 @@ type MedicineTypeCount struct {
 type MedicineLowStockResponse struct {
 	Threshold          int                    `json:"threshold"`
 	TotalLowStock      int64                  `json:"total_low_stock"`
-	TotalStockQuantity int64                  `json:"total_stock_quantity"`
-	TotalStockValue    float64                `json:"total_stock_value"`
-	CriticalCount      int64                  `json:"critical_count"`
-	Data               []MedicineLowStockItem `json:"data"`
+	Data               []MedicineResponse `json:"data"`
 	Meta               MedicinePaginationMeta `json:"meta"`
-}
-
-type MedicineLowStockItem struct {
-	ID                uint    `json:"id"`
-	Name              string  `json:"name"`
-	GenericName       string  `json:"generic_name"`
-	Type              string  `json:"type"`
-	StockQuantity     int     `json:"stock_quantity"`
-	MinimumStock      int     `json:"minimum_stock"`
-	Price             float64 `json:"price"`
-	StockStatus       string  `json:"stock_status"`
-	DaysUntilStockout int     `json:"days_until_stockout"`
-	IsActive          bool    `json:"is_active"`
 }
 
 type MedicineOutOfStockResponse struct {

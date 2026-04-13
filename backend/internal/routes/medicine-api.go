@@ -22,7 +22,7 @@ func SetupMedicineRouter(rg *gin.RouterGroup, cfg *RouteConfig, m *handler.Medic
 			models.RoleDoctor, models.RoleReceptionist, models.RoleAdmin, models.RoleSuperAdmin,
 		))
 		{
-			stockRoutes.GET("/low-stock", m.GetByLowStock)
+			stockRoutes.GET("/low-stock", m.ListByLowStock)
 		}
 	}
 }

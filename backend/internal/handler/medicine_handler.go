@@ -49,13 +49,13 @@ func (h *MedicineHandler) ListByAvailable(ctx *gin.Context) {
 	utils.SuccessResponse(ctx, http.StatusOK, "Available Medicines retrieved successfully", res)
 }
 
-func (h *MedicineHandler) GetByLowStock(ctx *gin.Context) {
+func (h *MedicineHandler) ListByLowStock(ctx *gin.Context) {
 	var query dto.MedicinePaginationQuery
 	if err := ctx.ShouldBindQuery(&query); err != nil {
 		utils.ValidationErrorResponse(ctx, err)
 		return
 	}
-	res, err := h.service.GetByLowStock(&query)
+	res, err := h.service.ListByLowStock(&query)
 	if err != nil {
 		utils.ValidationErrorResponse(ctx, err)
 		return
