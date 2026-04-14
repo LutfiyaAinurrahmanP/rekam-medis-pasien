@@ -76,6 +76,9 @@ func MedicineInactiveKey(page, size int) string {
 	return fmt.Sprintf("medicine:inactive:p%d:s%d", page, size)
 }
 
+func MedicineTypeKey(page, size int) string {
+	return fmt.Sprintf("medicine:type:p%d:s%d", page, size)
+}
 // ─── Invalidation patterns ─────────────────────────────────────────────────
 
 const (

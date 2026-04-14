@@ -43,10 +43,7 @@ type MedicineInactiveResponse struct {
 }
 
 type MedicineByTypeResponse struct {
-	Type               string                 `json:"type"`
 	TotalMedicines     int64                  `json:"total_medicines"`
-	AvailableMedicines int64                  `json:"available_medicines"`
-	TotalStock         int64                  `json:"total_stock"`
 	Data               []MedicineResponse     `json:"data"`
 	Meta               MedicinePaginationMeta `json:"meta"`
 }

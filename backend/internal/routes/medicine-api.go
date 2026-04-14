@@ -13,8 +13,9 @@ func SetupMedicineRouter(rg *gin.RouterGroup, cfg *RouteConfig, m *handler.Medic
 	{
 		g.GET("", m.ListMedicines)
 		g.GET("/available", m.ListByAvailable)
-		g.GET("/name/:name", m.FindByName)
 		g.GET("/:id", m.FindByID)
+		g.GET("/name/:name", m.FindByName)
+		g.GET("/type/:type", m.ListByType)
 
 		// Stock routes (requires doctor, receptionist, admin, or superadmin)
 		stockRoutes := g.Group("")

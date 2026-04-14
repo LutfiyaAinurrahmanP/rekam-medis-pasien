@@ -51,3 +51,7 @@ func (s *eventMedicineService) FindByID(id uint) (*dto.MedicineResponse, error) 
 func (s *eventMedicineService) FindByName(name string) (*dto.MedicineResponse, error) {
 	return s.inner.FindByName(name)
 }
+
+func (s *eventMedicineService) ListByType(query *dto.MedicinePaginationQuery) (*dto.MedicineByTypeResponse, error) {
+	return s.inner.ListByType(query)
+}

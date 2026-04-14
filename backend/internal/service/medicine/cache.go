@@ -141,6 +141,20 @@ func (s *cachedMedicineService) FindByName(name string) (*dto.MedicineResponse, 
 	return result, nil
 }
 
+func (s *cachedMedicineService) ListByType(query *dto.MedicinePaginationQuery) (*dto.MedicineByTypeResponse, error) {
+	key := cache.MedicineTypeKey(query.Page, query.PageSize)
+	var resp dto.MedicineByTypeResponse
+	if err := s.redis.Get(context.Background(), key, resp); err == nil {
+		return &resp, nil
+	}
+	result, err := s.inner.ListByType(query)
+	if err != nil {
+		return nil, err
+	}
+	s.setCache(key, result)
+	return result, nil
+}
+
 func (s *cachedMedicineService) setCache(key string, value any) {
 	if err := s.redis.Set(context.Background(), key, value, 0); err != nil {
 		log.Printf("⚠️  Redis set failed for key %q: %v", key, err)

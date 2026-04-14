@@ -18,7 +18,7 @@ type MedicineService interface {
 	ListByInactive(query *dto.MedicinePaginationQuery) (*dto.MedicineInactiveResponse, error)
 	FindByID(id uint) (*dto.MedicineResponse, error)
 	FindByName(name string) (*dto.MedicineResponse, error)
-	// GetByType()
+	ListByType(query *dto.MedicinePaginationQuery) (*dto.MedicineByTypeResponse, error)
 	// Search()
 	// Create()
 	// Update()
@@ -234,6 +234,32 @@ func (s *medicineService) FindByName(name string) (*dto.MedicineResponse, error)
 		return nil, err
 	}
 	return s.toResponse(m), nil
+}
+
+func (s *medicineService) ListByType(query *dto.MedicinePaginationQuery) (*dto.MedicineByTypeResponse, error) {
+	s.normalizeQuery(query, "name", "asc")
+
+	medicines, total, err := s.repo.ListByType(query)
+	if err != nil {
+		return nil, err
+	}
+
+	responses := make([]dto.MedicineResponse, len(medicines))
+	for i, m := range medicines {
+		responses[i] = *s.toResponse(&m)
+	}
+
+	totalPages := int(math.Ceil(float64(total) / float64(query.PageSize)))
+	return &dto.MedicineByTypeResponse{
+		TotalMedicines: total,
+		Data: responses,
+		Meta: dto.MedicinePaginationMeta{
+			Page: query.Page,
+			PageSize: query.PageSize,
+			TotalItems: total,
+			TotalPages: totalPages,
+		},
+	}, nil
 }
 
 

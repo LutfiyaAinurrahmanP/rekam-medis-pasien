@@ -133,3 +133,27 @@ func (h *MedicineHandler) FindByName(ctx *gin.Context) {
 	}
 	utils.SuccessResponse(ctx, http.StatusOK, "Medicine retrieved successfully", res)
 }
+
+
+func (h *MedicineHandler) ListByType(ctx *gin.Context) {
+	typeParam := ctx.Param("type")
+	if typeParam == "" {
+		utils.ErrorResponse(ctx, http.StatusBadRequest, "Invalid parameter", "type parameter is required")
+		return
+	}
+	
+	var query dto.MedicinePaginationQuery
+	if err := ctx.ShouldBindQuery(&query); err != nil {
+		utils.ValidationErrorResponse(ctx, err)
+		return
+	}
+	
+	query.Type = typeParam
+	
+	res, err := h.service.ListByType(&query)
+	if err != nil {
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to retrieve medicines by type", err.Error())
+		return
+	}
+	utils.SuccessResponse(ctx, http.StatusOK, "Medicines by type retrieved successfully", res)
+}

@@ -18,7 +18,7 @@ type MedicineRepository interface {
 	ListByInactive(query *dto.MedicinePaginationQuery) ([]models.Medicine, int64, error)
 	FindByID(id uint) (*models.Medicine, error)
 	FindByName(name string) (*models.Medicine, error)
-	FindByType(types string) (*models.Medicine, error)
+	ListByType(query *dto.MedicinePaginationQuery) ([]models.Medicine, int64, error)
 	Search(criteria *dto.MedicineSearchCriteria, item *dto.MedicineSearchItem, response *dto.MedicineSearchResponse) ([]models.Medicine, int64, error)
 	Create(medicine *models.Medicine) error
 	Update(medicine *models.Medicine) error
@@ -243,8 +243,10 @@ func (r *medicineRepository) FindByName(name string) (*models.Medicine, error) {
 	return &m, nil
 }
 
-func (r *medicineRepository) FindByType(types string) (*models.Medicine, error) {
-	panic("not implemented") // TODO: Implement
+func (r *medicineRepository) ListByType(query *dto.MedicinePaginationQuery) ([]models.Medicine, int64, error) {
+	queryForFilter := *query
+	queryForFilter.Type = query.Type
+	return r.List(&queryForFilter)
 }
 
 func (r *medicineRepository) Search(criteria *dto.MedicineSearchCriteria, item *dto.MedicineSearchItem, response *dto.MedicineSearchResponse) ([]models.Medicine, int64, error) {
