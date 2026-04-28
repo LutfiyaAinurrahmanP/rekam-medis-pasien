@@ -14,6 +14,7 @@ API untuk manajemen data rawat inap (hospitalization) dalam sistem rekam medis. 
 - [Authorization](#authorization)
 - [Endpoints Summary](#endpoints-summary)
 - [Endpoints Detail](#endpoints-detail)
+- [Database Model](#database-model)
 - [Error Responses](#error-responses)
 
 ---
@@ -808,6 +809,47 @@ curl -X DELETE "http://localhost:8080/api/v1/hospitalizations/1/hard-delete" \
   "message": "Internal server error"
 }
 ```
+
+---
+
+## Database Model
+
+### Table: hospitalizations
+
+| Field | Type | Constraints | Description |
+| --- | --- | --- | --- |
+| id | BIGINT | PRIMARY KEY, AUTO_INCREMENT | Unique identifier |
+| patient_id | BIGINT | FOREIGN KEY (patients.id), NOT NULL, INDEX | Reference ke pasien |
+| doctor_id | BIGINT | FOREIGN KEY (doctors.id), NOT NULL, INDEX | Reference ke dokter penanggung jawab |
+| room_id | BIGINT | FOREIGN KEY (rooms.id), NOT NULL, INDEX | Reference ke ruangan |
+| admission_date | DATE | NOT NULL | Tanggal masuk rawat inap |
+| admission_time | TIME | NOT NULL | Waktu masuk |
+| discharge_date | DATE | NULLABLE, INDEX | Tanggal pulang (NULL jika masih dirawat) |
+| discharge_time | TIME | NULLABLE | Waktu pulang |
+| reason_for_admission | TEXT | NOT NULL | Alasan/diagnosis saat masuk |
+| status | VARCHAR(20) | NOT NULL, DEFAULT 'admitted', INDEX | Status (admitted, transferred, discharged, cancelled) |
+| notes | TEXT | NULLABLE | Catatan tambahan |
+| created_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | Waktu pembuatan |
+| updated_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | Waktu update |
+| deleted_at | TIMESTAMP | INDEX, NULLABLE | Soft delete timestamp |
+
+**Indexes:**
+- Primary Key: id
+- Foreign Keys: patient_id, doctor_id, room_id
+- Regular Index: admission_date, discharge_date, status, deleted_at
+
+**Relationships:**
+- Belongs To Patient (many-to-one)
+- Belongs To Doctor (many-to-one)
+- Belongs To Room (many-to-one)
+- Has Many Medical Records (one-to-many)
+- Has Many Vital Signs (one-to-many)
+
+**Notes:**
+- Status: admitted (sedang dirawat) -> transferred (pindah ruangan) -> discharged (pulang)
+- discharge_date NULL berarti pasien masih dirawat
+- Integrasi dengan room availability/occupancy
+- Tracking perjalanan pasien dalam hospital
 
 ---
 

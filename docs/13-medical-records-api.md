@@ -18,6 +18,7 @@ API untuk manajemen data medical records (rekam medis) dalam sistem rekam medis.
 - [Doctor Endpoints](#doctor-endpoints)
 - [Admin Endpoints](#admin-endpoints)
 - [Super Admin Endpoints](#super-admin-endpoints)
+- [Database Model](#database-model)
 - [Request & Response Examples](#request--response-examples)
 - [Error Responses](#error-responses)
 
@@ -1249,6 +1250,49 @@ curl -X GET http://localhost:8080/api/v1/medical-records/1 \
 - Support for multimedia (images, scans)
 - Version control for amendments
 - Peer review and quality assurance
+
+---
+
+## Database Model
+
+### Table: medical_records
+
+| Field | Type | Constraints | Description |
+| --- | --- | --- | --- |
+| id | BIGINT | PRIMARY KEY, AUTO_INCREMENT | Unique identifier |
+| appointment_id | BIGINT | FOREIGN KEY (appointments.id), NULLABLE, INDEX | Reference ke appointment |
+| patient_id | BIGINT | FOREIGN KEY (patients.id), NOT NULL, INDEX | Reference ke pasien |
+| doctor_id | BIGINT | FOREIGN KEY (doctors.id), NOT NULL, INDEX | Reference ke dokter |
+| visit_date | DATE | NOT NULL | Tanggal kunjungan |
+| chief_complaint | TEXT | NOT NULL | Keluhan utama pasien |
+| history_of_illness | TEXT | NULLABLE | Riwayat penyakit pasien |
+| physical_examination | TEXT | NULLABLE | Hasil pemeriksaan fisik |
+| diagnosis | TEXT | NOT NULL | Diagnosis dokter |
+| treatment_plan | TEXT | NOT NULL | Rencana treatment |
+| notes | TEXT | NULLABLE | Catatan tambahan dokter |
+| status | VARCHAR(20) | NOT NULL, DEFAULT 'draft', INDEX | Status (draft, finalized, amended) |
+| created_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | Waktu pembuatan |
+| updated_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | Waktu update |
+| deleted_at | TIMESTAMP | INDEX, NULLABLE | Soft delete timestamp |
+
+**Indexes:**
+- Primary Key: id
+- Foreign Keys: patient_id, doctor_id, appointment_id
+- Regular Index: visit_date, status, deleted_at
+
+**Relationships:**
+- Belongs To Patient (many-to-one)
+- Belongs To Doctor (many-to-one)
+- Belongs To Appointment (many-to-one, optional)
+- Has Many Prescriptions (one-to-many)
+- Has Many Lab Tests (one-to-many)
+- Has Many Vital Signs (one-to-many)
+
+**Notes:**
+- Status: draft (masih diedit) -> finalized (selesai) -> amended (koreksi)
+- Setiap record adalah catatan kunjungan satu pasien ke satu dokter
+- Diagnosis dan treatment plan wajib diisi
+- Dapat direferensikan dari appointment atau standalone
 
 ---
 

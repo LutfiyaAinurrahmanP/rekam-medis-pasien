@@ -18,6 +18,7 @@ API untuk manajemen data appointments (jadwal konsultasi/pertemuan) antara patie
 - [Staff Endpoints](#staff-endpoints)
 - [Admin Endpoints](#admin-endpoints)
 - [Super Admin Endpoints](#super-admin-endpoints)
+- [Database Model](#database-model)
 - [Request & Response Examples](#request--response-examples)
 - [Error Responses](#error-responses)
 
@@ -1855,6 +1856,41 @@ curl -X PATCH http://localhost:8080/api/v1/appointments/1/complete \
 - Real-time availability calendar
 - Telemedicine appointment support
 - Video consultation integration
+
+---
+
+## Database Model
+
+### Table: appointments
+
+| Field | Type | Constraints | Description |
+| --- | --- | --- | --- |
+| id | BIGINT | PRIMARY KEY, AUTO_INCREMENT | Unique identifier |
+| patient_id | BIGINT | FOREIGN KEY (patients.id), INDEX | Reference ke pasien |
+| doctor_id | BIGINT | FOREIGN KEY (doctors.id), INDEX | Reference ke dokter |
+| appointment_date | DATE | NOT NULL, INDEX | Tanggal appointment |
+| appointment_time | TIME | NOT NULL | Waktu appointment |
+| duration_minutes | INT | DEFAULT 30 | Durasi appointment dalam menit |
+| status | VARCHAR(20) | NOT NULL, DEFAULT 'scheduled', INDEX | Status (scheduled, confirmed, started, completed, cancelled) |
+| notes | TEXT | NULLABLE | Catatan/keluhan pasien |
+| created_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | Waktu pembuatan |
+| updated_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | Waktu update |
+| deleted_at | TIMESTAMP | INDEX, NULLABLE | Soft delete timestamp |
+
+**Indexes:**
+- Primary Key: id
+- Foreign Keys: patient_id, doctor_id
+- Regular Index: appointment_date, status, deleted_at
+
+**Relationships:**
+- Belongs To Patient (many-to-one)
+- Belongs To Doctor (many-to-one)
+- Has One Medical Record (one-to-one, after appointment)
+
+**Notes:**
+- Status flow: scheduled -> confirmed -> started -> completed
+- No double booking untuk doctor pada waktu yang sama
+- Appointment harus scheduled dalam doctor's working hours
 
 ---
 

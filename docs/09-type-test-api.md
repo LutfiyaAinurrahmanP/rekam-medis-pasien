@@ -16,6 +16,7 @@ API untuk manajemen data test types (jenis tes laboratorium) dalam sistem rekam 
 - [Public Endpoints](#public-endpoints)
 - [Admin Endpoints](#admin-endpoints)
 - [Super Admin Endpoints](#super-admin-endpoints)
+- [Database Model](#database-model)
 - [Request & Response Examples](#request--response-examples)
 - [Error Responses](#error-responses)
 
@@ -40,9 +41,7 @@ Authorization: Bearer <your-jwt-token>
 | GET /test-types/inactive           | ❌      | ✅     | ✅           | ✅    | ✅          |
 | GET /test-types/deleted            | ❌      | ❌     | ❌           | ✅    | ✅          |
 | GET /test-types/:id                | ✅      | ✅     | ✅           | ✅    | ✅          |
-| GET /test-types/code/:code         | ✅      | ✅     | ✅           | ✅    | ✅          |
 | GET /test-types/category/:category | ✅      | ✅     | ✅           | ✅    | ✅          |
-| GET /test-types/search             | ✅      | ✅     | ✅           | ✅    | ✅          |
 | POST /test-types                   | ❌      | ❌     | ❌           | ✅    | ✅          |
 | PUT /test-types/:id                | ❌      | ❌     | ❌           | ✅    | ✅          |
 | PATCH /test-types/:id/activate     | ❌      | ❌     | ❌           | ✅    | ✅          |
@@ -64,9 +63,7 @@ Authorization: Bearer <your-jwt-token>
 | GET    | `/test-types/inactive`           | List inactive test types | Doctor, Receptionist, Admin, Super Admin |
 | GET    | `/test-types/deleted`            | List deleted test types  | Admin, Super Admin                       |
 | GET    | `/test-types/:id`                | Get test type by ID      | All Authenticated                        |
-| GET    | `/test-types/code/:code`         | Get test type by code    | All Authenticated                        |
 | GET    | `/test-types/category/:category` | Get by category          | All Authenticated                        |
-| GET    | `/test-types/search`             | Advanced search          | All Authenticated                        |
 
 ### Admin Endpoints
 
@@ -435,58 +432,7 @@ curl -X GET http://localhost:8080/api/v1/test-types/1 \
 
 ---
 
-### 6. Get Test Type by Code
-
-**Endpoint:** `GET /api/v1/test-types/code/:code`
-
-**Description:** Mendapatkan test type berdasarkan code (untuk quick search).
-
-**Authentication:** Required (All Authenticated Users)
-
-**Request Headers:**
-
-```
-Authorization: Bearer <token>
-```
-
-**URL Parameters:**
-
-- `code`: Test Type Code (string), e.g., "LAB-HEM-001"
-
-**Response Success (200 OK):**
-
-```json
-{
-  "success": true,
-  "message": "Test type retrieved successfully",
-  "data": {
-    "id": 1,
-    "name": "Complete Blood Count (CBC)",
-    "code": "LAB-HEM-001",
-    "category": "Hematologi",
-    "description": "Pemeriksaan darah lengkap",
-    "price": 150000.0,
-    "is_active": true
-  }
-}
-```
-
-**cURL Example:**
-
-```bash
-curl -X GET http://localhost:8080/api/v1/test-types/code/LAB-HEM-001 \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN"
-```
-
-**Use Case:**
-
-- Quick search by barcode scan
-- Lab information system integration
-- Automated ordering
-
----
-
-### 7. Get Test Types by Category
+### 6. Get Test Types by Category
 
 **Endpoint:** `GET /api/v1/test-types/category/:category`
 
@@ -575,95 +521,9 @@ curl -X GET "http://localhost:8080/api/v1/test-types/category/Hematologi?is_acti
 
 ---
 
-### 8. Advanced Search Test Types
-
-**Endpoint:** `GET /api/v1/test-types/search`
-
-**Description:** Pencarian test types dengan multiple criteria.
-
-**Authentication:** Required (All Authenticated Users)
-
-**Request Headers:**
-
-```
-Authorization: Bearer <token>
-```
-
-**Query Parameters:**
-
-| Parameter   | Type    | Description                       |
-| ----------- | ------- | --------------------------------- |
-| `keyword`   | string  | Search in name, code, description |
-| `category`  | string  | Filter by category                |
-| `min_price` | decimal | Minimum price                     |
-| `max_price` | decimal | Maximum price                     |
-| `is_active` | boolean | Filter by status                  |
-| `page`      | integer | Page number                       |
-| `page_size` | integer | Items per page                    |
-
-**Example Request:**
-
-```
-GET /api/v1/test-types/search?keyword=darah&category=Hematologi&max_price=200000
-```
-
-**Response Success (200 OK):**
-
-```json
-{
-  "success": true,
-  "message": "Search results retrieved successfully",
-  "data": {
-    "search_criteria": {
-      "keyword": "darah",
-      "category": "Hematologi",
-      "max_price": 200000
-    },
-    "results_found": 5,
-    "data": [
-      {
-        "id": 1,
-        "name": "Complete Blood Count (CBC)",
-        "code": "LAB-HEM-001",
-        "category": "Hematologi",
-        "description": "Pemeriksaan darah lengkap",
-        "price": 150000.0,
-        "is_active": true,
-        "relevance_score": 0.95
-      },
-      {
-        "id": 4,
-        "name": "Golongan Darah",
-        "code": "LAB-HEM-004",
-        "category": "Hematologi",
-        "description": "Pemeriksaan golongan darah ABO dan Rhesus",
-        "price": 75000.0,
-        "is_active": true,
-        "relevance_score": 0.9
-      }
-    ],
-    "meta": {
-      "page": 1,
-      "page_size": 10,
-      "total_items": 2,
-      "total_pages": 1
-    }
-  }
-}
-```
-
-**cURL Example:**
-
-```bash
-curl -X GET "http://localhost:8080/api/v1/test-types/search?keyword=darah&max_price=200000" \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN"
-```
-
----
-
 ## Admin Endpoints
 
-### 9. Create Test Type
+### 7. Create Test Type
 
 **Endpoint:** `POST /api/v1/test-types`
 
@@ -754,7 +614,7 @@ curl -X POST http://localhost:8080/api/v1/test-types \
 
 ---
 
-### 10. Update Test Type
+### 8. Update Test Type
 
 **Endpoint:** `PUT /api/v1/test-types/:id`
 
@@ -825,7 +685,7 @@ curl -X PUT http://localhost:8080/api/v1/test-types/1 \
 
 ---
 
-### 11. Activate Test Type
+### 9. Activate Test Type
 
 **Endpoint:** `PATCH /api/v1/test-types/:id/activate`
 
@@ -868,7 +728,7 @@ curl -X PATCH http://localhost:8080/api/v1/test-types/1/activate \
 
 ---
 
-### 12. Deactivate Test Type
+### 10. Deactivate Test Type
 
 **Endpoint:** `PATCH /api/v1/test-types/:id/deactivate`
 
@@ -917,7 +777,7 @@ curl -X PATCH http://localhost:8080/api/v1/test-types/1/deactivate \
 
 ---
 
-### 13. Soft Delete Test Type
+### 11. Soft Delete Test Type
 
 **Endpoint:** `DELETE /api/v1/test-types/:id`
 
@@ -967,7 +827,7 @@ curl -X DELETE http://localhost:8080/api/v1/test-types/1 \
 
 ---
 
-### 14. Restore Test Type
+### 12. Restore Test Type
 
 **Endpoint:** `PATCH /api/v1/test-types/:id/restore`
 
@@ -1011,7 +871,7 @@ curl -X PATCH http://localhost:8080/api/v1/test-types/1/restore \
 
 ## Super Admin Endpoints
 
-### 15. Hard Delete Test Type
+### 13. Hard Delete Test Type
 
 **Endpoint:** `DELETE /api/v1/test-types/:id/hard-delete`
 
@@ -1057,6 +917,41 @@ Authorization: Bearer <super-admin-token>
 curl -X DELETE http://localhost:8080/api/v1/test-types/1/hard-delete \
   -H "Authorization: Bearer SUPER_ADMIN_JWT_TOKEN"
 ```
+
+---
+
+## Database Model
+
+### Table: type_tests
+
+| Field | Type | Constraints | Description |
+| --- | --- | --- | --- |
+| id | BIGINT | PRIMARY KEY, AUTO_INCREMENT | Unique identifier |
+| name | VARCHAR(200) | NOT NULL, INDEX | Nama tes (e.g., Complete Blood Count, Urinalisis) |
+| code | VARCHAR(50) | UNIQUE, NOT NULL, INDEX | Kode tes unik (e.g., CBC, UA, LFT) |
+| category | VARCHAR(100) | INDEX | Kategori tes / reference ke master category |
+| description | TEXT | NULLABLE | Deskripsi detail dan prosedur tes |
+| price | DECIMAL(10,2) | DEFAULT 0 | Harga tes dalam IDR |
+| is_active | BOOLEAN | NOT NULL, DEFAULT true, INDEX | Status aktif tes |
+| created_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | Waktu pembuatan record |
+| updated_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | Waktu update terakhir |
+| deleted_at | TIMESTAMP | INDEX, NULLABLE | Soft delete timestamp |
+
+**Indexes:**
+- Primary Key: id
+- Unique Index: code
+- Regular Index: category, is_active, deleted_at
+
+**Relationships:**
+- Has Many Lab Tests (one-to-many)
+- References Test Category (many-to-one, via category field)
+
+**Notes:**
+- Code sebaiknya uppercase dan singkat (CBC, UA, LFT, BIO, CRP, dll)
+- Category bisa direct string atau foreign key ke test_categories table
+- Price dapat disesuaikan per test dan dapat berubah
+- is_active untuk hide discontinued tests
+- Description harus include indikasi dan normal range values
 
 ---
 

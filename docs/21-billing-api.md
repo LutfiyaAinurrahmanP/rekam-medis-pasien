@@ -15,6 +15,7 @@ API untuk manajemen data billing (tagihan/invoice) dan item tagihan dalam sistem
 - [Endpoints Summary](#endpoints-summary)
 - [Billing Endpoints](#billing-endpoints)
 - [Billing Item Endpoints](#billing-item-endpoints)
+- [Database Model](#database-model)
 - [Error Responses](#error-responses)
 
 ---
@@ -1085,6 +1086,61 @@ curl -X DELETE "http://localhost:8080/api/v1/billing/1/items/3" \
   "message": "Internal server error"
 }
 ```
+
+---
+
+## Database Model
+
+### Table: billing
+
+| Field | Type | Constraints | Description |
+| --- | --- | --- | --- |
+| id | BIGINT | PRIMARY KEY, AUTO_INCREMENT | Unique identifier |
+| invoice_number | VARCHAR(50) | UNIQUE, NOT NULL, INDEX | Nomor invoice (e.g., INV-2024-00001) |
+| patient_id | BIGINT | FOREIGN KEY (patients.id), NOT NULL, INDEX | Reference ke pasien |
+| medical_record_id | BIGINT | FOREIGN KEY (medical_records.id), NULLABLE | Reference ke medical record |
+| hospitalization_id | BIGINT | FOREIGN KEY (hospitalizations.id), NULLABLE | Reference ke hospitalization |
+| billing_date | DATE | NOT NULL | Tanggal invoice dibuat |
+| due_date | DATE | NOT NULL | Tanggal jatuh tempo pembayaran |
+| total_amount | DECIMAL(12,2) | NOT NULL | Total tagihan |
+| paid_amount | DECIMAL(12,2) | DEFAULT 0 | Jumlah yang sudah dibayar |
+| remaining_amount | DECIMAL(12,2) | GENERATED | Sisa tagihan (total_amount - paid_amount) |
+| status | VARCHAR(20) | NOT NULL, DEFAULT 'pending', INDEX | Status (pending, partial, paid, overdue, cancelled) |
+| payment_method | VARCHAR(50) | NULLABLE | Metode pembayaran (cash, transfer, card, dll) |
+| notes | TEXT | NULLABLE | Catatan tambahan |
+| created_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | Waktu pembuatan |
+| updated_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | Waktu update |
+| deleted_at | TIMESTAMP | INDEX, NULLABLE | Soft delete timestamp |
+
+### Table: billing_items
+
+| Field | Type | Constraints | Description |
+| --- | --- | --- | --- |
+| id | BIGINT | PRIMARY KEY, AUTO_INCREMENT | Unique identifier |
+| billing_id | BIGINT | FOREIGN KEY (billing.id), NOT NULL, INDEX | Reference ke billing |
+| description | VARCHAR(200) | NOT NULL | Deskripsi item (dokter, obat, lab, room, dll) |
+| quantity | INT | NOT NULL | Jumlah item |
+| unit_price | DECIMAL(12,2) | NOT NULL | Harga per unit |
+| total_price | DECIMAL(12,2) | NOT NULL | Total (quantity x unit_price) |
+| item_type | VARCHAR(50) | NULLABLE | Tipe item (consultation, medicine, test, room, dll) |
+| created_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | Waktu pembuatan |
+| updated_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | Waktu update |
+
+**Indexes:**
+- Primary Keys: id (each table)
+- Foreign Keys: patient_id, medical_record_id, hospitalization_id (billing), billing_id (items)
+- Regular Index: billing_date, due_date, status, deleted_at
+
+**Relationships:**
+- Billing Belongs To Patient, Medical Record, Hospitalization
+- Billing Has Many Billing Items
+- Billing Item Belongs To Billing
+
+**Notes:**
+- remaining_amount otomatis calculated
+- Status: pending -> partial -> paid (atau overdue/cancelled)
+- Invoice number auto-generated atau manual per rumah sakit
+- Integration dengan payment gateway untuk online payment
 
 ---
 

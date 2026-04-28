@@ -14,6 +14,7 @@ API untuk manajemen data pemeriksaan laboratorium (lab tests) dalam sistem rekam
 - [Authorization](#authorization)
 - [Endpoints Summary](#endpoints-summary)
 - [Endpoints Detail](#endpoints-detail)
+- [Database Model](#database-model)
 - [Error Responses](#error-responses)
 
 ---
@@ -783,6 +784,43 @@ curl -X DELETE "http://localhost:8080/api/v1/lab-tests/1/hard-delete" \
   "message": "Internal server error"
 }
 ```
+
+---
+
+## Database Model
+
+### Table: lab_tests
+
+| Field | Type | Constraints | Description |
+| --- | --- | --- | --- |
+| id | BIGINT | PRIMARY KEY, AUTO_INCREMENT | Unique identifier |
+| medical_record_id | BIGINT | FOREIGN KEY (medical_records.id), NOT NULL, INDEX | Reference ke medical record |
+| test_type_id | BIGINT | FOREIGN KEY (type_tests.id), NOT NULL, INDEX | Reference ke jenis tes |
+| sample_collection_date | DATE | NULLABLE | Tanggal pengambilan sampel |
+| test_start_date | DATE | NULLABLE | Tanggal mulai pemeriksaan |
+| test_result_date | DATE | NULLABLE | Tanggal hasil tes selesai |
+| result_value | TEXT | NULLABLE | Nilai/hasil pemeriksaan |
+| result_unit | VARCHAR(50) | NULLABLE | Unit hasil (mg/dL, mmol/L, dll) |
+| reference_range | VARCHAR(200) | NULLABLE | Nilai normal referensi |
+| status | VARCHAR(20) | NOT NULL, DEFAULT 'ordered', INDEX | Status (ordered, collected, started, completed, cancelled) |
+| notes | TEXT | NULLABLE | Catatan khusus/interpretasi |
+| created_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | Waktu pembuatan |
+| updated_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | Waktu update |
+| deleted_at | TIMESTAMP | INDEX, NULLABLE | Soft delete timestamp |
+
+**Indexes:**
+- Primary Key: id
+- Foreign Keys: medical_record_id, test_type_id
+- Regular Index: sample_collection_date, test_start_date, status, deleted_at
+
+**Relationships:**
+- Belongs To Medical Record (many-to-one)
+- Belongs To Test Type (many-to-one)
+
+**Notes:**
+- Status flow: ordered -> collected -> started -> completed
+- Result value, unit, dan reference range diisi saat tes selesai
+- Tracking full lifecycle dari test order hingga hasil
 
 ---
 

@@ -15,6 +15,7 @@ API untuk manajemen data resep dokter (prescriptions) dan item resep (prescripti
 - [Endpoints Summary](#endpoints-summary)
 - [Prescription Endpoints](#prescription-endpoints)
 - [Prescription Item Endpoints](#prescription-item-endpoints)
+- [Database Model](#database-model)
 - [Error Responses](#error-responses)
 
 ---
@@ -973,6 +974,55 @@ curl -X DELETE "http://localhost:8080/api/v1/prescriptions/1/items/1" \
   "message": "Internal server error"
 }
 ```
+
+---
+
+## Database Model
+
+### Table: prescriptions
+
+| Field | Type | Constraints | Description |
+| --- | --- | --- | --- |
+| id | BIGINT | PRIMARY KEY, AUTO_INCREMENT | Unique identifier |
+| medical_record_id | BIGINT | FOREIGN KEY (medical_records.id), NOT NULL, INDEX | Reference ke medical record |
+| doctor_id | BIGINT | FOREIGN KEY (doctors.id), NOT NULL, INDEX | Doctor yang membuat resep |
+| patient_id | BIGINT | FOREIGN KEY (patients.id), NOT NULL, INDEX | Patient penerima resep |
+| prescription_date | DATE | NOT NULL | Tanggal pembuatan resep |
+| dispense_date | DATE | NULLABLE | Tanggal obat diberikan |
+| status | VARCHAR(20) | NOT NULL, DEFAULT 'issued', INDEX | Status (issued, dispensed, completed, cancelled) |
+| notes | TEXT | NULLABLE | Catatan khusus untuk pasien |
+| created_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | Waktu pembuatan |
+| updated_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | Waktu update |
+| deleted_at | TIMESTAMP | INDEX, NULLABLE | Soft delete timestamp |
+
+### Table: prescription_items
+
+| Field | Type | Constraints | Description |
+| --- | --- | --- | --- |
+| id | BIGINT | PRIMARY KEY, AUTO_INCREMENT | Unique identifier |
+| prescription_id | BIGINT | FOREIGN KEY (prescriptions.id), NOT NULL, INDEX | Reference ke resep |
+| medicine_id | BIGINT | FOREIGN KEY (medicines.id), NOT NULL, INDEX | Reference ke obat |
+| quantity | INT | NOT NULL | Jumlah obat |
+| dosage | VARCHAR(100) | NOT NULL | Dosis (e.g., 3x2 tablet) |
+| frequency | VARCHAR(100) | NOT NULL | Frekuensi pemberian |
+| duration_days | INT | NULLABLE | Durasi dalam hari |
+| instructions | TEXT | NULLABLE | Instruksi khusus penggunaan |
+| created_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | Waktu pembuatan |
+| updated_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | Waktu update |
+
+**Indexes:**
+- Primary Keys: id (each table)
+- Foreign Keys: medical_record_id, doctor_id, patient_id (prescriptions), prescription_id, medicine_id (items)
+
+**Relationships:**
+- Prescription Belongs To Medical Record, Doctor, Patient
+- Prescription Has Many Prescription Items
+- Prescription Item Belongs To Medicine
+
+**Notes:**
+- Status: issued -> dispensed -> completed atau cancelled
+- Setiap prescription_items adalah satu obat dalam resep
+- Integration dengan inventory untuk stock tracking
 
 ---
 

@@ -14,6 +14,7 @@ API untuk manajemen surat rujukan pasien (referrals) dalam sistem rekam medis. R
 - [Authorization](#authorization)
 - [Endpoints Summary](#endpoints-summary)
 - [Endpoints Detail](#endpoints-detail)
+- [Database Model](#database-model)
 - [Error Responses](#error-responses)
 
 ---
@@ -986,6 +987,46 @@ curl -X DELETE "http://localhost:8080/api/v1/referrals/1" \
   "message": "Internal server error"
 }
 ```
+
+---
+
+## Database Model
+
+### Table: referrals
+
+| Field | Type | Constraints | Description |
+| --- | --- | --- | --- |
+| id | BIGINT | PRIMARY KEY, AUTO_INCREMENT | Unique identifier |
+| patient_id | BIGINT | FOREIGN KEY (patients.id), NOT NULL, INDEX | Reference ke pasien |
+| from_doctor_id | BIGINT | FOREIGN KEY (doctors.id), NOT NULL, INDEX | Dokter pengirim rujukan |
+| to_doctor_id | BIGINT | FOREIGN KEY (doctors.id), NULLABLE, INDEX | Dokter penerima rujukan |
+| medical_record_id | BIGINT | FOREIGN KEY (medical_records.id), NULLABLE | Reference ke medical record |
+| referral_date | DATE | NOT NULL | Tanggal pembuat rujukan |
+| reason | TEXT | NOT NULL | Alasan rujukan |
+| status | VARCHAR(20) | NOT NULL, DEFAULT 'pending', INDEX | Status (pending, accepted, rejected, completed, cancelled) |
+| acceptance_date | DATE | NULLABLE | Tanggal dokter menerima rujukan |
+| completion_date | DATE | NULLABLE | Tanggal rujukan selesai |
+| notes | TEXT | NULLABLE | Catatan tambahan |
+| created_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | Waktu pembuatan |
+| updated_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | Waktu update |
+| deleted_at | TIMESTAMP | INDEX, NULLABLE | Soft delete timestamp |
+
+**Indexes:**
+- Primary Key: id
+- Foreign Keys: patient_id, from_doctor_id, to_doctor_id, medical_record_id
+- Regular Index: referral_date, status, deleted_at
+
+**Relationships:**
+- Belongs To Patient (many-to-one)
+- Belongs To From Doctor (many-to-one)
+- Belongs To To Doctor (many-to-one, optional)
+- Belongs To Medical Record (many-to-one, optional)
+
+**Notes:**
+- Status flow: pending -> accepted -> completed (atau rejected/cancelled)
+- to_doctor_id optional jika general referral
+- acceptance_date dan completion_date diisi saat dokter accept/complete
+- Important untuk patient routing dan specialty care
 
 ---
 

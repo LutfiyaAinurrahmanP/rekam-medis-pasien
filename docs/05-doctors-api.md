@@ -17,6 +17,7 @@ API untuk manajemen data doctors (dokter) dalam sistem rekam medis. Doctors adal
 - [Public Endpoints](#public-endpoints)
 - [Admin Endpoints](#admin-endpoints)
 - [Super Admin Endpoints](#super-admin-endpoints)
+- [Database Model](#database-model)
 - [Request & Response Examples](#request--response-examples)
 - [Error Responses](#error-responses)
 
@@ -937,6 +938,47 @@ Authorization: Bearer <super-admin-token>
 curl -X DELETE http://localhost:8080/api/v1/doctors/2/hard-delete \
   -H "Authorization: Bearer SUPER_ADMIN_JWT_TOKEN"
 ```
+
+---
+
+## Database Model
+
+### Table: doctors
+
+| Field | Type | Constraints | Description |
+| --- | --- | --- | --- |
+| id | BIGINT | PRIMARY KEY, AUTO_INCREMENT | Unique identifier untuk doctor |
+| user_id | BIGINT | FOREIGN KEY (users.id), INDEX | Reference ke user yang login |
+| employee_id | VARCHAR(50) | UNIQUE, NOT NULL, INDEX | ID karyawan dari HR |
+| full_name | VARCHAR(100) | NOT NULL | Nama lengkap dokter |
+| specialization | VARCHAR(100) | NOT NULL | Spesialisasi medis (e.g., Kardiologi, Neurologi) |
+| license_number | VARCHAR(50) | UNIQUE, NOT NULL | Nomor lisensi STR/SIP |
+| phone | VARCHAR(15) | NULLABLE | Nomor telepon |
+| email | VARCHAR(100) | NULLABLE | Email kontak |
+| department_id | BIGINT | FOREIGN KEY (departments.id), NOT NULL, INDEX | Department tempat bekerja |
+| is_active | BOOLEAN | NOT NULL, DEFAULT true, INDEX | Status aktif dokter |
+| created_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | Waktu pembuatan record |
+| updated_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | Waktu update terakhir |
+| deleted_at | TIMESTAMP | INDEX, NULLABLE | Soft delete timestamp |
+
+**Indexes:**
+- Primary Key: id
+- Unique Index: employee_id, license_number
+- Foreign Key: user_id, department_id
+- Regular Index: is_active, deleted_at
+
+**Relationships:**
+- Belongs To User (one-to-one)
+- Belongs To Department (many-to-one)
+- Has Many Appointments (one-to-many)
+- Has Many Medical Records (one-to-many)
+- Has Many Referrals (one-to-many)
+
+**Notes:**
+- License number adalah nomor STR (Surat Tanda Registrasi) atau SIP (Surat Izin Praktik)
+- Department menentukan lokasi kerja utama dokter
+- is_active dapat diubah untuk non-permanent leave atau retirement
+- Specialization bisa reference ke master data atau string langsung
 
 ---
 

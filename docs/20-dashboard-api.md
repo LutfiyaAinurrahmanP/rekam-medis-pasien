@@ -14,6 +14,7 @@ API untuk mendapatkan data ringkasan, statistik, dan laporan operasional sistem 
 - [Authorization](#authorization)
 - [Endpoints Summary](#endpoints-summary)
 - [Endpoints Detail](#endpoints-detail)
+- [Database Model](#database-model)
 - [Error Responses](#error-responses)
 
 ---
@@ -772,6 +773,43 @@ curl -X GET "http://localhost:8080/api/v1/dashboard/reports/patients?period=this
   "message": "Internal server error"
 }
 ```
+
+---
+
+## Database Model
+
+> **Note:** Dashboard endpoints tidak memiliki model penyimpanan dedicated. Dashboard mengagregasi data dari berbagai tabel lain (Users, Patients, Appointments, Medical Records, Billing, dll) untuk menghasilkan summary dan statistics.
+
+### Aggregated Data Sources:
+
+| Dashboard Type | Primary Data Sources | Metrics Shown |
+| --- | --- | --- |
+| Admin Dashboard | Users, Patients, Appointments, Medical Records, Billing | Total users by role, new registrations, appointments, revenue |
+| Doctor Dashboard | Appointments, Medical Records, Patients, Lab Tests | My appointments, patients today, pending records, lab requests |
+| Receptionist Dashboard | Appointments, Patients, Billing, Hospitalizations | Today's appointments, new registrations, pending payments, occupancy |
+| Patient Dashboard | Medical Records, Appointments, Billing, Prescriptions | My records, appointments, bills, medications |
+
+### Typical Data Aggregation:
+
+```sql
+-- Example: Count appointments by status
+SELECT status, COUNT(*) as count 
+FROM appointments 
+WHERE appointment_date >= CURDATE() 
+GROUP BY status;
+
+-- Example: Revenue summary by date
+SELECT DATE(payment_date), SUM(amount) 
+FROM payments 
+WHERE status = 'completed' 
+GROUP BY DATE(payment_date);
+```
+
+**Notes:**
+- Dashboard data typically cached untuk performance
+- Real-time atau periodic refresh tergantung requirements
+- No direct database model, hanya queries aggregation
+- Security filtered berdasarkan user role dan department access
 
 ---
 

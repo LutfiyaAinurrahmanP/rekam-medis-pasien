@@ -11,10 +11,12 @@ API untuk manajemen data users (pengguna) dalam sistem rekam medis. Mendukung 5 
 ## Table of Contents
 
 - [Authentication](#authentication)
-- [User Roles](#user-roles)
+- [Authorization](#authorization)
+- [Endpoints Summary](#endpoints-summary)
 - [Self-Owned Endpoints](#self-owned-endpoints)
 - [Admin Endpoints](#admin-endpoints)
 - [Super Admin Endpoints](#super-admin-endpoints)
+- [Database Model](#database-model)
 - [Request & Response Examples](#request--response-examples)
 - [Error Responses](#error-responses)
 
@@ -30,21 +32,32 @@ Authorization: Bearer <your-jwt-token>
 
 ---
 
-## User Roles
+## Authorization
 
-| Role           | Description         | Permissions                                      |
-| -------------- | ------------------- | ------------------------------------------------ |
-| `patient`      | Pasien              | View & update own profile                        |
-| `doctor`       | Dokter              | View & update own profile + medical functions    |
-| `receptionist` | Resepsionis         | View & update own profile + patient registration |
-| `admin`        | Administrator       | Full access except hard delete                   |
-| `super_admin`  | Super Administrator | Full access including hard delete                |
+| Endpoint                    | Patient | Doctor | Receptionist | Admin | Super Admin |
+| --------------------------- | ------- | ------ | ------------ | ----- | ----------- |
+| GET /users/me               | ✅      | ✅     | ✅           | ✅    | ✅          |
+| PUT /users/me               | ✅      | ✅     | ✅           | ✅    | ✅          |
+| PATCH /users/me/change-password | ✅      | ✅     | ✅           | ✅    | ✅          |
+| DELETE /users/me            | ✅      | ✅     | ✅           | ✅    | ✅          |
+| PATCH /users/me/deactivate  | ✅      | ✅     | ✅           | ✅    | ✅          |
+| POST /users                 | ❌      | ❌     | ❌           | ✅    | ✅          |
+| GET /users                  | ❌      | ❌     | ❌           | ✅    | ✅          |
+| GET /users/deleted          | ❌      | ❌     | ❌           | ✅    | ✅          |
+| GET /users/:id              | ❌      | ❌     | ❌           | ✅    | ✅          |
+| PUT /users/:id              | ❌      | ❌     | ❌           | ✅    | ✅          |
+| DELETE /users/:id           | ❌      | ❌     | ❌           | ✅    | ✅          |
+| PATCH /users/:id/restore    | ❌      | ❌     | ❌           | ✅    | ✅          |
+| PATCH /users/:id/reset-password | ❌      | ❌     | ❌           | ✅    | ✅          |
+| PATCH /users/:id/activate   | ❌      | ❌     | ❌           | ✅    | ✅          |
+| PATCH /users/:id/deactivate | ❌      | ❌     | ❌           | ✅    | ✅          |
+| DELETE /users/:id/hard-delete | ❌      | ❌     | ❌           | ❌    | ✅          |
 
 ---
 
 ## Endpoints Summary
 
-### Public Endpoints
+### Public Endpoints (Auth)
 
 | Method | Endpoint         | Description       |
 | ------ | ---------------- | ----------------- |
@@ -75,11 +88,6 @@ Authorization: Bearer <your-jwt-token>
 | PATCH  | `/users/:id/reset-password` | Reset user password  | Admin, Super Admin |
 | PATCH  | `/users/:id/activate`       | Activate user        | Admin, Super Admin |
 | PATCH  | `/users/:id/deactivate`     | Deactivate user      | Admin, Super Admin |
-
-### Super Admin Endpoints
-
-| Method | Endpoint                 | Description             | Role Required |
-| ------ | ------------------------ | ----------------------- | ------------- |
 | DELETE | `/users/:id/hard-delete` | Permanently delete user | Super Admin   |
 
 ---
@@ -977,6 +985,39 @@ Authorization: Bearer <super-admin-token>
 curl -X DELETE http://localhost:8080/api/v1/users/1/hard-delete \
   -H "Authorization: Bearer SUPER_ADMIN_JWT_TOKEN"
 ```
+
+---
+
+## Database Model
+
+### Table: users
+
+| Field | Type | Constraints | Description |
+| --- | --- | --- | --- |
+| id | BIGINT | PRIMARY KEY, AUTO_INCREMENT | Unique identifier untuk user |
+| username | VARCHAR(50) | UNIQUE, NOT NULL, INDEX | Nama pengguna unik |
+| email | VARCHAR(100) | UNIQUE, NOT NULL, INDEX | Email pengguna unik |
+| phone | VARCHAR(15) | UNIQUE, NOT NULL, INDEX | Nomor telepon unik |
+| password | VARCHAR(255) | NOT NULL | Password terenkripsi |
+| role | VARCHAR(20) | NOT NULL, DEFAULT 'patient', INDEX | Role user (patient, doctor, receptionist, admin, super_admin) |
+| is_active | BOOLEAN | NOT NULL, DEFAULT true, INDEX | Status aktif user |
+| created_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | Waktu pembuatan record |
+| updated_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | Waktu update terakhir |
+| deleted_at | TIMESTAMP | INDEX, NULLABLE | Soft delete timestamp (NULL jika tidak dihapus) |
+
+**Indexes:**
+- Primary Key: id
+- Unique Index: username, email, phone
+- Regular Index: role, is_active, deleted_at
+
+**Relationships:**
+- Belongs to many relationships through Patient, Doctor models
+- One User can have one Patient or Doctor profile (optional)
+
+**Notes:**
+- Soft delete menggunakan deleted_at field
+- Password disimpan dalam bentuk hash/encrypted
+- Role menentukan akses dan permissions user
 
 ---
 

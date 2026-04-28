@@ -14,6 +14,7 @@ API untuk manajemen data departments (departemen/bagian) dalam sistem rekam medi
 - [Authorization](#authorization)
 - [Endpoints Summary](#endpoints-summary)
 - [Department Endpoints](#department-endpoints)
+- [Database Model](#database-model)
 - [Request & Response Examples](#request--response-examples)
 - [Error Responses](#error-responses)
 
@@ -636,6 +637,39 @@ curl -X DELETE http://localhost:8080/api/v1/departments/1/hard-delete \
   "total_pages": 2
 }
 ```
+
+---
+
+## Database Model
+
+### Table: departments
+
+| Field | Type | Constraints | Description |
+| --- | --- | --- | --- |
+| id | BIGINT | PRIMARY KEY, AUTO_INCREMENT | Unique identifier untuk department |
+| name | VARCHAR(100) | NOT NULL, INDEX | Nama department (e.g., Kardiologi, Neurologi) |
+| code | VARCHAR(20) | UNIQUE, NOT NULL, INDEX | Kode department unik (e.g., KARDIO, NEURO) |
+| description | TEXT | NULLABLE | Deskripsi detail department |
+| floor_location | VARCHAR(50) | NULLABLE | Lokasi lantai/gedung department |
+| created_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | Waktu pembuatan record |
+| updated_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | Waktu update terakhir |
+| deleted_at | TIMESTAMP | INDEX, NULLABLE | Soft delete timestamp (NULL jika tidak dihapus) |
+
+**Indexes:**
+- Primary Key: id
+- Unique Index: code
+- Regular Index: name, deleted_at
+
+**Relationships:**
+- Has Many Doctors (one-to-many)
+- Has Many Rooms (one-to-many)
+- Has Many Users (through Doctors)
+
+**Notes:**
+- Code case-sensitive, recommended uppercase (KARDIO, NEURO, dll)
+- Soft delete menggunakan deleted_at field
+- Department dengan active doctors/rooms tidak bisa dihapus
+- Floor location membantu navigasi pasien/staff
 
 ---
 

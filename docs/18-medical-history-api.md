@@ -17,6 +17,7 @@ API untuk manajemen riwayat medis pasien (medical history) dalam sistem rekam me
 - [Medical Condition Endpoints](#medical-condition-endpoints)
 - [Surgical History Endpoints](#surgical-history-endpoints)
 - [Family History Endpoints](#family-history-endpoints)
+- [Database Model](#database-model)
 - [Error Responses](#error-responses)
 
 ---
@@ -1104,6 +1105,78 @@ curl -X PUT "http://localhost:8080/api/v1/medical-history/family-history/1" \
   "message": "Internal server error"
 }
 ```
+
+---
+
+## Database Model
+
+### Table: allergies
+
+| Field | Type | Constraints | Description |
+| --- | --- | --- | --- |
+| id | BIGINT | PRIMARY KEY, AUTO_INCREMENT | Unique identifier |
+| patient_id | BIGINT | FOREIGN KEY (patients.id), NOT NULL, INDEX | Reference ke pasien |
+| allergen_type | VARCHAR(50) | NOT NULL | Tipe alergen (Drug, Food, Environmental, Latex, dll) |
+| allergen_name | VARCHAR(100) | NOT NULL | Nama alergen spesifik |
+| reaction | TEXT | NOT NULL | Reaksi alergi |
+| severity | VARCHAR(20) | NOT NULL | Tingkat keparahan (Mild, Moderate, Severe) |
+| notes | TEXT | NULLABLE | Catatan tambahan |
+| created_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | Waktu pembuatan |
+| updated_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | Waktu update |
+
+### Table: medical_conditions
+
+| Field | Type | Constraints | Description |
+| --- | --- | --- | --- |
+| id | BIGINT | PRIMARY KEY, AUTO_INCREMENT | Unique identifier |
+| patient_id | BIGINT | FOREIGN KEY (patients.id), NOT NULL, INDEX | Reference ke pasien |
+| condition_name | VARCHAR(200) | NOT NULL | Nama kondisi medis (e.g., Diabetes, Hypertension) |
+| icd_code | VARCHAR(20) | NULLABLE | Kode ICD-10 |
+| diagnosed_date | DATE | NULLABLE | Tanggal diagnosis |
+| status | VARCHAR(20) | NOT NULL, DEFAULT 'ongoing', INDEX | Status (ongoing, resolved, inactive) |
+| notes | TEXT | NULLABLE | Catatan detail |
+| created_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | Waktu pembuatan |
+| updated_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | Waktu update |
+
+### Table: surgical_histories
+
+| Field | Type | Constraints | Description |
+| --- | --- | --- | --- |
+| id | BIGINT | PRIMARY KEY, AUTO_INCREMENT | Unique identifier |
+| patient_id | BIGINT | FOREIGN KEY (patients.id), NOT NULL, INDEX | Reference ke pasien |
+| procedure_name | VARCHAR(200) | NOT NULL | Nama prosedur/operasi |
+| surgery_date | DATE | NOT NULL | Tanggal operasi |
+| surgeon_name | VARCHAR(100) | NULLABLE | Nama dokter bedah |
+| hospital | VARCHAR(200) | NULLABLE | Nama rumah sakit |
+| notes | TEXT | NULLABLE | Catatan hasil operasi |
+| created_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | Waktu pembuatan |
+| updated_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | Waktu update |
+
+### Table: family_histories
+
+| Field | Type | Constraints | Description |
+| --- | --- | --- | --- |
+| id | BIGINT | PRIMARY KEY, AUTO_INCREMENT | Unique identifier |
+| patient_id | BIGINT | FOREIGN KEY (patients.id), NOT NULL, INDEX | Reference ke pasien |
+| family_member | VARCHAR(50) | NOT NULL | Hubungan keluarga (Parent, Sibling, Grand Parent, dll) |
+| condition_name | VARCHAR(200) | NOT NULL | Nama penyakit dalam keluarga |
+| notes | TEXT | NULLABLE | Catatan detail |
+| created_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | Waktu pembuatan |
+| updated_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | Waktu update |
+
+**Indexes:**
+- Primary Keys: id (each table)
+- Foreign Keys: patient_id (all tables)
+- Regular Index: allergen_type, condition_name, surgery_date, family_member
+
+**Relationships:**
+- All Belong To Patient (many-to-one)
+
+**Notes:**
+- Riwayat medis bersifat permanen dan terus diakumulasi
+- Multiple records per patient diperbolehkan
+- Important untuk clinical decision making
+- ICD-10 codes untuk standardisasi diagnosis
 
 ---
 

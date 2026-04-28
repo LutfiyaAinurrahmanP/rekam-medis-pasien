@@ -16,6 +16,7 @@ API untuk manajemen data rooms (ruangan/kamar) dalam sistem rekam medis. Rooms d
 - [Public Endpoints](#public-endpoints)
 - [Admin Endpoints](#admin-endpoints)
 - [Super Admin Endpoints](#super-admin-endpoints)
+- [Database Model](#database-model)
 - [Request & Response Examples](#request--response-examples)
 - [Error Responses](#error-responses)
 
@@ -41,7 +42,6 @@ Authorization: Bearer <your-jwt-token>
 | GET /rooms/inactive            | ❌      | ❌     | ✅           | ✅    | ✅          |
 | GET /rooms/deleted             | ❌      | ❌     | ❌           | ✅    | ✅          |
 | GET /rooms/:id                 | ✅      | ✅     | ✅           | ✅    | ✅          |
-| GET /rooms/number/:room_number | ✅      | ✅     | ✅           | ✅    | ✅          |
 | GET /rooms/type/:room_type     | ✅      | ✅     | ✅           | ✅    | ✅          |
 | GET /rooms/department/:dept_id | ✅      | ✅     | ✅           | ✅    | ✅          |
 | POST /rooms                    | ❌      | ❌     | ❌           | ✅    | ✅          |
@@ -68,7 +68,6 @@ Authorization: Bearer <your-jwt-token>
 | GET    | `/rooms/inactive`            | List inactive rooms     | Receptionist, Admin, Super Admin         |
 | GET    | `/rooms/deleted`             | List deleted rooms      | Admin, Super Admin                       |
 | GET    | `/rooms/:id`                 | Get room by ID          | All Authenticated                        |
-| GET    | `/rooms/number/:room_number` | Get room by number      | All Authenticated                        |
 | GET    | `/rooms/type/:room_type`     | Get rooms by type       | All Authenticated                        |
 | GET    | `/rooms/department/:dept_id` | Get rooms by department | All Authenticated                        |
 
@@ -545,57 +544,7 @@ curl -X GET http://localhost:8080/api/v1/rooms/1 \
 
 ---
 
-### 7. Get Room by Number
-
-**Endpoint:** `GET /api/v1/rooms/number/:room_number`
-
-**Description:** Mendapatkan room berdasarkan room number (untuk quick search).
-
-**Authentication:** Required (All Authenticated Users)
-
-**Request Headers:**
-
-```
-Authorization: Bearer <token>
-```
-
-**URL Parameters:**
-
-- `room_number`: Room Number (string), e.g., "301-A"
-
-**Response Success (200 OK):**
-
-```json
-{
-  "success": true,
-  "message": "Room retrieved successfully",
-  "data": {
-    "id": 1,
-    "room_number": "301-A",
-    "room_type": "vip",
-    "department": {
-      "id": 1,
-      "name": "Kardiologi"
-    },
-    "bed_capacity": 1,
-    "available_beds": 0,
-    "price_per_day": 1500000.0,
-    "is_active": true,
-    "is_available": false
-  }
-}
-```
-
-**cURL Example:**
-
-```bash
-curl -X GET "http://localhost:8080/api/v1/rooms/number/301-A" \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN"
-```
-
----
-
-### 8. Get Rooms by Type
+### 7. Get Rooms by Type
 
 **Endpoint:** `GET /api/v1/rooms/type/:room_type`
 
@@ -677,7 +626,7 @@ curl -X GET "http://localhost:8080/api/v1/rooms/type/vip?has_available_beds=true
 
 ---
 
-### 9. Get Rooms by Department
+### 8. Get Rooms by Department
 
 **Endpoint:** `GET /api/v1/rooms/department/:dept_id`
 
@@ -756,7 +705,7 @@ curl -X GET "http://localhost:8080/api/v1/rooms/department/1" \
 
 ## Admin Endpoints
 
-### 10. Create Room
+### 9. Create Room
 
 **Endpoint:** `POST /api/v1/rooms`
 
@@ -850,7 +799,7 @@ curl -X POST http://localhost:8080/api/v1/rooms \
 
 ---
 
-### 11. Update Room
+### 10. Update Room
 
 **Endpoint:** `PUT /api/v1/rooms/:id`
 
@@ -923,7 +872,7 @@ curl -X PUT http://localhost:8080/api/v1/rooms/1 \
 
 ---
 
-### 12. Activate Room
+### 11. Activate Room
 
 **Endpoint:** `PATCH /api/v1/rooms/:id/activate`
 
@@ -966,7 +915,7 @@ curl -X PATCH http://localhost:8080/api/v1/rooms/1/activate \
 
 ---
 
-### 13. Deactivate Room
+### 12. Deactivate Room
 
 **Endpoint:** `PATCH /api/v1/rooms/:id/deactivate`
 
@@ -1014,7 +963,7 @@ curl -X PATCH http://localhost:8080/api/v1/rooms/1/deactivate \
 
 ---
 
-### 14. Occupy Bed
+### 13. Occupy Bed
 
 **Endpoint:** `PATCH /api/v1/rooms/:id/occupy`
 
@@ -1092,7 +1041,7 @@ curl -X PATCH http://localhost:8080/api/v1/rooms/5/occupy \
 
 ---
 
-### 15. Release Bed
+### 14. Release Bed
 
 **Endpoint:** `PATCH /api/v1/rooms/:id/release`
 
@@ -1170,7 +1119,7 @@ curl -X PATCH http://localhost:8080/api/v1/rooms/5/release \
 
 ---
 
-### 16. Soft Delete Room
+### 15. Soft Delete Room
 
 **Endpoint:** `DELETE /api/v1/rooms/:id`
 
@@ -1219,7 +1168,7 @@ curl -X DELETE http://localhost:8080/api/v1/rooms/1 \
 
 ---
 
-### 17. Restore Room
+### 16. Restore Room
 
 **Endpoint:** `PATCH /api/v1/rooms/:id/restore`
 
@@ -1263,7 +1212,7 @@ curl -X PATCH http://localhost:8080/api/v1/rooms/1/restore \
 
 ## Super Admin Endpoints
 
-### 18. Hard Delete Room
+### 17. Hard Delete Room
 
 **Endpoint:** `DELETE /api/v1/rooms/:id/hard-delete`
 
@@ -1309,6 +1258,43 @@ Authorization: Bearer <super-admin-token>
 curl -X DELETE http://localhost:8080/api/v1/rooms/1/hard-delete \
   -H "Authorization: Bearer SUPER_ADMIN_JWT_TOKEN"
 ```
+
+---
+
+## Database Model
+
+### Table: rooms
+
+| Field | Type | Constraints | Description |
+| --- | --- | --- | --- |
+| id | BIGINT | PRIMARY KEY, AUTO_INCREMENT | Unique identifier untuk room |
+| room_number | VARCHAR(20) | UNIQUE, NOT NULL, INDEX | Nomor ruangan (e.g., 101, 202-A) |
+| room_type | VARCHAR(20) | NOT NULL, INDEX | Tipe ruangan (Standard, VIP, ICU, dll) |
+| department_id | BIGINT | FOREIGN KEY (departments.id), INDEX | Department tempat ruangan berada |
+| bed_capacity | INT | NOT NULL, DEFAULT 1 | Jumlah maksimal tempat tidur |
+| available_beds | INT | NOT NULL, DEFAULT 1 | Jumlah tempat tidur yang tersedia |
+| price_per_day | DECIMAL(10,2) | DEFAULT 0 | Harga per hari (dalam IDR) |
+| is_active | BOOLEAN | DEFAULT true, INDEX | Status aktif ruangan |
+| created_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | Waktu pembuatan record |
+| updated_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | Waktu update terakhir |
+| deleted_at | TIMESTAMP | INDEX, NULLABLE | Soft delete timestamp |
+
+**Indexes:**
+- Primary Key: id
+- Unique Index: room_number
+- Foreign Key: department_id
+- Regular Index: room_type, is_active, deleted_at
+
+**Relationships:**
+- Belongs To Department (many-to-one)
+- Has Many Hospitalizations (one-to-many)
+
+**Notes:**
+- room_type bisa hardcoded atau reference ke master data
+- available_beds otomatis update saat ada admission/discharge
+- price_per_day bisa berbeda untuk setiap room type dan department
+- is_active untuk maintenance atau permanent closure
+- bed_capacity harus >= 1, available_beds <= bed_capacity
 
 ---
 

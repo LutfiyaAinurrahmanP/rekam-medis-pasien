@@ -14,6 +14,7 @@ API untuk manajemen data tanda vital pasien (vital signs) dalam sistem rekam med
 - [Authorization](#authorization)
 - [Endpoints Summary](#endpoints-summary)
 - [Endpoints Detail](#endpoints-detail)
+- [Database Model](#database-model)
 - [Error Responses](#error-responses)
 
 ---
@@ -601,6 +602,46 @@ curl -X DELETE "http://localhost:8080/api/v1/vital-signs/1/hard-delete" \
   "message": "Internal server error"
 }
 ```
+
+---
+
+## Database Model
+
+### Table: vital_signs
+
+| Field | Type | Constraints | Description |
+| --- | --- | --- | --- |
+| id | BIGINT | PRIMARY KEY, AUTO_INCREMENT | Unique identifier |
+| medical_record_id | BIGINT | FOREIGN KEY (medical_records.id), NOT NULL, INDEX | Reference ke medical record |
+| measurement_date | DATE | NOT NULL | Tanggal pengukuran |
+| measurement_time | TIME | NOT NULL | Waktu pengukuran |
+| systolic_bp | INT | NULLABLE | Tekanan darah sistolik (mmHg) |
+| diastolic_bp | INT | NULLABLE | Tekanan darah diastolik (mmHg) |
+| heart_rate | INT | NULLABLE | Denyut jantung (bpm) |
+| body_temperature | DECIMAL(4,2) | NULLABLE | Suhu tubuh (°C) |
+| respiratory_rate | INT | NULLABLE | Laju pernafasan (breaths/min) |
+| oxygen_saturation | DECIMAL(5,2) | NULLABLE | Saturasi oksigen (%) |
+| weight_kg | DECIMAL(5,2) | NULLABLE | Berat badan (kg) |
+| height_cm | INT | NULLABLE | Tinggi badan (cm) |
+| bmi | DECIMAL(5,2) | NULLABLE | BMI (dihitung otomatis) |
+| notes | TEXT | NULLABLE | Catatan khusus |
+| created_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | Waktu pembuatan |
+| updated_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | Waktu update |
+| deleted_at | TIMESTAMP | INDEX, NULLABLE | Soft delete timestamp |
+
+**Indexes:**
+- Primary Key: id
+- Foreign Key: medical_record_id
+- Regular Index: measurement_date, deleted_at
+
+**Relationships:**
+- Belongs To Medical Record (many-to-one)
+
+**Notes:**
+- BMI otomatis dihitung dari weight dan height
+- Semua field vital signs NULLABLE (tidak semua harus diisi)
+- Multiple measurements per day diperbolehkan
+- Tracking tren vital signs selama perawatan
 
 ---
 

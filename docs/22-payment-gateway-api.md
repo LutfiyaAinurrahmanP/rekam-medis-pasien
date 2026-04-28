@@ -25,6 +25,7 @@ Alur pembayaran online:
 - [Endpoints Summary](#endpoints-summary)
 - [Endpoints Detail](#endpoints-detail)
 - [Webhook Events](#webhook-events)
+- [Database Model](#database-model)
 - [Error Responses](#error-responses)
 - [Payment Method Reference](#payment-method-reference)
 
@@ -814,6 +815,59 @@ curl -X POST "http://localhost:8080/api/v1/payments/webhook/xendit" \
   "message": "Internal server error"
 }
 ```
+
+---
+
+## Database Model
+
+### Table: payments
+
+| Field | Type | Constraints | Description |
+| --- | --- | --- | --- |
+| id | BIGINT | PRIMARY KEY, AUTO_INCREMENT | Unique identifier |
+| payment_number | VARCHAR(50) | UNIQUE, NOT NULL, INDEX | Nomor transaksi pembayaran |
+| billing_id | BIGINT | FOREIGN KEY (billing.id), NOT NULL, INDEX | Reference ke billing/invoice |
+| patient_id | BIGINT | FOREIGN KEY (patients.id), NOT NULL, INDEX | Reference ke pasien |
+| amount | DECIMAL(12,2) | NOT NULL | Jumlah pembayaran |
+| payment_method | VARCHAR(50) | NOT NULL | Metode pembayaran (QRIS, VA, CC, E-WALLET, dll) |
+| payment_channel | VARCHAR(50) | NOT NULL | Channel/provider (midtrans, xendit, manual, dll) |
+| payment_gateway_id | VARCHAR(100) | NULLABLE | Transaction ID dari payment gateway |
+| status | VARCHAR(20) | NOT NULL, DEFAULT 'pending', INDEX | Status (pending, processing, completed, failed, refunded) |
+| payment_date | DATE | NULLABLE | Tanggal pembayaran berhasil |
+| payment_time | TIME | NULLABLE | Waktu pembayaran berhasil |
+| receipt_url | VARCHAR(500) | NULLABLE | URL untuk receipt/invoice |
+| notes | TEXT | NULLABLE | Catatan transaksi |
+| created_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | Waktu pembuatan |
+| updated_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | Waktu update |
+| deleted_at | TIMESTAMP | INDEX, NULLABLE | Soft delete timestamp |
+
+### Table: payment_details (untuk detail payment gateway response)
+
+| Field | Type | Constraints | Description |
+| --- | --- | --- | --- |
+| id | BIGINT | PRIMARY KEY, AUTO_INCREMENT | Unique identifier |
+| payment_id | BIGINT | FOREIGN KEY (payments.id), NOT NULL | Reference ke payment |
+| gateway_response | LONGTEXT | NOT NULL | Full response dari payment gateway (JSON) |
+| signature_key | VARCHAR(500) | NULLABLE | Signature untuk verifikasi dari gateway |
+| created_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | Waktu pembuatan |
+
+**Indexes:**
+- Primary Keys: id (each table)
+- Foreign Keys: billing_id, patient_id (payments), payment_id (details)
+- Regular Index: payment_method, status, payment_date, deleted_at
+
+**Relationships:**
+- Payment Belongs To Billing, Patient
+- Payment Has One Payment Details
+- Payment Details Belongs To Payment
+
+**Notes:**
+- Status flow: pending -> processing -> completed (atau failed/refunded)
+- payment_gateway_id untuk tracking di pihak payment gateway
+- Gateway response stored as JSON untuk audit trail
+- Signature key untuk webhook verification
+n- Integration dengan midtrans (Snap API) atau xendit
+- Support retry mechanism untuk failed payments
 
 ---
 

@@ -17,6 +17,7 @@ API untuk manajemen data patients (pasien) dalam sistem rekam medis. Patients ad
 - [Public Endpoints](#public-endpoints)
 - [Admin Endpoints](#admin-endpoints)
 - [Super Admin Endpoints](#super-admin-endpoints)
+- [Database Model](#database-model)
 - [Request & Response Examples](#request--response-examples)
 - [Error Responses](#error-responses)
 
@@ -901,6 +902,51 @@ Authorization: Bearer <super-admin-token>
 curl -X DELETE http://localhost:8080/api/v1/patients/1/hard-delete \
   -H "Authorization: Bearer SUPER_ADMIN_JWT_TOKEN"
 ```
+
+---
+
+## Database Model
+
+### Table: patients
+
+| Field | Type | Constraints | Description |
+| --- | --- | --- | --- |
+| id | BIGINT | PRIMARY KEY, AUTO_INCREMENT | Unique identifier untuk patient |
+| user_id | BIGINT | FOREIGN KEY (users.id), INDEX | Reference ke user yang login |
+| patient_code | VARCHAR(20) | UNIQUE, NOT NULL, INDEX | Kode patient unik (e.g., P001, P002) |
+| full_name | VARCHAR(100) | NOT NULL | Nama lengkap patient |
+| date_of_birth | DATE | NOT NULL | Tanggal lahir |
+| gender | VARCHAR(10) | NOT NULL | Jenis kelamin (M/F) |
+| blood_type | VARCHAR(5) | NOT NULL | Golongan darah (A, B, AB, O) |
+| phone | VARCHAR(15) | NULLABLE | Nomor telepon kontak |
+| email | VARCHAR(100) | NULLABLE | Email kontak |
+| address | TEXT | NULLABLE | Alamat lengkap |
+| emergency_contact_name | VARCHAR(100) | NULLABLE | Nama kontak darurat |
+| emergency_contact_phone | VARCHAR(15) | NULLABLE | Nomor kontak darurat |
+| insurance_number | VARCHAR(50) | NULLABLE | Nomor asuransi/BPJS |
+| insurance_provider | VARCHAR(100) | NULLABLE | Penyedia asuransi |
+| allergies | TEXT | NULLABLE | Riwayat alergi |
+| created_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | Waktu pembuatan record |
+| updated_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | Waktu update terakhir |
+| deleted_at | TIMESTAMP | INDEX, NULLABLE | Soft delete timestamp |
+
+**Indexes:**
+- Primary Key: id
+- Unique Index: patient_code
+- Foreign Key: user_id
+- Regular Index: deleted_at
+
+**Relationships:**
+- Belongs To User (one-to-one)
+- Has Many Medical Records (one-to-many)
+- Has Many Hospitalizations (one-to-many)
+- Has Many Appointments (one-to-many)
+- Has Many Medical History (one-to-many)
+
+**Notes:**
+- Patient code format bisa custom sesuai kebutuhan rumah sakit
+- Date of birth digunakan untuk menghitung umur dan rekomendasi layanan
+- User ID optional untuk tracking user yang create data (bisa null untuk patient tanpa login)
 
 ---
 

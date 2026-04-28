@@ -17,6 +17,7 @@ API untuk manajemen data medicines (obat-obatan) dalam sistem rekam medis. Medic
 - [Pharmacist Endpoints](#pharmacist-endpoints)
 - [Admin Endpoints](#admin-endpoints)
 - [Super Admin Endpoints](#super-admin-endpoints)
+- [Database Model](#database-model)
 - [Request & Response Examples](#request--response-examples)
 - [Error Responses](#error-responses)
 
@@ -43,9 +44,7 @@ Authorization: Bearer <your-jwt-token>
 | GET /medicines/inactive           | ❌      | ❌     | ✅           | ✅    | ✅          |
 | GET /medicines/deleted            | ❌      | ❌     | ❌           | ✅    | ✅          |
 | GET /medicines/:id                | ✅      | ✅     | ✅           | ✅    | ✅          |
-| GET /medicines/name/:name         | ✅      | ✅     | ✅           | ✅    | ✅          |
 | GET /medicines/type/:type         | ✅      | ✅     | ✅           | ✅    | ✅          |
-| GET /medicines/search             | ✅      | ✅     | ✅           | ✅    | ✅          |
 | POST /medicines                   | ❌      | ❌     | ❌           | ✅    | ✅          |
 | PUT /medicines/:id                | ❌      | ❌     | ❌           | ✅    | ✅          |
 | PATCH /medicines/:id/add-stock    | ❌      | ❌     | ✅           | ✅    | ✅          |
@@ -71,9 +70,7 @@ Authorization: Bearer <your-jwt-token>
 | GET    | `/medicines/inactive`     | List inactive medicines     | Receptionist, Admin, Super Admin         |
 | GET    | `/medicines/deleted`      | List deleted medicines      | Admin, Super Admin                       |
 | GET    | `/medicines/:id`          | Get medicine by ID          | All Authenticated                        |
-| GET    | `/medicines/name/:name`   | Get medicine by name        | All Authenticated                        |
 | GET    | `/medicines/type/:type`   | Get medicines by type       | All Authenticated                        |
-| GET    | `/medicines/search`       | Advanced search             | All Authenticated                        |
 
 ### Pharmacist/Stock Endpoints
 
@@ -638,55 +635,7 @@ curl -X GET http://localhost:8080/api/v1/medicines/1 \
 
 ---
 
-### 8. Get Medicine by Name
-
-**Endpoint:** `GET /api/v1/medicines/name/:name`
-
-**Description:** Mendapatkan medicine berdasarkan name (untuk quick search).
-
-**Authentication:** Required (All Authenticated Users)
-
-**Request Headers:**
-
-```
-Authorization: Bearer <token>
-```
-
-**URL Parameters:**
-
-- `name`: Medicine Name (string), e.g., "Paracetamol"
-
-**Response Success (200 OK):**
-
-```json
-{
-  "success": true,
-  "message": "Medicine retrieved successfully",
-  "data": {
-    "id": 1,
-    "name": "Paracetamol 500mg",
-    "generic_name": "Paracetamol",
-    "brand_name": "Sanmol",
-    "type": "tablet",
-    "strength": "500mg",
-    "stock_quantity": 1000,
-    "price": 500.0,
-    "is_active": true,
-    "is_available": true
-  }
-}
-```
-
-**cURL Example:**
-
-```bash
-curl -X GET "http://localhost:8080/api/v1/medicines/name/Paracetamol" \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN"
-```
-
----
-
-### 9. Get Medicines by Type
+### 8. Get Medicines by Type
 
 **Endpoint:** `GET /api/v1/medicines/type/:type`
 
@@ -769,102 +718,7 @@ curl -X GET "http://localhost:8080/api/v1/medicines/type/tablet?has_stock=true" 
 
 ---
 
-### 10. Advanced Search Medicines
-
-**Endpoint:** `GET /api/v1/medicines/search`
-
-**Description:** Pencarian medicines dengan multiple criteria.
-
-**Authentication:** Required (All Authenticated Users)
-
-**Request Headers:**
-
-```
-Authorization: Bearer <token>
-```
-
-**Query Parameters:**
-
-| Parameter      | Type    | Description                              |
-| -------------- | ------- | ---------------------------------------- |
-| `keyword`      | string  | Search in name, generic_name, brand_name |
-| `type`         | string  | Filter by type                           |
-| `manufacturer` | string  | Filter by manufacturer                   |
-| `min_price`    | decimal | Minimum price                            |
-| `max_price`    | decimal | Maximum price                            |
-| `has_stock`    | boolean | Filter with stock                        |
-| `is_active`    | boolean | Filter by status                         |
-| `page`         | integer | Page number                              |
-| `page_size`    | integer | Items per page                           |
-
-**Example Request:**
-
-```
-GET /api/v1/medicines/search?keyword=para&type=tablet&max_price=1000&has_stock=true
-```
-
-**Response Success (200 OK):**
-
-```json
-{
-  "success": true,
-  "message": "Search results retrieved successfully",
-  "data": {
-    "search_criteria": {
-      "keyword": "para",
-      "type": "tablet",
-      "max_price": 1000,
-      "has_stock": true
-    },
-    "results_found": 3,
-    "data": [
-      {
-        "id": 1,
-        "name": "Paracetamol 500mg",
-        "generic_name": "Paracetamol",
-        "brand_name": "Sanmol",
-        "type": "tablet",
-        "strength": "500mg",
-        "stock_quantity": 1000,
-        "price": 500.0,
-        "is_active": true,
-        "relevance_score": 0.98
-      },
-      {
-        "id": 5,
-        "name": "Paracetamol 650mg",
-        "generic_name": "Paracetamol",
-        "brand_name": "Panadol",
-        "type": "tablet",
-        "strength": "650mg",
-        "stock_quantity": 500,
-        "price": 800.0,
-        "is_active": true,
-        "relevance_score": 0.95
-      }
-    ],
-    "meta": {
-      "page": 1,
-      "page_size": 10,
-      "total_items": 2,
-      "total_pages": 1
-    }
-  }
-}
-```
-
-**cURL Example:**
-
-```bash
-curl -X GET "http://localhost:8080/api/v1/medicines/search?keyword=para&type=tablet" \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN"
-```
-
----
-
-## Pharmacist/Stock Endpoints
-
-### 11. Add Stock
+### 9. Add Stock
 
 **Endpoint:** `PATCH /api/v1/medicines/:id/add-stock`
 
@@ -945,7 +799,7 @@ curl -X PATCH http://localhost:8080/api/v1/medicines/1/add-stock \
 
 ---
 
-### 12. Reduce Stock
+### 10. Reduce Stock
 
 **Endpoint:** `PATCH /api/v1/medicines/:id/reduce-stock`
 
@@ -1030,7 +884,7 @@ curl -X PATCH http://localhost:8080/api/v1/medicines/1/reduce-stock \
 
 ## Admin Endpoints
 
-### 13. Create Medicine
+### 11. Create Medicine
 
 **Endpoint:** `POST /api/v1/medicines`
 
@@ -1134,7 +988,7 @@ curl -X POST http://localhost:8080/api/v1/medicines \
 
 ---
 
-### 14. Update Medicine
+### 12. Update Medicine
 
 **Endpoint:** `PUT /api/v1/medicines/:id`
 
@@ -1212,7 +1066,7 @@ curl -X PUT http://localhost:8080/api/v1/medicines/1 \
 
 ---
 
-### 15. Activate Medicine
+### 13. Activate Medicine
 
 **Endpoint:** `PATCH /api/v1/medicines/:id/activate`
 
@@ -1255,7 +1109,7 @@ curl -X PATCH http://localhost:8080/api/v1/medicines/1/activate \
 
 ---
 
-### 16. Deactivate Medicine
+### 14. Deactivate Medicine
 
 **Endpoint:** `PATCH /api/v1/medicines/:id/deactivate`
 
@@ -1304,7 +1158,7 @@ curl -X PATCH http://localhost:8080/api/v1/medicines/1/deactivate \
 
 ---
 
-### 17. Soft Delete Medicine
+### 15. Soft Delete Medicine
 
 **Endpoint:** `DELETE /api/v1/medicines/:id`
 
@@ -1354,7 +1208,7 @@ curl -X DELETE http://localhost:8080/api/v1/medicines/1 \
 
 ---
 
-### 18. Restore Medicine
+### 16. Restore Medicine
 
 **Endpoint:** `PATCH /api/v1/medicines/:id/restore`
 
@@ -1399,7 +1253,7 @@ curl -X PATCH http://localhost:8080/api/v1/medicines/1/restore \
 
 ## Super Admin Endpoints
 
-### 19. Hard Delete Medicine
+### 17. Hard Delete Medicine
 
 **Endpoint:** `DELETE /api/v1/medicines/:id/hard-delete`
 
@@ -1702,6 +1556,46 @@ curl -X GET "http://localhost:8080/api/v1/medicines/low-stock" \
 curl -X PATCH http://localhost:8080/api/v1/medicines/1/deactivate \
   -H "Authorization: Bearer ADMIN_TOKEN"
 ```
+
+---
+
+## Database Model
+
+### Table: medicines
+
+| Field | Type | Constraints | Description |
+| --- | --- | --- | --- |
+| id | BIGINT | PRIMARY KEY, AUTO_INCREMENT | Unique identifier |
+| name | VARCHAR(200) | NOT NULL, INDEX | Nama obat lengkap |
+| generic_name | VARCHAR(200) | NULLABLE | Nama generik obat (untuk BPJS) |
+| brand_name | VARCHAR(200) | NULLABLE | Nama brand/pabrik |
+| type | VARCHAR(20) | NOT NULL | Tipe obat (Tablet, Kapsul, Suntik, Sirup, dll) |
+| strength | VARCHAR(50) | NULLABLE | Kekuatan (e.g., 500mg, 10mg/ml) |
+| manufacturer | VARCHAR(100) | NULLABLE | Nama pabrikan |
+| unit | VARCHAR(20) | NULLABLE | Unit satuan (strip, botol, box, dll) |
+| stock_quantity | INT | NOT NULL, DEFAULT 0 | Jumlah stok saat ini |
+| price | DECIMAL(10,2) | DEFAULT 0 | Harga per unit dalam IDR |
+| is_active | BOOLEAN | DEFAULT true | Status aktif obat |
+| created_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | Waktu pembuatan record |
+| updated_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | Waktu update terakhir |
+| deleted_at | TIMESTAMP | INDEX, NULLABLE | Soft delete timestamp |
+
+**Indexes:**
+- Primary Key: id
+- Regular Index: name, generic_name, type, is_active, deleted_at
+
+**Relationships:**
+- Has Many Prescription Items (one-to-many)
+- Has Many Stock Movements (one-to-many, audit trail)
+
+**Notes:**
+- Stock management real-time dengan tracking setiap transaksi
+- Generic name penting untuk integrasi BPJS
+- Price dapat diubah dan perlu tracking historical prices
+- Type reference ke medicine_types master data
+- is_active untuk discontinued medicines
+- Strength dan manufacturer untuk drug interaction checking
+- Perlu integrasi dengan inventory management system
 
 ---
 
