@@ -20,7 +20,7 @@ type User struct {
 	Email     string         `gorm:"unique;not null;size:100;index" json:"email"`
 	Phone     string         `gorm:"unique;not null;size:15;index" json:"phone"`
 	Password  string         `gorm:"not null;size:255" json:"password"`
-	Role      string         `gorm:"type:varchar(20);not null;default:'patient';index" json:"role"`
+	Role      string         `gorm:"not null;size:20;default:'patient';index" json:"role"`
 	IsActive  bool           `gorm:"not null;default:true;index" json:"is_active"`
 	CreatedAt time.Time      `gorm:"autoCreateTime" json:"created_at"`
 	UpdatedAt time.Time      `gorm:"autoUpdateTime" json:"updated_at"`

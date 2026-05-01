@@ -1,4 +1,4 @@
-.PHONY: help build run seed test test-users test-departments test-patients test-doctors test-rooms test-type-tests test-coverage clean docker-build docker-up docker-up-deps docker-down migrate lint fmt mod-download test-all mod-tidy dev prod-build
+.PHONY: help build run seed test test-users test-departments test-patients test-doctors test-rooms test-type-tests test-unit test-unit-handler test-unit-service test-unit-repository test-unit-verbose test-unit-handler-verbose test-unit-service-verbose test-unit-repository-verbose test-unit-race test-unit-failfast test-unit-timeout test-unit-run test-unit-list test-unit-coverage test-unit-coverage-html test-unit-coverage-handler test-unit-coverage-service test-unit-coverage-repository test-coverage test-ci test-all-cleanup clean clean-coverage docker-build docker-up docker-up-deps docker-down docker-logs docker-clean migrate lint fmt mod-download test-all mod-tidy dev prod-build check-docker wait-db stop-app-container
 
 help: ## Display this help screen
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
@@ -63,6 +63,89 @@ test-type-tests: ## Run type test API tests with Jest-like output
 	else \
 		bash ./scripts/test-runner.sh -Path "./tests" -Filter "^Test_TypeTest"; \
 	fi
+
+# ============================================================================
+# UNIT TEST COMMANDS (NEW - Comprehensive Unit Testing)
+# ============================================================================
+
+test-unit: ## Run all unit tests (handler, service, repository)
+	@echo "Running all unit tests..."
+	@go test ./tests/unit/... --count=1
+
+test-unit-handler: ## Run only handler layer unit tests
+	@echo "Running handler unit tests..."
+	@go test ./tests/unit/handler --count=1
+
+test-unit-service: ## Run only service layer unit tests
+	@echo "Running service unit tests..."
+	@go test ./tests/unit/service --count=1
+
+test-unit-repository: ## Run only repository layer unit tests
+	@echo "Running repository unit tests..."
+	@go test ./tests/unit/repository --count=1
+
+test-unit-verbose: ## Run all unit tests with verbose output
+	@echo "Running all unit tests with verbose output..."
+	@go test ./tests/unit/... -v --count=1
+
+test-unit-handler-verbose: ## Run handler unit tests with verbose output
+	@echo "Running handler unit tests with verbose output..."
+	@go test ./tests/unit/handler -v --count=1
+
+test-unit-service-verbose: ## Run service unit tests with verbose output
+	@echo "Running service unit tests with verbose output..."
+	@go test ./tests/unit/service -v --count=1
+
+test-unit-repository-verbose: ## Run repository unit tests with verbose output
+	@echo "Running repository unit tests with verbose output..."
+	@go test ./tests/unit/repository -v --count=1
+
+test-unit-race: ## Run unit tests with race detector
+	@echo "Running unit tests with race detector..."
+	@go test ./tests/unit/... -race --count=1
+
+test-unit-failfast: ## Run unit tests and stop at first failure
+	@echo "Running unit tests in failfast mode..."
+	@go test ./tests/unit/... -failfast --count=1
+
+test-unit-timeout: ## Run unit tests with 60s timeout
+	@echo "Running unit tests with custom timeout..."
+	@go test ./tests/unit/... --timeout=60s --count=1
+
+test-unit-run: ## Run specific unit test (usage: make test-unit-run TEST=TestGetMyProfile)
+	@echo "Running specific test: $(TEST)"
+	@go test ./tests/unit/... -run $(TEST) -v --count=1
+
+test-unit-list: ## List all available unit tests
+	@echo "Available unit tests:"
+	@go test ./tests/unit/... -list .
+
+test-unit-coverage: ## Generate unit test coverage report
+	@echo "Generating unit test coverage report..."
+	@go test ./tests/unit/... -coverprofile=coverage_unit.out --count=1
+	@go tool cover -func=coverage_unit.out | tail -30
+	@echo "Full coverage report saved to: coverage_unit.out"
+
+test-unit-coverage-html: ## Generate HTML unit test coverage report
+	@echo "Generating HTML unit test coverage report..."
+	@go test ./tests/unit/... -coverprofile=coverage_unit.out --count=1
+	@go tool cover -html=coverage_unit.out -o coverage_unit.html
+	@echo "HTML coverage report generated: coverage_unit.html"
+
+test-unit-coverage-handler: ## Coverage report for handler layer only
+	@echo "Generating handler layer coverage..."
+	@go test ./tests/unit/handler -coverprofile=coverage_handler.out --count=1
+	@go tool cover -func=coverage_handler.out
+
+test-unit-coverage-service: ## Coverage report for service layer only
+	@echo "Generating service layer coverage..."
+	@go test ./tests/unit/service -coverprofile=coverage_service.out --count=1
+	@go tool cover -func=coverage_service.out
+
+test-unit-coverage-repository: ## Coverage report for repository layer only
+	@echo "Generating repository layer coverage..."
+	@go test ./tests/unit/repository -coverprofile=coverage_repository.out --count=1
+	@go tool cover -func=coverage_repository.out
 
 test-coverage: ## Run tests with coverage
 	@echo "Running tests with coverage..."
@@ -152,6 +235,18 @@ test-all: ## Test all API
 mod-tidy: ## Tidy dependencies
 	@echo "Tidying dependencies..."
 	@go mod tidy
+
+test-ci: ## Run tests in CI mode (unit tests with coverage and race detection)
+	@echo "Running CI test suite..."
+	@go test ./tests/unit/... -race -coverprofile=coverage_unit.out --count=1
+	@echo "✅ CI tests passed!"
+
+test-all-cleanup: clean-coverage ## Clean all test artifacts
+	@echo "All test artifacts cleaned!"
+
+clean-coverage: ## Clean coverage files
+	@echo "Cleaning coverage files..."
+	@rm -f coverage.out coverage.html coverage_unit.out coverage_unit.html coverage_handler.out coverage_service.out coverage_repository.out
 
 dev: docker-up-deps ## Start development dependencies only
 	@echo "Development environment started!"

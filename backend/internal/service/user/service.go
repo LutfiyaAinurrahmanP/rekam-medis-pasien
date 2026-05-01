@@ -131,6 +131,11 @@ func (s *userService) Login(req *dto.LoginRequest) (*dto.LoginResponse, error) {
 }
 
 func (s *userService) CreateUser(req *dto.CreateUserRequest) (*dto.UserResponse, error) {
+	// ✅ Validasi password tidak boleh kosong
+	if req.Password == "" {
+		return nil, errors.New("password cannot be empty")
+	}
+
 	exists, err := s.repo.IsUsernameExists(req.Username)
 	if err != nil {
 		return nil, err
