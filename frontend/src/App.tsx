@@ -87,8 +87,10 @@ export default function App() {
         <ScrollToTop />
         <Routes>
           {/* Auth */}
-          <Route path="/auth/login" element={<SignIn />} />
-          <Route path="/auth/register" element={<SignUp />} />
+          <Route element={<GuestOnly />}>
+            <Route path="/auth/login" element={<SignIn />} />
+            <Route path="/auth/register" element={<SignUp />} />
+          </Route>
           <Route path="/auth/reset-password" element={<ResetPassword />} />
 
           {/* Authorization Required */}
