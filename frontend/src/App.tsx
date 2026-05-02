@@ -84,95 +84,96 @@ export default function App() {
         <ScrollToTop />
         <Routes>
           {/* Dashboard Layout */}
+          
           <Route element={<AppLayout />}>
-            <Route index path="/" element={<Ecommerce />} />
-            <Route path="/analytics" element={<Analytics />} />
-            <Route path="/marketing" element={<Marketing />} />
-            <Route path="/crm" element={<Crm />} />
-            <Route path="/stocks" element={<Stocks />} />
-            <Route path="/saas" element={<Saas />} />
-            <Route path="/logistics" element={<Logistics />} />
+            <Route index path="/template" element={<Ecommerce />} />
+            <Route path="/template/analytics" element={<Analytics />} />
+            <Route path="/template/marketing" element={<Marketing />} />
+            <Route path="/template/crm" element={<Crm />} />
+            <Route path="/template/stocks" element={<Stocks />} />
+            <Route path="/template/saas" element={<Saas />} />
+            <Route path="/template/logistics" element={<Logistics />} />
 
-            <Route path="/calendar" element={<Calendar />} />
-            <Route path="/invoice" element={<Invoices />} />
-            <Route path="/invoices" element={<Invoices />} />
-            <Route path="/chat" element={<Chats />} />
-            <Route path="/file-manager" element={<FileManager />} />
+            <Route path="/template/calendar" element={<Calendar />} />
+            <Route path="/template/invoice" element={<Invoices />} />
+            <Route path="/template/invoices" element={<Invoices />} />
+            <Route path="/template/chat" element={<Chats />} />
+            <Route path="/template/file-manager" element={<FileManager />} />
 
             {/* E-commerce */}
-            <Route path="/product-list" element={<ProductList />} />
-            <Route path="/add-product" element={<AddProduct />} />
-            <Route path="/billing" element={<Billing />} />
-            <Route path="/single-invoice" element={<SingleInvoice />} />
-            <Route path="/create-invoice" element={<CreateInvoice />} />
-            <Route path="/transactions" element={<Transactions />} />
-            <Route path="/single-transaction" element={<SingleTransaction />} />
+            <Route path="/template/product-list" element={<ProductList />} />
+            <Route path="/template/add-product" element={<AddProduct />} />
+            <Route path="/template/billing" element={<Billing />} />
+            <Route path="/template/single-invoice" element={<SingleInvoice />} />
+            <Route path="/template/create-invoice" element={<CreateInvoice />} />
+            <Route path="/template/transactions" element={<Transactions />} />
+            <Route path="/template/single-transaction" element={<SingleTransaction />} />
 
             {/* Support */}
-            <Route path="/ticket-list" element={<TicketList />} />
-            <Route path="/ticket-reply" element={<TicketReply />} />
+            <Route path="/template/ticket-list" element={<TicketList />} />
+            <Route path="/template/ticket-reply" element={<TicketReply />} />
 
             {/* Others Page */}
-            <Route path="/profile" element={<UserProfiles />} />
-            <Route path="/faq" element={<Faqs />} />
-            <Route path="/pricing-tables" element={<PricingTables />} />
-            <Route path="/integrations" element={<Integrations />} />
-            <Route path="/api-keys" element={<ApiKeys />} />
-            <Route path="/blank" element={<Blank />} />
+            <Route path="/template/profile" element={<UserProfiles />} />
+            <Route path="/template/faq" element={<Faqs />} />
+            <Route path="/template/pricing-tables" element={<PricingTables />} />
+            <Route path="/template/integrations" element={<Integrations />} />
+            <Route path="/template/api-keys" element={<ApiKeys />} />
+            <Route path="/template/blank" element={<Blank />} />
 
             {/* Forms */}
-            <Route path="/form-elements" element={<FormElements />} />
-            <Route path="/form-layout" element={<FormLayout />} />
+            <Route path="/template/form-elements" element={<FormElements />} />
+            <Route path="/template/form-layout" element={<FormLayout />} />
 
             {/* Applications */}
-            <Route path="/task-list" element={<TaskList />} />
-            <Route path="/task-kanban" element={<TaskKanban />} />
+            <Route path="/template/task-list" element={<TaskList />} />
+            <Route path="/template/task-kanban" element={<TaskKanban />} />
 
             {/* Email */}
-            <Route path="/inbox" element={<EmailInbox />} />
-            <Route path="/inbox-details" element={<EmailDetails />} />
+            <Route path="/template/inbox" element={<EmailInbox />} />
+            <Route path="/template/inbox-details" element={<EmailDetails />} />
 
             {/* Tables */}
-            <Route path="/basic-tables" element={<BasicTables />} />
-            <Route path="/data-tables" element={<DataTables />} />
+            <Route path="/template/basic-tables" element={<BasicTables />} />
+            <Route path="/template/data-tables" element={<DataTables />} />
 
             {/* Ui Elements */}
-            <Route path="/alerts" element={<Alerts />} />
-            <Route path="/avatars" element={<Avatars />} />
-            <Route path="/badge" element={<Badges />} />
-            <Route path="/breadcrumb" element={<BreadCrumb />} />
-            <Route path="/buttons" element={<Buttons />} />
-            <Route path="/buttons-group" element={<ButtonsGroup />} />
-            <Route path="/cards" element={<Cards />} />
-            <Route path="/carousel" element={<Carousel />} />
-            <Route path="/dropdowns" element={<Dropdowns />} />
-            <Route path="/images" element={<Images />} />
-            <Route path="/links" element={<Links />} />
-            <Route path="/list" element={<Lists />} />
-            <Route path="/modals" element={<Modals />} />
-            <Route path="/notifications" element={<Notifications />} />
-            <Route path="/pagination" element={<Pagination />} />
-            <Route path="/popovers" element={<Popovers />} />
-            <Route path="/progress-bar" element={<Progressbar />} />
-            <Route path="/ribbons" element={<Ribbons />} />
-            <Route path="/spinners" element={<Spinners />} />
-            <Route path="/tabs" element={<Tabs />} />
-            <Route path="/tooltips" element={<Tooltips />} />
-            <Route path="/videos" element={<Videos />} />
+            <Route path="/template/alerts" element={<Alerts />} />
+            <Route path="/template/avatars" element={<Avatars />} />
+            <Route path="/template/badge" element={<Badges />} />
+            <Route path="/template/breadcrumb" element={<BreadCrumb />} />
+            <Route path="/template/buttons" element={<Buttons />} />
+            <Route path="/template/buttons-group" element={<ButtonsGroup />} />
+            <Route path="/template/cards" element={<Cards />} />
+            <Route path="/template/carousel" element={<Carousel />} />
+            <Route path="/template/dropdowns" element={<Dropdowns />} />
+            <Route path="/template/images" element={<Images />} />
+            <Route path="/template/links" element={<Links />} />
+            <Route path="/template/list" element={<Lists />} />
+            <Route path="/template/modals" element={<Modals />} />
+            <Route path="/template/notifications" element={<Notifications />} />
+            <Route path="/template/pagination" element={<Pagination />} />
+            <Route path="/template/popovers" element={<Popovers />} />
+            <Route path="/template/progress-bar" element={<Progressbar />} />
+            <Route path="/template/ribbons" element={<Ribbons />} />
+            <Route path="/template/spinners" element={<Spinners />} />
+            <Route path="/template/tabs" element={<Tabs />} />
+            <Route path="/template/tooltips" element={<Tooltips />} />
+            <Route path="/template/videos" element={<Videos />} />
 
             {/* Charts */}
-            <Route path="/line-chart" element={<LineChart />} />
-            <Route path="/bar-chart" element={<BarChart />} />
-            <Route path="/pie-chart" element={<PieChart />} />
+            <Route path="/template/line-chart" element={<LineChart />} />
+            <Route path="/template/bar-chart" element={<BarChart />} />
+            <Route path="/template/pie-chart" element={<PieChart />} />
           </Route>
 
           {/* Alternative Layout - for special pages */}
           <Route element={<AlternativeLayout />}>
             {/* AI Generator */}
-            <Route path="/text-generator" element={<TextGeneratorPage />} />
-            <Route path="/image-generator" element={<ImageGeneratorPage />} />
-            <Route path="/code-generator" element={<CodeGeneratorPage />} />
-            <Route path="/video-generator" element={<VideoGeneratorPage />} />
+            <Route path="/template/text-generator" element={<TextGeneratorPage />} />
+            <Route path="/template/image-generator" element={<ImageGeneratorPage />} />
+            <Route path="/template/code-generator" element={<CodeGeneratorPage />} />
+            <Route path="/template/video-generator" element={<VideoGeneratorPage />} />
           </Route>
 
           {/* Auth Layout */}
