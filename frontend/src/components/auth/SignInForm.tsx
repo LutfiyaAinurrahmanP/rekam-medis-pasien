@@ -74,7 +74,10 @@ export default function SignInForm() {
                   <Label>
                     Username atau Email<span className="text-error-500">*</span>
                   </Label>
-                  <Input type="text" placeholder="Masukkan username atau email anda" />
+                  <Input
+                    type="text"
+                    placeholder="Masukkan username atau email anda"
+                  />
                 </div>
                 <div>
                   <Label>
@@ -105,7 +108,7 @@ export default function SignInForm() {
                     </span>
                   </div>
                   <Link
-                    to="/reset-password"
+                    to="/auth/reset-password"
                     className="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400"
                   >
                     Lupa password?
@@ -123,7 +126,7 @@ export default function SignInForm() {
               <p className="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
                 Belum memiliki akun? {""}
                 <Link
-                  to="/signup"
+                  to="/auth/register"
                   className="text-brand-500 hover:text-brand-600 dark:text-brand-400"
                 >
                   Daftar

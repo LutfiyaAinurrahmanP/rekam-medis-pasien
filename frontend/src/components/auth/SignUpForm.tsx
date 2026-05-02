@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router";
-import {  EyeCloseIcon, EyeIcon } from "../../icons";
+import { EyeCloseIcon, EyeIcon } from "../../icons";
 import Label from "../form/Label";
 import Input from "../form/input/InputField";
 import Checkbox from "../form/input/Checkbox";
@@ -158,7 +158,7 @@ export default function SignUpForm() {
               <p className="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
                 Sudah memiliki akun? {""}
                 <Link
-                  to="/signin"
+                  to="/auth/login"
                   className="text-brand-500 hover:text-brand-600 dark:text-brand-400"
                 >
                   Masuk

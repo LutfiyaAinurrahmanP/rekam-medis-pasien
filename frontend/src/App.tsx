@@ -83,13 +83,13 @@ export default function App() {
       <Router>
         <ScrollToTop />
         <Routes>
-
           {/* Auth */}
           <Route path="/auth/login" element={<SignIn />} />
           <Route path="/auth/register" element={<SignUp />} />
+          <Route path="/auth/reset-password" element={<ResetPassword />} />
           {/* Template Sidebar */}
           {/* Dashboard Layout */}
-          
+
           <Route element={<AppLayout />}>
             <Route index path="/template" element={<Ecommerce />} />
             <Route path="/template/analytics" element={<Analytics />} />
@@ -109,10 +109,19 @@ export default function App() {
             <Route path="/template/product-list" element={<ProductList />} />
             <Route path="/template/add-product" element={<AddProduct />} />
             <Route path="/template/billing" element={<Billing />} />
-            <Route path="/template/single-invoice" element={<SingleInvoice />} />
-            <Route path="/template/create-invoice" element={<CreateInvoice />} />
+            <Route
+              path="/template/single-invoice"
+              element={<SingleInvoice />}
+            />
+            <Route
+              path="/template/create-invoice"
+              element={<CreateInvoice />}
+            />
             <Route path="/template/transactions" element={<Transactions />} />
-            <Route path="/template/single-transaction" element={<SingleTransaction />} />
+            <Route
+              path="/template/single-transaction"
+              element={<SingleTransaction />}
+            />
 
             {/* Support */}
             <Route path="/template/ticket-list" element={<TicketList />} />
@@ -121,7 +130,10 @@ export default function App() {
             {/* Others Page */}
             <Route path="/template/profile" element={<UserProfiles />} />
             <Route path="/template/faq" element={<Faqs />} />
-            <Route path="/template/pricing-tables" element={<PricingTables />} />
+            <Route
+              path="/template/pricing-tables"
+              element={<PricingTables />}
+            />
             <Route path="/template/integrations" element={<Integrations />} />
             <Route path="/template/api-keys" element={<ApiKeys />} />
             <Route path="/template/blank" element={<Blank />} />
@@ -175,10 +187,22 @@ export default function App() {
           {/* Alternative Layout - for special pages */}
           <Route element={<AlternativeLayout />}>
             {/* AI Generator */}
-            <Route path="/template/text-generator" element={<TextGeneratorPage />} />
-            <Route path="/template/image-generator" element={<ImageGeneratorPage />} />
-            <Route path="/template/code-generator" element={<CodeGeneratorPage />} />
-            <Route path="/template/video-generator" element={<VideoGeneratorPage />} />
+            <Route
+              path="/template/text-generator"
+              element={<TextGeneratorPage />}
+            />
+            <Route
+              path="/template/image-generator"
+              element={<ImageGeneratorPage />}
+            />
+            <Route
+              path="/template/code-generator"
+              element={<CodeGeneratorPage />}
+            />
+            <Route
+              path="/template/video-generator"
+              element={<VideoGeneratorPage />}
+            />
           </Route>
 
           {/* Auth Layout */}
