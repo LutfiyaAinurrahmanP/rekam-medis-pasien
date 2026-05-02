@@ -123,16 +123,23 @@ export default function SignUpForm() {
         const errorObj = err as {
           status?: number;
           message?: string;
+          error?: unknown;
           errors?: Record<string, string>;
         };
 
+        const backendDetail =
+          typeof errorObj.error === "string"
+            ? errorObj.error
+            : errorObj.error && typeof errorObj.error === "object"
+              ? Object.values(errorObj.error as Record<string, unknown>)
+                  .filter((value): value is string => typeof value === "string")
+                  .join(" ")
+              : "";
+
         if (errorObj.status === 409) {
-          if (errorObj.errors) {
-            const firstError = Object.values(errorObj.errors)[0];
-            setError(firstError || errorObj.message || "Data sudah terdaftar");
-          } else {
-            setError(errorObj.message || "Data sudah terdaftar");
-          }
+          setError(backendDetail || errorObj.message || "Data sudah terdaftar");
+        } else if (backendDetail) {
+          setError(backendDetail);
         } else if (errorObj.message) {
           setError(errorObj.message);
         } else {

@@ -6,12 +6,14 @@ interface ApiResponse<T = unknown> {
   code?: number;
   message: string;
   data?: T;
+  error?: unknown;
   errors?: Record<string, string>;
 }
 
 interface ApiError {
   status: number;
   message: string;
+  error?: unknown;
   errors?: Record<string, string>;
 }
 
@@ -43,6 +45,7 @@ export async function apiCall<T>(
       const error: ApiError = {
         status: response.status,
         message: `Server error: ${response.status} ${response.statusText}`,
+        error: responseText,
         errors: undefined,
       };
       throw error;
@@ -55,6 +58,7 @@ export async function apiCall<T>(
     const error: ApiError = {
       status: 0,
       message: "Network error. Please check your connection.",
+      error: err,
       errors: undefined,
     };
     throw error;
@@ -64,6 +68,7 @@ export async function apiCall<T>(
     const error: ApiError = {
       status: response.status,
       message: data.message || "An error occurred",
+      error: data.error,
       errors: data.errors,
     };
     throw error;
