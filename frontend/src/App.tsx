@@ -83,6 +83,11 @@ export default function App() {
       <Router>
         <ScrollToTop />
         <Routes>
+
+          {/* Auth */}
+          <Route path="/auth/login" element={<SignIn />} />
+          <Route path="/auth/register" element={<SignUp />} />
+          {/* Template Sidebar */}
           {/* Dashboard Layout */}
           
           <Route element={<AppLayout />}>
