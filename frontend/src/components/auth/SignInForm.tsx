@@ -7,10 +7,12 @@ import Checkbox from "../form/input/Checkbox";
 import SuccessModal from "../ui/notification/SuccessModal";
 import authService from "../../services/auth";
 import { useAuth } from "../../context/AuthContext";
+import { getRoleDashboardPath } from "../../pages/Roles/shared/role-routing";
 
 export default function SignInForm() {
   const navigate = useNavigate();
   const { setUser } = useAuth();
+  const [redirectPath, setRedirectPath] = useState("/admin/dashboard");
   const [showPassword, setShowPassword] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -33,18 +35,18 @@ export default function SignInForm() {
 
   const handleSuccessModalClick = () => {
     setShowSuccessModal(false);
-    navigate("/dashboard");
+    navigate(redirectPath);
   };
 
   useEffect(() => {
     if (!showSuccessModal) return;
 
     const timer = setTimeout(() => {
-      navigate("/dashboard");
+      navigate(redirectPath);
     }, 3000);
 
     return () => clearTimeout(timer);
-  }, [showSuccessModal, navigate]);
+  }, [showSuccessModal, navigate, redirectPath]);
 
   const validateForm = (): boolean => {
     if (!formData.usernameOrEmail.trim()) {
@@ -83,6 +85,7 @@ export default function SignInForm() {
       authService.setToken(response.token);
       // Use user data from login response
       setUser(response.user);
+      setRedirectPath(getRoleDashboardPath(response.user.role));
       setShowSuccessModal(true);
     } catch (err: unknown) {
       console.error("Login error details:", err);

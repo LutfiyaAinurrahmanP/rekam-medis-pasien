@@ -1,10 +1,14 @@
-export default function PatientDashboard() {
+import PageMeta from "../../../components/common/PageMeta";
+
+export default function Dashboard() {
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-6 text-gray-900 dark:border-gray-800 dark:bg-white/[0.03] dark:text-white/90">
-      <h1 className="text-xl font-semibold">Patient Dashboard</h1>
-      <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-        Placeholder untuk /api/v1/dashboard/patient.
-      </p>
-    </div>
+    <>
+      <PageMeta
+        title="Admin Dashboard"
+      />
+      <div className="space-y-5 sm:space-y-6">
+        <p>Patient dashboard</p>
+      </div>
+    </>
   );
 }

@@ -76,9 +76,11 @@ import TicketList from "./pages/Support/TicketList";
 import TicketReply from "./pages/Support/TicketReply";
 import Integrations from "./pages/OtherPage/Integrations";
 import ApiKeys from "./pages/OtherPage/ApiKeys";
-import Dashboard from "./pages/Roles/Admin/Dashboard";
 import RequireAuth from "./components/common/RequireAuth";
 import GuestOnly from "./components/common/GuestOnly";
+import LegacyDashboardRedirect from "./components/common/LegacyDashboardRedirect";
+import RoleDashboardPage from "./pages/Roles/RoleDashboardPage";
+import RoleReportsPage from "./pages/Roles/RoleReportsPage";
 
 export default function App() {
   return (
@@ -96,7 +98,9 @@ export default function App() {
           {/* Authorization Required */}
           <Route element={<RequireAuth />}>
             <Route element={<AppLayout />}>
-              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/dashboard" element={<LegacyDashboardRedirect />} />
+              <Route path="/:role/dashboard" element={<RoleDashboardPage />} />
+              <Route path="/:role/reports" element={<RoleReportsPage />} />
 
               {/* Template Sidebar */}
               {/* Dashboard Layout */}

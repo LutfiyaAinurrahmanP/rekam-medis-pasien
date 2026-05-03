@@ -1,33 +1,18 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation } from "react-router";
+import { useAuth } from "../context/AuthContext";
+import { getRoleDashboardPath } from "../pages/Roles/shared/role-routing";
 
-// Assume these icons are imported from an icon library
 import {
-  AiIcon,
   BoxCubeIcon,
-  BoxIconLine,
-  BoxMoving,
-  CalenderIcon,
-  CallIcon,
-  CartIcon,
-  ChatIcon,
   ChevronDownIcon,
   DocsIcon,
   DollarLineIcon,
   GridIcon,
   HorizontaLDots,
-  ListIcon,
-  MailIcon,
-  PageIcon,
-  PieChartIcon,
-  PlugInIcon,
-  TableIcon,
-  TaskIcon,
   UserCircleIcon,
-  UserIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
-import SidebarWidget from "./SidebarWidget";
 
 type NavItem = {
   name: string;
@@ -37,11 +22,11 @@ type NavItem = {
   subItems?: { name: string; path: string; pro?: boolean; new?: boolean }[];
 };
 
-const navItems: NavItem[] = [
+const baseNavItems = (dashboardPath: string): NavItem[] => [
   {
     name: "Dashboard",
     icon: <GridIcon />,
-    path: "/dashboard",
+    path: dashboardPath,
   },
   {
     name: "User Management",
@@ -95,7 +80,12 @@ const navItems: NavItem[] = [
 const AppSidebar: React.FC = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered, setIsMobileOpen } =
     useSidebar();
+  const { user } = useAuth();
   const location = useLocation();
+  const navItems = useMemo(
+    () => baseNavItems(getRoleDashboardPath(user?.role)),
+    [user?.role],
+  );
   // Auto-close sidebar on mobile after route change
   useEffect(() => {
     if (isMobileOpen) {
@@ -141,7 +131,7 @@ const AppSidebar: React.FC = () => {
     if (!submenuMatched) {
       setOpenSubmenu(null);
     }
-  }, [location, isActive]);
+  }, [location.pathname, isActive, navItems]);
 
   useEffect(() => {
     if (openSubmenu !== null) {
