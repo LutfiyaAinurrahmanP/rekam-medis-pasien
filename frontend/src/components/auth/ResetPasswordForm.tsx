@@ -17,16 +17,15 @@ export default function ResetPasswordForm() {
           </Link>
           <div className="mb-5 sm:mb-8">
             <h1 className="mb-2 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md">
-              Lupa Password Anda?
+              Forgot Your Password?
             </h1>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Masukkan alamat email yang terhubung dengan akun Anda, dan kami
-              akan mengirimkan tautan untuk mengatur ulang password Anda.
+              Enter the email address linked to your account, and we will send
+              you a link to reset your password.
             </p>
           </div>
           <form>
             <div className="space-y-5">
-              {/* <!-- Email --> */}
               <div>
                 <Label>
                   Email<span className="text-error-500">*</span>
@@ -35,26 +34,25 @@ export default function ResetPasswordForm() {
                   type="email"
                   id="email"
                   name="email"
-                  placeholder="Masukkan email anda"
+                  placeholder="Enter your email address"
                 />
               </div>
 
-              {/* <!-- Button --> */}
               <div>
                 <button className="flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600">
-                  Kirim Tautan Reset
+                  Send Reset Link
                 </button>
               </div>
             </div>
           </form>
           <div className="mt-5">
             <p className="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
-              Tunggu, saya ingat password saya...
+              Wait, I remember my password...{" "}
               <Link
                 to="/auth/login"
                 className="text-brand-500 hover:text-brand-600 dark:text-brand-400"
               >
-                Klik di sini
+                Click here
               </Link>
             </p>
           </div>

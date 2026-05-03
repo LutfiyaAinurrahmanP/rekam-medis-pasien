@@ -28,7 +28,6 @@ export default function SignUpForm() {
       ...prev,
       [name]: value,
     }));
-    // Clear error when user starts typing
     if (error) setError(null);
   };
 
@@ -37,7 +36,6 @@ export default function SignUpForm() {
     navigate("/auth/login");
   };
 
-  // Auto redirect after 3 seconds
   useEffect(() => {
     if (showSuccessModal) {
       const timer = setTimeout(() => {
@@ -50,47 +48,47 @@ export default function SignUpForm() {
 
   const validateForm = (): boolean => {
     if (!formData.username.trim()) {
-      setError("Username tidak boleh kosong");
+      setError("Username is required");
       return false;
     }
     if (formData.username.length < 3) {
-      setError("Username minimal 3 karakter");
+      setError("Username must be at least 3 characters");
       return false;
     }
     if (formData.username.length > 50) {
-      setError("Username maksimal 50 karakter");
+      setError("Username must not exceed 50 characters");
       return false;
     }
     if (!formData.email.trim()) {
-      setError("Email tidak boleh kosong");
+      setError("Email is required");
       return false;
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      setError("Format email tidak valid");
+      setError("Invalid email format");
       return false;
     }
     if (!formData.phone.trim()) {
-      setError("Nomor telepon tidak boleh kosong");
+      setError("Phone number is required");
       return false;
     }
     if (formData.phone.length < 10) {
-      setError("Nomor telepon minimal 10 digit");
+      setError("Phone number must be at least 10 digits");
       return false;
     }
     if (formData.phone.length > 15) {
-      setError("Nomor telepon maksimal 15 digit");
+      setError("Phone number must not exceed 15 digits");
       return false;
     }
     if (!formData.password.trim()) {
-      setError("Password tidak boleh kosong");
+      setError("Password is required");
       return false;
     }
     if (formData.password.length < 8) {
-      setError("Password minimal 8 karakter");
+      setError("Password must be at least 8 characters");
       return false;
     }
     if (!isChecked) {
-      setError("Anda harus menyetujui syarat dan ketentuan");
+      setError("You must agree to the terms and conditions");
       return false;
     }
     return true;
@@ -114,7 +112,6 @@ export default function SignUpForm() {
         role: "patient",
       });
 
-      // Show success modal
       setShowSuccessModal(true);
     } catch (err: unknown) {
       console.error("Registration error:", err);
@@ -137,21 +134,22 @@ export default function SignUpForm() {
               : "";
 
         if (errorObj.status === 409) {
-          setError(backendDetail || errorObj.message || "Data sudah terdaftar");
+          setError(backendDetail || errorObj.message || "Data already registered");
         } else if (backendDetail) {
           setError(backendDetail);
         } else if (errorObj.message) {
           setError(errorObj.message);
         } else {
-          setError("Terjadi kesalahan saat mendaftar. Silahkan coba lagi.");
+          setError("An error occurred during registration. Please try again.");
         }
       } else {
-        setError("Terjadi kesalahan saat mendaftar. Silahkan coba lagi.");
+        setError("An error occurred during registration. Please try again.");
       }
     } finally {
       setIsLoading(false);
     }
   };
+
   return (
     <>
       <div className="flex flex-col flex-1 w-full overflow-y-auto no-scrollbar">
@@ -167,10 +165,10 @@ export default function SignUpForm() {
             </Link>
             <div className="mb-5 sm:mb-8">
               <h1 className="mb-2 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md">
-                Daftar
+                Sign Up
               </h1>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                Harap masukkan data akun untuk melakukan pendaftaran!
+                Please fill in your account details to register!
               </p>
             </div>
             <div>
@@ -200,7 +198,7 @@ export default function SignUpForm() {
                       fill="#EB4335"
                     />
                   </svg>
-                  Masuk dengan Google
+                  Sign up with Google
                 </button>
               </div>
 
@@ -210,7 +208,7 @@ export default function SignUpForm() {
                 </div>
                 <div className="relative flex justify-center text-sm">
                   <span className="p-2 text-gray-400 bg-white dark:bg-gray-900 sm:px-5 sm:py-2">
-                    Atau
+                    Or
                   </span>
                 </div>
               </div>
@@ -230,7 +228,7 @@ export default function SignUpForm() {
                       type="text"
                       id="username"
                       name="username"
-                      placeholder="Masukkan username anda"
+                      placeholder="Enter your username"
                       value={formData.username}
                       onChange={handleInputChange}
                       disabled={isLoading}
@@ -238,13 +236,13 @@ export default function SignUpForm() {
                   </div>
                   <div>
                     <Label>
-                      Nomor Telp<span className="text-error-500">*</span>
+                      Phone Number<span className="text-error-500">*</span>
                     </Label>
                     <Input
                       type="text"
                       id="phone"
                       name="phone"
-                      placeholder="Masukkan nomor telepon anda"
+                      placeholder="Enter your phone number"
                       value={formData.phone}
                       onChange={handleInputChange}
                       disabled={isLoading}
@@ -258,7 +256,7 @@ export default function SignUpForm() {
                       type="email"
                       id="email"
                       name="email"
-                      placeholder="Masukkan email anda"
+                      placeholder="Enter your email address"
                       value={formData.email}
                       onChange={handleInputChange}
                       disabled={isLoading}
@@ -270,7 +268,7 @@ export default function SignUpForm() {
                     </Label>
                     <div className="relative">
                       <Input
-                        placeholder="Masukkan password anda"
+                        placeholder="Enter your password"
                         type={showPassword ? "text" : "password"}
                         name="password"
                         value={formData.password}
@@ -301,13 +299,13 @@ export default function SignUpForm() {
                       disabled={isLoading}
                     />
                     <p className="inline-block font-normal text-gray-500 dark:text-gray-400">
-                      Dengan membuat akun berarti anda setuju dengan{" "}
+                      By creating an account, you agree to our{" "}
                       <span className="text-gray-800 dark:text-white/90">
-                        Syarat dan Ketentuan,
+                        Terms and Conditions,
                       </span>{" "}
-                      dan{" "}
+                      and{" "}
                       <span className="text-gray-800 dark:text-white">
-                        Kebijakan Privasi
+                        Privacy Policy
                       </span>
                     </p>
                   </div>
@@ -343,10 +341,10 @@ export default function SignUpForm() {
                               d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                             ></path>
                           </svg>
-                          Mendaftar...
+                          Registering...
                         </>
                       ) : (
-                        "Daftar"
+                        "Sign Up"
                       )}
                     </button>
                   </div>
@@ -355,12 +353,12 @@ export default function SignUpForm() {
 
               <div className="mt-5">
                 <p className="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
-                  Sudah memiliki akun?{" "}
+                  Already have an account?{" "}
                   <Link
                     to="/auth/login"
                     className="text-brand-500 hover:text-brand-600 dark:text-brand-400"
                   >
-                    Masuk
+                    Sign In
                   </Link>
                 </p>
               </div>
@@ -371,9 +369,9 @@ export default function SignUpForm() {
 
       <SuccessModal
         isOpen={showSuccessModal}
-        title="Daftar akun berhasil!"
-        message="Halaman akan segera berpindah menuju halaman masuk atau dapat menekan tombol dibawah ini"
-        buttonLabel="Masuk akun"
+        title="Registration Successful!"
+        message="You will be redirected to the sign in page shortly, or you can click the button below."
+        buttonLabel="Go to Sign In"
         onButtonClick={handleSuccessModalClick}
       />
     </>

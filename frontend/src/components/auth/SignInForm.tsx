@@ -50,12 +50,12 @@ export default function SignInForm() {
 
   const validateForm = (): boolean => {
     if (!formData.usernameOrEmail.trim()) {
-      setError("Username atau email tidak boleh kosong");
+      setError("Username or email is required");
       return false;
     }
 
     if (!formData.password.trim()) {
-      setError("Password tidak boleh kosong");
+      setError("Password is required");
       return false;
     }
 
@@ -81,9 +81,7 @@ export default function SignInForm() {
 
       console.log("Login response:", response);
 
-      // Save token
       authService.setToken(response.token);
-      // Use user data from login response
       setUser(response.user);
       setRedirectPath(getRoleDashboardPath(response.user.role));
       setShowSuccessModal(true);
@@ -114,15 +112,16 @@ export default function SignInForm() {
         } else if (errorObj.message) {
           setError(errorObj.message);
         } else {
-          setError("Terjadi kesalahan saat masuk. Silahkan coba lagi.");
+          setError("An error occurred while signing in. Please try again.");
         }
       } else {
-        setError("Terjadi kesalahan saat masuk. Silahkan coba lagi.");
+        setError("An error occurred while signing in. Please try again.");
       }
     } finally {
       setIsLoading(false);
     }
   };
+
   return (
     <>
       <div className="flex flex-col flex-1 w-full overflow-y-auto no-scrollbar">
@@ -138,10 +137,10 @@ export default function SignInForm() {
             </Link>
             <div className="mb-5 sm:mb-8">
               <h1 className="mb-2 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md">
-                Masuk
+                Sign In
               </h1>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                Harap masukkan username atau email dan password untuk masuk!
+                Please enter your username or email and password to sign in!
               </p>
             </div>
             <div>
@@ -171,7 +170,7 @@ export default function SignInForm() {
                       fill="#EB4335"
                     />
                   </svg>
-                  Masuk dengan Google
+                  Sign in with Google
                 </button>
               </div>
               <div className="relative py-3 sm:py-5">
@@ -180,7 +179,7 @@ export default function SignInForm() {
                 </div>
                 <div className="relative flex justify-center text-sm">
                   <span className="p-2 text-gray-400 bg-white dark:bg-gray-900 sm:px-5 sm:py-2">
-                    Atau
+                    Or
                   </span>
                 </div>
               </div>
@@ -193,7 +192,7 @@ export default function SignInForm() {
                   )}
                   <div>
                     <Label>
-                      Username atau Email
+                      Username or Email
                       <span className="text-error-500">*</span>
                     </Label>
                     <Input
@@ -201,7 +200,7 @@ export default function SignInForm() {
                       name="usernameOrEmail"
                       value={formData.usernameOrEmail}
                       onChange={handleInputChange}
-                      placeholder="Masukkan username atau email anda"
+                      placeholder="Enter your username or email"
                       disabled={isLoading}
                     />
                   </div>
@@ -215,7 +214,7 @@ export default function SignInForm() {
                         name="password"
                         value={formData.password}
                         onChange={handleInputChange}
-                        placeholder="Masukkan password anda"
+                        placeholder="Enter your password"
                         disabled={isLoading}
                       />
                       <span
@@ -242,14 +241,14 @@ export default function SignInForm() {
                         disabled={isLoading}
                       />
                       <span className="block font-normal text-gray-700 text-theme-sm dark:text-gray-400">
-                        Ingat saya
+                        Remember me
                       </span>
                     </div>
                     <Link
                       to="/auth/reset-password"
                       className="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400"
                     >
-                      Lupa password?
+                      Forgot password?
                     </Link>
                   </div>
                   <div>
@@ -262,7 +261,7 @@ export default function SignInForm() {
                           : "bg-brand-500 hover:bg-brand-600"
                       }`}
                     >
-                      {isLoading ? "Memproses..." : "Masuk"}
+                      {isLoading ? "Processing..." : "Sign In"}
                     </button>
                   </div>
                 </div>
@@ -270,12 +269,12 @@ export default function SignInForm() {
 
               <div className="mt-5">
                 <p className="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
-                  Belum memiliki akun? {""}
+                  Don't have an account?{" "}
                   <Link
                     to="/auth/register"
                     className="text-brand-500 hover:text-brand-600 dark:text-brand-400"
                   >
-                    Daftar
+                    Sign Up
                   </Link>
                 </p>
               </div>
@@ -286,9 +285,9 @@ export default function SignInForm() {
 
       <SuccessModal
         isOpen={showSuccessModal}
-        title="Login berhasil!"
-        message="Anda akan segera diarahkan ke dashboard atau dapat menekan tombol dibawah ini"
-        buttonLabel="Lanjut ke dashboard"
+        title="Login Successful!"
+        message="You will be redirected to the dashboard shortly, or you can click the button below."
+        buttonLabel="Go to Dashboard"
         onButtonClick={handleSuccessModalClick}
       />
     </>
