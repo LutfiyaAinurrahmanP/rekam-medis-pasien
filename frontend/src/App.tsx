@@ -76,7 +76,7 @@ import TicketList from "./pages/Support/TicketList";
 import TicketReply from "./pages/Support/TicketReply";
 import Integrations from "./pages/OtherPage/Integrations";
 import ApiKeys from "./pages/OtherPage/ApiKeys";
-import Dashboard from "./pages/Dashboard/Dashboard";
+import Dashboard from "./pages/Roles/Admin/Dashboard";
 import RequireAuth from "./components/common/RequireAuth";
 import GuestOnly from "./components/common/GuestOnly";
 
