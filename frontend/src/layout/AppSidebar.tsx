@@ -5,11 +5,15 @@ import { Link, useLocation } from "react-router";
 import {
   AiIcon,
   BoxCubeIcon,
+  BoxIconLine,
+  BoxMoving,
   CalenderIcon,
   CallIcon,
   CartIcon,
   ChatIcon,
   ChevronDownIcon,
+  DocsIcon,
+  DollarLineIcon,
   GridIcon,
   HorizontaLDots,
   ListIcon,
@@ -20,6 +24,7 @@ import {
   TableIcon,
   TaskIcon,
   UserCircleIcon,
+  UserIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
 import SidebarWidget from "./SidebarWidget";
@@ -34,176 +39,58 @@ type NavItem = {
 
 const navItems: NavItem[] = [
   {
-    icon: <GridIcon />,
     name: "Dashboard",
-    subItems: [
-      { name: "Ecommerce", path: "/template/" },
-      { name: "Analytics", path: "/template/analytics" },
-      { name: "Marketing", path: "/template/marketing" },
-      { name: "CRM", path: "/template/crm" },
-      { name: "Stocks", path: "/template/stocks" },
-      { name: "SaaS", path: "/template/saas", new: true },
-      { name: "Logistics", path: "/template/logistics", new: true },
-    ],
+    icon: <GridIcon />,
+    path: "/dashboard",
   },
   {
-    name: "AI Assistant",
-    icon: <AiIcon />,
-    new: true,
-    subItems: [
-      { name: "Text Generator", path: "/template/text-generator" },
-      { name: "Image Generator", path: "/template/image-generator" },
-      { name: "Code Generator", path: "/template/code-generator" },
-      { name: "Video Generator", path: "/template/video-generator" },
-    ],
-  },
-  {
-    name: "E-commerce",
-    icon: <CartIcon />,
-    new: true,
-    subItems: [
-      { name: "Products", path: "/template/product-list" },
-      { name: "Add Product", path: "/template/add-product" },
-      { name: "Billing", path: "/template/billing" },
-      { name: "Invoices", path: "/template/invoices" },
-      { name: "Single Invoice", path: "/template/single-invoice" },
-      { name: "Create Invoice", path: "/template/create-invoice" },
-      { name: "Transactions", path: "/template/transactions" },
-      { name: "Single Transaction", path: "/template/single-transaction" },
-    ],
-  },
-  {
-    icon: <CalenderIcon />,
-    name: "Calendar",
-    path: "/template/calendar",
-  },
-  {
+    name: "User Management",
     icon: <UserCircleIcon />,
-    name: "User Profile",
-    path: "/template/profile",
-  },
-  {
-    name: "Task",
-    icon: <TaskIcon />,
     subItems: [
-      { name: "List", path: "/template/task-list", pro: true },
-      { name: "Kanban", path: "/template/task-kanban", pro: true },
+      { name: "Users", path: "/users" },
+      { name: "Doctors", path: "/doctors" },
+      { name: "Patients", path: "/patients" },
     ],
   },
   {
-    name: "Forms",
-    icon: <ListIcon />,
-    subItems: [
-      { name: "Form Elements", path: "/template/form-elements", pro: false },
-      { name: "Form Layout", path: "/template/form-layout", pro: true },
-    ],
-  },
-  {
-    name: "Tables",
-    icon: <TableIcon />,
-    subItems: [
-      { name: "Basic Tables", path: "/template/basic-tables", pro: false },
-      { name: "Data Tables", path: "/template/data-tables", pro: true },
-    ],
-  },
-  {
-    name: "Pages",
-    icon: <PageIcon />,
-    subItems: [
-      { name: "File Manager", path: "/template/file-manager" },
-      { name: "Pricing Tables", path: "/template/pricing-tables" },
-      { name: "FAQ", path: "/template/faq" },
-      { name: "API Keys", path: "/template/api-keys", new: true },
-      { name: "Integrations", path: "/template/integrations", new: true },
-      { name: "Blank Page", path: "/template/blank" },
-      { name: "404 Error", path: "/template/error-404" },
-      { name: "500 Error", path: "/template/error-500" },
-      { name: "503 Error", path: "/template/error-503" },
-      { name: "Coming Soon", path: "/template/coming-soon" },
-      { name: "Maintenance", path: "/template/maintenance" },
-      { name: "Success", path: "/template/success" },
-    ],
-  },
-];
-
-const othersItems: NavItem[] = [
-  {
-    icon: <PieChartIcon />,
-    name: "Charts",
-    subItems: [
-      { name: "Line Chart", path: "/template/line-chart", pro: true },
-      { name: "Bar Chart", path: "/template/bar-chart", pro: true },
-      { name: "Pie Chart", path: "/template/pie-chart", pro: true },
-    ],
-  },
-  {
+    name: "Master Data",
     icon: <BoxCubeIcon />,
-    name: "UI Elements",
     subItems: [
-      { name: "Alerts", path: "/template/alerts", pro: false },
-      { name: "Avatar", path: "/template/avatars", pro: false },
-      { name: "Badge", path: "/template/badge", pro: false },
-      { name: "Breadcrumb", path: "/template/breadcrumb", pro: false },
-      { name: "Buttons", path: "/template/buttons", pro: false },
-      { name: "Buttons Group", path: "/template/buttons-group", pro: false },
-      { name: "Cards", path: "/template/cards", pro: false },
-      { name: "Carousel", path: "/template/carousel", pro: false },
-      { name: "Dropdowns", path: "/template/dropdowns", pro: false },
-      { name: "Images", path: "/template/images", pro: false },
-      { name: "Links", path: "/template/links", pro: false },
-      { name: "List", path: "/template/list", pro: false },
-      { name: "Modals", path: "/template/modals", pro: false },
-      { name: "Notification", path: "/template/notifications", pro: false },
-      { name: "Pagination", path: "/template/pagination", pro: false },
-      { name: "Popovers", path: "/template/popovers", pro: false },
-      { name: "Progressbar", path: "/template/progress-bar", pro: false },
-      { name: "Ribbons", path: "/template/ribbons", pro: false },
-      { name: "Spinners", path: "/template/spinners", pro: false },
-      { name: "Tabs", path: "/template/tabs", pro: false },
-      { name: "Tooltips", path: "/template/tooltips", pro: false },
-      { name: "Videos", path: "/template/videos", pro: false },
+      { name: "Departments", path: "/departments" },
+      { name: "Doctor Specializations", path: "/doctor-specialization" },
+      { name: "Room Types", path: "/room-types" },
+      { name: "Rooms", path: "/rooms" },
+      { name: "Medicine Types", path: "/medicine-types" },
+      { name: "Medicines", path: "/medicines" },
+      { name: "Type Test Categories", path: "/type-test-categories" },
+      { name: "Type Tests", path: "/type-test" },
     ],
   },
   {
-    icon: <PlugInIcon />,
-    name: "Authentication",
+    name: "Clinical",
+    icon: <DocsIcon />,
     subItems: [
-      { name: "Sign In", path: "/template/signin", pro: false },
-      { name: "Sign Up", path: "/template/signup", pro: false },
-      { name: "Reset Password", path: "/template/reset-password", pro: true },
-      {
-        name: "Two Step Verification",
-        path: "/template/two-step-verification",
-        pro: true,
-      },
+      { name: "Appointments", path: "/appointments" },
+      { name: "Medical Records", path: "/medical-records" },
+      { name: "Medical History", path: "/medical-history" },
+      { name: "Vital Signs", path: "/vital-signs" },
+      { name: "Lab Tests", path: "/lab-tests" },
+      { name: "Hospitalization", path: "/hospitalization" },
+      { name: "Prescriptions", path: "/prescriptions" },
+      { name: "Referrals", path: "/referrals" },
+    ],
+  },
+  {
+    name: "Finance",
+    icon: <DollarLineIcon />,
+    subItems: [
+      { name: "Billing", path: "/billing" },
+      { name: "Payment Gateway", path: "/payment-gateway" },
     ],
   },
 ];
 
-const supportItems: NavItem[] = [
-  {
-    icon: <ChatIcon />,
-    name: "Chat",
-    path: "/template/chat",
-  },
-  {
-    icon: <CallIcon />,
-    name: "Support Ticket",
-    new: true,
-    subItems: [
-      { name: "Ticket List", path: "/template/ticket-list" },
-      { name: "Ticket Reply", path: "/template/ticket-reply" },
-    ],
-  },
-  {
-    icon: <MailIcon />,
-    name: "Email",
-    subItems: [
-      { name: "Inbox", path: "/template/inbox" },
-      { name: "Details", path: "/template/inbox-details" },
-    ],
-  },
-];
+// Removed `othersItems` and `supportItems` — sidebar now only renders main `navItems`.
 
 const AppSidebar: React.FC = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered, setIsMobileOpen } =
@@ -218,35 +105,30 @@ const AppSidebar: React.FC = () => {
   }, [location.pathname]);
 
   const [openSubmenu, setOpenSubmenu] = useState<{
-    type: "main" | "support" | "others";
+    type: "main";
     index: number;
   } | null>(null);
   const [subMenuHeight, setSubMenuHeight] = useState<Record<string, number>>(
-    {}
+    {},
   );
   const subMenuRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   // const isActive = (path: string) => location.pathname === path;
   const isActive = useCallback(
     (path: string) => location.pathname === path,
-    [location.pathname]
+    [location.pathname],
   );
 
   useEffect(() => {
     let submenuMatched = false;
-    ["main", "support", "others"].forEach((menuType) => {
-      const items =
-        menuType === "main"
-          ? navItems
-          : menuType === "support"
-          ? supportItems
-          : othersItems;
+    ["main"].forEach((menuType) => {
+      const items = navItems;
       items.forEach((nav, index) => {
         if (nav.subItems) {
           nav.subItems.forEach((subItem) => {
             if (isActive(subItem.path)) {
               setOpenSubmenu({
-                type: menuType as "main" | "support" | "others",
+                type: menuType as "main",
                 index,
               });
               submenuMatched = true;
@@ -273,10 +155,7 @@ const AppSidebar: React.FC = () => {
     }
   }, [openSubmenu]);
 
-  const handleSubmenuToggle = (
-    index: number,
-    menuType: "main" | "support" | "others"
-  ) => {
+  const handleSubmenuToggle = (index: number, menuType: "main") => {
     setOpenSubmenu((prevOpenSubmenu) => {
       if (
         prevOpenSubmenu &&
@@ -289,10 +168,7 @@ const AppSidebar: React.FC = () => {
     });
   };
 
-  const renderMenuItems = (
-    items: NavItem[],
-    menuType: "main" | "support" | "others"
-  ) => (
+  const renderMenuItems = (items: NavItem[], menuType: "main") => (
     <ul className="flex flex-col gap-1">
       {items.map((nav, index) => (
         <li key={nav.name}>
@@ -435,8 +311,8 @@ const AppSidebar: React.FC = () => {
           isExpanded || isMobileOpen
             ? "w-[290px]"
             : isHovered
-            ? "w-[290px]"
-            : "w-[90px]"
+              ? "w-[290px]"
+              : "w-[90px]"
         }
         ${isMobileOpen ? "translate-x-0" : "-translate-x-full"}
         xl:translate-x-0`}
@@ -453,22 +329,22 @@ const AppSidebar: React.FC = () => {
             <>
               <img
                 className="dark:hidden"
-                src="/images/logo/logo.svg"
+                src="/images/logo/app-logo-black.png"
                 alt="Logo"
-                width={150}
-                height={40}
+                width={200}
+                height={70}
               />
               <img
                 className="hidden dark:block"
-                src="/images/logo/logo-dark.svg"
+                src="/images/logo/app-logo-white.png"
                 alt="Logo"
-                width={150}
-                height={40}
+                width={200}
+                height={70}
               />
             </>
           ) : (
             <img
-              src="/images/logo/logo-icon.svg"
+              src="/images/logo/app-logo.png"
               alt="Logo"
               width={32}
               height={32}
@@ -495,41 +371,8 @@ const AppSidebar: React.FC = () => {
               </h2>
               {renderMenuItems(navItems, "main")}
             </div>
-            <div>
-              <h2
-                className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
-                  !isExpanded && !isHovered
-                    ? "xl:justify-center"
-                    : "justify-start"
-                }`}
-              >
-                {isExpanded || isHovered || isMobileOpen ? (
-                  "Support"
-                ) : (
-                  <HorizontaLDots />
-                )}
-              </h2>
-              {renderMenuItems(supportItems, "support")}
-            </div>
-            <div>
-              <h2
-                className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
-                  !isExpanded && !isHovered
-                    ? "xl:justify-center"
-                    : "justify-start"
-                }`}
-              >
-                {isExpanded || isHovered || isMobileOpen ? (
-                  "Others"
-                ) : (
-                  <HorizontaLDots />
-                )}
-              </h2>
-              {renderMenuItems(othersItems, "others")}
-            </div>
           </div>
         </nav>
-        {isExpanded || isHovered || isMobileOpen ? <SidebarWidget /> : null}
       </div>
     </aside>
   );

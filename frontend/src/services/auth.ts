@@ -1,5 +1,5 @@
 // Auth Service - Business logic for authentication
-import { post } from "./api";
+import { post, get } from "./api";
 
 export interface RegisterRequest {
   username: string;
@@ -31,6 +31,24 @@ export interface LoginResponse {
   user: UserResponse;
 }
 
+// Decode JWT to extract user info
+function decodeJWT(token: string): Record<string, unknown> | null {
+  try {
+    const base64Url = token.split(".")[1];
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split("")
+        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+        .join(""),
+    );
+    return JSON.parse(jsonPayload);
+  } catch (err) {
+    console.error("Failed to decode JWT:", err);
+    return null;
+  }
+}
+
 class AuthService {
   async register(data: RegisterRequest): Promise<UserResponse> {
     return post<UserResponse>("/auth/register", data);
@@ -38,6 +56,16 @@ class AuthService {
 
   async login(data: LoginRequest): Promise<LoginResponse> {
     return post<LoginResponse>("/auth/login", data);
+  }
+
+  async getProfile(): Promise<UserResponse> {
+    const token = this.getToken();
+    if (!token) {
+      throw new Error("No token found");
+    }
+    return get<UserResponse>("/auth/profile", {
+      Authorization: `Bearer ${token}`,
+    });
   }
 
   setToken(token: string): void {
@@ -54,6 +82,13 @@ class AuthService {
 
   isAuthenticated(): boolean {
     return !!this.getToken();
+  }
+
+  // Helper to decode JWT payload
+  getTokenPayload(): Record<string, unknown> | null {
+    const token = this.getToken();
+    if (!token) return null;
+    return decodeJWT(token);
   }
 }
 

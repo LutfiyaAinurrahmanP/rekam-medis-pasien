@@ -84,9 +84,13 @@ export async function post<T>(endpoint: string, body: unknown): Promise<T> {
   });
 }
 
-export async function get<T>(endpoint: string): Promise<T> {
+export async function get<T>(
+  endpoint: string,
+  headers?: Record<string, string>,
+): Promise<T> {
   return apiCall<T>(endpoint, {
     method: "GET",
+    headers: headers,
   });
 }
 

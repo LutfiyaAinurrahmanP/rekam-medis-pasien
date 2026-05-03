@@ -6,9 +6,11 @@ import Input from "../form/input/InputField";
 import Checkbox from "../form/input/Checkbox";
 import SuccessModal from "../ui/notification/SuccessModal";
 import authService from "../../services/auth";
+import { useAuth } from "../../context/AuthContext";
 
 export default function SignInForm() {
   const navigate = useNavigate();
+  const { setUser } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -75,10 +77,15 @@ export default function SignInForm() {
         password: formData.password,
       });
 
+      console.log("Login response:", response);
+
+      // Save token
       authService.setToken(response.token);
+      // Use user data from login response
+      setUser(response.user);
       setShowSuccessModal(true);
     } catch (err: unknown) {
-      console.error("Login error:", err);
+      console.error("Login error details:", err);
 
       if (typeof err === "object" && err !== null) {
         const errorObj = err as {
@@ -87,6 +94,8 @@ export default function SignInForm() {
           error?: unknown;
           errors?: Record<string, string>;
         };
+
+        console.error("Error object:", errorObj);
 
         const backendDetail =
           typeof errorObj.error === "string"
