@@ -17,11 +17,11 @@ export default function ResetPasswordForm() {
           </Link>
           <div className="mb-5 sm:mb-8">
             <h1 className="mb-2 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md">
-              Lupa password?
+              Forgot Your Password?
             </h1>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Masukkan alamat email yang terhubung ke akun Anda, lalu kami
-              akan mengirimkan tautan untuk mengatur ulang password.
+              Enter the email address linked to your account, and we will send
+              you a link to reset your password.
             </p>
           </div>
           <form>
@@ -34,25 +34,25 @@ export default function ResetPasswordForm() {
                   type="email"
                   id="email"
                   name="email"
-                  placeholder="Masukkan alamat email Anda"
+                  placeholder="Enter your email address"
                 />
               </div>
 
               <div>
                 <button className="flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600">
-                  Kirim tautan atur ulang
+                  Send Reset Link
                 </button>
               </div>
             </div>
           </form>
           <div className="mt-5">
-            <p className="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
-              Sebentar, saya ingat password saya...{" "}
+              <p className="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
+              Wait, I remember my password...{" "}
               <Link
                 to="/auth/login"
                 className="text-brand-500 hover:text-brand-600 dark:text-brand-400"
               >
-                Klik di sini
+                Click here
               </Link>
             </p>
           </div>

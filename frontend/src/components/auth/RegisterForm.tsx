@@ -48,47 +48,47 @@ export default function RegisterForm() {
 
   const validateForm = (): boolean => {
     if (!formData.username.trim()) {
-      setError("Username wajib diisi");
+      setError("Username is required");
       return false;
     }
     if (formData.username.length < 3) {
-      setError("Username minimal 3 karakter");
+      setError("Username must be at least 3 characters");
       return false;
     }
     if (formData.username.length > 50) {
-      setError("Username maksimal 50 karakter");
+      setError("Username must be at most 50 characters");
       return false;
     }
     if (!formData.email.trim()) {
-      setError("Email wajib diisi");
+      setError("Email is required");
       return false;
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      setError("Format email tidak valid");
+      setError("Email format is invalid");
       return false;
     }
     if (!formData.phone.trim()) {
-      setError("Nomor telepon wajib diisi");
+      setError("Phone number is required");
       return false;
     }
     if (formData.phone.length < 10) {
-      setError("Nomor telepon minimal 10 digit");
+      setError("Phone number must be at least 10 digits");
       return false;
     }
     if (formData.phone.length > 15) {
-      setError("Nomor telepon maksimal 15 digit");
+      setError("Phone number must be at most 15 digits");
       return false;
     }
     if (!formData.password.trim()) {
-      setError("Password wajib diisi");
+      setError("Password is required");
       return false;
     }
     if (formData.password.length < 8) {
-      setError("Password minimal 8 karakter");
+      setError("Password must be at least 8 characters");
       return false;
     }
     if (!isChecked) {
-      setError("Anda harus menyetujui syarat dan ketentuan");
+      setError("You must agree to the terms and conditions");
       return false;
     }
     return true;
@@ -134,16 +134,16 @@ export default function RegisterForm() {
               : "";
 
         if (errorObj.status === 409) {
-          setError(backendDetail || errorObj.message || "Data sudah terdaftar");
+          setError(backendDetail || errorObj.message || "Data already registered");
         } else if (backendDetail) {
           setError(backendDetail);
         } else if (errorObj.message) {
           setError(errorObj.message);
         } else {
-          setError("Terjadi kesalahan saat mendaftar. Silakan coba lagi.");
+          setError("An error occurred during registration. Please try again.");
         }
       } else {
-        setError("Terjadi kesalahan saat mendaftar. Silakan coba lagi.");
+        setError("An error occurred during registration. Please try again.");
       }
     } finally {
       setIsLoading(false);
@@ -165,10 +165,10 @@ export default function RegisterForm() {
             </Link>
             <div className="mb-5 sm:mb-8">
               <h1 className="mb-2 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md">
-                Daftar
+                Register
               </h1>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                Silakan isi data akun Anda untuk melakukan pendaftaran.
+                Please fill your account details to register.
               </p>
             </div>
             <div>
@@ -198,7 +198,7 @@ export default function RegisterForm() {
                       fill="#EB4335"
                     />
                   </svg>
-                  Daftar dengan Google
+                  Register with Google
                 </button>
               </div>
 
@@ -208,7 +208,7 @@ export default function RegisterForm() {
                 </div>
                 <div className="relative flex justify-center text-sm">
                   <span className="p-2 text-gray-400 bg-white dark:bg-gray-900 sm:px-5 sm:py-2">
-                    Atau
+                    Or
                   </span>
                 </div>
               </div>
@@ -228,7 +228,7 @@ export default function RegisterForm() {
                       type="text"
                       id="username"
                       name="username"
-                      placeholder="Masukkan username Anda"
+                      placeholder="Enter your username"
                       value={formData.username}
                       onChange={handleInputChange}
                       disabled={isLoading}
@@ -236,13 +236,13 @@ export default function RegisterForm() {
                   </div>
                   <div>
                     <Label>
-                      Nomor Telepon<span className="text-error-500">*</span>
+                      Phone Number<span className="text-error-500">*</span>
                     </Label>
                     <Input
                       type="text"
                       id="phone"
                       name="phone"
-                      placeholder="Masukkan nomor telepon Anda"
+                      placeholder="Enter your phone number"
                       value={formData.phone}
                       onChange={handleInputChange}
                       disabled={isLoading}
@@ -256,7 +256,7 @@ export default function RegisterForm() {
                       type="email"
                       id="email"
                       name="email"
-                      placeholder="Masukkan email Anda"
+                      placeholder="Enter your email"
                       value={formData.email}
                       onChange={handleInputChange}
                       disabled={isLoading}
@@ -268,7 +268,7 @@ export default function RegisterForm() {
                     </Label>
                     <div className="relative">
                       <Input
-                        placeholder="Masukkan password Anda"
+                        placeholder="Enter your password"
                         type={showPassword ? "text" : "password"}
                         name="password"
                         value={formData.password}
@@ -299,8 +299,8 @@ export default function RegisterForm() {
                       disabled={isLoading}
                     />
                     <p className="inline-block font-normal text-gray-500 dark:text-gray-400">
-                      Dengan membuat akun, Anda menyetujui syarat dan ketentuan
-                      serta kebijakan privasi.
+                      By creating an account, you agree to the Terms and Conditions
+                      and Privacy Policy.
                     </p>
                   </div>
                   <div>
@@ -313,20 +313,20 @@ export default function RegisterForm() {
                           : "bg-brand-500 hover:bg-brand-600"
                       }`}
                     >
-                      {isLoading ? "Memproses..." : "Daftar"}
+                      {isLoading ? "Processing..." : "Register"}
                     </button>
                   </div>
                 </div>
               </form>
 
               <div className="mt-5">
-                <p className="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
-                  Sudah punya akun?{" "}
+                  <p className="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
+                  Already have an account?{" "}
                   <Link
                     to="/auth/login"
                     className="text-brand-500 hover:text-brand-600 dark:text-brand-400"
                   >
-                    Masuk
+                    Login
                   </Link>
                 </p>
               </div>
@@ -337,9 +337,9 @@ export default function RegisterForm() {
 
       <SuccessModal
         isOpen={showSuccessModal}
-        title="Pendaftaran berhasil!"
-        message="Akun Anda berhasil dibuat. Anda akan segera dialihkan ke halaman masuk."
-        buttonLabel="Masuk ke akun"
+        title="Registration successful!"
+        message="Your account has been created. You will be redirected to the login page."
+        buttonLabel="Go to login"
         onButtonClick={handleSuccessModalClick}
       />
     </>

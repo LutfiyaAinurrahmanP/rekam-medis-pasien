@@ -6,7 +6,7 @@ export default function ResetPassword() {
   return (
     <>
       <PageMeta
-        title="Atur Ulang Password"
+        title="Reset password"
       />
       <AuthLayout>
         <ResetPasswordForm />

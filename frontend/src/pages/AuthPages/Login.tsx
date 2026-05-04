@@ -6,8 +6,8 @@ export default function Login() {
   return (
     <>
       <PageMeta
-        title="Masuk | Rekam Medis Pasien"
-        description="Halaman masuk untuk mengakses dashboard sesuai peran pengguna."
+        title="Login | Rekam Medis Pasien"
+        description="Login page to access the dashboard according to user roles."
       />
       <AuthLayout>
         <LoginForm />

@@ -6,8 +6,8 @@ export default function Register() {
   return (
     <>
       <PageMeta
-        title="Daftar | Rekam Medis Pasien"
-        description="Halaman pendaftaran untuk membuat akun pasien baru."
+        title="Register | Rekam Medis Pasien"
+        description="Registration page to create a new patient account."
       />
       <AuthLayout>
         <RegisterForm />

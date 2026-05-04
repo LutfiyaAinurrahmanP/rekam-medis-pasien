@@ -50,12 +50,12 @@ export default function LoginForm() {
 
   const validateForm = (): boolean => {
     if (!formData.usernameOrEmail.trim()) {
-      setError("Username atau email wajib diisi");
+      setError("Username or email is required");
       return false;
     }
 
     if (!formData.password.trim()) {
-      setError("Password wajib diisi");
+      setError("Password is required");
       return false;
     }
 
@@ -108,10 +108,10 @@ export default function LoginForm() {
         } else if (errorObj.message) {
           setError(errorObj.message);
         } else {
-          setError("Terjadi kesalahan saat login. Silakan coba lagi.");
+          setError("An error occurred during login. Please try again.");
         }
       } else {
-        setError("Terjadi kesalahan saat login. Silakan coba lagi.");
+        setError("An error occurred during login. Please try again.");
       }
     } finally {
       setIsLoading(false);
@@ -133,10 +133,10 @@ export default function LoginForm() {
             </Link>
             <div className="mb-5 sm:mb-8">
               <h1 className="mb-2 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md">
-                Masuk
+                Login
               </h1>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                Silakan masukkan username atau email dan password untuk login.
+                Please enter your username or email and password to login.
               </p>
             </div>
             <div>
@@ -166,7 +166,7 @@ export default function LoginForm() {
                       fill="#EB4335"
                     />
                   </svg>
-                  Masuk dengan Google
+                  Login with Google
                 </button>
               </div>
               <div className="relative py-3 sm:py-5">
@@ -175,7 +175,7 @@ export default function LoginForm() {
                 </div>
                 <div className="relative flex justify-center text-sm">
                   <span className="p-2 text-gray-400 bg-white dark:bg-gray-900 sm:px-5 sm:py-2">
-                    Atau
+                    Or
                   </span>
                 </div>
               </div>
@@ -188,7 +188,7 @@ export default function LoginForm() {
                   )}
                   <div>
                     <Label>
-                      Username atau Email
+                      Username or Email
                       <span className="text-error-500">*</span>
                     </Label>
                     <Input
@@ -196,7 +196,7 @@ export default function LoginForm() {
                       name="usernameOrEmail"
                       value={formData.usernameOrEmail}
                       onChange={handleInputChange}
-                      placeholder="Masukkan username atau email Anda"
+                      placeholder="Enter your username or email"
                       disabled={isLoading}
                     />
                   </div>
@@ -210,7 +210,7 @@ export default function LoginForm() {
                         name="password"
                         value={formData.password}
                         onChange={handleInputChange}
-                        placeholder="Masukkan password Anda"
+                        placeholder="Enter your password"
                         disabled={isLoading}
                       />
                       <span
@@ -237,14 +237,14 @@ export default function LoginForm() {
                         disabled={isLoading}
                       />
                       <span className="block font-normal text-gray-700 text-theme-sm dark:text-gray-400">
-                        Ingat saya
+                        Remember me
                       </span>
                     </div>
                     <Link
                       to="/auth/reset-password"
                       className="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400"
                     >
-                      Lupa password?
+                      Forgot password?
                     </Link>
                   </div>
                   <div>
@@ -257,7 +257,7 @@ export default function LoginForm() {
                           : "bg-brand-500 hover:bg-brand-600"
                       }`}
                     >
-                      {isLoading ? "Memproses..." : "Masuk"}
+                      {isLoading ? "Processing..." : "Login"}
                     </button>
                   </div>
                 </div>
@@ -265,12 +265,12 @@ export default function LoginForm() {
 
               <div className="mt-5">
                 <p className="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
-                  Belum punya akun? {""}
+                  Don't have an account? {""}
                   <Link
                     to="/auth/register"
                     className="text-brand-500 hover:text-brand-600 dark:text-brand-400"
-                  >
-                    Daftar
+                    >
+                    Register
                   </Link>
                 </p>
               </div>
@@ -281,9 +281,9 @@ export default function LoginForm() {
 
       <SuccessModal
         isOpen={showSuccessModal}
-        title="Masuk berhasil!"
-        message="Anda akan segera diarahkan ke dashboard atau dapat menekan tombol di bawah ini."
-        buttonLabel="Lanjut ke dashboard"
+        title="Login successful!"
+        message="You will be redirected to the dashboard or you may click the button below."
+        buttonLabel="Go to dashboard"
         onButtonClick={handleSuccessModalClick}
       />
     </>
