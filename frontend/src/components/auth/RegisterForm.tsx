@@ -7,7 +7,7 @@ import Checkbox from "../form/input/Checkbox";
 import SuccessModal from "../ui/notification/SuccessModal";
 import authService from "../../services/auth";
 
-export default function SignUpForm() {
+export default function RegisterForm() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
@@ -48,47 +48,47 @@ export default function SignUpForm() {
 
   const validateForm = (): boolean => {
     if (!formData.username.trim()) {
-      setError("Username is required");
+      setError("Username wajib diisi");
       return false;
     }
     if (formData.username.length < 3) {
-      setError("Username must be at least 3 characters");
+      setError("Username minimal 3 karakter");
       return false;
     }
     if (formData.username.length > 50) {
-      setError("Username must not exceed 50 characters");
+      setError("Username maksimal 50 karakter");
       return false;
     }
     if (!formData.email.trim()) {
-      setError("Email is required");
+      setError("Email wajib diisi");
       return false;
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      setError("Invalid email format");
+      setError("Format email tidak valid");
       return false;
     }
     if (!formData.phone.trim()) {
-      setError("Phone number is required");
+      setError("Nomor telepon wajib diisi");
       return false;
     }
     if (formData.phone.length < 10) {
-      setError("Phone number must be at least 10 digits");
+      setError("Nomor telepon minimal 10 digit");
       return false;
     }
     if (formData.phone.length > 15) {
-      setError("Phone number must not exceed 15 digits");
+      setError("Nomor telepon maksimal 15 digit");
       return false;
     }
     if (!formData.password.trim()) {
-      setError("Password is required");
+      setError("Password wajib diisi");
       return false;
     }
     if (formData.password.length < 8) {
-      setError("Password must be at least 8 characters");
+      setError("Password minimal 8 karakter");
       return false;
     }
     if (!isChecked) {
-      setError("You must agree to the terms and conditions");
+      setError("Anda harus menyetujui syarat dan ketentuan");
       return false;
     }
     return true;
@@ -134,16 +134,16 @@ export default function SignUpForm() {
               : "";
 
         if (errorObj.status === 409) {
-          setError(backendDetail || errorObj.message || "Data already registered");
+          setError(backendDetail || errorObj.message || "Data sudah terdaftar");
         } else if (backendDetail) {
           setError(backendDetail);
         } else if (errorObj.message) {
           setError(errorObj.message);
         } else {
-          setError("An error occurred during registration. Please try again.");
+          setError("Terjadi kesalahan saat mendaftar. Silakan coba lagi.");
         }
       } else {
-        setError("An error occurred during registration. Please try again.");
+        setError("Terjadi kesalahan saat mendaftar. Silakan coba lagi.");
       }
     } finally {
       setIsLoading(false);
@@ -165,10 +165,10 @@ export default function SignUpForm() {
             </Link>
             <div className="mb-5 sm:mb-8">
               <h1 className="mb-2 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md">
-                Sign Up
+                Daftar
               </h1>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                Please fill in your account details to register!
+                Silakan isi data akun Anda untuk melakukan pendaftaran.
               </p>
             </div>
             <div>
@@ -198,7 +198,7 @@ export default function SignUpForm() {
                       fill="#EB4335"
                     />
                   </svg>
-                  Sign up with Google
+                  Daftar dengan Google
                 </button>
               </div>
 
@@ -208,7 +208,7 @@ export default function SignUpForm() {
                 </div>
                 <div className="relative flex justify-center text-sm">
                   <span className="p-2 text-gray-400 bg-white dark:bg-gray-900 sm:px-5 sm:py-2">
-                    Or
+                    Atau
                   </span>
                 </div>
               </div>
@@ -228,7 +228,7 @@ export default function SignUpForm() {
                       type="text"
                       id="username"
                       name="username"
-                      placeholder="Enter your username"
+                      placeholder="Masukkan username Anda"
                       value={formData.username}
                       onChange={handleInputChange}
                       disabled={isLoading}
@@ -236,13 +236,13 @@ export default function SignUpForm() {
                   </div>
                   <div>
                     <Label>
-                      Phone Number<span className="text-error-500">*</span>
+                      Nomor Telepon<span className="text-error-500">*</span>
                     </Label>
                     <Input
                       type="text"
                       id="phone"
                       name="phone"
-                      placeholder="Enter your phone number"
+                      placeholder="Masukkan nomor telepon Anda"
                       value={formData.phone}
                       onChange={handleInputChange}
                       disabled={isLoading}
@@ -256,7 +256,7 @@ export default function SignUpForm() {
                       type="email"
                       id="email"
                       name="email"
-                      placeholder="Enter your email address"
+                      placeholder="Masukkan email Anda"
                       value={formData.email}
                       onChange={handleInputChange}
                       disabled={isLoading}
@@ -268,7 +268,7 @@ export default function SignUpForm() {
                     </Label>
                     <div className="relative">
                       <Input
-                        placeholder="Enter your password"
+                        placeholder="Masukkan password Anda"
                         type={showPassword ? "text" : "password"}
                         name="password"
                         value={formData.password}
@@ -299,14 +299,8 @@ export default function SignUpForm() {
                       disabled={isLoading}
                     />
                     <p className="inline-block font-normal text-gray-500 dark:text-gray-400">
-                      By creating an account, you agree to our{" "}
-                      <span className="text-gray-800 dark:text-white/90">
-                        Terms and Conditions,
-                      </span>{" "}
-                      and{" "}
-                      <span className="text-gray-800 dark:text-white">
-                        Privacy Policy
-                      </span>
+                      Dengan membuat akun, Anda menyetujui syarat dan ketentuan
+                      serta kebijakan privasi.
                     </p>
                   </div>
                   <div>
@@ -319,33 +313,7 @@ export default function SignUpForm() {
                           : "bg-brand-500 hover:bg-brand-600"
                       }`}
                     >
-                      {isLoading ? (
-                        <>
-                          <svg
-                            className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                          >
-                            <circle
-                              className="opacity-25"
-                              cx="12"
-                              cy="12"
-                              r="10"
-                              stroke="currentColor"
-                              strokeWidth="4"
-                            ></circle>
-                            <path
-                              className="opacity-75"
-                              fill="currentColor"
-                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                            ></path>
-                          </svg>
-                          Registering...
-                        </>
-                      ) : (
-                        "Sign Up"
-                      )}
+                      {isLoading ? "Memproses..." : "Daftar"}
                     </button>
                   </div>
                 </div>
@@ -353,12 +321,12 @@ export default function SignUpForm() {
 
               <div className="mt-5">
                 <p className="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
-                  Already have an account?{" "}
+                  Sudah punya akun?{" "}
                   <Link
                     to="/auth/login"
                     className="text-brand-500 hover:text-brand-600 dark:text-brand-400"
                   >
-                    Sign In
+                    Masuk
                   </Link>
                 </p>
               </div>
@@ -369,9 +337,9 @@ export default function SignUpForm() {
 
       <SuccessModal
         isOpen={showSuccessModal}
-        title="Registration Successful!"
-        message="You will be redirected to the sign in page shortly, or you can click the button below."
-        buttonLabel="Go to Sign In"
+        title="Pendaftaran berhasil!"
+        message="Akun Anda berhasil dibuat. Anda akan segera dialihkan ke halaman masuk."
+        buttonLabel="Masuk ke akun"
         onButtonClick={handleSuccessModalClick}
       />
     </>

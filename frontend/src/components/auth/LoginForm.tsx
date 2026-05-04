@@ -9,7 +9,7 @@ import authService from "../../services/auth";
 import { useAuth } from "../../context/AuthContext";
 import { getRoleDashboardPath } from "../../pages/Roles/shared/role-routing";
 
-export default function SignInForm() {
+export default function LoginForm() {
   const navigate = useNavigate();
   const { setUser } = useAuth();
   const [redirectPath, setRedirectPath] = useState("/admin/dashboard");
@@ -50,12 +50,12 @@ export default function SignInForm() {
 
   const validateForm = (): boolean => {
     if (!formData.usernameOrEmail.trim()) {
-      setError("Username or email is required");
+      setError("Username atau email wajib diisi");
       return false;
     }
 
     if (!formData.password.trim()) {
-      setError("Password is required");
+      setError("Password wajib diisi");
       return false;
     }
 
@@ -79,8 +79,6 @@ export default function SignInForm() {
         password: formData.password,
       });
 
-      console.log("Login response:", response);
-
       authService.setToken(response.token);
       setUser(response.user);
       setRedirectPath(getRoleDashboardPath(response.user.role));
@@ -96,8 +94,6 @@ export default function SignInForm() {
           errors?: Record<string, string>;
         };
 
-        console.error("Error object:", errorObj);
-
         const backendDetail =
           typeof errorObj.error === "string"
             ? errorObj.error
@@ -112,10 +108,10 @@ export default function SignInForm() {
         } else if (errorObj.message) {
           setError(errorObj.message);
         } else {
-          setError("An error occurred while signing in. Please try again.");
+          setError("Terjadi kesalahan saat login. Silakan coba lagi.");
         }
       } else {
-        setError("An error occurred while signing in. Please try again.");
+        setError("Terjadi kesalahan saat login. Silakan coba lagi.");
       }
     } finally {
       setIsLoading(false);
@@ -137,10 +133,10 @@ export default function SignInForm() {
             </Link>
             <div className="mb-5 sm:mb-8">
               <h1 className="mb-2 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md">
-                Sign In
+                Masuk
               </h1>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                Please enter your username or email and password to sign in!
+                Silakan masukkan username atau email dan password untuk login.
               </p>
             </div>
             <div>
@@ -170,7 +166,7 @@ export default function SignInForm() {
                       fill="#EB4335"
                     />
                   </svg>
-                  Sign in with Google
+                  Masuk dengan Google
                 </button>
               </div>
               <div className="relative py-3 sm:py-5">
@@ -179,7 +175,7 @@ export default function SignInForm() {
                 </div>
                 <div className="relative flex justify-center text-sm">
                   <span className="p-2 text-gray-400 bg-white dark:bg-gray-900 sm:px-5 sm:py-2">
-                    Or
+                    Atau
                   </span>
                 </div>
               </div>
@@ -192,7 +188,7 @@ export default function SignInForm() {
                   )}
                   <div>
                     <Label>
-                      Username or Email
+                      Username atau Email
                       <span className="text-error-500">*</span>
                     </Label>
                     <Input
@@ -200,7 +196,7 @@ export default function SignInForm() {
                       name="usernameOrEmail"
                       value={formData.usernameOrEmail}
                       onChange={handleInputChange}
-                      placeholder="Enter your username or email"
+                      placeholder="Masukkan username atau email Anda"
                       disabled={isLoading}
                     />
                   </div>
@@ -214,7 +210,7 @@ export default function SignInForm() {
                         name="password"
                         value={formData.password}
                         onChange={handleInputChange}
-                        placeholder="Enter your password"
+                        placeholder="Masukkan password Anda"
                         disabled={isLoading}
                       />
                       <span
@@ -241,14 +237,14 @@ export default function SignInForm() {
                         disabled={isLoading}
                       />
                       <span className="block font-normal text-gray-700 text-theme-sm dark:text-gray-400">
-                        Remember me
+                        Ingat saya
                       </span>
                     </div>
                     <Link
                       to="/auth/reset-password"
                       className="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400"
                     >
-                      Forgot password?
+                      Lupa password?
                     </Link>
                   </div>
                   <div>
@@ -261,7 +257,7 @@ export default function SignInForm() {
                           : "bg-brand-500 hover:bg-brand-600"
                       }`}
                     >
-                      {isLoading ? "Processing..." : "Sign In"}
+                      {isLoading ? "Memproses..." : "Masuk"}
                     </button>
                   </div>
                 </div>
@@ -269,12 +265,12 @@ export default function SignInForm() {
 
               <div className="mt-5">
                 <p className="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
-                  Don't have an account?{" "}
+                  Belum punya akun? {""}
                   <Link
                     to="/auth/register"
                     className="text-brand-500 hover:text-brand-600 dark:text-brand-400"
                   >
-                    Sign Up
+                    Daftar
                   </Link>
                 </p>
               </div>
@@ -285,9 +281,9 @@ export default function SignInForm() {
 
       <SuccessModal
         isOpen={showSuccessModal}
-        title="Login Successful!"
-        message="You will be redirected to the dashboard shortly, or you can click the button below."
-        buttonLabel="Go to Dashboard"
+        title="Masuk berhasil!"
+        message="Anda akan segera diarahkan ke dashboard atau dapat menekan tombol di bawah ini."
+        buttonLabel="Lanjut ke dashboard"
         onButtonClick={handleSuccessModalClick}
       />
     </>

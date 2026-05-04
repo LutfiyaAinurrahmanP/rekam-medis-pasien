@@ -17,11 +17,11 @@ export default function ResetPasswordForm() {
           </Link>
           <div className="mb-5 sm:mb-8">
             <h1 className="mb-2 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md">
-              Forgot Your Password?
+              Lupa password?
             </h1>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Enter the email address linked to your account, and we will send
-              you a link to reset your password.
+              Masukkan alamat email yang terhubung ke akun Anda, lalu kami
+              akan mengirimkan tautan untuk mengatur ulang password.
             </p>
           </div>
           <form>
@@ -34,25 +34,25 @@ export default function ResetPasswordForm() {
                   type="email"
                   id="email"
                   name="email"
-                  placeholder="Enter your email address"
+                  placeholder="Masukkan alamat email Anda"
                 />
               </div>
 
               <div>
                 <button className="flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600">
-                  Send Reset Link
+                  Kirim tautan atur ulang
                 </button>
               </div>
             </div>
           </form>
           <div className="mt-5">
             <p className="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
-              Wait, I remember my password...{" "}
+              Sebentar, saya ingat password saya...{" "}
               <Link
                 to="/auth/login"
                 className="text-brand-500 hover:text-brand-600 dark:text-brand-400"
               >
-                Click here
+                Klik di sini
               </Link>
             </p>
           </div>

@@ -4,8 +4,8 @@ import Stocks from "./pages/Dashboard/Stocks";
 import Crm from "./pages/Dashboard/Crm";
 import Marketing from "./pages/Dashboard/Marketing";
 import Analytics from "./pages/Dashboard/Analytics";
-import SignIn from "./pages/AuthPages/SignIn";
-import SignUp from "./pages/AuthPages/SignUp";
+import Login from "./pages/AuthPages/Login";
+import Register from "./pages/AuthPages/Register";
 import NotFound from "./pages/OtherPage/NotFound";
 import UserProfiles from "./pages/UserProfiles";
 import Carousel from "./pages/UiElements/Carousel";
@@ -90,8 +90,8 @@ export default function App() {
         <Routes>
           {/* Auth */}
           <Route element={<GuestOnly />}>
-            <Route path="/auth/login" element={<SignIn />} />
-            <Route path="/auth/register" element={<SignUp />} />
+            <Route path="/auth/login" element={<Login />} />
+            <Route path="/auth/register" element={<Register />} />
           </Route>
           <Route path="/auth/reset-password" element={<ResetPassword />} />
 
@@ -232,8 +232,8 @@ export default function App() {
           </Route>
 
           {/* Auth Layout */}
-          <Route path="/signin" element={<SignIn />} />
-          <Route path="/signup" element={<SignUp />} />
+          <Route path="/signin" element={<Login />} />
+          <Route path="/signup" element={<Register />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route
             path="/two-step-verification"
