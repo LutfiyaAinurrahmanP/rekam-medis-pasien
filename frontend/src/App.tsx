@@ -80,6 +80,10 @@ import RequireAuth from "./components/common/RequireAuth";
 import GuestOnly from "./components/common/GuestOnly";
 import LegacyDashboardRedirect from "./components/common/LegacyDashboardRedirect";
 import RoleDashboardPage from "./pages/Roles/RoleDashboardPage";
+import UsersIndex from "./pages/Users/Index";
+import UsersCreate from "./pages/Users/Create";
+import UsersEdit from "./pages/Users/Edit";
+import UsersShow from "./pages/Users/Show";
 import RoleReportsPage from "./pages/Roles/RoleReportsPage";
 
 export default function App() {
@@ -101,6 +105,12 @@ export default function App() {
               <Route path="/dashboard" element={<LegacyDashboardRedirect />} />
               <Route path="/:role/dashboard" element={<RoleDashboardPage />} />
               <Route path="/:role/reports" element={<RoleReportsPage />} />
+
+              {/* Users Management */}
+              <Route path="/:role/users" element={<UsersIndex />} />
+              <Route path="/:role/users/create" element={<UsersCreate />} />
+              <Route path="/:role/users/:id/edit" element={<UsersEdit />} />
+              <Route path="/:role/users/:id" element={<UsersShow />} />
 
               {/* Template Sidebar */}
               {/* Dashboard Layout */}

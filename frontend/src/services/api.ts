@@ -1,4 +1,6 @@
 // API Client Base - Centralized API communication
+import authService from "./auth";
+
 const API_BASE_URL =
   import.meta.env.VITE_API_URL || "http://localhost:8080/api/v1";
 
@@ -22,6 +24,7 @@ export async function apiCall<T>(
   options: RequestInit = {},
 ): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`;
+  const token = authService.getToken();
 
   let response: Response;
   let data: ApiResponse<T>;
@@ -31,6 +34,7 @@ export async function apiCall<T>(
       ...options,
       headers: {
         "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...options.headers,
       },
     });
