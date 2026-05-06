@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { useNavigate, useParams } from "react-router";
 import {
   Table,
   TableBody,
@@ -39,6 +40,8 @@ const getRoleLabel = (role: string) => {
 };
 
 export default function UserTable({ onEdit, onDelete }: UserTableProps) {
+  const navigate = useNavigate();
+  const { role } = useParams();
   const { users, loading, error, meta, fetchUsers } = useUsers();
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -102,6 +105,10 @@ export default function UserTable({ onEdit, onDelete }: UserTableProps) {
     const newRowsPerPage = parseInt(e.target.value, 10);
     setRowsPerPage(newRowsPerPage);
     setCurrentPage(1);
+  };
+
+  const handleCreateUser = () => {
+    navigate(`/${role ?? "admin"}/users/create`);
   };
 
   const startIndex = (currentPage - 1) * rowsPerPage;
@@ -180,7 +187,7 @@ export default function UserTable({ onEdit, onDelete }: UserTableProps) {
               className="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent py-2.5 pl-11 pr-4 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 xl:w-[300px]"
             />
           </div>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={handleCreateUser}>
             Create
           </Button>
           <Button variant="outline" size="sm">
