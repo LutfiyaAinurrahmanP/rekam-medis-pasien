@@ -3,6 +3,7 @@ package user
 import (
 	"context"
 	"log"
+	"strings"
 
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/cache"
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/dto"
@@ -62,7 +63,15 @@ func (s *cachedUserService) GetUserByID(id uint) (*dto.UserResponse, error) {
 }
 
 func (s *cachedUserService) ListUsers(query *dto.UserPaginationQuery) (*dto.UserListResponse, error) {
-	key := cache.UserListKey(query.Page, query.PageSize)
+	key := cache.UserListQueryKey(
+		query.Page,
+		query.PageSize,
+		normalizeCachePart(query.Search),
+		normalizeCachePart(query.Role),
+		normalizeBoolCachePart(query.IsActive),
+		normalizeCachePart(query.SortBy),
+		normalizeCachePart(query.SortDir),
+	)
 	var resp dto.UserListResponse
 	if err := s.redis.Get(context.Background(), key, &resp); err == nil {
 		return &resp, nil
@@ -76,7 +85,15 @@ func (s *cachedUserService) ListUsers(query *dto.UserPaginationQuery) (*dto.User
 }
 
 func (s *cachedUserService) DeleteListUsers(query *dto.UserPaginationQuery) (*dto.UserDeletedListResponse, error) {
-	key := cache.UserDeletedListKey(query.Page, query.PageSize)
+	key := cache.UserDeletedListQueryKey(
+		query.Page,
+		query.PageSize,
+		normalizeCachePart(query.Search),
+		normalizeCachePart(query.Role),
+		normalizeBoolCachePart(query.IsActive),
+		normalizeCachePart(query.SortBy),
+		normalizeCachePart(query.SortDir),
+	)
 	var resp dto.UserDeletedListResponse
 	if err := s.redis.Get(context.Background(), key, &resp); err == nil {
 		return &resp, nil
@@ -183,6 +200,20 @@ func (s *cachedUserService) invalidateAll() {
 	if err := s.redis.DeleteByPattern(context.Background(), cache.PatternUserAll); err != nil {
 		log.Printf("⚠️  Redis invalidate failed for pattern %q: %v", cache.PatternUserAll, err)
 	}
+}
+
+func normalizeCachePart(value string) string {
+	return strings.ToLower(strings.TrimSpace(value))
+}
+
+func normalizeBoolCachePart(value *bool) string {
+	if value == nil {
+		return "any"
+	}
+	if *value {
+		return "true"
+	}
+	return "false"
 }
 
 // compile-time interface check

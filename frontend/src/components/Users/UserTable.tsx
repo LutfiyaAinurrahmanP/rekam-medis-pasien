@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import {
   Table,
   TableBody,
@@ -6,8 +6,7 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
-import { EyeCloseIcon, EyeIcon, PencilIcon, TrashBinIcon } from "../../icons";
-// Checkbox removed: not needed for user list
+import { EyeIcon, PencilIcon, TrashBinIcon } from "../../icons";
 import Badge from "../ui/badge/Badge";
 import Pagination from "../tables/DataTables/TableThree/Pagination";
 import Button from "../ui/button/Button";
@@ -31,7 +30,7 @@ const getRoleColor = (role: string) => {
     case "super_admin":
       return "error";
     default:
-      return "default";
+      return "light";
   }
 };
 
@@ -44,14 +43,52 @@ export default function UserTable({ onEdit, onDelete }: UserTableProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [search, setSearch] = useState("");
+  const debounceRef = useRef<number | null>(null);
+  const isInitialLoading = loading && users.length === 0;
 
+  // ✅ Fungsi fetch terpusat
+  const triggerFetch = useCallback(
+    (page: number, pageSize: number, searchValue: string) => {
+      fetchUsers({
+        page,
+        page_size: pageSize,
+        search: searchValue.trim() || undefined,
+      });
+    },
+    [fetchUsers],
+  );
+
+  // ✅ Fetch saat page atau rowsPerPage berubah (tanpa debounce)
   useEffect(() => {
-    fetchUsers({
-      page: currentPage,
-      page_size: rowsPerPage,
-      search: search || undefined,
-    });
-  }, [currentPage, rowsPerPage, search, fetchUsers]);
+    triggerFetch(currentPage, rowsPerPage, search);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage, rowsPerPage]);
+
+  // ✅ Cleanup debounce saat unmount
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) window.clearTimeout(debounceRef.current);
+    };
+  }, []);
+
+  // ✅ Jaga currentPage tidak melebihi total_pages
+  useEffect(() => {
+    if (meta.total_pages > 0 && currentPage > meta.total_pages) {
+      setCurrentPage(meta.total_pages);
+    }
+  }, [currentPage, meta.total_pages]);
+
+  // ✅ Search dengan debounce 150ms langsung panggil triggerFetch
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearch(value);
+    setCurrentPage(1);
+
+    if (debounceRef.current) window.clearTimeout(debounceRef.current);
+    debounceRef.current = window.setTimeout(() => {
+      triggerFetch(1, rowsPerPage, value);
+    }, 150);
+  };
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= meta.total_pages) {
@@ -67,18 +104,8 @@ export default function UserTable({ onEdit, onDelete }: UserTableProps) {
     setCurrentPage(1);
   };
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearch(e.target.value);
-    setCurrentPage(1);
-  };
-
-  if (loading && users.length === 0) {
-    return (
-      <div className="flex items-center justify-center p-8">
-        <p className="text-gray-500">Loading users...</p>
-      </div>
-    );
-  }
+  const startIndex = (currentPage - 1) * rowsPerPage;
+  const endIndex = Math.min(startIndex + rowsPerPage, meta.total_items);
 
   if (error) {
     return (
@@ -87,9 +114,6 @@ export default function UserTable({ onEdit, onDelete }: UserTableProps) {
       </div>
     );
   }
-
-  const startIndex = (currentPage - 1) * rowsPerPage;
-  const endIndex = Math.min(startIndex + rowsPerPage, meta.total_items);
 
   return (
     <div className="overflow-hidden rounded-xl bg-white dark:bg-white/[0.03]">
@@ -223,7 +247,16 @@ export default function UserTable({ onEdit, onDelete }: UserTableProps) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {users.length > 0 ? (
+            {isInitialLoading ? (
+              <TableRow>
+                <td
+                  colSpan={6}
+                  className="px-4 py-8 text-center text-gray-500 dark:text-gray-400"
+                >
+                  Loading users...
+                </td>
+              </TableRow>
+            ) : users.length > 0 ? (
               users.map((user, index) => (
                 <TableRow key={index}>
                   <TableCell className="px-4 py-4 border border-gray-100 dark:border-white/[0.05] dark:text-white/90 whitespace-nowrap">
@@ -278,12 +311,12 @@ export default function UserTable({ onEdit, onDelete }: UserTableProps) {
               ))
             ) : (
               <TableRow>
-                <TableCell
+                <td
                   colSpan={6}
                   className="px-4 py-8 text-center text-gray-500 dark:text-gray-400"
                 >
                   No users found
-                </TableCell>
+                </td>
               </TableRow>
             )}
           </TableBody>

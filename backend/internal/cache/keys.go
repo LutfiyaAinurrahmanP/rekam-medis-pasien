@@ -9,8 +9,32 @@ import "fmt"
 
 func UserKey(id uint) string            { return fmt.Sprintf("user:id:%d", id) }
 func UserListKey(page, size int) string { return fmt.Sprintf("user:list:p%d:s%d", page, size) }
+func UserListQueryKey(page, size int, search, role string, isActive string, sortBy, sortDir string) string {
+	return fmt.Sprintf(
+		"user:list:p%d:s%d:q%s:r%s:a%s:sb%s:sd%s",
+		page,
+		size,
+		search,
+		role,
+		isActive,
+		sortBy,
+		sortDir,
+	)
+}
 func UserDeletedListKey(page, size int) string {
 	return fmt.Sprintf("user:deleted:p%d:s%d", page, size)
+}
+func UserDeletedListQueryKey(page, size int, search, role string, isActive string, sortBy, sortDir string) string {
+	return fmt.Sprintf(
+		"user:deleted:p%d:s%d:q%s:r%s:a%s:sb%s:sd%s",
+		page,
+		size,
+		search,
+		role,
+		isActive,
+		sortBy,
+		sortDir,
+	)
 }
 
 // ─── Department ────────────────────────────────────────────────────────────
@@ -58,9 +82,11 @@ func TypeTestSearchKey(q string, page, size int) string {
 // ─── Medicine ──────────────────────────────────────────────────────────────
 
 func MedicineKey(id uint) string            { return fmt.Sprintf("medicine:id:%d", id) }
-func MedicineNameKey(name string) string            { return fmt.Sprintf("medicine:name:%d", name) }
+func MedicineNameKey(name string) string    { return fmt.Sprintf("medicine:name:%s", name) }
 func MedicineListKey(page, size int) string { return fmt.Sprintf("medicine:list:p%d:s%d", page, size) }
-func MedicineDeletedListKey(page, size int) string { return fmt.Sprintf("medicine:list:p%d:s%d", page, size) }
+func MedicineDeletedListKey(page, size int) string {
+	return fmt.Sprintf("medicine:list:p%d:s%d", page, size)
+}
 func MedicineAvailableKey(page, size int) string {
 	return fmt.Sprintf("medicine:available:p%d:s%d", page, size)
 }
@@ -79,6 +105,7 @@ func MedicineInactiveKey(page, size int) string {
 func MedicineTypeKey(page, size int) string {
 	return fmt.Sprintf("medicine:type:p%d:s%d", page, size)
 }
+
 // ─── Invalidation patterns ─────────────────────────────────────────────────
 
 const (

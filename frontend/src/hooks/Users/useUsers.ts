@@ -49,12 +49,14 @@ export const useUsers = () => {
 
     try {
       const queryParams = new URLSearchParams();
-      
+
       if (params.page) queryParams.append("page", String(params.page));
-      if (params.page_size) queryParams.append("page_size", String(params.page_size));
+      if (params.page_size)
+        queryParams.append("page_size", String(params.page_size));
       if (params.search) queryParams.append("search", params.search);
       if (params.role) queryParams.append("role", params.role);
-      if (params.is_active !== undefined) queryParams.append("is_active", String(params.is_active));
+      if (params.is_active !== undefined)
+        queryParams.append("is_active", String(params.is_active));
       if (params.sort_by) queryParams.append("sort_by", params.sort_by);
       if (params.sort_dir) queryParams.append("sort_dir", params.sort_dir);
 
@@ -66,7 +68,8 @@ export const useUsers = () => {
         setMeta(response.meta);
       }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to fetch users";
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to fetch users";
       setError(errorMessage);
       console.error("Error fetching users:", err);
     } finally {
