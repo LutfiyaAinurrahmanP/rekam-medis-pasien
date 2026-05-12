@@ -1,4 +1,5 @@
 import React from "react";
+import { Modal } from "../ui/modal";
 
 export interface CreateFormFieldDef {
   name: string;
@@ -25,6 +26,7 @@ interface CreateFormModalProps {
   submitLabel?: string;
   cancelLabel?: string;
   disabled?: boolean;
+  children?: React.ReactNode;
 }
 
 export default function CreateFormModal({
@@ -41,55 +43,34 @@ export default function CreateFormModal({
   submitLabel = "Create",
   cancelLabel = "Cancel",
   disabled = false,
+  children,
 }: CreateFormModalProps) {
   if (!isOpen) return null;
+
   return (
-    <>
-      <div
-        className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm transition-opacity"
-        onClick={onClose}
-      />
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      className="max-w-[584px] p-5 lg:p-10"
+      showCloseButton={false}
+    >
+      <form onSubmit={onSubmit}>
+        <h4 className="mb-6 text-lg font-medium text-gray-800 dark:text-white/90">
+          {title}
+        </h4>
 
-      {/* Modal */}
-      <div className="fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2">
-        <div className="rounded-lg border border-gray-200 bg-white shadow-xl dark:border-gray-700 dark:bg-gray-800">
-          {/* Header */}
-          <div className="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  {title}
-                </h2>
-                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                  {description}
-                </p>
-              </div>
-              <button
-                onClick={onClose}
-                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                disabled={loading || disabled}
-              >
-                <svg
-                  className="h-6 w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
-            </div>
-          </div>
+        {description ? (
+          <p className="-mt-4 mb-6 text-sm text-gray-500 dark:text-gray-400">
+            {description}
+          </p>
+        ) : null}
 
-          {/* Body */}
-          <form onSubmit={onSubmit} className="space-y-6 p-6">
+        {children ? (
+          children
+        ) : (
+          <>
             {errorsList.length > 0 ? (
-              <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/30 dark:text-red-400">
+              <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/30 dark:text-red-400">
                 <ul className="list-inside list-disc space-y-1">
                   {errorsList.map((errMsg, idx) => (
                     <li key={idx}>{errMsg}</li>
@@ -98,9 +79,9 @@ export default function CreateFormModal({
               </div>
             ) : null}
 
-            <div className="space-y-4">
+            <div className="grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2">
               {fields.map((field) => (
-                <div key={field.name}>
+                <div key={field.name} className="col-span-1">
                   <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">
                     {field.label}
                     {field.required && <span className="text-red-500"> *</span>}
@@ -139,29 +120,26 @@ export default function CreateFormModal({
               ))}
             </div>
 
-            {/* Footer */}
-            <div className="border-t border-gray-200 pt-6 dark:border-gray-700">
-              <div className="flex gap-3">
-                <button
-                  type="button"
-                  onClick={onClose}
-                  disabled={loading || disabled}
-                  className="flex-1 rounded-lg border border-gray-300 px-4 py-2 font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-white/[0.05]"
-                >
-                  {cancelLabel}
-                </button>
-                <button
-                  type="submit"
-                  disabled={loading || disabled}
-                  className="flex-1 rounded-lg bg-brand-500 px-4 py-2 font-medium text-white hover:bg-brand-600 disabled:opacity-50"
-                >
-                  {loading ? `${submitLabel}...` : submitLabel}
-                </button>
-              </div>
+            <div className="mt-6 flex items-center justify-end gap-3">
+              <button
+                type="button"
+                onClick={onClose}
+                disabled={loading || disabled}
+                className="inline-flex items-center justify-center rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-white/[0.05]"
+              >
+                {cancelLabel}
+              </button>
+              <button
+                type="submit"
+                disabled={loading || disabled}
+                className="inline-flex items-center justify-center rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-600 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {loading ? `${submitLabel}...` : submitLabel}
+              </button>
             </div>
-          </form>
-        </div>
-      </div>
-    </>
+          </>
+        )}
+      </form>
+    </Modal>
   );
 }

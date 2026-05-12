@@ -18,8 +18,8 @@ const SuccessModal: React.FC<SuccessModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl dark:bg-[#1E2634] sm:p-8">
+    <div className="fixed inset-0 z-[100000] flex items-center justify-center bg-black/25 backdrop-blur-2xl">
+      <div className="w-full max-w-md rounded-2xl border border-white/20 bg-white/95 p-6 shadow-2xl dark:border-gray-700 dark:bg-[#1E2634]/95 sm:p-8">
         {/* Icon */}
         <div className="flex justify-center mb-6">
           <div className="flex items-center justify-center w-16 h-16 rounded-full bg-success-50">

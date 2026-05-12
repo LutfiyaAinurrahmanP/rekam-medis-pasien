@@ -1,4 +1,5 @@
 import React from "react";
+import { Modal } from "../ui/modal";
 
 interface FieldDef {
   key: string;
@@ -15,6 +16,7 @@ interface DetailModalProps {
   data: Record<string, unknown> | null;
   fields: FieldDef[];
   onClose: () => void;
+  children?: React.ReactNode;
 }
 
 export default function DetailModal({
@@ -23,6 +25,7 @@ export default function DetailModal({
   data,
   fields,
   onClose,
+  children,
 }: DetailModalProps) {
   if (!isOpen) return null;
 
@@ -44,83 +47,57 @@ export default function DetailModal({
   };
 
   return (
-    <>
-      <div
-        className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm transition-opacity"
-        onClick={onClose}
-      />
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      className="max-w-[584px] p-5 lg:p-10"
+      showCloseButton={false}
+    >
+      <div>
+        <h4 className="mb-6 text-lg font-medium text-gray-800 dark:text-white/90">
+          Details
+        </h4>
+        <p className="-mt-4 mb-6 text-sm text-gray-500 dark:text-gray-400">
+          View information below
+        </p>
 
-      <div className="fixed left-1/2 top-1/2 z-50 w-full max-w-2xl -translate-x-1/2 -translate-y-1/2">
-        <div className="rounded-lg border border-gray-200 bg-white shadow-xl dark:border-gray-700 dark:bg-gray-800">
-          <div className="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  Details
-                </h2>
-                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                  View information
-                </p>
-              </div>
+        {children ? (
+          children
+        ) : loading ? (
+          <div className="flex items-center justify-center py-8">
+            <p className="text-gray-500">Loading...</p>
+          </div>
+        ) : !data ? (
+          <div className="flex items-center justify-center py-8">
+            <p className="text-red-500">Not found</p>
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2">
+              {fields.map((f) => (
+                <div key={f.key} className="col-span-1">
+                  <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                    {f.label ?? f.key.charAt(0).toUpperCase() + f.key.slice(1)}
+                  </label>
+                  <p className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-800 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90">
+                    {renderValue(f.key, f.render)}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-6 flex items-center justify-end gap-3">
               <button
+                type="button"
                 onClick={onClose}
-                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                className="inline-flex items-center justify-center rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-white/[0.05]"
               >
-                <svg
-                  className="h-6 w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
+                Close
               </button>
             </div>
-          </div>
-
-          <div className="p-6">
-            {loading ? (
-              <div className="flex items-center justify-center p-8">
-                <p className="text-gray-500">Loading...</p>
-              </div>
-            ) : !data ? (
-              <div className="flex items-center justify-center p-8">
-                <p className="text-red-500">Not found</p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                  {fields.map((f) => (
-                    <div key={f.key}>
-                      <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                        {f.label ??
-                          f.key.charAt(0).toUpperCase() + f.key.slice(1)}
-                      </label>
-                      <p className="rounded-lg bg-gray-50 px-4 py-2 dark:bg-gray-900 dark:text-white">
-                        {renderValue(f.key, f.render)}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="flex gap-3 pt-8 border-t border-gray-200 dark:border-gray-700">
-                  <button
-                    onClick={onClose}
-                    className="rounded-lg border border-gray-300 px-6 py-2 font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-white/[0.05]"
-                  >
-                    Close
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
+          </>
+        )}
       </div>
-    </>
+    </Modal>
   );
 }
