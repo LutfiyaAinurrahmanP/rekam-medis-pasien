@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import PageBreadcrumb from "../../../components/common/PageBreadCrumb";
+import CreateUserModal from "./CreateUserModal";
 import BaseTable, {
   type ColumnDefinition,
 } from "../../../components/tables/BaseTable";
@@ -88,6 +89,7 @@ export default function UsersIndexLayout() {
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [search, setSearch] = useState("");
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const debounceRef = useRef<number | null>(null);
   const skipNextFetchRef = useRef(false);
 
@@ -158,7 +160,13 @@ export default function UsersIndexLayout() {
   };
 
   const handleCreateUser = () => {
-    navigate(`${baseUsersPath}/create`);
+    setIsCreateModalOpen(true);
+  };
+
+  const handleCreateUserSuccess = () => {
+    setIsCreateModalOpen(false);
+    // Refetch users after successful creation
+    triggerFetch(1, rowsPerPage, search);
   };
 
   const handleEditUser = (user: User) => {
@@ -196,6 +204,14 @@ export default function UsersIndexLayout() {
         searchPlaceholder="Search users..."
         showDeleteButton={true}
         onDeleteAll={handleDeleteAllUsers}
+      />
+
+      {/* Create User Modal */}
+      <CreateUserModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSuccess={handleCreateUserSuccess}
+        role={role}
       />
     </div>
   );
