@@ -75,6 +75,11 @@ const baseNavItems = (dashboardPath: string): NavItem[] => [
   },
 ];
 
+const getRoleBasePath = (role?: string) => (role ? `/${role}` : "/patient");
+
+const buildRolePath = (role: string | undefined, path: string) =>
+  `${getRoleBasePath(role)}${path}`;
+
 // Removed `othersItems` and `supportItems` — sidebar now only renders main `navItems`.
 
 const AppSidebar: React.FC = () => {
@@ -82,9 +87,17 @@ const AppSidebar: React.FC = () => {
     useSidebar();
   const { user } = useAuth();
   const location = useLocation();
+  const dashboardPath = getRoleDashboardPath(user?.role);
   const navItems = useMemo(
-    () => baseNavItems(getRoleDashboardPath(user?.role)),
-    [user?.role],
+    () =>
+      baseNavItems(dashboardPath).map((item) => ({
+        ...item,
+        subItems: item.subItems?.map((subItem) => ({
+          ...subItem,
+          path: buildRolePath(user?.role, subItem.path),
+        })),
+      })),
+    [dashboardPath, user?.role],
   );
   // Auto-close sidebar on mobile after route change
   useEffect(() => {
@@ -314,7 +327,7 @@ const AppSidebar: React.FC = () => {
           !isExpanded && !isHovered ? "xl:justify-center" : "justify-start"
         }`}
       >
-        <Link to="/template/">
+        <Link to={dashboardPath}>
           {isExpanded || isHovered || isMobileOpen ? (
             <>
               <img
