@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { post } from "../../../services/api";
 import type { User } from "../../../hooks/Users/useUsers";
 import SuccessModal from "../../../components/ui/notification/SuccessModal";
@@ -26,7 +26,7 @@ export default function CreateUserModal({
   role,
 }: CreateUserModalProps) {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [errorsList, setErrorsList] = useState<string[]>([]);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [successData, setSuccessData] = useState<{ username: string } | null>(
     null,
@@ -40,6 +40,12 @@ export default function CreateUserModal({
     role: role || "",
   });
 
+  const handleSuccessModalClose = useCallback(() => {
+    setShowSuccessModal(false);
+    onClose();
+    onSuccess();
+  }, [onClose, onSuccess]);
+
   // Auto-close success modal after 3 seconds
   useEffect(() => {
     if (showSuccessModal) {
@@ -49,7 +55,7 @@ export default function CreateUserModal({
 
       return () => clearTimeout(timer);
     }
-  }, [showSuccessModal]);
+  }, [showSuccessModal, handleSuccessModalClose]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -61,12 +67,43 @@ export default function CreateUserModal({
     }));
   };
 
+  const mapValidationTagToMessage = (field: string, tag: string) => {
+    const normalizedField = field.charAt(0).toUpperCase() + field.slice(1);
+    const normalizedTag = tag.toLowerCase().replace(/_/g, " ");
+
+    if (normalizedTag === "required") {
+      return `${normalizedField}: is required`;
+    }
+
+    if (normalizedTag === "email") {
+      return `${normalizedField}: invalid email format`;
+    }
+
+    if (normalizedTag === "uuid") {
+      return `${normalizedField}: must be a valid UUID`;
+    }
+
+    if (normalizedTag === "min" || normalizedTag === "min length") {
+      return `${normalizedField}: value is too short`;
+    }
+
+    if (normalizedTag === "max" || normalizedTag === "max length") {
+      return `${normalizedField}: value is too long`;
+    }
+
+    if (normalizedTag === "oneof") {
+      return `${normalizedField}: invalid value`;
+    }
+
+    return `${normalizedField}: invalid value`;
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError(null);
+    setErrorsList([]);
 
     if (formData.password !== formData.confirmPassword) {
-      setError("Password dan konfirmasi password tidak sama.");
+      setErrorsList(["Password and confirm password do not match."]);
       return;
     }
 
@@ -97,24 +134,103 @@ export default function CreateUserModal({
     } catch (unknownErr) {
       console.error("Create user error:", unknownErr);
 
-      const err = unknownErr as {
-        message?: string;
-        errors?: Record<string, string>;
-      };
+      const raw = unknownErr as Record<string, unknown> | undefined;
+      const list: string[] = [];
 
-      if (err && err.errors && typeof err.errors === "object") {
-        const errorsObj = err.errors as Record<string, string>;
-        const joined = Object.values(errorsObj).join("\n");
-        setError(`${err.message || "Validation error"}: ${joined}`);
+      // Prefer structured `errors` map if provided
+      if (raw && raw.errors && typeof raw.errors === "object") {
+        const errorsObj = raw.errors as Record<string, unknown>;
+        for (const [field, msg] of Object.entries(errorsObj)) {
+          const label = field.charAt(0).toUpperCase() + field.slice(1);
+          list.push(`${label}: ${String(msg)}`);
+        }
+
+        setErrorsList(list);
         return;
       }
 
-      if (err && err.message && typeof err.message === "string") {
-        setError(err.message);
+      // Backend may return a string in `error` with joined validation messages.
+      // Try to split and extract field-level info.
+      const rawError = raw && (raw.error ?? raw.message ?? "");
+
+      if (typeof rawError === "string" && rawError.trim().length > 0) {
+        // Split on newlines or semicolons
+        const parts = rawError
+          .split(/\r?\n|;|\|/)
+          .map((p: string) => p.trim())
+          .filter(Boolean);
+
+        for (const part of parts) {
+          const validationMatch = part.match(
+            /Field validation for '([^']+)' failed on the '([^']+)' tag/i,
+          );
+
+          if (validationMatch) {
+            const field = validationMatch[1];
+            const tag = validationMatch[2];
+            list.push(mapValidationTagToMessage(field, tag));
+            continue;
+          }
+
+          // Try to extract a quoted field name or CamelCase field
+          const quoted = part.match(/'([^']+)'/);
+          if (quoted) {
+            const field = quoted[1];
+            // Make a friendly message
+            if (/required|cannot be empty|missing/i.test(part)) {
+              list.push(`${field}: is required`);
+              continue;
+            }
+            if (/invalid/i.test(part)) {
+              list.push(`${field}: invalid value`);
+              continue;
+            }
+          }
+
+          // Try to find patterns like "Username already exists"
+          const existsMatch = part.match(
+            /(username|email|phone) already exists/i,
+          );
+          if (existsMatch) {
+            const field = existsMatch[1];
+            list.push(
+              `${field.charAt(0).toUpperCase() + field.slice(1)}: ${existsMatch[0]}`,
+            );
+            continue;
+          }
+
+          // Fallback: push the raw part (English assumed)
+          list.push(part);
+        }
+
+        if (list.length > 0) {
+          setErrorsList(list);
+          return;
+        }
+      }
+
+      // Finally, map common top-level messages
+      const topMsg =
+        raw && raw.message ? String(raw.message).toLowerCase() : "";
+      if (
+        topMsg.includes("duplicate data") ||
+        topMsg.includes("already exists")
+      ) {
+        const rawErrStr =
+          raw && raw.error ? String(raw.error).toLowerCase() : "";
+        if (rawErrStr.includes("username"))
+          list.push("Username: Username already exists");
+        if (rawErrStr.includes("email"))
+          list.push("Email: Email already exists");
+        if (rawErrStr.includes("phone"))
+          list.push("Phone: Phone already exists");
+        if (list.length === 0) list.push("Duplicate data: conflict detected");
+        setErrorsList(list);
         return;
       }
 
-      setError("Gagal membuat user. Silakan coba lagi.");
+      // Generic fallback
+      setErrorsList(["Failed to create user. Please try again."]);
     } finally {
       setLoading(false);
     }
@@ -124,12 +240,6 @@ export default function CreateUserModal({
     if (!loading) {
       onClose();
     }
-  };
-
-  const handleSuccessModalClose = () => {
-    setShowSuccessModal(false);
-    onClose();
-    onSuccess();
   };
 
   if (!isOpen) return null;
@@ -180,9 +290,13 @@ export default function CreateUserModal({
 
           {/* Body */}
           <form onSubmit={handleSubmit} className="space-y-6 p-6">
-            {error ? (
+            {errorsList.length > 0 ? (
               <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/30 dark:text-red-400">
-                {error}
+                <ul className="list-inside list-disc space-y-1">
+                  {errorsList.map((errMsg, idx) => (
+                    <li key={idx}>{errMsg}</li>
+                  ))}
+                </ul>
               </div>
             ) : null}
 
