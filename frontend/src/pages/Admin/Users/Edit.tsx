@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router";
-import useGoBack from "../../hooks/useGoBack";
+import useGoBack from "../../../hooks/useGoBack";
 
 export default function UsersEdit() {
-  const { role, id } = useParams();
+  const { id } = useParams();
   const goBack = useGoBack();
   const [loading, setLoading] = useState(false);
 
@@ -45,46 +45,46 @@ export default function UsersEdit() {
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             {/* Username */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-2">
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">
                 Username
               </label>
               <input
                 type="text"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white"
+                className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
                 placeholder="Enter username"
               />
             </div>
 
             {/* Email */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-2">
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">
                 Email
               </label>
               <input
                 type="email"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white"
+                className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
                 placeholder="Enter email"
               />
             </div>
 
             {/* Phone */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-2">
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">
                 Phone
               </label>
               <input
                 type="tel"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white"
+                className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
                 placeholder="Enter phone number"
               />
             </div>
 
             {/* Role */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-2">
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">
                 Role
               </label>
-              <select className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white">
+              <select className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
                 <option>Select role</option>
                 <option value="patient">Patient</option>
                 <option value="doctor">Doctor</option>
@@ -96,10 +96,10 @@ export default function UsersEdit() {
 
             {/* Is Active */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-2">
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">
                 Status
               </label>
-              <select className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white">
+              <select className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
                 <option value="true">Active</option>
                 <option value="false">Inactive</option>
               </select>
@@ -111,14 +111,14 @@ export default function UsersEdit() {
             <button
               type="button"
               onClick={goBack}
-              className="px-6 py-2 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-white/[0.05]"
+              className="rounded-lg border border-gray-300 px-6 py-2 font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-white/[0.05]"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-6 py-2 bg-blue-500 rounded-lg font-medium text-white hover:bg-blue-600 disabled:opacity-50"
+              className="rounded-lg bg-blue-500 px-6 py-2 font-medium text-white hover:bg-blue-600 disabled:opacity-50"
             >
               {loading ? "Updating..." : "Update User"}
             </button>

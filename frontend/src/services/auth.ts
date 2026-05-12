@@ -63,7 +63,7 @@ class AuthService {
     if (!token) {
       throw new Error("No token found");
     }
-    return get<UserResponse>("/auth/profile", {
+    return get<UserResponse>("/users/me", {
       Authorization: `Bearer ${token}`,
     });
   }

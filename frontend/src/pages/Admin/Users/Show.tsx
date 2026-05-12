@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router";
-import useGoBack from "../../hooks/useGoBack";
+import { useNavigate, useParams } from "react-router";
+import useGoBack from "../../../hooks/useGoBack";
 
 export default function UsersShow() {
   const { role, id } = useParams();
@@ -52,8 +52,8 @@ export default function UsersShow() {
           </div>
         </div>
         <button
-          onClick={() => navigate(`/${role}/users/${id}/edit`)}
-          className="px-4 py-2 bg-blue-500 rounded-lg font-medium text-white hover:bg-blue-600"
+          onClick={() => navigate(`/${role ?? "admin"}/users/${id}/edit`)}
+          className="rounded-lg bg-blue-500 px-4 py-2 font-medium text-white hover:bg-blue-600"
         >
           Edit
         </button>
@@ -64,70 +64,70 @@ export default function UsersShow() {
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {/* Username */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-2">
+            <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">
               Username
             </label>
-            <p className="px-4 py-2 bg-gray-50 rounded-lg dark:bg-gray-900 dark:text-white">
+            <p className="rounded-lg bg-gray-50 px-4 py-2 dark:bg-gray-900 dark:text-white">
               {user.username}
             </p>
           </div>
 
           {/* Email */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-2">
+            <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">
               Email
             </label>
-            <p className="px-4 py-2 bg-gray-50 rounded-lg dark:bg-gray-900 dark:text-white">
+            <p className="rounded-lg bg-gray-50 px-4 py-2 dark:bg-gray-900 dark:text-white">
               {user.email}
             </p>
           </div>
 
           {/* Phone */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-2">
+            <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">
               Phone
             </label>
-            <p className="px-4 py-2 bg-gray-50 rounded-lg dark:bg-gray-900 dark:text-white">
+            <p className="rounded-lg bg-gray-50 px-4 py-2 dark:bg-gray-900 dark:text-white">
               {user.phone}
             </p>
           </div>
 
           {/* Role */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-2">
+            <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">
               Role
             </label>
-            <p className="px-4 py-2 bg-gray-50 rounded-lg dark:bg-gray-900 dark:text-white capitalize">
+            <p className="rounded-lg bg-gray-50 px-4 py-2 capitalize dark:bg-gray-900 dark:text-white">
               {user.role?.replace(/_/g, " ")}
             </p>
           </div>
 
           {/* Status */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-2">
+            <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">
               Status
             </label>
-            <p className="px-4 py-2 bg-gray-50 rounded-lg dark:bg-gray-900 dark:text-white">
+            <p className="rounded-lg bg-gray-50 px-4 py-2 dark:bg-gray-900 dark:text-white">
               {user.is_active ? "Active" : "Inactive"}
             </p>
           </div>
 
           {/* Created At */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-2">
+            <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">
               Created At
             </label>
-            <p className="px-4 py-2 bg-gray-50 rounded-lg dark:bg-gray-900 dark:text-white">
+            <p className="rounded-lg bg-gray-50 px-4 py-2 dark:bg-gray-900 dark:text-white">
               {new Date(user.created_at).toLocaleString()}
             </p>
           </div>
 
           {/* Updated At */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-2">
+            <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">
               Updated At
             </label>
-            <p className="px-4 py-2 bg-gray-50 rounded-lg dark:bg-gray-900 dark:text-white">
+            <p className="rounded-lg bg-gray-50 px-4 py-2 dark:bg-gray-900 dark:text-white">
               {new Date(user.updated_at).toLocaleString()}
             </p>
           </div>
@@ -137,7 +137,7 @@ export default function UsersShow() {
         <div className="flex gap-3 pt-8 border-t border-gray-200 dark:border-gray-700">
           <button
             onClick={goBack}
-            className="px-6 py-2 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-white/[0.05]"
+            className="rounded-lg border border-gray-300 px-6 py-2 font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-white/[0.05]"
           >
             Back
           </button>
