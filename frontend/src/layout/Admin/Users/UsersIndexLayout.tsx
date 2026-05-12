@@ -5,6 +5,7 @@ import CreateUserModal from "./CreateUserModal";
 import BaseTable, {
   type ColumnDefinition,
 } from "../../../components/tables/BaseTable";
+import ShowUserModal from "./ShowUserModal";
 import { useUsers, type User } from "../../../hooks/Users/useUsers";
 import { getRoleUsersPath } from "../../../pages/Roles/shared/role-routing";
 
@@ -90,6 +91,10 @@ export default function UsersIndexLayout() {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [search, setSearch] = useState("");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isShowModalOpen, setIsShowModalOpen] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState<string | undefined>(
+    undefined,
+  );
   const debounceRef = useRef<number | null>(null);
   const skipNextFetchRef = useRef(false);
 
@@ -177,6 +182,11 @@ export default function UsersIndexLayout() {
     console.log("Delete user:", user);
   };
 
+  const handleViewUser = (user: User) => {
+    setSelectedUserId(String(user.id));
+    setIsShowModalOpen(true);
+  };
+
   const handleDeleteAllUsers = () => {
     console.log("Delete all users");
   };
@@ -200,6 +210,7 @@ export default function UsersIndexLayout() {
         onCreate={handleCreateUser}
         onEdit={handleEditUser}
         onDelete={handleDeleteUser}
+        onView={handleViewUser}
         // Optional header customizations
         searchPlaceholder="Search users..."
         showDeleteButton={true}
@@ -213,6 +224,17 @@ export default function UsersIndexLayout() {
         onSuccess={handleCreateUserSuccess}
         role={role}
       />
+
+      {/* Show User Modal */}
+      {/* imported layout modal will fetch and handle navigation */}
+      {isShowModalOpen && (
+        <ShowUserModal
+          isOpen={isShowModalOpen}
+          id={selectedUserId}
+          role={role}
+          onClose={() => setIsShowModalOpen(false)}
+        />
+      )}
     </div>
   );
 }

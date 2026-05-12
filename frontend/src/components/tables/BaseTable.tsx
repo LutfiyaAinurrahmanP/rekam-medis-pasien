@@ -39,6 +39,7 @@ interface BaseTableProps<T = object> {
   onCreate: () => void;
   onEdit?: (row: T) => void;
   onDelete?: (row: T) => void;
+  onView?: (row: T) => void;
   // Header customization (optional)
   searchPlaceholder?: string;
   showDeleteButton?: boolean;
@@ -62,6 +63,7 @@ export default function BaseTable<T extends object = object>({
   onCreate,
   onEdit,
   onDelete,
+  onView,
   searchPlaceholder = "Search...",
   showDeleteButton = true,
   onDeleteAll,
@@ -170,7 +172,10 @@ export default function BaseTable<T extends object = object>({
                   ))}
                   <TableCell className="px-4 py-4 font-normal text-gray-800 border border-gray-100 dark:border-white/[0.05] text-theme-sm dark:text-white/90 whitespace-nowrap">
                     <div className="flex items-center w-full gap-2">
-                      <button className="text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white/90">
+                      <button
+                        onClick={() => onView?.(row)}
+                        className="text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white/90"
+                      >
                         <EyeIcon className="fill-gray-500 dark:fill-gray-400 size-5" />
                       </button>
                       <button

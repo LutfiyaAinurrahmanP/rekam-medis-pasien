@@ -2,12 +2,16 @@ import { useEffect, useState, useCallback } from "react";
 import { post } from "../../../services/api";
 import type { User } from "../../../hooks/Users/useUsers";
 import SuccessModal from "../../../components/ui/notification/SuccessModal";
+import CreateFormModal from "../../../components/modals/CreateFormModal";
+import type { CreateFormFieldDef } from "../../../components/modals/CreateFormModal";
+import { useNavigate } from "react-router";
+import { getRoleUsersPath } from "../../../pages/Roles/shared/role-routing";
 
 interface CreateUserModalProps {
   isOpen: boolean;
-  onClose: () => void;
-  onSuccess: () => void;
   role?: string;
+  onClose?: () => void; // optional callback for inline usage
+  onSuccess?: () => void; // optional callback for inline usage
 }
 
 type CreateUserFormState = {
@@ -19,12 +23,65 @@ type CreateUserFormState = {
   role: string;
 };
 
+// Form field configuration
+const formFields: CreateFormFieldDef[] = [
+  {
+    name: "username",
+    label: "Username",
+    type: "text",
+    placeholder: "Enter username",
+    required: true,
+  },
+  {
+    name: "email",
+    label: "Email",
+    type: "email",
+    placeholder: "Enter email",
+    required: true,
+  },
+  {
+    name: "phone",
+    label: "Phone",
+    type: "tel",
+    placeholder: "Enter phone number",
+    required: true,
+  },
+  {
+    name: "role",
+    label: "Role",
+    type: "select",
+    required: true,
+    options: [
+      { value: "patient", label: "Patient" },
+      { value: "doctor", label: "Doctor" },
+      { value: "receptionist", label: "Receptionist" },
+      { value: "admin", label: "Admin" },
+      { value: "super_admin", label: "Super Admin" },
+    ],
+  },
+  {
+    name: "password",
+    label: "Password",
+    type: "password",
+    placeholder: "Enter password",
+    required: true,
+  },
+  {
+    name: "confirmPassword",
+    label: "Confirm Password",
+    type: "password",
+    placeholder: "Confirm password",
+    required: true,
+  },
+];
+
 export default function CreateUserModal({
   isOpen,
+  role,
   onClose,
   onSuccess,
-  role,
 }: CreateUserModalProps) {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [errorsList, setErrorsList] = useState<string[]>([]);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -40,11 +97,22 @@ export default function CreateUserModal({
     role: role || "",
   });
 
+  const close = useCallback(() => {
+    if (onClose) {
+      onClose();
+    } else {
+      // Navigate back to users list if no callback provided
+      navigate(getRoleUsersPath(role));
+    }
+  }, [navigate, role, onClose]);
+
   const handleSuccessModalClose = useCallback(() => {
     setShowSuccessModal(false);
-    onClose();
-    onSuccess();
-  }, [onClose, onSuccess]);
+    if (onSuccess) {
+      onSuccess();
+    }
+    close();
+  }, [close, onSuccess]);
 
   // Auto-close success modal after 3 seconds
   useEffect(() => {
@@ -236,196 +304,24 @@ export default function CreateUserModal({
     }
   };
 
-  const handleClose = () => {
-    if (!loading) {
-      onClose();
-    }
-  };
-
   if (!isOpen) return null;
 
   return (
     <>
-      {/* Backdrop dengan blur dan overlay gelap */}
-      <div
-        className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm transition-opacity"
-        onClick={handleClose}
+      <CreateFormModal
+        isOpen={isOpen}
+        formData={formData}
+        onChange={handleChange}
+        onSubmit={handleSubmit}
+        onClose={close}
+        errorsList={errorsList}
+        loading={loading}
+        fields={formFields}
+        title="Create User"
+        description="Enter the user details below"
+        submitLabel="Create"
+        cancelLabel="Cancel"
       />
-
-      {/* Modal */}
-      <div className="fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2">
-        <div className="rounded-lg border border-gray-200 bg-white shadow-xl dark:border-gray-700 dark:bg-gray-800">
-          {/* Header */}
-          <div className="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  Create User
-                </h2>
-                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                  Enter the user details below
-                </p>
-              </div>
-              <button
-                onClick={handleClose}
-                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                disabled={loading}
-              >
-                <svg
-                  className="h-6 w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
-            </div>
-          </div>
-
-          {/* Body */}
-          <form onSubmit={handleSubmit} className="space-y-6 p-6">
-            {errorsList.length > 0 ? (
-              <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/30 dark:text-red-400">
-                <ul className="list-inside list-disc space-y-1">
-                  {errorsList.map((errMsg, idx) => (
-                    <li key={idx}>{errMsg}</li>
-                  ))}
-                </ul>
-              </div>
-            ) : null}
-
-            <div className="space-y-4">
-              <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                  Username
-                </label>
-                <input
-                  name="username"
-                  value={formData.username}
-                  onChange={handleChange}
-                  type="text"
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:focus:ring-brand-500"
-                  placeholder="Enter username"
-                  required
-                  disabled={loading}
-                />
-              </div>
-
-              <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                  Email
-                </label>
-                <input
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  type="email"
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:focus:ring-brand-500"
-                  placeholder="Enter email"
-                  required
-                  disabled={loading}
-                />
-              </div>
-
-              <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                  Phone
-                </label>
-                <input
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  type="tel"
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:focus:ring-brand-500"
-                  placeholder="Enter phone number"
-                  required
-                  disabled={loading}
-                />
-              </div>
-
-              <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                  Role
-                </label>
-                <select
-                  name="role"
-                  value={formData.role}
-                  onChange={handleChange}
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:focus:ring-brand-500"
-                  required
-                  disabled={loading}
-                >
-                  <option value="">Select role</option>
-                  <option value="patient">Patient</option>
-                  <option value="doctor">Doctor</option>
-                  <option value="receptionist">Receptionist</option>
-                  <option value="admin">Admin</option>
-                  <option value="super_admin">Super Admin</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                  Password
-                </label>
-                <input
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  type="password"
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:focus:ring-brand-500"
-                  placeholder="Enter password"
-                  required
-                  disabled={loading}
-                />
-              </div>
-
-              <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                  Confirm Password
-                </label>
-                <input
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  type="password"
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:focus:ring-brand-500"
-                  placeholder="Confirm password"
-                  required
-                  disabled={loading}
-                />
-              </div>
-            </div>
-
-            {/* Footer */}
-            <div className="border-t border-gray-200 pt-6 dark:border-gray-700">
-              <div className="flex gap-3">
-                <button
-                  type="button"
-                  onClick={handleClose}
-                  disabled={loading}
-                  className="flex-1 rounded-lg border border-gray-300 px-4 py-2 font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-white/[0.05]"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="flex-1 rounded-lg bg-brand-500 px-4 py-2 font-medium text-white hover:bg-brand-600 disabled:opacity-50"
-                >
-                  {loading ? "Creating..." : "Create"}
-                </button>
-              </div>
-            </div>
-          </form>
-        </div>
-      </div>
 
       {/* Success Modal - Auto closes after 3 seconds */}
       <SuccessModal
