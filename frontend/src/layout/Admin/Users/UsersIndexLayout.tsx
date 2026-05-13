@@ -7,6 +7,9 @@ import BaseTable, {
   type ColumnDefinition,
 } from "../../../components/tables/BaseTable";
 import ShowUserModal from "./ShowUserModal";
+import DeleteModal from "../../../components/modals/DeleteModal";
+import SuccessModal from "../../../components/ui/notification/SuccessModal";
+import { del } from "../../../services/api";
 import { useUsers, type User } from "../../../hooks/Users/useUsers";
 
 const getRoleColor = (
@@ -95,9 +98,20 @@ export default function UsersIndexLayout() {
     string | undefined
   >(undefined);
   const [isShowModalOpen, setIsShowModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<string | undefined>(
     undefined,
   );
+  const [selectedDeleteUserId, setSelectedDeleteUserId] = useState<
+    string | undefined
+  >(undefined);
+  const [selectedDeleteUserName, setSelectedDeleteUserName] = useState<
+    string | undefined
+  >(undefined);
+  const [successData, setSuccessData] = useState<{ username?: string } | null>(
+    null,
+  );
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const debounceRef = useRef<number | null>(null);
   const skipNextFetchRef = useRef(false);
 
@@ -134,6 +148,19 @@ export default function UsersIndexLayout() {
       setCurrentPage(meta.total_pages);
     }
   }, [currentPage, meta.total_pages]);
+
+  // Auto-close success modal after 3 seconds (same behavior as create/edit)
+  useEffect(() => {
+    if (showSuccessModal) {
+      const timer = setTimeout(() => {
+        setShowSuccessModal(false);
+        setSuccessData(null);
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+    return undefined;
+  }, [showSuccessModal]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -191,7 +218,9 @@ export default function UsersIndexLayout() {
   };
 
   const handleDeleteUser = (user: User) => {
-    console.log("Delete user:", user);
+    setSelectedDeleteUserId(String(user.id));
+    setSelectedDeleteUserName(String(user.username ?? user.email ?? ""));
+    setIsDeleteModalOpen(true);
   };
 
   const handleViewUser = (user: User) => {
@@ -255,6 +284,34 @@ export default function UsersIndexLayout() {
           onClose={() => setIsShowModalOpen(false)}
         />
       )}
+
+      <DeleteModal
+        isOpen={isDeleteModalOpen}
+        itemName={selectedDeleteUserName}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setSelectedDeleteUserId(undefined);
+          setSelectedDeleteUserName(undefined);
+        }}
+        onConfirm={async () => {
+          if (!selectedDeleteUserId) throw new Error("Missing id");
+          // perform soft-delete
+          await del(`/users/${selectedDeleteUserId}`);
+          // refetch
+          triggerFetch(currentPage, rowsPerPage, search);
+          // show success modal with username
+          setSuccessData({ username: selectedDeleteUserName });
+          setShowSuccessModal(true);
+        }}
+      />
+
+      <SuccessModal
+        title="Success"
+        message={`User "${successData?.username ?? ""}" has been successfully deleted.`}
+        buttonLabel="Close"
+        isOpen={showSuccessModal}
+        onButtonClick={() => setShowSuccessModal(false)}
+      />
     </div>
   );
 }
