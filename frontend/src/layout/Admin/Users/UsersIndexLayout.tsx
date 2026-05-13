@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router";
+import { useParams } from "react-router";
 import PageBreadcrumb from "../../../components/common/PageBreadCrumb";
 import CreateUserModal from "./CreateUserModal";
+import EditUserModal from "./EditUserModal";
 import BaseTable, {
   type ColumnDefinition,
 } from "../../../components/tables/BaseTable";
 import ShowUserModal from "./ShowUserModal";
 import { useUsers, type User } from "../../../hooks/Users/useUsers";
-import { getRoleUsersPath } from "../../../pages/Roles/shared/role-routing";
 
 const getRoleColor = (
   role: string,
@@ -84,21 +84,22 @@ const userColumns: ColumnDefinition<User>[] = [
 ];
 
 export default function UsersIndexLayout() {
-  const navigate = useNavigate();
   const { role } = useParams();
   const { users, loading, error, meta, fetchUsers } = useUsers();
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [search, setSearch] = useState("");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedEditUserId, setSelectedEditUserId] = useState<
+    string | undefined
+  >(undefined);
   const [isShowModalOpen, setIsShowModalOpen] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<string | undefined>(
     undefined,
   );
   const debounceRef = useRef<number | null>(null);
   const skipNextFetchRef = useRef(false);
-
-  const baseUsersPath = getRoleUsersPath(role ?? undefined);
 
   const triggerFetch = useCallback(
     (page: number, pageSize: number, searchValue: string) => {
@@ -175,7 +176,18 @@ export default function UsersIndexLayout() {
   };
 
   const handleEditUser = (user: User) => {
-    navigate(`${baseUsersPath}/${user.id}/edit`);
+    setSelectedEditUserId(String(user.id));
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditUserClose = () => {
+    setIsEditModalOpen(false);
+    setSelectedEditUserId(undefined);
+  };
+
+  const handleEditUserSuccess = () => {
+    handleEditUserClose();
+    triggerFetch(currentPage, rowsPerPage, search);
   };
 
   const handleDeleteUser = (user: User) => {
@@ -223,6 +235,14 @@ export default function UsersIndexLayout() {
         onClose={() => setIsCreateModalOpen(false)}
         onSuccess={handleCreateUserSuccess}
         role={role}
+      />
+
+      <EditUserModal
+        isOpen={isEditModalOpen}
+        id={selectedEditUserId}
+        role={role}
+        onClose={handleEditUserClose}
+        onSuccess={handleEditUserSuccess}
       />
 
       {/* Show User Modal */}
