@@ -106,7 +106,7 @@ export default function TableHeader({
                 onClick={onDeleteAll}
                 disabled={!onDeleteAll}
               >
-                Delete All
+                Deleted Data
               </Button>
             )}
           </>

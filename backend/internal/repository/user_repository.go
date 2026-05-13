@@ -171,34 +171,60 @@ func (r *userRepository) List(query *dto.UserPaginationQuery) ([]models.User, in
 
 func (r *userRepository) DeleteList(query *dto.UserPaginationQuery) ([]models.User, int64, error) {
 	var users []models.User
-	var total int64
+    var total int64
 
-	db := r.db.Unscoped().Model(&models.User{}).Where("deleted_at IS NOT NULL")
+    db := r.db.Unscoped().Model(&models.User{}).Where("deleted at IS NOT NULL")
 
-	if searchTerm := strings.TrimSpace(query.Search); searchTerm != "" {
-		searchPattern := "%" + searchTerm + "%"
-		db = db.Where("username ILIKE ? OR email ILIKE ? OR phone ILIKE ?", searchPattern, searchPattern, searchPattern)
-	}
+    if searchTerm := strings.TrimSpace(query.Search); searchTerm != "" {
+        // ✅ Escape dulu, baru wrap dengan %
+        escaped := escapeSearchPattern(searchTerm)
+        searchPattern := "%" + escaped + "%"
 
-	if query.Role != "" {
-		db = db.Where("role = ?", query.Role)
-	}
+        // ✅ Tambahkan ESCAPE '\' agar PostgreSQL tahu karakter escape-nya
+        db = db.Where(
+            "username ILIKE ? ESCAPE '\\' OR email ILIKE ? ESCAPE '\\' OR phone ILIKE ? ESCAPE '\\'",
+            searchPattern, searchPattern, searchPattern,
+        )
+    }
 
-	if query.IsActive != nil {
-		db = db.Where("is_active = ?", query.IsActive)
-	}
+    if query.Role != "" {
+        db = db.Where("role = ?", query.Role)
+    }
 
-	db = applyUserListOrder(db, query.SortBy, query.SortDir)
+    if query.IsActive != nil {
+        db = db.Where("is_active = ?", *query.IsActive)
+    }
 
-	if err := db.Count(&total).Error; err != nil {
-		return nil, 0, err
-	}
+    db = applyUserListOrder(db, query.SortBy, query.SortDir)
 
-	offset := (query.Page - 1) * query.PageSize
-	if err := db.Offset(offset).Limit(query.PageSize).Find(&users).Error; err != nil {
-		return nil, 0, err
-	}
-	return users, total, nil
+    countDB := db.Session(&gorm.Session{})
+    findDB := db.Session(&gorm.Session{})
+
+    var countErr, findErr error
+    var wg sync.WaitGroup
+    wg.Add(2)
+
+    go func() {
+        defer wg.Done()
+        countErr = countDB.Count(&total).Error
+    }()
+
+    go func() {
+        defer wg.Done()
+        offset := (query.Page - 1) * query.PageSize
+        findErr = findDB.Offset(offset).Limit(query.PageSize).Find(&users).Error
+    }()
+
+    wg.Wait()
+
+    if countErr != nil {
+        return nil, 0, countErr
+    }
+    if findErr != nil {
+        return nil, 0, findErr
+    }
+
+    return users, total, nil
 }
 
 func applyUserListOrder(db *gorm.DB, sortBy, sortDir string) *gorm.DB {
