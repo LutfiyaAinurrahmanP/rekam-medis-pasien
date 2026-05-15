@@ -12,6 +12,7 @@ import Carousel from "./pages/UiElements/Carousel";
 import Maintenance from "./pages/OtherPage/Maintenance";
 import FiveZeroZero from "./pages/OtherPage/FiveZeroZero";
 import FiveZeroThree from "./pages/OtherPage/FiveZeroThree";
+import Unauthorized from "./pages/OtherPage/Unauthorized";
 import Videos from "./pages/UiElements/Videos";
 import Images from "./pages/UiElements/Images";
 import Alerts from "./pages/UiElements/Alerts";
@@ -253,6 +254,7 @@ export default function App() {
           <Route path="/success" element={<Success />} />
           <Route path="/five-zero-zero" element={<FiveZeroZero />} />
           <Route path="/five-zero-three" element={<FiveZeroThree />} />
+          <Route path="/unauthorized" element={<Unauthorized />} />
           <Route path="/coming-soon" element={<ComingSoon />} />
         </Routes>
       </Router>

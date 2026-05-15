@@ -75,7 +75,11 @@ const baseNavItems = (dashboardPath: string): NavItem[] => [
   },
 ];
 
-const getRoleBasePath = (role?: string) => (role ? `/${role}` : "/patient");
+const normalizeRolePathSegment = (role: string) =>
+  role.trim().toLowerCase().replace(/_/g, "-");
+
+const getRoleBasePath = (role?: string) =>
+  role ? `/${normalizeRolePathSegment(role)}` : "/patient";
 
 const buildRolePath = (role: string | undefined, path: string) =>
   `${getRoleBasePath(role)}${path}`;

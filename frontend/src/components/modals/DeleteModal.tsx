@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Modal } from "../ui/modal";
 
 interface DeleteModalProps {
@@ -29,7 +29,20 @@ export default function DeleteModal({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Reset loading and error state when modal opens/closes
+  useEffect(() => {
+    if (!isOpen) {
+      setLoading(false);
+      setError(null);
+    }
+  }, [isOpen]);
+
   if (!isOpen) return null;
+
+  const handleClose = () => {
+    setError(null);
+    onClose();
+  };
 
   const handleConfirm = async () => {
     setError(null);
@@ -41,20 +54,26 @@ export default function DeleteModal({
     setLoading(true);
     try {
       await onConfirm();
-    } catch (err: any) {
-      console.error("Delete action failed:", err);
-      setError(err?.message || "An error occurred while performing the action");
-    } finally {
-      setLoading(false);
-      // close modal regardless; parent may show success/modal after
+      // Success - close modal so parent can show success message
       onClose();
+    } catch (err: unknown) {
+      console.error("Delete action failed:", err);
+      let errorMessage = "An error occurred while performing the action";
+      if (err instanceof Error) {
+        errorMessage = err.message;
+      } else if (typeof err === "object" && err !== null && "message" in err) {
+        errorMessage = String((err as Record<string, unknown>).message);
+      }
+      setError(errorMessage);
+      setLoading(false);
+      // Keep modal open on error so user can retry
     }
   };
 
   return (
     <Modal
       isOpen={isOpen}
-      onClose={onClose}
+      onClose={handleClose}
       className="relative w-full max-w-[558px] rounded-3xl bg-white p-6 overflow-hidden lg:p-10 dark:bg-gray-900"
     >
       <div className="text-center">
@@ -110,7 +129,7 @@ export default function DeleteModal({
         <div className="mt-8 flex w-full items-center justify-center gap-3">
           <button
             type="button"
-            onClick={onClose}
+            onClick={handleClose}
             className="shadow-theme-xs flex justify-center rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
             disabled={loading}
           >

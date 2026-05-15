@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams } from "react-router";
 import PageBreadcrumb from "../../../components/common/PageBreadCrumb";
 import CreateUserModal from "./CreateUserModal";
+import DeletedUsersIndexLayout from "./DeletedUsersIndexLayout";
 import EditUserModal from "./EditUserModal";
 import BaseTable, {
   type ColumnDefinition,
@@ -88,6 +89,7 @@ const userColumns: ColumnDefinition<User>[] = [
 
 export default function UsersIndexLayout() {
   const { role } = useParams();
+  const [viewMode, setViewMode] = useState<"active" | "deleted">("active");
   const { users, loading, error, meta, fetchUsers } = useUsers();
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -127,13 +129,17 @@ export default function UsersIndexLayout() {
   );
 
   useEffect(() => {
+    if (viewMode === "deleted") {
+      return;
+    }
+
     if (skipNextFetchRef.current) {
       skipNextFetchRef.current = false;
       return;
     }
 
     triggerFetch(currentPage, rowsPerPage, search);
-  }, [currentPage, rowsPerPage, search, triggerFetch]);
+  }, [currentPage, rowsPerPage, search, triggerFetch, viewMode]);
 
   useEffect(() => {
     return () => {
@@ -228,90 +234,92 @@ export default function UsersIndexLayout() {
     setIsShowModalOpen(true);
   };
 
-  const handleDeleteAllUsers = () => {
-    console.log("Delete all users");
-  };
-
   return (
     <div className="space-y-4">
-      <PageBreadcrumb pageTitle="Users" />
-      <BaseTable
-        data={users}
-        columns={userColumns}
-        loading={loading}
-        error={error}
-        currentPage={currentPage}
-        rowsPerPage={rowsPerPage}
-        search={search}
-        totalItems={meta.total_items}
-        totalPages={meta.total_pages}
-        onSearchChange={handleSearchChange}
-        onPageChange={handlePageChange}
-        onRowsPerPageChange={handleRowsPerPageChange}
-        onCreate={handleCreateUser}
-        onEdit={handleEditUser}
-        onDelete={handleDeleteUser}
-        onView={handleViewUser}
-        // Optional header customizations
-        searchPlaceholder="Search users..."
-        showDeleteButton={true}
-        onDeleteAll={handleDeleteAllUsers}
-      />
+      {viewMode === "deleted" ? (
+        <DeletedUsersIndexLayout onBackToUsers={() => setViewMode("active")} />
+      ) : (
+        <>
+          <PageBreadcrumb pageTitle="Users" />
+          <BaseTable
+            data={users}
+            columns={userColumns}
+            loading={loading}
+            error={error}
+            currentPage={currentPage}
+            rowsPerPage={rowsPerPage}
+            search={search}
+            totalItems={meta.total_items}
+            totalPages={meta.total_pages}
+            onSearchChange={handleSearchChange}
+            onPageChange={handlePageChange}
+            onRowsPerPageChange={handleRowsPerPageChange}
+            onCreate={handleCreateUser}
+            onEdit={handleEditUser}
+            onDelete={handleDeleteUser}
+            onView={handleViewUser}
+            // Optional header customizations
+            searchPlaceholder="Search users..."
+            showDeleteButton={true}
+            onDeleteAll={() => setViewMode("deleted")}
+          />
 
-      {/* Create User Modal */}
-      <CreateUserModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        onSuccess={handleCreateUserSuccess}
-        role={role}
-      />
+          {/* Create User Modal */}
+          <CreateUserModal
+            isOpen={isCreateModalOpen}
+            onClose={() => setIsCreateModalOpen(false)}
+            onSuccess={handleCreateUserSuccess}
+            role={role}
+          />
 
-      <EditUserModal
-        isOpen={isEditModalOpen}
-        id={selectedEditUserId}
-        role={role}
-        onClose={handleEditUserClose}
-        onSuccess={handleEditUserSuccess}
-      />
+          <EditUserModal
+            isOpen={isEditModalOpen}
+            id={selectedEditUserId}
+            role={role}
+            onClose={handleEditUserClose}
+            onSuccess={handleEditUserSuccess}
+          />
 
-      {/* Show User Modal */}
-      {/* imported layout modal will fetch and handle navigation */}
-      {isShowModalOpen && (
-        <ShowUserModal
-          isOpen={isShowModalOpen}
-          id={selectedUserId}
-          role={role}
-          onClose={() => setIsShowModalOpen(false)}
-        />
+          {/* Show User Modal */}
+          {/* imported layout modal will fetch and handle navigation */}
+          {isShowModalOpen && (
+            <ShowUserModal
+              isOpen={isShowModalOpen}
+              id={selectedUserId}
+              role={role}
+              onClose={() => setIsShowModalOpen(false)}
+            />
+          )}
+
+          <DeleteModal
+            isOpen={isDeleteModalOpen}
+            itemName={selectedDeleteUserName}
+            onClose={() => {
+              setIsDeleteModalOpen(false);
+              setSelectedDeleteUserId(undefined);
+              setSelectedDeleteUserName(undefined);
+            }}
+            onConfirm={async () => {
+              if (!selectedDeleteUserId) throw new Error("Missing id");
+              // perform soft-delete
+              await del(`/users/${selectedDeleteUserId}`);
+              // refetch
+              triggerFetch(currentPage, rowsPerPage, search);
+              // show success modal with username
+              setSuccessData({ username: selectedDeleteUserName });
+              setShowSuccessModal(true);
+            }}
+          />
+
+          <SuccessModal
+            title="Success"
+            message={`User "${successData?.username ?? ""}" has been successfully deleted.`}
+            buttonLabel="Close"
+            isOpen={showSuccessModal}
+            onButtonClick={() => setShowSuccessModal(false)}
+          />
+        </>
       )}
-
-      <DeleteModal
-        isOpen={isDeleteModalOpen}
-        itemName={selectedDeleteUserName}
-        onClose={() => {
-          setIsDeleteModalOpen(false);
-          setSelectedDeleteUserId(undefined);
-          setSelectedDeleteUserName(undefined);
-        }}
-        onConfirm={async () => {
-          if (!selectedDeleteUserId) throw new Error("Missing id");
-          // perform soft-delete
-          await del(`/users/${selectedDeleteUserId}`);
-          // refetch
-          triggerFetch(currentPage, rowsPerPage, search);
-          // show success modal with username
-          setSuccessData({ username: selectedDeleteUserName });
-          setShowSuccessModal(true);
-        }}
-      />
-
-      <SuccessModal
-        title="Success"
-        message={`User "${successData?.username ?? ""}" has been successfully deleted.`}
-        buttonLabel="Close"
-        isOpen={showSuccessModal}
-        onButtonClick={() => setShowSuccessModal(false)}
-      />
     </div>
   );
 }

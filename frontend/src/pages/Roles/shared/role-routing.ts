@@ -2,17 +2,20 @@
  * Role-based routing utilities
  */
 
+const normalizeRolePathSegment = (role: string) =>
+  role.trim().toLowerCase().replace(/_/g, "-");
+
 /**
  * Get dashboard path based on user role
- * @param role User role (admin, doctor, patient, receptionist, super_admin)
+ * @param role User role (admin, doctor, patient, receptionist, super-admin)
  * @returns Dashboard path for the role
  */
 export function getRoleDashboardPath(role?: string): string {
   if (!role) {
-    return "/admin/dashboard"; // Default fallback
+    return "/patient/dashboard"; // Default fallback
   }
 
-  return `/${role}/dashboard`;
+  return `/${normalizeRolePathSegment(role)}/dashboard`;
 }
 
 /**
@@ -22,10 +25,10 @@ export function getRoleDashboardPath(role?: string): string {
  */
 export function getRoleUsersPath(role?: string): string {
   if (!role) {
-    return "/admin/users";
+    return "/patient/users";
   }
 
-  return `/${role}/users`;
+  return `/${normalizeRolePathSegment(role)}/users`;
 }
 
 /**
@@ -35,8 +38,8 @@ export function getRoleUsersPath(role?: string): string {
  */
 export function getRoleReportsPath(role?: string): string {
   if (!role) {
-    return "/admin/reports";
+    return "/patient/reports";
   }
 
-  return `/${role}/reports`;
+  return `/${normalizeRolePathSegment(role)}/reports`;
 }

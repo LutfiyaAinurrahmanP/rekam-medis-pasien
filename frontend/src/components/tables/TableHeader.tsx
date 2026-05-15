@@ -6,7 +6,7 @@ interface TableHeaderProps {
   rowsPerPage: number;
   onSearchChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onRowsPerPageChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
-  onCreate: () => void;
+  onCreate?: () => void;
   onDeleteAll?: () => void;
   actionButtons?: ReactNode;
   showDeleteButton?: boolean;
@@ -96,9 +96,11 @@ export default function TableHeader({
           actionButtons
         ) : (
           <>
-            <Button variant="outline" size="sm" onClick={onCreate}>
-              Create
-            </Button>
+            {onCreate ? (
+              <Button variant="outline" size="sm" onClick={onCreate}>
+                Create
+              </Button>
+            ) : null}
             {showDeleteButton && (
               <Button
                 variant="outline"

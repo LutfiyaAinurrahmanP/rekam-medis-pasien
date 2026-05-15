@@ -173,7 +173,7 @@ func (r *userRepository) DeleteList(query *dto.UserPaginationQuery) ([]models.Us
 	var users []models.User
     var total int64
 
-    db := r.db.Unscoped().Model(&models.User{}).Where("deleted at IS NOT NULL")
+	db := r.db.Unscoped().Model(&models.User{}).Where("deleted_at IS NOT NULL")
 
     if searchTerm := strings.TrimSpace(query.Search); searchTerm != "" {
         // ✅ Escape dulu, baru wrap dengan %
