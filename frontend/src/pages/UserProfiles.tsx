@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import PageBreadcrumb from "../components/common/PageBreadCrumb";
-import UserInfoCard from "../components/UserProfile/UserInfoCard";
 import PageMeta from "../components/common/PageMeta";
 import { useAuth } from "../context/AuthContext";
+import UserInfoCard from "../components/UserProfile/UserInfoCard";
 
 export default function UserProfiles() {
   const { loadUserProfile } = useAuth();
