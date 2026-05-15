@@ -1,4 +1,4 @@
-import { CheckCircleIcon } from "../../../icons";
+// Removed unused CheckCircleIcon import
 
 interface SuccessModalProps {
   title: string;

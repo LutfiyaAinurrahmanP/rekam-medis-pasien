@@ -42,7 +42,7 @@ export async function apiCall<T>(
     // Try to parse response as JSON
     try {
       data = await response.json();
-    } catch (jsonError) {
+    } catch {
       // If JSON parsing fails, it means backend returned non-JSON response
       const responseText = await response.text();
       console.error("Backend returned non-JSON response:", responseText);
@@ -112,8 +112,9 @@ export async function patch<T>(endpoint: string, body: unknown): Promise<T> {
   });
 }
 
-export async function del<T>(endpoint: string): Promise<T> {
+export async function del<T>(endpoint: string, body?: unknown): Promise<T> {
   return apiCall<T>(endpoint, {
     method: "DELETE",
+    ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
   });
 }

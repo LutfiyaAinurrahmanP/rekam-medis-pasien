@@ -7,6 +7,7 @@ export default function ResetPassword() {
     <>
       <PageMeta
         title="Reset password"
+        description="Reset your account password using a recovery token or email link."
       />
       <AuthLayout>
         <ResetPasswordForm />

@@ -149,6 +149,7 @@ export default function App() {
               <Route path="/template/ticket-reply" element={<TicketReply />} />
 
               {/* Others Page */}
+              <Route path="/users/me" element={<UserProfiles />} />
               <Route path="/template/profile" element={<UserProfiles />} />
               <Route path="/template/faq" element={<Faqs />} />
               <Route

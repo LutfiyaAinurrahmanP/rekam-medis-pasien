@@ -1,5 +1,5 @@
 // Auth Service - Business logic for authentication
-import { post, get } from "./api";
+import { post, get, put, patch, del } from "./api";
 
 export interface RegisterRequest {
   username: string;
@@ -31,6 +31,28 @@ export interface LoginResponse {
   user: UserResponse;
 }
 
+export interface UpdateMyProfileRequest {
+  username?: string;
+  email?: string;
+  phone?: string;
+  password?: string;
+}
+
+export interface ChangeMyPasswordRequest {
+  old_password: string;
+  new_password: string;
+}
+
+export interface DeleteMyAccountRequest {
+  password: string;
+  reason?: string;
+}
+
+export interface DeactivateMyAccountRequest {
+  password: string;
+  reason?: string;
+}
+
 // Decode JWT to extract user info
 function decodeJWT(token: string): Record<string, unknown> | null {
   try {
@@ -58,14 +80,28 @@ class AuthService {
     return post<LoginResponse>("/auth/login", data);
   }
 
+  async getMe(): Promise<UserResponse> {
+    return get<UserResponse>("/users/me");
+  }
+
+  async updateMe(data: UpdateMyProfileRequest): Promise<UserResponse> {
+    return put<UserResponse>("/users/me", data);
+  }
+
+  async changeMyPassword(data: ChangeMyPasswordRequest): Promise<void> {
+    await patch<void>("/users/me/change-password", data);
+  }
+
+  async deleteMe(data: DeleteMyAccountRequest): Promise<void> {
+    await del<void>("/users/me", data);
+  }
+
+  async deactivateMe(data: DeactivateMyAccountRequest): Promise<void> {
+    await patch<void>("/users/me/deactivate", data);
+  }
+
   async getProfile(): Promise<UserResponse> {
-    const token = this.getToken();
-    if (!token) {
-      throw new Error("No token found");
-    }
-    return get<UserResponse>("/users/me", {
-      Authorization: `Bearer ${token}`,
-    });
+    return this.getMe();
   }
 
   setToken(token: string): void {

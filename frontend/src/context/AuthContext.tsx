@@ -7,7 +7,7 @@ import {
   useCallback,
   useRef,
 } from "react";
-import authService, { UserResponse } from "../services/auth";
+import authService from "../services/auth";
 
 export interface User {
   id: number;
@@ -62,7 +62,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const loadUserProfile = useCallback(async () => {
     try {
-      const profile = await authService.getProfile();
+      const profile = await authService.getMe();
       setUser(profile);
     } catch (err) {
       console.warn("Failed to load user profile from endpoint:", err);
