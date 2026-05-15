@@ -10,7 +10,8 @@ import BaseTable, {
 import ShowUserModal from "./ShowUserModal";
 import DeleteModal from "../../../components/modals/DeleteModal";
 import SuccessModal from "../../../components/ui/notification/SuccessModal";
-import { del } from "../../../services/api";
+import StatusToggleModal from "../../../components/modals/StatusToggleModal";
+import { del, patch } from "../../../services/api";
 import { useUsers, type User } from "../../../hooks/Users/useUsers";
 
 const getRoleColor = (
@@ -36,6 +37,11 @@ const getRoleLabel = (role: string) => {
   return role.charAt(0).toUpperCase() + role.slice(1).replace(/_/g, " ");
 };
 
+const getStatusButtonStyle = (isActive: boolean) =>
+  isActive
+    ? "border border-success-300 bg-success-50 text-success-700 hover:bg-success-100 dark:border-success-700 dark:bg-success-500/10 dark:text-success-300"
+    : "border border-gray-300 bg-gray-50 text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300";
+
 const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleDateString("en-GB", {
     day: "numeric",
@@ -43,49 +49,6 @@ const formatDate = (dateString: string) => {
     year: "numeric",
   });
 };
-
-const userColumns: ColumnDefinition<User>[] = [
-  {
-    key: "username",
-    header: "User",
-    type: "custom",
-    render: (value, row) => (
-      <div>
-        <p className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
-          {String(value)}
-        </p>
-        <span className="text-sm font-normal text-gray-500 dark:text-gray-400">
-          {(row as User).email}
-        </span>
-      </div>
-    ),
-  },
-  {
-    key: "phone",
-    header: "Phone",
-    type: "text",
-  },
-  {
-    key: "role",
-    header: "Role",
-    type: "badge",
-    badgeColorMap: (value) => getRoleColor(String(value)),
-    badgeLabel: (value) => getRoleLabel(String(value)),
-  },
-  {
-    key: "is_active",
-    header: "Status",
-    type: "badge",
-    badgeColorMap: (value) => (value ? "success" : "error"),
-    badgeLabel: (value) => (value ? "Active" : "Inactive"),
-  },
-  {
-    key: "created_at",
-    header: "Created At",
-    type: "custom",
-    render: (value) => formatDate(String(value)),
-  },
-];
 
 export default function UsersIndexLayout() {
   const { role } = useParams();
@@ -110,10 +73,12 @@ export default function UsersIndexLayout() {
   const [selectedDeleteUserName, setSelectedDeleteUserName] = useState<
     string | undefined
   >(undefined);
-  const [successData, setSuccessData] = useState<{ username?: string } | null>(
+  const [selectedStatusUser, setSelectedStatusUser] = useState<User | null>(
     null,
   );
+  const [successMessage, setSuccessMessage] = useState("");
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showStatusModal, setShowStatusModal] = useState(false);
   const debounceRef = useRef<number | null>(null);
   const skipNextFetchRef = useRef(false);
 
@@ -155,17 +120,17 @@ export default function UsersIndexLayout() {
     }
   }, [currentPage, meta.total_pages]);
 
-  // Auto-close success modal after 3 seconds (same behavior as create/edit)
   useEffect(() => {
-    if (showSuccessModal) {
-      const timer = setTimeout(() => {
-        setShowSuccessModal(false);
-        setSuccessData(null);
-      }, 3000);
-
-      return () => clearTimeout(timer);
+    if (!showSuccessModal) {
+      return undefined;
     }
-    return undefined;
+
+    const timer = window.setTimeout(() => {
+      setShowSuccessModal(false);
+      setSuccessMessage("");
+    }, 3000);
+
+    return () => window.clearTimeout(timer);
   }, [showSuccessModal]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -204,7 +169,6 @@ export default function UsersIndexLayout() {
 
   const handleCreateUserSuccess = () => {
     setIsCreateModalOpen(false);
-    // Refetch users after successful creation
     triggerFetch(1, rowsPerPage, search);
   };
 
@@ -234,6 +198,83 @@ export default function UsersIndexLayout() {
     setIsShowModalOpen(true);
   };
 
+  const handleToggleUserStatus = (user: User) => {
+    setSelectedStatusUser(user);
+    setShowStatusModal(true);
+  };
+
+  const handleConfirmToggleUserStatus = async () => {
+    if (!selectedStatusUser) {
+      throw new Error("Missing user");
+    }
+
+    const nextAction = selectedStatusUser.is_active ? "deactivate" : "activate";
+    await patch(`/users/${selectedStatusUser.id}/${nextAction}`, {});
+    setSuccessMessage(
+      `User "${selectedStatusUser.username}" has been successfully ${
+        selectedStatusUser.is_active ? "deactivated" : "activated"
+      }.`,
+    );
+    setShowStatusModal(false);
+    setSelectedStatusUser(null);
+    triggerFetch(currentPage, rowsPerPage, search);
+    setShowSuccessModal(true);
+  };
+
+  const userColumns: ColumnDefinition<User>[] = [
+    {
+      key: "username",
+      header: "User",
+      type: "custom",
+      render: (value, row) => (
+        <div>
+          <p className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
+            {String(value)}
+          </p>
+          <span className="text-sm font-normal text-gray-500 dark:text-gray-400">
+            {(row as User).email}
+          </span>
+        </div>
+      ),
+    },
+    {
+      key: "phone",
+      header: "Phone",
+      type: "text",
+    },
+    {
+      key: "role",
+      header: "Role",
+      type: "badge",
+      badgeColorMap: (value) => getRoleColor(String(value)),
+      badgeLabel: (value) => getRoleLabel(String(value)),
+    },
+    {
+      key: "is_active",
+      header: "Status",
+      type: "custom",
+      render: (value, row) => {
+        const isActive = Boolean(value);
+
+        return (
+          <button
+            type="button"
+            onClick={() => handleToggleUserStatus(row as User)}
+            className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium transition-colors ${getStatusButtonStyle(isActive)}`}
+          >
+            {isActive ? "Active" : "Inactive"}
+          </button>
+        );
+      },
+    },
+    {
+      key: "created_at",
+      header: "Created At",
+      type: "custom",
+      render: (value) => formatDate(String(value)),
+    },
+  ];
+
   return (
     <div className="space-y-4">
       {viewMode === "deleted" ? (
@@ -258,13 +299,11 @@ export default function UsersIndexLayout() {
             onEdit={handleEditUser}
             onDelete={handleDeleteUser}
             onView={handleViewUser}
-            // Optional header customizations
             searchPlaceholder="Search users..."
             showDeleteButton={true}
             onDeleteAll={() => setViewMode("deleted")}
           />
 
-          {/* Create User Modal */}
           <CreateUserModal
             isOpen={isCreateModalOpen}
             onClose={() => setIsCreateModalOpen(false)}
@@ -280,8 +319,6 @@ export default function UsersIndexLayout() {
             onSuccess={handleEditUserSuccess}
           />
 
-          {/* Show User Modal */}
-          {/* imported layout modal will fetch and handle navigation */}
           {isShowModalOpen && (
             <ShowUserModal
               isOpen={isShowModalOpen}
@@ -301,22 +338,41 @@ export default function UsersIndexLayout() {
             }}
             onConfirm={async () => {
               if (!selectedDeleteUserId) throw new Error("Missing id");
-              // perform soft-delete
               await del(`/users/${selectedDeleteUserId}`);
-              // refetch
               triggerFetch(currentPage, rowsPerPage, search);
-              // show success modal with username
-              setSuccessData({ username: selectedDeleteUserName });
+              setSuccessMessage(
+                `User "${selectedDeleteUserName ?? ""}" has been successfully deleted.`,
+              );
               setShowSuccessModal(true);
             }}
           />
 
+          <StatusToggleModal
+            isOpen={showStatusModal}
+            actionLabel={
+              selectedStatusUser?.is_active
+                ? `Deactivate user "${selectedStatusUser?.username ?? ""}"?`
+                : `Activate user "${selectedStatusUser?.username ?? ""}"?`
+            }
+            confirmLabel={
+              selectedStatusUser?.is_active ? "Deactivate" : "Activate"
+            }
+            onClose={() => {
+              setShowStatusModal(false);
+              setSelectedStatusUser(null);
+            }}
+            onConfirm={handleConfirmToggleUserStatus}
+          />
+
           <SuccessModal
             title="Success"
-            message={`User "${successData?.username ?? ""}" has been successfully deleted.`}
+            message={successMessage}
             buttonLabel="Close"
             isOpen={showSuccessModal}
-            onButtonClick={() => setShowSuccessModal(false)}
+            onButtonClick={() => {
+              setShowSuccessModal(false);
+              setSuccessMessage("");
+            }}
           />
         </>
       )}
