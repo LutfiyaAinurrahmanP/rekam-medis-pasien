@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { get } from "../../../services/api";
 
 import DetailModal from "../../../components/modals/DetailModal";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import { getRoleUsersPath } from "../../../pages/Roles/shared/role-routing";
 
 interface ShowUserModalProps {
@@ -21,12 +21,23 @@ export default function ShowUserModal({
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<Record<string, any> | null>(null);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const resolvedRole =
+    role ??
+    (location.pathname.split("/")[1]
+      ? location.pathname.split("/")[1]
+      : undefined);
 
   const close = useCallback(() => {
-    if (onClose) onClose();
-    // Navigate back to users list for the role
-    navigate(getRoleUsersPath(role));
-  }, [navigate, onClose, role]);
+    if (onClose) {
+      onClose();
+      return;
+    }
+
+    // Fallback navigation only when no parent close handler is provided.
+    navigate(getRoleUsersPath(resolvedRole));
+  }, [navigate, onClose, resolvedRole]);
 
   useEffect(() => {
     let mounted = true;
