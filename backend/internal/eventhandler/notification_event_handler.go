@@ -1,7 +1,5 @@
 // NotificationEventHandler mendengarkan event domain tertentu dan
 // mengirimkan notifikasi yang relevan (email, SMS, push notification).
-// Implementasi saat ini hanya mencetak log; di production hubungkan ke
-// layanan email/SMS sungguhan (SendGrid, Twilio, Firebase, dsb.).
 package eventhandler
 
 import (
@@ -9,6 +7,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"os"
+	"path/filepath"
+	"runtime"
 
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/config"
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/events"
@@ -205,7 +206,6 @@ func (h *NotificationEventHandler) handle(ctx context.Context, topic string, key
 }
 
 // ─── Notification Stubs ───────────────────────────────────────────────────────
-// Ganti implementasi ini dengan layanan email/SMS asli di production.
 
 func (h *NotificationEventHandler) sendWelcomeEmail(email, username string) {
 	log.Printf("[NOTIFICATION] 📧 [EMAIL] Welcome email → %s (%s)", email, username)
@@ -229,23 +229,131 @@ func (h *NotificationEventHandler) sendDoctorOnboardingNotification(email, fullN
 	// TODO: Send onboarding materials
 }
 
+func loadEmailLogoAsset() ([]byte, string, bool) {
+	_, currentFile, _, ok := runtime.Caller(0)
+	if !ok {
+		return nil, "", false
+	}
+
+	logoPath := filepath.Join(filepath.Dir(currentFile), "..", "..", "public", "logo", "app-logo.png")
+	logoBytes, err := os.ReadFile(logoPath)
+	if err != nil {
+		log.Printf("[NOTIFICATION] unable to load email logo from %s: %v", logoPath, err)
+		return nil, "", false
+	}
+
+	return logoBytes, filepath.Base(logoPath), true
+}
+
 func (h *NotificationEventHandler) sendPasswordResetCodeEmail(email, username, resetCode string, expiresIn int) error {
-	subject := "Password Reset Code"
+	appName := "Medika Health Care"
+	subject := fmt.Sprintf("%s - Password Reset Code", appName)
+	greeting := username
+	if greeting == "" {
+		greeting = email
+	}
+
+	spaced := ""
+	for i, c := range resetCode {
+		if i > 0 {
+			spaced += "&nbsp;"
+		}
+		spaced += string(c)
+	}
+
+	logoBytes, logoFilename, logoOK := loadEmailLogoAsset()
+	logoHTML := `<div class="logo-fallback">M</div>`
+	if logoOK {
+		logoHTML = `<img src="cid:app-logo" alt="` + appName + `" style="width:52px;height:52px;border-radius:16px;object-fit:contain;display:inline-block;"/>`
+	}
+
 	body := fmt.Sprintf(`
+<!doctype html>
 <html>
-  <body style="font-family: Arial, sans-serif; color: #111827; line-height: 1.6;">
-    <h2>Password Reset Request</h2>
-    <p>Hello %s,</p>
-    <p>We received a request to reset your password. Use the verification code below:</p>
-    <div style="font-size: 28px; font-weight: 700; letter-spacing: 6px; padding: 16px 20px; background: #f3f4f6; border-radius: 12px; display: inline-block; margin: 12px 0;">%s</div>
-    <p>This code will expire in %d minutes.</p>
-    <p>If you did not request this reset, you can ignore this email.</p>
-  </body>
-</html>`, username, resetCode, expiresIn/60)
+<head>
+	<meta charset="UTF-8"/>
+	<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+	<title>Password Reset</title>
+	<style>
+		body{margin:0;padding:0;background:#f1faea;font-family:Inter,system-ui,-apple-system,sans-serif}
+		.wrap{max-width:600px;margin:0 auto;padding:28px 16px}
+		.logo-wrap{text-align:center;padding-bottom:16px}
+		.logo-fallback{display:inline-flex;align-items:center;justify-content:center;width:52px;height:52px;border-radius:16px;background:#70b844;color:#fff;font-size:22px;font-weight:800}
+		.card{background:#fff;border-radius:24px;overflow:hidden;border:1px solid #b8e09a}
+		.header{background:#70b844;padding:28px 32px}
+		.header-title{margin:0;color:#fff;font-size:20px;font-weight:800}
+		.header-sub{margin:8px 0 0;color:#d6f0c2;font-size:13px;line-height:1.6}
+		.body{padding:32px}
+		.badge{display:inline-block;background:#70b844;color:#fff;font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;margin-bottom:16px}
+		.body h1{margin:0 0 18px;font-size:24px;font-weight:800;color:#2d5a1b}
+		.body p{margin:0 0 24px;font-size:15px;line-height:1.75;color:#374151}
+		.code-box{background:#f1faea;border:1px solid #b8e09a;border-radius:16px;padding:24px;text-align:center;margin-bottom:28px}
+		.code-label{margin:0 0 10px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.18em;color:#70b844}
+		.code-value{margin:0;font-size:36px;font-weight:800;letter-spacing:10px;color:#2d5a1b}
+		.btn-wrap{text-align:center;margin-bottom:28px}
+		.btn{display:inline-block;padding:14px 28px;background:#70b844;color:#fff;text-decoration:none;font-size:15px;font-weight:700;border-radius:12px}
+		.divider{height:1px;background:#d6f0c2;margin:24px 0}
+		.info-row{display:flex;align-items:flex-start;gap:10px;background:#f1faea;border-radius:10px;padding:12px 16px;margin-bottom:10px;font-size:14px;color:#374151}
+		.note{margin:20px 0 0;font-size:13px;line-height:1.8;color:#6b7280;padding:14px 16px;background:#f9fafb;border-left:3px solid #b8e09a;border-radius:0 8px 8px 0}
+		.footer{padding:20px 16px;text-align:center;font-size:12px;color:#9ca3af;line-height:1.7}
+	</style>
+</head>
+<body>
+<div class="wrap">
+	<div class="logo-wrap">
+		%s
+	</div>
+	<div class="card">
+		<div class="header">
+			<p class="header-title">%s</p>
+			<p class="header-sub">Password reset verification</p>
+		</div>
+		<div class="body">
+			<span class="badge">🔒 Security Verification</span>
+			<h1>Forgot your password?</h1>
+			<p>Hello, <strong style="color:#4a8a28;">%s</strong></p>
+			<p>We received a request to reset the password for your account <strong style="color:#4a8a28;">%s</strong>. Use the code below to continue. This code will expire in <strong style="color:#4a8a28;">%d minutes</strong>.</p>
+			<div class="code-box">
+				<p class="code-label">Your Verification Code</p>
+				<p class="code-value">%s</p>
+			</div>
+			<div class="divider"></div>
+			<div class="info-row">
+				<span>⚠️</span>
+				<span>Never share this code with anyone, including our support team.</span>
+			</div>
+			<div class="info-row">
+				<span>🛡️</span>
+				<span>If you did not request this reset, please ignore this email — your password remains secure.</span>
+			</div>
+			<p class="note">Need help? Open the app and contact our support team if this message looks unfamiliar.</p>
+		</div>
+	</div>
+	<div class="footer">
+		<p style="margin:0 0 4px;">%s &nbsp;·&nbsp; Sent automatically</p>
+		<p style="margin:0;">© 2025 %s. All rights reserved.</p>
+	</div>
+</div>
+</body>
+</html>`,
+		logoHTML,
+		appName,
+		greeting,
+		email,
+		expiresIn/60,
+		spaced,
+		appName,
+		appName,
+	)
 
 	log.Printf("[NOTIFICATION] 📧 [EMAIL] Password reset code → %s (%s)", email, username)
 	if h.mailer == nil {
 		return nil
+	}
+	if logoOK {
+		if err := h.mailer.SendWithInlineImage(email, subject, body, "app-logo", logoFilename, "image/png", logoBytes); err == nil {
+			return nil
+		}
 	}
 	return h.mailer.Send(email, subject, body)
 }

@@ -32,6 +32,9 @@ func SetupRouter(cfg *RouteConfig) *gin.Engine {
 	router.Use(gin.Recovery())
 	router.Use(gin.Logger())
 
+	// Serve backend-stored public assets such as uploaded images.
+	router.Static("/public", "./public")
+
 	router.GET("/health", healthCheck)
 	router.GET("/", welcomePage)
 

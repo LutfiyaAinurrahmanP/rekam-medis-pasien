@@ -55,6 +55,8 @@ import Tooltips from "./pages/UiElements/Tooltips";
 import Modals from "./pages/UiElements/Modals";
 import ResetPassword from "./pages/AuthPages/ResetPassword";
 import TwoStepVerification from "./pages/AuthPages/TwoStepVerification";
+import VerifyResetCode from "./pages/AuthPages/VerifyResetCode";
+import ResetPasswordWithToken from "./pages/AuthPages/ResetPasswordWithToken";
 import Success from "./pages/OtherPage/Success";
 import AppLayout from "./layout/AppLayout";
 import AlternativeLayout from "./layout/AlternativeLayout";
@@ -98,6 +100,11 @@ export default function App() {
             <Route path="/auth/register" element={<Register />} />
           </Route>
           <Route path="/auth/reset-password" element={<ResetPassword />} />
+          <Route path="/auth/verify-reset-code" element={<VerifyResetCode />} />
+          <Route
+            path="/auth/reset-password-token"
+            element={<ResetPasswordWithToken />}
+          />
 
           {/* Authorization Required */}
           <Route element={<RequireAuth />}>
