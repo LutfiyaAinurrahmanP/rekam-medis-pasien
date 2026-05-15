@@ -15,6 +15,7 @@ type Config struct {
 	JWT        JWTConfig
 	Pagination PaginationConfig
 	Redis      RedisConfig
+	SMTP       SMTPConfig
 	Kafka      KafkaConfig
 }
 
@@ -63,6 +64,15 @@ type RedisConfig struct {
 	DefaultTTL time.Duration
 }
 
+type SMTPConfig struct {
+	Enabled  bool
+	Host     string
+	Port     string
+	Username string
+	Password string
+	From     string
+}
+
 func LoadConfig() (*Config, error) {
 	viper.SetConfigFile(".env")
 	viper.AutomaticEnv()
@@ -86,6 +96,12 @@ func LoadConfig() (*Config, error) {
 	viper.SetDefault("REDIS_PASSWORD", "")
 	viper.SetDefault("REDIS_DB", 0)
 	viper.SetDefault("REDIS_TTL", "5m")
+	viper.SetDefault("SMTP_ENABLED", false)
+	viper.SetDefault("SMTP_HOST", "")
+	viper.SetDefault("SMTP_PORT", "587")
+	viper.SetDefault("SMTP_USERNAME", "")
+	viper.SetDefault("SMTP_PASSWORD", "")
+	viper.SetDefault("SMTP_FROM", "")
 	viper.SetDefault("KAFKA_BROKERS", "localhost:9092")
 	viper.SetDefault("KAFKA_CLIENT_ID", "sirekam-medis")
 	viper.SetDefault("KAFKA_ENABLED", true)
@@ -129,6 +145,14 @@ func LoadConfig() (*Config, error) {
 			Password:   viper.GetString("REDIS_PASSWORD"),
 			DB:         viper.GetInt("REDIS_DB"),
 			DefaultTTL: redisTTL,
+		},
+		SMTP: SMTPConfig{
+			Enabled:  viper.GetBool("SMTP_ENABLED"),
+			Host:     viper.GetString("SMTP_HOST"),
+			Port:     viper.GetString("SMTP_PORT"),
+			Username: viper.GetString("SMTP_USERNAME"),
+			Password: viper.GetString("SMTP_PASSWORD"),
+			From:     viper.GetString("SMTP_FROM"),
 		},
 		Kafka: KafkaConfig{
 			Brokers:  strings.Split(viper.GetString("KAFKA_BROKERS"), ","),

@@ -105,3 +105,40 @@ func (m *MockUserService) VerifyPasswordForDeletion(id uint, password string) er
 	args := m.Called(id, password)
 	return args.Error(0)
 }
+
+func (m *MockUserService) RequestPasswordReset(email string) (*dto.PasswordResetRequestResponse, error) {
+	args := m.Called(email)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*dto.PasswordResetRequestResponse), args.Error(1)
+}
+
+func (m *MockUserService) ResendPasswordResetCode(email string) (*dto.PasswordResetRequestResponse, error) {
+	args := m.Called(email)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*dto.PasswordResetRequestResponse), args.Error(1)
+}
+
+func (m *MockUserService) VerifyResetCode(email, code string) (*dto.PasswordResetTokenResponse, error) {
+	args := m.Called(email, code)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*dto.PasswordResetTokenResponse), args.Error(1)
+}
+
+func (m *MockUserService) ResetPasswordWithToken(resetToken, newPassword string) error {
+	args := m.Called(resetToken, newPassword)
+	return args.Error(0)
+}
+
+// compile-time interface check — pastikan MockUserService selalu sinkron dengan UserService
+var _ interface {
+	RequestPasswordReset(email string) (*dto.PasswordResetRequestResponse, error)
+	ResendPasswordResetCode(email string) (*dto.PasswordResetRequestResponse, error)
+	VerifyResetCode(email, code string) (*dto.PasswordResetTokenResponse, error)
+	ResetPasswordWithToken(resetToken, newPassword string) error
+} = (*MockUserService)(nil)

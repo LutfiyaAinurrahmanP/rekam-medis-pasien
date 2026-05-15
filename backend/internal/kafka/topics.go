@@ -10,6 +10,7 @@ const (
 	TopicUserUpdated    = "user.updated"
 	TopicUserDeleted    = "user.deleted"
 	TopicUserRestored   = "user.restored"
+	TopicUserPasswordResetRequested = "user.password_reset_requested"
 
 	// ── Patient Topics ────────────────────────────────────────────────────────
 	TopicPatientCreated  = "patient.created"
@@ -51,6 +52,7 @@ func AllTopics() []string {
 		TopicUserUpdated,
 		TopicUserDeleted,
 		TopicUserRestored,
+		TopicUserPasswordResetRequested,
 
 		TopicPatientCreated,
 		TopicPatientUpdated,

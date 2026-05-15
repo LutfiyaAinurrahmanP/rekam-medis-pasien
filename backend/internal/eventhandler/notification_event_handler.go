@@ -7,15 +7,19 @@ package eventhandler
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 
+	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/config"
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/events"
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/kafka"
+	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/mailer"
 )
 
 // NotificationEventHandler mengonsumsi event dan mengirimkan notifikasi.
 type NotificationEventHandler struct {
 	consumer *kafka.MultiTopicConsumer
+	mailer   mailer.Mailer
 }
 
 // notificationTopics adalah daftar topic yang diproses oleh handler ini.
@@ -24,6 +28,7 @@ var notificationTopics = []string{
 	kafka.TopicUserLogin,
 	kafka.TopicUserCreated,
 	kafka.TopicUserDeleted,
+	kafka.TopicUserPasswordResetRequested,
 	kafka.TopicPatientCreated,
 	kafka.TopicPatientUpdated,
 	kafka.TopicPatientDeleted,
@@ -38,8 +43,9 @@ var notificationTopics = []string{
 }
 
 // NewNotificationEventHandler membuat notification handler baru.
-func NewNotificationEventHandler(brokers []string) *NotificationEventHandler {
+func NewNotificationEventHandler(brokers []string, cfg *config.Config) *NotificationEventHandler {
 	h := &NotificationEventHandler{}
+	h.mailer = mailer.NewSMTPMailer(&cfg.SMTP)
 	h.consumer = kafka.NewMultiTopicConsumer(
 		"notification-consumer",
 		brokers,
@@ -93,6 +99,13 @@ func (h *NotificationEventHandler) handle(ctx context.Context, topic string, key
 			return err
 		}
 		log.Printf("[NOTIFICATION] ⚠️  User account deleted: %s (action=%s)", e.Payload.Username, e.Payload.Action)
+
+	case kafka.TopicUserPasswordResetRequested:
+		var e events.UserPasswordResetRequestedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		return h.sendPasswordResetCodeEmail(e.Payload.Email, e.Payload.Username, e.Payload.ResetCode, e.Payload.ExpiresIn)
 
 	// ── Patient Events ───────────────────────────────────────────────────────
 
@@ -214,4 +227,25 @@ func (h *NotificationEventHandler) sendDoctorOnboardingNotification(email, fullN
 	log.Printf("[NOTIFICATION] 📧 [EMAIL] Doctor onboarding → %s (%s) spec=%s",
 		email, fullName, specialization)
 	// TODO: Send onboarding materials
+}
+
+func (h *NotificationEventHandler) sendPasswordResetCodeEmail(email, username, resetCode string, expiresIn int) error {
+	subject := "Password Reset Code"
+	body := fmt.Sprintf(`
+<html>
+  <body style="font-family: Arial, sans-serif; color: #111827; line-height: 1.6;">
+    <h2>Password Reset Request</h2>
+    <p>Hello %s,</p>
+    <p>We received a request to reset your password. Use the verification code below:</p>
+    <div style="font-size: 28px; font-weight: 700; letter-spacing: 6px; padding: 16px 20px; background: #f3f4f6; border-radius: 12px; display: inline-block; margin: 12px 0;">%s</div>
+    <p>This code will expire in %d minutes.</p>
+    <p>If you did not request this reset, you can ignore this email.</p>
+  </body>
+</html>`, username, resetCode, expiresIn/60)
+
+	log.Printf("[NOTIFICATION] 📧 [EMAIL] Password reset code → %s (%s)", email, username)
+	if h.mailer == nil {
+		return nil
+	}
+	return h.mailer.Send(email, subject, body)
 }

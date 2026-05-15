@@ -17,16 +17,16 @@ import (
 //   - Semua write operation → invalidasi seluruh namespace user:*
 type cachedUserService struct {
 	inner UserService
-	redis *cache.RedisClient
+	redis cache.RedisStore
 }
 
 // NewCachedUserService returns a UserService with Redis caching.
-// Jika redisClient nil, langsung kembalikan inner service tanpa cache.
-func NewCachedUserService(inner UserService, redisClient *cache.RedisClient) UserService {
-	if redisClient == nil {
+// Jika redisStore nil, langsung kembalikan inner service tanpa cache.
+func NewCachedUserService(inner UserService, redisStore cache.RedisStore) UserService {
+	if redisStore == nil {
 		return inner
 	}
-	return &cachedUserService{inner: inner, redis: redisClient}
+	return &cachedUserService{inner: inner, redis: redisStore}
 }
 
 // ─── Auth — TIDAK di-cache ─────────────────────────────────────────────────
@@ -175,11 +175,31 @@ func (s *cachedUserService) ChangePassword(id uint, req *dto.ChangePasswordReque
 	return nil
 }
 
+func (s *cachedUserService) RequestPasswordReset(email string) (*dto.PasswordResetRequestResponse, error) {
+	return s.inner.RequestPasswordReset(email)
+}
+
+func (s *cachedUserService) ResendPasswordResetCode(email string) (*dto.PasswordResetRequestResponse, error) {
+	return s.inner.ResendPasswordResetCode(email)
+}
+
+func (s *cachedUserService) VerifyResetCode(email, code string) (*dto.PasswordResetTokenResponse, error) {
+	return s.inner.VerifyResetCode(email, code)
+}
+
 func (s *cachedUserService) ResetPassword(id uint, newPassword string) error {
 	if err := s.inner.ResetPassword(id, newPassword); err != nil {
 		return err
 	}
 	_ = s.redis.Delete(context.Background(), cache.UserKey(id))
+	return nil
+}
+
+func (s *cachedUserService) ResetPasswordWithToken(resetToken, newPassword string) error {
+	if err := s.inner.ResetPasswordWithToken(resetToken, newPassword); err != nil {
+		return err
+	}
+	_ = s.redis.DeleteByPattern(context.Background(), "auth:password-reset:*")
 	return nil
 }
 

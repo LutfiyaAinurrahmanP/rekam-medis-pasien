@@ -79,7 +79,7 @@ func main() {
 	var notifHandler *eventhandler.NotificationEventHandler
 	if cfg.Kafka.Enabled {
 		auditHandler = eventhandler.NewAuditEventHandler(cfg.Kafka.Brokers, kafka.AllTopics())
-		notifHandler = eventhandler.NewNotificationEventHandler(cfg.Kafka.Brokers)
+		notifHandler = eventhandler.NewNotificationEventHandler(cfg.Kafka.Brokers, cfg)
 
 		go auditHandler.Start(consumerCtx)
 		go notifHandler.Start(consumerCtx)
@@ -171,10 +171,18 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 	typeTestRepo := repository.NewTypeTestRepository(db)
 	medicineRepo := repository.NewMedicineRepository(db)
 
+	// Konversi *RedisClient ke interface RedisStore hanya jika non-nil.
+	// Tanpa ini, passing typed-nil ke parameter interface menghasilkan non-nil
+	// interface yang membungkus nil pointer — menyebabkan nil-check di service gagal.
+	var redisStore cache.RedisStore
+	if redisClient != nil {
+		redisStore = redisClient
+	}
+
 	// Initialize Services
 	// Layer order: base → cache → event
 	userService := userservice.NewEventUserService(
-		userservice.NewCachedUserService(userservice.NewUserService(userRepo, cfg), redisClient),
+		userservice.NewCachedUserService(userservice.NewUserService(userRepo, cfg, redisStore), redisStore),
 		publisher,
 	)
 	departmentService := departmentservice.NewEventDepartmentService(

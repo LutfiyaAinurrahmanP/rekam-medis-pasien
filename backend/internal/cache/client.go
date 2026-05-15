@@ -129,3 +129,15 @@ func (r *RedisClient) Client() *redis.Client {
 
 // ErrCacheMiss is returned by Get when the key does not exist.
 var ErrCacheMiss = fmt.Errorf("cache miss")
+
+// RedisStore adalah interface yang mengabstraksi operasi cache.
+// Digunakan agar service layer dapat di-test tanpa koneksi Redis asli.
+type RedisStore interface {
+	Set(ctx context.Context, key string, value any, ttl time.Duration) error
+	Get(ctx context.Context, key string, dest any) error
+	Delete(ctx context.Context, keys ...string) error
+	DeleteByPattern(ctx context.Context, pattern string) error
+}
+
+// compile-time check: RedisClient harus memenuhi RedisStore
+var _ RedisStore = (*RedisClient)(nil)

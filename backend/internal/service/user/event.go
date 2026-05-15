@@ -94,6 +94,41 @@ func (s *eventUserService) ChangePassword(id uint, req *dto.ChangePasswordReques
 	return nil
 }
 
+func (s *eventUserService) RequestPasswordReset(email string) (*dto.PasswordResetRequestResponse, error) {
+	result, err := s.inner.RequestPasswordReset(email)
+	if err != nil {
+		return nil, err
+	}
+	if result != nil {
+		s.publisher.PublishAsync(kafka.TopicUserPasswordResetRequested,
+			events.NewUserPasswordResetRequestedEvent(result.UserID, result.Username, result.Email, result.ResetCode, result.ExpiresIn))
+	}
+	return result, nil
+}
+
+func (s *eventUserService) ResendPasswordResetCode(email string) (*dto.PasswordResetRequestResponse, error) {
+	result, err := s.inner.ResendPasswordResetCode(email)
+	if err != nil {
+		return nil, err
+	}
+	if result != nil {
+		s.publisher.PublishAsync(kafka.TopicUserPasswordResetRequested,
+			events.NewUserPasswordResetRequestedEvent(result.UserID, result.Username, result.Email, result.ResetCode, result.ExpiresIn))
+	}
+	return result, nil
+}
+
+func (s *eventUserService) VerifyResetCode(email, code string) (*dto.PasswordResetTokenResponse, error) {
+	return s.inner.VerifyResetCode(email, code)
+}
+
+func (s *eventUserService) ResetPasswordWithToken(resetToken, newPassword string) error {
+	if err := s.inner.ResetPasswordWithToken(resetToken, newPassword); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (s *eventUserService) ResetPassword(id uint, newPassword string) error {
 	if err := s.inner.ResetPassword(id, newPassword); err != nil {
 		return err

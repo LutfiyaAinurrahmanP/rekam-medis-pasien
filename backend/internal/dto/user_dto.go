@@ -38,6 +38,37 @@ type ChangePasswordRequest struct {
 	NewPassword string `json:"new_password" binding:"required,min=8"`
 }
 
+type ForgotPasswordRequest struct {
+	Email string `json:"email" binding:"required,email"`
+}
+
+type ResendResetCodeRequest struct {
+	Email string `json:"email" binding:"required,email"`
+}
+
+type VerifyResetCodeRequest struct {
+	Email     string `json:"email" binding:"required,email"`
+	ResetCode string `json:"reset_code" binding:"required"`
+}
+
+type ResetPasswordWithTokenRequest struct {
+	ResetToken  string `json:"reset_token" binding:"required"`
+	NewPassword string `json:"new_password" binding:"required,min=8"`
+}
+
+type PasswordResetRequestResponse struct {
+	UserID     uint   `json:"user_id"`
+	Username   string `json:"username"`
+	Email      string `json:"email"`
+	ResetCode  string `json:"reset_code"`
+	ExpiresIn  int    `json:"expires_in"`
+}
+
+type PasswordResetTokenResponse struct {
+	ResetToken string `json:"reset_token"`
+	ExpiresIn  int    `json:"expires_in"`
+}
+
 type UserResponse struct {
 	ID        uint      `json:"id"`
 	Username  string    `json:"username"`

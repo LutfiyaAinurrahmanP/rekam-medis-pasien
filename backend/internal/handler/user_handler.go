@@ -79,6 +79,69 @@ func (h *UserHandler) Login(ctx *gin.Context) {
 	utils.SuccessResponse(ctx, http.StatusOK, "Login successful", response)
 }
 
+func (h *UserHandler) ForgotPassword(ctx *gin.Context) {
+	var req dto.ForgotPasswordRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		utils.ValidationErrorResponse(ctx, err)
+		return
+	}
+
+	_, err := h.service.RequestPasswordReset(req.Email)
+	if err != nil {
+		utils.ErrorResponse(ctx, http.StatusBadRequest, "Failed to process forgot password request", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "If the account exists, reset instructions have been sent", nil)
+}
+
+func (h *UserHandler) ResendResetCode(ctx *gin.Context) {
+	var req dto.ResendResetCodeRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		utils.ValidationErrorResponse(ctx, err)
+		return
+	}
+
+	_, err := h.service.ResendPasswordResetCode(req.Email)
+	if err != nil {
+		utils.ErrorResponse(ctx, http.StatusBadRequest, "Failed to resend reset code", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "If the account exists, a new reset code has been sent", nil)
+}
+
+func (h *UserHandler) VerifyResetCode(ctx *gin.Context) {
+	var req dto.VerifyResetCodeRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		utils.ValidationErrorResponse(ctx, err)
+		return
+	}
+
+	result, err := h.service.VerifyResetCode(req.Email, req.ResetCode)
+	if err != nil {
+		utils.ErrorResponse(ctx, http.StatusBadRequest, "Failed to verify reset code", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "Reset code verified successfully", result)
+}
+
+func (h *UserHandler) ResetPasswordWithToken(ctx *gin.Context) {
+	var req dto.ResetPasswordWithTokenRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		utils.ValidationErrorResponse(ctx, err)
+		return
+	}
+
+	if err := h.service.ResetPasswordWithToken(req.ResetToken, req.NewPassword); err != nil {
+		utils.ErrorResponse(ctx, http.StatusBadRequest, "Failed to reset password", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "Password reset successfully", nil)
+}
+
 func (h *UserHandler) ResetPassword(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {

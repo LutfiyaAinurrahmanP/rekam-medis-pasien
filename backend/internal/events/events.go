@@ -84,6 +84,17 @@ type UserRestoredEvent struct {
 	} `json:"payload"`
 }
 
+type UserPasswordResetRequestedEvent struct {
+	BaseEvent
+	Payload struct {
+		UserID    uint   `json:"user_id"`
+		Username  string `json:"username"`
+		Email     string `json:"email"`
+		ResetCode string `json:"reset_code"`
+		ExpiresIn int    `json:"expires_in"`
+	} `json:"payload"`
+}
+
 // Constructors ────────────────────────────────────────────────────────────────
 
 func NewUserRegisteredEvent(id uint, username, email, phone, role string) UserRegisteredEvent {
@@ -137,6 +148,16 @@ func NewUserRestoredEvent(userID uint, username string) UserRestoredEvent {
 	e := UserRestoredEvent{BaseEvent: newBase("user.restored")}
 	e.Payload.UserID = userID
 	e.Payload.Username = username
+	return e
+}
+
+func NewUserPasswordResetRequestedEvent(userID uint, username, email, resetCode string, expiresIn int) UserPasswordResetRequestedEvent {
+	e := UserPasswordResetRequestedEvent{BaseEvent: newBase("user.password_reset_requested")}
+	e.Payload.UserID = userID
+	e.Payload.Username = username
+	e.Payload.Email = email
+	e.Payload.ResetCode = resetCode
+	e.Payload.ExpiresIn = expiresIn
 	return e
 }
 

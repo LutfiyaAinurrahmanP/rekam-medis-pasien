@@ -37,6 +37,14 @@ func UserDeletedListQueryKey(page, size int, search, role string, isActive strin
 	)
 }
 
+func PasswordResetChallengeKey(email string) string {
+	return fmt.Sprintf("auth:password-reset:challenge:%s", email)
+}
+
+func PasswordResetTokenKey(token string) string {
+	return fmt.Sprintf("auth:password-reset:token:%s", token)
+}
+
 // ─── Department ────────────────────────────────────────────────────────────
 
 func DepartmentKey(id uint) string { return fmt.Sprintf("department:id:%d", id) }

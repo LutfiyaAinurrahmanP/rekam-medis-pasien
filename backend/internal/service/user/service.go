@@ -3,7 +3,10 @@ package user
 import (
 	"errors"
 	"math"
+	"strings"
+	"time"
 
+	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/cache"
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/config"
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/dto"
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/models"
@@ -24,6 +27,10 @@ type UserService interface {
 	RestoreUser(id uint) error
 	ChangePassword(id uint, req *dto.ChangePasswordRequest) error
 	ResetPassword(id uint, newPassword string) error
+	RequestPasswordReset(email string) (*dto.PasswordResetRequestResponse, error)
+	ResendPasswordResetCode(email string) (*dto.PasswordResetRequestResponse, error)
+	VerifyResetCode(email, code string) (*dto.PasswordResetTokenResponse, error)
+	ResetPasswordWithToken(resetToken, newPassword string) error
 	ActivateUser(id uint) error
 	DeactivateUser(id uint) error
 	VerifyPasswordForDeletion(id uint, password string) error
@@ -32,12 +39,21 @@ type UserService interface {
 type userService struct {
 	repo   repository.UserRepository
 	config *config.Config
+	redis  cache.RedisStore
 }
 
-func NewUserService(repo repository.UserRepository, config *config.Config) UserService {
+// NewUserService membuat instance userService baru.
+// Menerima RedisStore interface opsional; jika tidak disertakan atau nil,
+// fitur password-reset berbasis Redis dinonaktifkan.
+func NewUserService(repo repository.UserRepository, config *config.Config, redisStore ...cache.RedisStore) UserService {
+	var store cache.RedisStore
+	if len(redisStore) > 0 {
+		store = redisStore[0]
+	}
 	return &userService{
 		repo:   repo,
 		config: config,
+		redis:  store,
 	}
 }
 
@@ -442,6 +458,14 @@ func (s *userService) VerifyPasswordForDeletion(id uint, password string) error 
 	}
 
 	return nil
+}
+
+func (s *userService) passwordResetTTL() time.Duration {
+	return 15 * time.Minute
+}
+
+func normalizeResetEmail(email string) string {
+	return strings.ToLower(strings.TrimSpace(email))
 }
 
 func (s *userService) toUserResponse(user *models.User) *dto.UserResponse {
