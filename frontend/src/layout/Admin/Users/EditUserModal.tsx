@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { get } from "../../../services/api";
+import { get, patch } from "../../../services/api";
 import type { User } from "../../../hooks/Users/useUsers";
 import type { EditFormFieldDef } from "../../../components/modals/EditFormModal";
 import { useNavigate } from "react-router";
@@ -124,6 +124,49 @@ export default function EditUserModal({
     }
   };
 
+  // Reset password (admin) - new password only
+  const [showReset, setShowReset] = useState(false);
+  const [resetForm, setResetForm] = useState({
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [resetError, setResetError] = useState<string | null>(null);
+  const [resetSaving, setResetSaving] = useState(false);
+  const [resetSuccessOpen, setResetSuccessOpen] = useState(false);
+
+  const handleResetChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setResetForm((p) => ({ ...p, [name]: value }));
+  };
+
+  const handleResetSubmit = async () => {
+    setResetError(null);
+    if (!id) return setResetError("Missing user id");
+    if (!resetForm.newPassword || resetForm.newPassword.length < 8) {
+      return setResetError("Password must be at least 8 characters");
+    }
+    if (resetForm.newPassword !== resetForm.confirmPassword) {
+      return setResetError("Passwords do not match");
+    }
+
+    setResetSaving(true);
+    try {
+      await patch(`/users/${id}/reset-password`, {
+        new_password: resetForm.newPassword,
+      });
+      setResetForm({ newPassword: "", confirmPassword: "" });
+      setShowReset(false);
+      setResetSuccessOpen(true);
+    } catch (err) {
+      console.error("Reset password failed:", err);
+      setResetError(
+        err instanceof Error ? err.message : "Failed to reset password",
+      );
+    } finally {
+      setResetSaving(false);
+    }
+  };
+
   const fields: EditFormFieldDef[] = [
     { name: "username", label: "Username", type: "text", required: true },
     { name: "email", label: "Email", type: "email", required: true },
@@ -169,7 +212,144 @@ export default function EditUserModal({
         description="Update user details below"
         submitLabel="Update"
         cancelLabel="Cancel"
-      />
+      >
+        {/* render default form fields so we can append reset-password UI */}
+        <>
+          {errorsList.length > 0 ? (
+            <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/30 dark:text-red-400">
+              <ul className="list-inside list-disc space-y-1">
+                {errorsList.map((errMsg, idx) => (
+                  <li key={idx}>{errMsg}</li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+
+          <div className="grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2">
+            {fields.map((field) => (
+              <div key={field.name} className="col-span-1">
+                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                  {field.label}
+                  {field.required && <span className="text-red-500"> *</span>}
+                </label>
+                {field.type === "select" ? (
+                  <select
+                    name={field.name}
+                    value={formData[field.name] || ""}
+                    onChange={handleChange}
+                    className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:focus:ring-brand-500"
+                    required={field.required}
+                    disabled={updating || loadingFetch}
+                  >
+                    <option value="">Select {field.label.toLowerCase()}</option>
+                    {field.options?.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    name={field.name}
+                    value={formData[field.name] || ""}
+                    onChange={handleChange}
+                    type={field.type || "text"}
+                    className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:focus:ring-brand-500"
+                    placeholder={field.placeholder}
+                    required={field.required}
+                    disabled={updating || loadingFetch}
+                  />
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Reset password section (admin) */}
+          <div className="mt-6 border-t pt-6">
+            <h5 className="mb-3 text-sm font-medium text-gray-800 dark:text-white/90">
+              Reset Password
+            </h5>
+            <p className="mb-4 text-xs text-gray-500">
+              Set a new password for this user (no old password required).
+            </p>
+
+            {!showReset ? (
+              <button
+                type="button"
+                onClick={() => setShowReset(true)}
+                className="inline-flex items-center rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300"
+              >
+                Reset Password
+              </button>
+            ) : (
+              <div className="grid grid-cols-1 gap-y-3">
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                    New Password
+                  </label>
+                  <input
+                    name="newPassword"
+                    type="password"
+                    value={resetForm.newPassword}
+                    onChange={handleResetChange}
+                    className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:focus:ring-brand-500"
+                  />
+                </div>
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                    Confirm New Password
+                  </label>
+                  <input
+                    name="confirmPassword"
+                    type="password"
+                    value={resetForm.confirmPassword}
+                    onChange={handleResetChange}
+                    className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:focus:ring-brand-500"
+                  />
+                </div>
+                {resetError ? (
+                  <p className="text-sm text-red-600">{resetError}</p>
+                ) : null}
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setShowReset(false)}
+                    className="inline-flex items-center rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleResetSubmit}
+                    disabled={resetSaving}
+                    className="inline-flex items-center rounded-lg bg-brand-500 px-3 py-2 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-50"
+                  >
+                    {resetSaving ? "Processing..." : "Confirm Reset"}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="mt-6 flex items-center justify-end gap-3">
+            <button
+              type="button"
+              onClick={close}
+              disabled={updating || loadingFetch}
+              className="inline-flex items-center justify-center rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-white/[0.05]"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={updating || loadingFetch}
+              className="inline-flex items-center justify-center rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-600 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {updating ? `Update...` : `Update`}
+            </button>
+          </div>
+        </>
+      </EditFormModal>
 
       <SuccessModal
         isOpen={showSuccessModal}
@@ -177,6 +357,14 @@ export default function EditUserModal({
         message={successMsg ?? "User updated successfully."}
         buttonLabel="Continue"
         onButtonClick={handleSuccessClose}
+      />
+
+      <SuccessModal
+        isOpen={resetSuccessOpen}
+        title="Password Reset"
+        message="User password has been reset."
+        buttonLabel="OK"
+        onButtonClick={() => setResetSuccessOpen(false)}
       />
     </>
   );
