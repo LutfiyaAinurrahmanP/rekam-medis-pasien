@@ -13,6 +13,7 @@ API untuk manajemen data users (pengguna) dalam sistem rekam medis. Mendukung 5 
 - [Authentication](#authentication)
 - [Authorization](#authorization)
 - [Endpoints Summary](#endpoints-summary)
+- [Forgot Password Flow](#forgot-password-flow)
 - [Self-Owned Endpoints](#self-owned-endpoints)
 - [Admin Endpoints](#admin-endpoints)
 - [Super Admin Endpoints](#super-admin-endpoints)
@@ -34,24 +35,24 @@ Authorization: Bearer <your-jwt-token>
 
 ## Authorization
 
-| Endpoint                    | Patient | Doctor | Receptionist | Admin | Super Admin |
-| --------------------------- | ------- | ------ | ------------ | ----- | ----------- |
-| GET /users/me               | ✅      | ✅     | ✅           | ✅    | ✅          |
-| PUT /users/me               | ✅      | ✅     | ✅           | ✅    | ✅          |
+| Endpoint                        | Patient | Doctor | Receptionist | Admin | Super Admin |
+| ------------------------------- | ------- | ------ | ------------ | ----- | ----------- |
+| GET /users/me                   | ✅      | ✅     | ✅           | ✅    | ✅          |
+| PUT /users/me                   | ✅      | ✅     | ✅           | ✅    | ✅          |
 | PATCH /users/me/change-password | ✅      | ✅     | ✅           | ✅    | ✅          |
-| DELETE /users/me            | ✅      | ✅     | ✅           | ✅    | ✅          |
-| PATCH /users/me/deactivate  | ✅      | ✅     | ✅           | ✅    | ✅          |
-| POST /users                 | ❌      | ❌     | ❌           | ✅    | ✅          |
-| GET /users                  | ❌      | ❌     | ❌           | ✅    | ✅          |
-| GET /users/deleted          | ❌      | ❌     | ❌           | ✅    | ✅          |
-| GET /users/:id              | ❌      | ❌     | ❌           | ✅    | ✅          |
-| PUT /users/:id              | ❌      | ❌     | ❌           | ✅    | ✅          |
-| DELETE /users/:id           | ❌      | ❌     | ❌           | ✅    | ✅          |
-| PATCH /users/:id/restore    | ❌      | ❌     | ❌           | ✅    | ✅          |
+| DELETE /users/me                | ✅      | ✅     | ✅           | ✅    | ✅          |
+| PATCH /users/me/deactivate      | ✅      | ✅     | ✅           | ✅    | ✅          |
+| POST /users                     | ❌      | ❌     | ❌           | ✅    | ✅          |
+| GET /users                      | ❌      | ❌     | ❌           | ✅    | ✅          |
+| GET /users/deleted              | ❌      | ❌     | ❌           | ✅    | ✅          |
+| GET /users/:id                  | ❌      | ❌     | ❌           | ✅    | ✅          |
+| PUT /users/:id                  | ❌      | ❌     | ❌           | ✅    | ✅          |
+| DELETE /users/:id               | ❌      | ❌     | ❌           | ✅    | ✅          |
+| PATCH /users/:id/restore        | ❌      | ❌     | ❌           | ✅    | ✅          |
 | PATCH /users/:id/reset-password | ❌      | ❌     | ❌           | ✅    | ✅          |
-| PATCH /users/:id/activate   | ❌      | ❌     | ❌           | ✅    | ✅          |
-| PATCH /users/:id/deactivate | ❌      | ❌     | ❌           | ✅    | ✅          |
-| DELETE /users/:id/hard-delete | ❌      | ❌     | ❌           | ❌    | ✅          |
+| PATCH /users/:id/activate       | ❌      | ❌     | ❌           | ✅    | ✅          |
+| PATCH /users/:id/deactivate     | ❌      | ❌     | ❌           | ✅    | ✅          |
+| DELETE /users/:id/hard-delete   | ❌      | ❌     | ❌           | ❌    | ✅          |
 
 ---
 
@@ -63,6 +64,146 @@ Authorization: Bearer <your-jwt-token>
 | ------ | ---------------- | ----------------- |
 | POST   | `/auth/register` | Register new user |
 | POST   | `/auth/login`    | Login user        |
+
+### Forgot Password Flow
+
+Dokumentasi ini mendefinisikan kebutuhan API untuk alur forgot password sebelum implementasi backend dibuat.
+
+| Method | Endpoint                  | Description                       | Auth |
+| ------ | ------------------------- | --------------------------------- | ---- |
+| POST   | `/auth/forgot-password`   | Request reset code/link           | ❌   |
+| POST   | `/auth/verify-reset-code` | Verify reset code/token sementara | ❌   |
+| PATCH  | `/auth/reset-password`    | Set new password with reset token | ❌   |
+| POST   | `/auth/resend-reset-code` | Resend reset code/link            | ❌   |
+
+#### Kebutuhan Alur
+
+1. User memasukkan email atau username yang terdaftar.
+2. Sistem mengirim reset code atau reset link ke email terdaftar.
+3. Code/token bersifat sekali pakai dan memiliki masa berlaku singkat.
+4. Setelah token diverifikasi, user dapat menetapkan password baru tanpa memasukkan old password.
+5. Password baru harus memenuhi validasi minimum yang sama dengan password lain di sistem.
+
+#### Aturan Keamanan
+
+- Reset code/token harus memiliki expiry time, disarankan 10-15 menit.
+- Reset code/token hanya boleh dipakai sekali.
+- Endpoint forgot password harus mengembalikan respons generik agar tidak membocorkan apakah akun terdaftar atau tidak.
+- Sistem harus membatasi percobaan request dan verifikasi untuk mencegah brute force.
+- Reset password hanya boleh dilakukan untuk akun yang masih valid dan belum di-hard delete.
+
+#### Draft Request & Response
+
+##### 1. Request Reset Password
+
+**Endpoint:** `POST /api/v1/auth/forgot-password`
+
+**Request Body:**
+
+```json
+{
+  "email": "johndoe@example.com"
+}
+```
+
+**Field Rules:**
+
+- `email`: required, must be valid email format
+
+**Response Success (200 OK):**
+
+```json
+{
+  "success": true,
+  "message": "If the account exists, reset instructions have been sent",
+  "data": null
+}
+```
+
+##### 2. Verify Reset Code
+
+**Endpoint:** `POST /api/v1/auth/verify-reset-code`
+
+**Request Body:**
+
+```json
+{
+  "email": "johndoe@example.com",
+  "reset_code": "123456"
+}
+```
+
+**Field Rules:**
+
+- `email`: required, valid email format
+- `reset_code`: required, numeric/string code sesuai implementasi backend
+
+**Response Success (200 OK):**
+
+```json
+{
+  "success": true,
+  "message": "Reset code verified successfully",
+  "data": {
+    "reset_token": "short-lived-reset-token",
+    "expires_in": 900
+  }
+}
+```
+
+##### 3. Reset Password
+
+**Endpoint:** `PATCH /api/v1/auth/reset-password`
+
+**Request Body:**
+
+```json
+{
+  "reset_token": "short-lived-reset-token",
+  "new_password": "newpassword456"
+}
+```
+
+**Field Rules:**
+
+- `reset_token`: required, valid and not expired
+- `new_password`: required, minimum 8 characters
+
+**Response Success (200 OK):**
+
+```json
+{
+  "success": true,
+  "message": "Password reset successfully",
+  "data": null
+}
+```
+
+##### 4. Resend Reset Code
+
+**Endpoint:** `POST /api/v1/auth/resend-reset-code`
+
+**Request Body:**
+
+```json
+{
+  "email": "johndoe@example.com"
+}
+```
+
+**Field Rules:**
+
+- `email`: required, valid email format
+
+**Response Success (200 OK):**
+
+```json
+{
+  "success": true,
+  "message": "If the account exists, a new reset code has been sent",
+  "data": null
+}
+```
 
 ### Self-Owned Endpoints (`/me`)
 
@@ -76,19 +217,19 @@ Authorization: Bearer <your-jwt-token>
 
 ### Admin Endpoints
 
-| Method | Endpoint                    | Description          | Role Required      |
-| ------ | --------------------------- | -------------------- | ------------------ |
-| POST   | `/users`                    | Create user          | Admin, Super Admin |
-| GET    | `/users`                    | List active users    | Admin, Super Admin |
-| GET    | `/users/deleted`            | List deleted users   | Admin, Super Admin |
-| GET    | `/users/:id`                | Get user by ID       | Admin, Super Admin |
-| PUT    | `/users/:id`                | Update user          | Admin, Super Admin |
-| DELETE | `/users/:id`                | Soft delete user     | Admin, Super Admin |
-| PATCH  | `/users/:id/restore`        | Restore deleted user | Admin, Super Admin |
-| PATCH  | `/users/:id/reset-password` | Reset user password  | Admin, Super Admin |
-| PATCH  | `/users/:id/activate`       | Activate user        | Admin, Super Admin |
-| PATCH  | `/users/:id/deactivate`     | Deactivate user      | Admin, Super Admin |
-| DELETE | `/users/:id/hard-delete` | Permanently delete user | Super Admin   |
+| Method | Endpoint                    | Description             | Role Required      |
+| ------ | --------------------------- | ----------------------- | ------------------ |
+| POST   | `/users`                    | Create user             | Admin, Super Admin |
+| GET    | `/users`                    | List active users       | Admin, Super Admin |
+| GET    | `/users/deleted`            | List deleted users      | Admin, Super Admin |
+| GET    | `/users/:id`                | Get user by ID          | Admin, Super Admin |
+| PUT    | `/users/:id`                | Update user             | Admin, Super Admin |
+| DELETE | `/users/:id`                | Soft delete user        | Admin, Super Admin |
+| PATCH  | `/users/:id/restore`        | Restore deleted user    | Admin, Super Admin |
+| PATCH  | `/users/:id/reset-password` | Reset user password     | Admin, Super Admin |
+| PATCH  | `/users/:id/activate`       | Activate user           | Admin, Super Admin |
+| PATCH  | `/users/:id/deactivate`     | Deactivate user         | Admin, Super Admin |
+| DELETE | `/users/:id/hard-delete`    | Permanently delete user | Super Admin        |
 
 ---
 
@@ -848,7 +989,7 @@ Content-Type: application/json
 
 - ⚠️ Tidak perlu old password
 - ⚠️ User akan logout otomatis
-- ✅ Gunakan untuk forgot password
+- ✅ Digunakan oleh admin/super admin untuk override password user
 
 **cURL Example:**
 
@@ -992,29 +1133,32 @@ curl -X DELETE http://localhost:8080/api/v1/users/1/hard-delete \
 
 ### Table: users
 
-| Field | Type | Constraints | Description |
-| --- | --- | --- | --- |
-| id | BIGINT | PRIMARY KEY, AUTO_INCREMENT | Unique identifier untuk user |
-| username | VARCHAR(50) | UNIQUE, NOT NULL, INDEX | Nama pengguna unik |
-| email | VARCHAR(100) | UNIQUE, NOT NULL, INDEX | Email pengguna unik |
-| phone | VARCHAR(15) | UNIQUE, NOT NULL, INDEX | Nomor telepon unik |
-| password | VARCHAR(255) | NOT NULL | Password terenkripsi |
-| role | VARCHAR(20) | NOT NULL, DEFAULT 'patient', INDEX | Role user (patient, doctor, receptionist, admin, super_admin) |
-| is_active | BOOLEAN | NOT NULL, DEFAULT true, INDEX | Status aktif user |
-| created_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | Waktu pembuatan record |
-| updated_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | Waktu update terakhir |
-| deleted_at | TIMESTAMP | INDEX, NULLABLE | Soft delete timestamp (NULL jika tidak dihapus) |
+| Field      | Type         | Constraints                                           | Description                                                   |
+| ---------- | ------------ | ----------------------------------------------------- | ------------------------------------------------------------- |
+| id         | BIGINT       | PRIMARY KEY, AUTO_INCREMENT                           | Unique identifier untuk user                                  |
+| username   | VARCHAR(50)  | UNIQUE, NOT NULL, INDEX                               | Nama pengguna unik                                            |
+| email      | VARCHAR(100) | UNIQUE, NOT NULL, INDEX                               | Email pengguna unik                                           |
+| phone      | VARCHAR(15)  | UNIQUE, NOT NULL, INDEX                               | Nomor telepon unik                                            |
+| password   | VARCHAR(255) | NOT NULL                                              | Password terenkripsi                                          |
+| role       | VARCHAR(20)  | NOT NULL, DEFAULT 'patient', INDEX                    | Role user (patient, doctor, receptionist, admin, super_admin) |
+| is_active  | BOOLEAN      | NOT NULL, DEFAULT true, INDEX                         | Status aktif user                                             |
+| created_at | TIMESTAMP    | DEFAULT CURRENT_TIMESTAMP                             | Waktu pembuatan record                                        |
+| updated_at | TIMESTAMP    | DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | Waktu update terakhir                                         |
+| deleted_at | TIMESTAMP    | INDEX, NULLABLE                                       | Soft delete timestamp (NULL jika tidak dihapus)               |
 
 **Indexes:**
+
 - Primary Key: id
 - Unique Index: username, email, phone
 - Regular Index: role, is_active, deleted_at
 
 **Relationships:**
+
 - Belongs to many relationships through Patient, Doctor models
 - One User can have one Patient or Doctor profile (optional)
 
 **Notes:**
+
 - Soft delete menggunakan deleted_at field
 - Password disimpan dalam bentuk hash/encrypted
 - Role menentukan akses dan permissions user
