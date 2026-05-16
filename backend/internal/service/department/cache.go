@@ -3,6 +3,7 @@ package department
 import (
 	"context"
 	"log"
+	"strings"
 
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/cache"
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/dto"
@@ -26,7 +27,13 @@ func NewCachedDepartmentService(inner DepartmentService, redisClient *cache.Redi
 // ─── Read operations (dengan cache) ────────────────────────────────────────
 
 func (s *cachedDepartmentService) ListDepartments(query *dto.DepartmentPaginationQuery) (*dto.DepartmentListResponse, error) {
-	key := cache.DepartmentListKey(query.Page, query.PageSize)
+	key := cache.DepartmentListQueryKey(
+		query.Page,
+		query.PageSize,
+		normalizeCachePart(query.Search),
+		normalizeCachePart(query.SortBy),
+		normalizeCachePart(query.SortDir),
+	)
 	var resp dto.DepartmentListResponse
 	if err := s.redis.Get(context.Background(), key, &resp); err == nil {
 		return &resp, nil
@@ -40,8 +47,23 @@ func (s *cachedDepartmentService) ListDepartments(query *dto.DepartmentPaginatio
 }
 
 func (s *cachedDepartmentService) DeleteListDepartments(query *dto.DepartmentPaginationQuery) (*dto.DepartmentDeletedListResponse, error) {
-	// Deleted list tidak di-cache karena berubah dinamis
-	return s.inner.DeleteListDepartments(query)
+	key := cache.DepartmentDeletedListQueryKey(
+		query.Page,
+		query.PageSize,
+		normalizeCachePart(query.Search),
+		normalizeCachePart(query.SortBy),
+		normalizeCachePart(query.SortDir),
+	)
+	var resp dto.DepartmentDeletedListResponse
+	if err := s.redis.Get(context.Background(), key, &resp); err == nil {
+		return &resp, nil
+	}
+	result, err := s.inner.DeleteListDepartments(query)
+	if err != nil {
+		return nil, err
+	}
+	s.setCache(key, result)
+	return result, nil
 }
 
 func (s *cachedDepartmentService) GetDepartmentByID(id uint) (*dto.DepartmentResponse, error) {
@@ -114,6 +136,10 @@ func (s *cachedDepartmentService) invalidateAll() {
 	if err := s.redis.DeleteByPattern(context.Background(), cache.PatternDepartmentAll); err != nil {
 		log.Printf("⚠️  Redis invalidate failed for pattern %q: %v", cache.PatternDepartmentAll, err)
 	}
+}
+
+func normalizeCachePart(value string) string {
+	return strings.ToLower(strings.TrimSpace(value))
 }
 
 // ─── compile-time interface check ──────────────────────────────────────────

@@ -51,6 +51,29 @@ func DepartmentKey(id uint) string { return fmt.Sprintf("department:id:%d", id) 
 func DepartmentListKey(page, size int) string {
 	return fmt.Sprintf("department:list:p%d:s%d", page, size)
 }
+func DepartmentListQueryKey(page, size int, search, sortBy, sortDir string) string {
+	return fmt.Sprintf(
+		"department:list:p%d:s%d:q%s:sb%s:sd%s",
+		page,
+		size,
+		search,
+		sortBy,
+		sortDir,
+	)
+}
+func DepartmentDeletedListKey(page, size int) string {
+	return fmt.Sprintf("department:deleted:p%d:s%d", page, size)
+}
+func DepartmentDeletedListQueryKey(page, size int, search, sortBy, sortDir string) string {
+	return fmt.Sprintf(
+		"department:deleted:p%d:s%d:q%s:sb%s:sd%s",
+		page,
+		size,
+		search,
+		sortBy,
+		sortDir,
+	)
+}
 
 // ─── Patient ───────────────────────────────────────────────────────────────
 
