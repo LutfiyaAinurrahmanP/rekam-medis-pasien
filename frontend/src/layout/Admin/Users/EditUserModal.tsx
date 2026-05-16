@@ -100,6 +100,120 @@ export default function EditUserModal({
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const mapValidationTagToMessage = (field: string, tag: string) => {
+    const normalizedField = field.charAt(0).toUpperCase() + field.slice(1);
+    const normalizedTag = tag.toLowerCase().replace(/_/g, " ");
+
+    if (normalizedTag === "required") {
+      return `${normalizedField}: is required`;
+    }
+
+    if (normalizedTag === "email") {
+      return `${normalizedField}: invalid email format`;
+    }
+
+    if (normalizedTag === "uuid") {
+      return `${normalizedField}: must be a valid UUID`;
+    }
+
+    if (normalizedTag === "min" || normalizedTag === "min length") {
+      return `${normalizedField}: value is too short`;
+    }
+
+    if (normalizedTag === "max" || normalizedTag === "max length") {
+      return `${normalizedField}: value is too long`;
+    }
+
+    if (normalizedTag === "oneof") {
+      return `${normalizedField}: invalid value`;
+    }
+
+    return `${normalizedField}: invalid value`;
+  };
+
+  const getErrorList = (unknownErr: unknown): string[] => {
+    const raw = unknownErr as Record<string, unknown> | undefined;
+    const list: string[] = [];
+
+    if (raw && raw.errors && typeof raw.errors === "object") {
+      const errorsObj = raw.errors as Record<string, unknown>;
+      for (const [field, msg] of Object.entries(errorsObj)) {
+        const label = field.charAt(0).toUpperCase() + field.slice(1);
+        list.push(`${label}: ${String(msg)}`);
+      }
+
+      return list;
+    }
+
+    const rawError = raw && (raw.error ?? raw.message ?? "");
+
+    if (typeof rawError === "string" && rawError.trim().length > 0) {
+      const parts = rawError
+        .split(/\r?\n|;|\|/)
+        .map((p: string) => p.trim())
+        .filter(Boolean);
+
+      for (const part of parts) {
+        const validationMatch = part.match(
+          /Field validation for '([^']+)' failed on the '([^']+)' tag/i,
+        );
+
+        if (validationMatch) {
+          const field = validationMatch[1];
+          const tag = validationMatch[2];
+          list.push(mapValidationTagToMessage(field, tag));
+          continue;
+        }
+
+        const quoted = part.match(/'([^']+)'/);
+        if (quoted) {
+          const field = quoted[1];
+          if (/required|cannot be empty|missing/i.test(part)) {
+            list.push(`${field}: is required`);
+            continue;
+          }
+          if (/invalid/i.test(part)) {
+            list.push(`${field}: invalid value`);
+            continue;
+          }
+        }
+
+        const existsMatch = part.match(
+          /(username|email|phone) already exists/i,
+        );
+        if (existsMatch) {
+          const field = existsMatch[1];
+          list.push(
+            `${field.charAt(0).toUpperCase() + field.slice(1)}: ${existsMatch[0]}`,
+          );
+          continue;
+        }
+
+        list.push(part);
+      }
+
+      if (list.length > 0) {
+        return list;
+      }
+    }
+
+    const topMsg = raw && raw.message ? String(raw.message).toLowerCase() : "";
+    if (
+      topMsg.includes("duplicate data") ||
+      topMsg.includes("already exists")
+    ) {
+      const rawErrStr = raw && raw.error ? String(raw.error).toLowerCase() : "";
+      if (rawErrStr.includes("username"))
+        list.push("Username: Username already exists");
+      if (rawErrStr.includes("email")) list.push("Email: Email already exists");
+      if (rawErrStr.includes("phone")) list.push("Phone: Phone already exists");
+      if (list.length === 0) list.push("Duplicate data: conflict detected");
+      return list;
+    }
+
+    return ["Failed to update user. Please try again."];
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setErrorsList([]);
@@ -120,7 +234,7 @@ export default function EditUserModal({
       setShowSuccessModal(true);
     } catch (err) {
       console.error("Update failed:", err);
-      setErrorsList(["Failed to update user. Please try again."]);
+      setErrorsList(getErrorList(err));
     }
   };
 
