@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
+import { useAuth } from "../../../context/AuthContext";
 import PageBreadcrumb from "../../../components/common/PageBreadCrumb";
 import TableHeaderComponent from "../../../components/tables/TableHeader";
 import Pagination from "../../../components/tables/DataTables/TableThree/Pagination";
@@ -14,6 +15,7 @@ import Button from "../../../components/ui/button/Button";
 import DeleteModal from "../../../components/modals/DeleteModal";
 import SuccessModal from "../../../components/ui/notification/SuccessModal";
 import { patch, del } from "../../../services/api";
+import { getRoleDepartmentsPath } from "../../../pages/Roles/shared/role-routing";
 import {
   useDeletedDepartments,
   type DeletedDepartment,
@@ -40,6 +42,7 @@ export default function DeletedDepartmentsIndexLayout({
   onBackToDepartments,
 }: Props = {}) {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { deletedDepartments, loading, error, meta, fetchDeletedDepartments } =
     useDeletedDepartments();
   const [currentPage, setCurrentPage] = useState(1);
@@ -163,7 +166,8 @@ export default function DeletedDepartmentsIndexLayout({
               variant="outline"
               size="sm"
               onClick={
-                onBackToDepartments ?? (() => navigate("/admin/departments"))
+                onBackToDepartments ??
+                (() => navigate(getRoleDepartmentsPath(user?.role)))
               }
             >
               Back to Departments

@@ -43,3 +43,16 @@ export function getRoleReportsPath(role?: string): string {
 
   return `/${normalizeRolePathSegment(role)}/reports`;
 }
+
+/**
+ * Get departments management path based on user role
+ * @param role User role
+ * @returns Departments management path for the role
+ */
+export function getRoleDepartmentsPath(role?: string): string {
+  if (!role) {
+    return "/admin/departments";
+  }
+
+  return `/${normalizeRolePathSegment(role)}/departments`;
+}

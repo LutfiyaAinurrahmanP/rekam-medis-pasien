@@ -202,33 +202,34 @@ export default function DepartmentsIndexLayout() {
 
   return (
     <div className="space-y-4">
-      <PageBreadcrumb pageTitle="Departments" />
-
       {viewMode === "deleted" ? (
         <DeletedDepartmentsIndexLayout
           onBackToDepartments={() => setViewMode("active")}
         />
       ) : (
-        <BaseTable
-          data={departments}
-          columns={columns}
-          loading={loading}
-          error={error}
-          currentPage={currentPage}
-          rowsPerPage={rowsPerPage}
-          search={search}
-          totalItems={meta.total_items}
-          totalPages={meta.total_pages}
-          onSearchChange={handleSearchChange}
-          onPageChange={handlePageChange}
-          onRowsPerPageChange={handleRowsPerPageChange}
-          onCreate={handleCreate}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-          onView={handleView}
-          searchPlaceholder="Search departments..."
-          onDeleteAll={() => setViewMode("deleted")}
-        />
+        <>
+          <PageBreadcrumb pageTitle="Departments" />
+          <BaseTable
+            data={departments}
+            columns={columns}
+            loading={loading}
+            error={error}
+            currentPage={currentPage}
+            rowsPerPage={rowsPerPage}
+            search={search}
+            totalItems={meta.total_items}
+            totalPages={meta.total_pages}
+            onSearchChange={handleSearchChange}
+            onPageChange={handlePageChange}
+            onRowsPerPageChange={handleRowsPerPageChange}
+            onCreate={handleCreate}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            onView={handleView}
+            searchPlaceholder="Search departments..."
+            onDeleteAll={() => setViewMode("deleted")}
+          />
+        </>
       )}
 
       <CreateDepartmentModal

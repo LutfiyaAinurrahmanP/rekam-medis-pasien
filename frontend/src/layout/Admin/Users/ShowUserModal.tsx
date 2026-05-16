@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { get } from "../../../services/api";
+import { formatDateIndonesian } from "../../../utils";
 
 import DetailModal from "../../../components/modals/DetailModal";
 import { useLocation, useNavigate } from "react-router";
@@ -88,8 +89,16 @@ export default function ShowUserModal({
           label: "Status",
           render: (v) => (v ? "Active" : "Inactive"),
         },
-        { key: "created_at", label: "Created At" },
-        { key: "updated_at", label: "Updated At" },
+        {
+          key: "created_at",
+          label: "Created At",
+          render: (v) => formatDateIndonesian(v),
+        },
+        {
+          key: "updated_at",
+          label: "Updated At",
+          render: (v) => formatDateIndonesian(v),
+        },
       ]}
       onClose={close}
     />

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { get } from "../../../services/api";
 import { Modal } from "../../../components/ui/modal";
+import { formatDateIndonesian } from "../../../utils";
 
 interface Props {
   isOpen: boolean;
@@ -56,6 +57,7 @@ export default function ShowDepartmentModal({ isOpen, id, onClose }: Props) {
       isOpen={isOpen}
       onClose={handleClose}
       className="max-w-[584px] p-5 lg:p-10"
+      showCloseButton={false}
     >
       {loading ? (
         <div className="py-8 text-center text-sm text-gray-500 dark:text-gray-400">
@@ -121,7 +123,7 @@ export default function ShowDepartmentModal({ isOpen, id, onClose }: Props) {
                 Created At
               </label>
               <input
-                value={data?.created_at ?? "-"}
+                value={formatDateIndonesian(data?.created_at)}
                 readOnly
                 className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-2 text-sm text-gray-800 outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
               />
@@ -132,7 +134,7 @@ export default function ShowDepartmentModal({ isOpen, id, onClose }: Props) {
                 Last Updated
               </label>
               <input
-                value={data?.updated_at ?? "-"}
+                value={formatDateIndonesian(data?.updated_at)}
                 readOnly
                 className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-2 text-sm text-gray-800 outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
               />
