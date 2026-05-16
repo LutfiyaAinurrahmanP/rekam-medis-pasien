@@ -11,6 +11,7 @@ import {
   useDepartments,
   type Department,
 } from "../../../hooks/Departments/useDepartments";
+import { useAuth } from "../../../context/AuthContext";
 import CreateDepartmentModal from "./CreateDepartmentModal";
 import EditDepartmentModal from "./EditDepartmentModal";
 import ShowDepartmentModal from "./ShowDepartmentModal";
@@ -25,8 +26,13 @@ const formatDate = (dateString: string) => {
 };
 
 export default function DepartmentsIndexLayout() {
+  const { user } = useAuth();
   const { departments, loading, error, meta, fetchDepartments } =
     useDepartments();
+  const isReceptionist =
+    String(user?.role ?? "")
+      .toLowerCase()
+      .replace(/-/g, "_") === "receptionist";
   const [viewMode, setViewMode] = useState<"active" | "deleted">("active");
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -77,6 +83,12 @@ export default function DepartmentsIndexLayout() {
   }, [currentPage, rowsPerPage, search, triggerFetch, viewMode]);
 
   useEffect(() => {
+    if (isReceptionist && viewMode === "deleted") {
+      setViewMode("active");
+    }
+  }, [isReceptionist, viewMode]);
+
+  useEffect(() => {
     return () => {
       if (debounceRef.current) {
         window.clearTimeout(debounceRef.current);
@@ -125,7 +137,10 @@ export default function DepartmentsIndexLayout() {
     setCurrentPage(1);
   };
 
-  const handleCreate = () => setIsCreateModalOpen(true);
+  const handleCreate = () => {
+    if (isReceptionist) return;
+    setIsCreateModalOpen(true);
+  };
 
   const handleCreateSuccess = () => {
     setIsCreateModalOpen(false);
@@ -133,6 +148,7 @@ export default function DepartmentsIndexLayout() {
   };
 
   const handleEdit = (row: Department) => {
+    if (isReceptionist) return;
     setSelectedEditId(String(row.id));
     setIsEditModalOpen(true);
   };
@@ -149,13 +165,14 @@ export default function DepartmentsIndexLayout() {
   };
 
   const handleDelete = (row: Department) => {
+    if (isReceptionist) return;
     setSelectedDeleteId(String(row.id));
     setSelectedDeleteName(row.name);
     setIsDeleteModalOpen(true);
   };
 
   const handleConfirmDelete = async () => {
-    if (!selectedDeleteId) return;
+    if (isReceptionist || !selectedDeleteId) return;
     await del(`/departments/${selectedDeleteId}`);
     triggerFetch(currentPage, rowsPerPage, search);
     setSuccessMessage(
@@ -209,26 +226,43 @@ export default function DepartmentsIndexLayout() {
       ) : (
         <>
           <PageBreadcrumb pageTitle="Departments" />
-          <BaseTable
-            data={departments}
-            columns={columns}
-            loading={loading}
-            error={error}
-            currentPage={currentPage}
-            rowsPerPage={rowsPerPage}
-            search={search}
-            totalItems={meta.total_items}
-            totalPages={meta.total_pages}
-            onSearchChange={handleSearchChange}
-            onPageChange={handlePageChange}
-            onRowsPerPageChange={handleRowsPerPageChange}
-            onCreate={handleCreate}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-            onView={handleView}
-            searchPlaceholder="Search departments..."
-            onDeleteAll={() => setViewMode("deleted")}
-          />
+          <div className={isReceptionist ? "departments-readonly" : undefined}>
+            <BaseTable
+              data={departments}
+              columns={columns}
+              loading={loading}
+              error={error}
+              currentPage={currentPage}
+              rowsPerPage={rowsPerPage}
+              search={search}
+              totalItems={meta.total_items}
+              totalPages={meta.total_pages}
+              onSearchChange={handleSearchChange}
+              onPageChange={handlePageChange}
+              onRowsPerPageChange={handleRowsPerPageChange}
+              onCreate={handleCreate}
+              onEdit={isReceptionist ? undefined : handleEdit}
+              onDelete={isReceptionist ? undefined : handleDelete}
+              onView={handleView}
+              searchPlaceholder="Search departments..."
+              showDeleteButton={!isReceptionist}
+              onDeleteAll={
+                isReceptionist ? undefined : () => setViewMode("deleted")
+              }
+              actionButtons={isReceptionist ? <></> : undefined}
+            />
+          </div>
+
+          {isReceptionist ? (
+            <style>
+              {`
+                .departments-readonly tbody tr td:last-child > div > button:nth-child(2),
+                .departments-readonly tbody tr td:last-child > div > button:nth-child(3) {
+                  display: none;
+                }
+              `}
+            </style>
+          ) : null}
         </>
       )}
 

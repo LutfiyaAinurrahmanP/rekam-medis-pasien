@@ -10,6 +10,7 @@ export default function SuperAdminRoutes() {
     <Fragment>
       <Route path="/super-admin/dashboard" element={<RoleDashboardPage />} />
       <Route path="/super-admin/reports" element={<RoleReportsPage />} />
+      
       <Route path="/super-admin/users" element={<UsersIndex />} />
       <Route path="/super-admin/departments" element={<DepartmentsIndex />} />
     </Fragment>
