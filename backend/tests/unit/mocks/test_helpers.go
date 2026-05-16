@@ -179,3 +179,121 @@ func NewTestUserResponseList(count int) []dto.UserResponse {
 	return responses
 }
 
+// ============= Department Model Builders =============
+
+// NewTestDepartment creates a test department with default values
+func NewTestDepartment() *models.Department {
+	return &models.Department{
+		ID:            1,
+		Name:          "General Medicine",
+		Code:          "GM001",
+		Description:   "General Medicine Department",
+		FloorLocation: "Floor 1",
+		CreatedAt:     time.Now(),
+		UpdatedAt:     time.Now(),
+	}
+}
+
+// NewTestDepartmentWithData creates a test department with custom data
+func NewTestDepartmentWithData(id uint, name, code, description, floorLocation string) *models.Department {
+	return &models.Department{
+		ID:            id,
+		Name:          name,
+		Code:          code,
+		Description:   description,
+		FloorLocation: floorLocation,
+		CreatedAt:     time.Now(),
+		UpdatedAt:     time.Now(),
+	}
+}
+
+// ============= Department DTO Builders =============
+
+// NewTestDepartmentResponse creates a test department response with default values
+func NewTestDepartmentResponse() *dto.DepartmentResponse {
+	return &dto.DepartmentResponse{
+		ID:            1,
+		Name:          "General Medicine",
+		Code:          "GM001",
+		Description:   "General Medicine Department",
+		FloorLocation: "Floor 1",
+		CreatedAt:     time.Now(),
+		UpdatedAt:     time.Now(),
+	}
+}
+
+// NewTestDepartmentResponseWithData creates a test department response with custom data
+func NewTestDepartmentResponseWithData(id uint, name, code, description, floorLocation string) *dto.DepartmentResponse {
+	return &dto.DepartmentResponse{
+		ID:            id,
+		Name:          name,
+		Code:          code,
+		Description:   description,
+		FloorLocation: floorLocation,
+		CreatedAt:     time.Now(),
+		UpdatedAt:     time.Now(),
+	}
+}
+
+// NewCreateDepartmentRequest creates a test create department request
+func NewCreateDepartmentRequest(name, code, description, floorLocation string) *dto.CreateDepartmentRequest {
+	return &dto.CreateDepartmentRequest{
+		Name:          name,
+		Code:          code,
+		Description:   description,
+		FloorLocation: floorLocation,
+	}
+}
+
+// NewUpdateDepartmentRequest creates a test update department request
+func NewUpdateDepartmentRequest(name, code, description, floorLocation string) *dto.UpdateDepartmentRequest {
+	return &dto.UpdateDepartmentRequest{
+		Name:          PtrString(name),
+		Code:          PtrString(code),
+		Description:   PtrString(description),
+		FloorLocation: PtrString(floorLocation),
+	}
+}
+
+// NewDepartmentPaginationQuery creates a test pagination query for departments
+func NewDepartmentPaginationQuery(page, pageSize int) *dto.DepartmentPaginationQuery {
+	return &dto.DepartmentPaginationQuery{
+		Page:     page,
+		PageSize: pageSize,
+		SortBy:   "created_at",
+		SortDir:  "desc",
+	}
+}
+
+// ============= Department Test List Builders =============
+
+// NewTestDepartmentList creates a list of test departments
+func NewTestDepartmentList(count int) []models.Department {
+	departments := make([]models.Department, count)
+	for i := 0; i < count; i++ {
+		departments[i] = *NewTestDepartmentWithData(
+			uint(i+1),
+			"Department "+string(rune(i+1)),
+			"DEP"+string(rune(i+1)),
+			"Description "+string(rune(i+1)),
+			"Floor "+string(rune(i+1)),
+		)
+	}
+	return departments
+}
+
+// NewTestDepartmentResponseList creates a list of test department responses
+func NewTestDepartmentResponseList(count int) []dto.DepartmentResponse {
+	responses := make([]dto.DepartmentResponse, count)
+	for i := 0; i < count; i++ {
+		responses[i] = *NewTestDepartmentResponseWithData(
+			uint(i+1),
+			"Department "+string(rune(i+1)),
+			"DEP"+string(rune(i+1)),
+			"Description "+string(rune(i+1)),
+			"Floor "+string(rune(i+1)),
+		)
+	}
+	return responses
+}
+
