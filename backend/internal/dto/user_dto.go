@@ -57,11 +57,11 @@ type ResetPasswordWithTokenRequest struct {
 }
 
 type PasswordResetRequestResponse struct {
-	UserID     uint   `json:"user_id"`
-	Username   string `json:"username"`
-	Email      string `json:"email"`
-	ResetCode  string `json:"reset_code"`
-	ExpiresIn  int    `json:"expires_in"`
+	UserID    uint   `json:"user_id"`
+	Username  string `json:"username"`
+	Email     string `json:"email"`
+	ResetCode string `json:"reset_code"`
+	ExpiresIn int    `json:"expires_in"`
 }
 
 type PasswordResetTokenResponse struct {

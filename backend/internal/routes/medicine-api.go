@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetupMedicineRouter(rg *gin.RouterGroup, cfg *RouteConfig, m *handler.MedicineHandler){
+func SetupMedicineRouter(rg *gin.RouterGroup, cfg *RouteConfig, m *handler.MedicineHandler) {
 	g := rg.Group("/medicines")
 	g.Use(middleware.AuthMiddleware(cfg.Config))
 	{

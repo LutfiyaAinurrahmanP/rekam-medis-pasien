@@ -552,20 +552,19 @@ func NewTypeTestRestoredEvent(id uint, code, name string) TypeTestRestoredEvent 
 	return e
 }
 
-
 // Medicine Events
 type MedicinePayload struct {
-	ID            uint      `json:"id"`
-	Name          string    `json:"name"`
-	GenericName   string    `json:"generic_name"`
-	BrandName     string    `json:"brand_name"`
-	Type          string    `json:"type"`
-	Strength      string    `json:"strength"`
-	Manufacturer  string    `json:"manufacturer"`
-	Unit          string    `json:"unit"`
-	StockQuantity int       `json:"stock_quantity"`
-	Price         float64   `json:"price"`
-	IsActive      bool      `json:"is_active"`
-	IsLowStock    bool      `json:"is_low_stock"`
-	IsOutOfStock  bool      `json:"is_out_of_stock"`
+	ID            uint    `json:"id"`
+	Name          string  `json:"name"`
+	GenericName   string  `json:"generic_name"`
+	BrandName     string  `json:"brand_name"`
+	Type          string  `json:"type"`
+	Strength      string  `json:"strength"`
+	Manufacturer  string  `json:"manufacturer"`
+	Unit          string  `json:"unit"`
+	StockQuantity int     `json:"stock_quantity"`
+	Price         float64 `json:"price"`
+	IsActive      bool    `json:"is_active"`
+	IsLowStock    bool    `json:"is_low_stock"`
+	IsOutOfStock  bool    `json:"is_out_of_stock"`
 }

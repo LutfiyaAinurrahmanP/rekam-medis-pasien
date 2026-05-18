@@ -158,7 +158,7 @@ func (r *medicineRepository) List(query *dto.MedicinePaginationQuery) ([]models.
 func (r *medicineRepository) DeletedList(query *dto.MedicinePaginationQuery) ([]models.Medicine, int64, error) {
 	var (
 		medicines []models.Medicine
-		total int64
+		total     int64
 	)
 
 	db := r.buildDeletedBaseQuery(query)
@@ -196,18 +196,18 @@ func (r *medicineRepository) ListByAvailable(query *dto.MedicinePaginationQuery)
 
 func (r *medicineRepository) ListByLowStock(query *dto.MedicinePaginationQuery) ([]models.Medicine, int64, error) {
 	queryForFilter := *query
-	
+
 	// Set low stock threshold
 	lowStockThreshold := 10
 	queryForFilter.MaxStock = lowStockThreshold
 	queryForFilter.MinStock = 0
-	
+
 	return r.List(&queryForFilter)
 }
 
 func (r *medicineRepository) ListByOutStock(query *dto.MedicinePaginationQuery) ([]models.Medicine, int64, error) {
 	queryForFilter := *query
-	available :=  false
+	available := false
 	queryForFilter.HasStock = &available
 	return r.List(&queryForFilter)
 }
@@ -223,7 +223,7 @@ func (r *medicineRepository) FindByID(id uint) (*models.Medicine, error) {
 	var m models.Medicine
 	err := r.db.First(&m, id).Error
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound){
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New("medicine not found")
 		}
 		return nil, err
@@ -235,7 +235,7 @@ func (r *medicineRepository) FindByName(name string) (*models.Medicine, error) {
 	var m models.Medicine
 	err := r.db.Where("name = ?", name).First(&m).Error
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound){
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New("medicine not found")
 		}
 		return nil, err

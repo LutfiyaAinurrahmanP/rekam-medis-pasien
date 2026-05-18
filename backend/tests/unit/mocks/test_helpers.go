@@ -296,4 +296,3 @@ func NewTestDepartmentResponseList(count int) []dto.DepartmentResponse {
 	}
 	return responses
 }
-

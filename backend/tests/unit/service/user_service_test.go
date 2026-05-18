@@ -130,7 +130,7 @@ func TestCreateUser_Success(t *testing.T) {
 		Username: "newuser",
 		Email:    "newuser@example.com",
 		Phone:    "08123456789",
-		Password: "password123",  // ✅ Password harus diisi (minimal requirement)
+		Password: "password123", // ✅ Password harus diisi (minimal requirement)
 		Role:     "patient",
 	}
 
@@ -157,7 +157,7 @@ func TestCreateUser_EmptyPassword(t *testing.T) {
 		Username: "newuser",
 		Email:    "newuser@example.com",
 		Phone:    "08123456789",
-		Password: "",  // ❌ Empty password (must be rejected)
+		Password: "", // ❌ Empty password (must be rejected)
 		Role:     "patient",
 	}
 
@@ -458,7 +458,7 @@ func TestCreateUser_InvalidRole(t *testing.T) {
 		Email:    "newuser@example.com",
 		Phone:    "08123456789",
 		Password: "password123",
-		Role:     "invalid_role",  // ❌ Invalid role (not in ValidateRole)
+		Role:     "invalid_role", // ❌ Invalid role (not in ValidateRole)
 	}
 
 	mockRepo.On("IsUsernameExists", "newuser", mock.Anything).Return(false, nil)
@@ -532,7 +532,7 @@ func TestCreateUser_DefaultRole(t *testing.T) {
 		Email:    "newuser@example.com",
 		Phone:    "08123456789",
 		Password: "password123",
-		Role:     "",  // Empty role - should default to 'patient'
+		Role:     "", // Empty role - should default to 'patient'
 	}
 
 	mockRepo.On("IsUsernameExists", "newuser", mock.Anything).Return(false, nil)
@@ -642,7 +642,7 @@ func TestValidateRole_InvalidRoles(t *testing.T) {
 		"super_user",
 		"moderator",
 		"guest",
-		"",  // Empty should be invalid
+		"", // Empty should be invalid
 	}
 
 	for _, role := range invalidRoles {

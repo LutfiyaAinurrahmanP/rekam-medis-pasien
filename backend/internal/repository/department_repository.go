@@ -36,125 +36,125 @@ func NewDepartmentRepository(db *gorm.DB) DepartmentRepository {
 }
 
 func escapeSearchDepartmentPattern(s string) string {
-    s = strings.ReplaceAll(s, `\`, `\\`)
-    s = strings.ReplaceAll(s, `%`, `\%`)
-    s = strings.ReplaceAll(s, `_`, `\_`)
-    return s
+	s = strings.ReplaceAll(s, `\`, `\\`)
+	s = strings.ReplaceAll(s, `%`, `\%`)
+	s = strings.ReplaceAll(s, `_`, `\_`)
+	return s
 }
 
 func applyDepartmentListOrder(db *gorm.DB, sortBy, sortDir string) *gorm.DB {
-    column := "created_at"
-    switch sortBy {
-    case "name", "code", "created_at":
-        column = sortBy
-    }
+	column := "created_at"
+	switch sortBy {
+	case "name", "code", "created_at":
+		column = sortBy
+	}
 
-    direction := "DESC"
-    if strings.EqualFold(sortDir, "asc") {
-        direction = "ASC"
-    }
+	direction := "DESC"
+	if strings.EqualFold(sortDir, "asc") {
+		direction = "ASC"
+	}
 
-    return db.Order(fmt.Sprintf("%s %s", column, direction))
+	return db.Order(fmt.Sprintf("%s %s", column, direction))
 }
 
 func (r *departmentRepository) List(query *dto.DepartmentPaginationQuery) ([]models.Department, int64, error) {
-    var (
-        departments []models.Department
-        total       int64
-    )
+	var (
+		departments []models.Department
+		total       int64
+	)
 
-    db := r.db.Model(&models.Department{})
+	db := r.db.Model(&models.Department{})
 
-    if searchTerm := strings.TrimSpace(query.Search); searchTerm != "" {
-        escaped := escapeSearchDepartmentPattern(searchTerm)
-        searchPattern := "%" + escaped + "%"
+	if searchTerm := strings.TrimSpace(query.Search); searchTerm != "" {
+		escaped := escapeSearchDepartmentPattern(searchTerm)
+		searchPattern := "%" + escaped + "%"
 
-        db = db.Where(
-            "name ILIKE ? ESCAPE '\\' OR code ILIKE ? ESCAPE '\\'",
-            searchPattern, searchPattern,
-        )
-    }
+		db = db.Where(
+			"name ILIKE ? ESCAPE '\\' OR code ILIKE ? ESCAPE '\\'",
+			searchPattern, searchPattern,
+		)
+	}
 
-    db = applyDepartmentListOrder(db, query.SortBy, query.SortDir)
+	db = applyDepartmentListOrder(db, query.SortBy, query.SortDir)
 
-    countDB := db.Session(&gorm.Session{})
-    findDB := db.Session(&gorm.Session{})
+	countDB := db.Session(&gorm.Session{})
+	findDB := db.Session(&gorm.Session{})
 
-    var countErr, findErr error
-    var wg sync.WaitGroup
-    wg.Add(2)
+	var countErr, findErr error
+	var wg sync.WaitGroup
+	wg.Add(2)
 
-    go func() {
-        defer wg.Done()
-        countErr = countDB.Count(&total).Error
-    }()
+	go func() {
+		defer wg.Done()
+		countErr = countDB.Count(&total).Error
+	}()
 
-    go func() {
-        defer wg.Done()
-        offset := (query.Page - 1) * query.PageSize
-        findErr = findDB.Offset(offset).Limit(query.PageSize).Find(&departments).Error
-    }()
+	go func() {
+		defer wg.Done()
+		offset := (query.Page - 1) * query.PageSize
+		findErr = findDB.Offset(offset).Limit(query.PageSize).Find(&departments).Error
+	}()
 
-    wg.Wait()
+	wg.Wait()
 
-    if countErr != nil {
-        return nil, 0, countErr
-    }
-    if findErr != nil {
-        return nil, 0, findErr
-    }
+	if countErr != nil {
+		return nil, 0, countErr
+	}
+	if findErr != nil {
+		return nil, 0, findErr
+	}
 
-    return departments, total, nil
+	return departments, total, nil
 }
 
 func (r *departmentRepository) DeleteList(query *dto.DepartmentPaginationQuery) ([]models.Department, int64, error) {
 	var (
-        departments []models.Department
-        total       int64
-    )
+		departments []models.Department
+		total       int64
+	)
 
-    db := r.db.Unscoped().Model(&models.Department{}).Where("deleted_at IS NOT NULL")
+	db := r.db.Unscoped().Model(&models.Department{}).Where("deleted_at IS NOT NULL")
 
-    if searchTerm := strings.TrimSpace(query.Search); searchTerm != "" {
-        escaped := escapeSearchDepartmentPattern(searchTerm)
-        searchPattern := "%" + escaped + "%"
+	if searchTerm := strings.TrimSpace(query.Search); searchTerm != "" {
+		escaped := escapeSearchDepartmentPattern(searchTerm)
+		searchPattern := "%" + escaped + "%"
 
-        db = db.Where(
-            "name ILIKE ? ESCAPE '\\' OR code ILIKE ? ESCAPE '\\'",
-            searchPattern, searchPattern,
-        )
-    }
+		db = db.Where(
+			"name ILIKE ? ESCAPE '\\' OR code ILIKE ? ESCAPE '\\'",
+			searchPattern, searchPattern,
+		)
+	}
 
-    db = applyDepartmentListOrder(db, query.SortBy, query.SortDir)
+	db = applyDepartmentListOrder(db, query.SortBy, query.SortDir)
 
-    countDB := db.Session(&gorm.Session{})
-    findDB := db.Session(&gorm.Session{})
+	countDB := db.Session(&gorm.Session{})
+	findDB := db.Session(&gorm.Session{})
 
-    var countErr, findErr error
-    var wg sync.WaitGroup
-    wg.Add(2)
+	var countErr, findErr error
+	var wg sync.WaitGroup
+	wg.Add(2)
 
-    go func() {
-        defer wg.Done()
-        countErr = countDB.Count(&total).Error
-    }()
+	go func() {
+		defer wg.Done()
+		countErr = countDB.Count(&total).Error
+	}()
 
-    go func() {
-        defer wg.Done()
-        offset := (query.Page - 1) * query.PageSize
-        findErr = findDB.Offset(offset).Limit(query.PageSize).Find(&departments).Error
-    }()
+	go func() {
+		defer wg.Done()
+		offset := (query.Page - 1) * query.PageSize
+		findErr = findDB.Offset(offset).Limit(query.PageSize).Find(&departments).Error
+	}()
 
-    wg.Wait()
+	wg.Wait()
 
-    if countErr != nil {
-        return nil, 0, countErr
-    }
-    if findErr != nil {
-        return nil, 0, findErr
-    }
+	if countErr != nil {
+		return nil, 0, countErr
+	}
+	if findErr != nil {
+		return nil, 0, findErr
+	}
 
-    return departments, total, nil
+	return departments, total, nil
 }
 
 func (r *departmentRepository) FindById(id uint) (*models.Department, error) {

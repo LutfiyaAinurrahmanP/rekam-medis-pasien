@@ -98,7 +98,7 @@ func main() {
 		DoctorHandler:     dependencies.DoctorHandler,
 		RoomHandler:       dependencies.RoomHandler,
 		TypeTestHandler:   dependencies.TypeTestHandler,
-		MedicineHandler: dependencies.MedicineHandler,
+		MedicineHandler:   dependencies.MedicineHandler,
 	})
 
 	// Setup HTTP server
@@ -139,7 +139,7 @@ type Dependencies struct {
 	DoctorRepository     repository.DoctorRepository
 	RoomRepository       repository.RoomRepository
 	TypeTestRepository   repository.TypeTestRepository
-	MedicineRepository repository.MedicineRepository
+	MedicineRepository   repository.MedicineRepository
 
 	// Services
 	UserService       userservice.UserService
@@ -148,7 +148,7 @@ type Dependencies struct {
 	DoctorService     doctorservice.DoctorService
 	RoomService       roomservice.RoomService
 	TypeTestService   typetestservice.TypeTestService
-	MedicineService medicineservice.MedicineService
+	MedicineService   medicineservice.MedicineService
 
 	// Handlers
 	UserHandler       *handler.UserHandler
@@ -157,7 +157,7 @@ type Dependencies struct {
 	DoctorHandler     *handler.DoctorHandler
 	RoomHandler       *handler.RoomHandler
 	TypeTestHandler   *handler.TypeTestHandler
-	MedicineHandler *handler.MedicineHandler
+	MedicineHandler   *handler.MedicineHandler
 }
 
 // initDependencies initializes all application dependencies
@@ -245,8 +245,8 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 		TypeTestHandler:    typeTestHandler,
 
 		MedicineRepository: medicineRepo,
-		MedicineService: medicineService,
-		MedicineHandler: medicineHandler,
+		MedicineService:    medicineService,
+		MedicineHandler:    medicineHandler,
 	}
 }
 

@@ -4,12 +4,12 @@ package kafka
 // Penamaan: <domain>.<action>
 const (
 	// ── User Topics ──────────────────────────────────────────────────────────
-	TopicUserRegistered = "user.registered"
-	TopicUserLogin      = "user.login"
-	TopicUserCreated    = "user.created"
-	TopicUserUpdated    = "user.updated"
-	TopicUserDeleted    = "user.deleted"
-	TopicUserRestored   = "user.restored"
+	TopicUserRegistered             = "user.registered"
+	TopicUserLogin                  = "user.login"
+	TopicUserCreated                = "user.created"
+	TopicUserUpdated                = "user.updated"
+	TopicUserDeleted                = "user.deleted"
+	TopicUserRestored               = "user.restored"
 	TopicUserPasswordResetRequested = "user.password_reset_requested"
 
 	// ── Patient Topics ────────────────────────────────────────────────────────

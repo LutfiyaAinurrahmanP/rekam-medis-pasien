@@ -84,7 +84,7 @@ func (m *SMTPMailer) SendWithInlineImage(to, subject, htmlBody, contentID, filen
 		"To":           to,
 		"Subject":      subject,
 		"MIME-Version": "1.0",
-		"Content-Type":  `multipart/related; boundary="` + boundary + `"`,
+		"Content-Type": `multipart/related; boundary="` + boundary + `"`,
 	}
 
 	for k, v := range headers {

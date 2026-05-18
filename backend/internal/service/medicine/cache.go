@@ -9,8 +9,8 @@ import (
 )
 
 type cachedMedicineService struct {
-  inner MedicineService
-  redis *cache.RedisClient
+	inner MedicineService
+	redis *cache.RedisClient
 }
 
 func NewCachedMedicineService(inner MedicineService, redisClient *cache.RedisClient) MedicineService {
@@ -79,7 +79,7 @@ func (s *cachedMedicineService) ListByLowStock(query *dto.MedicinePaginationQuer
 		return nil, err
 	}
 
-	s.setCache(key,result)
+	s.setCache(key, result)
 	return result, nil
 }
 
@@ -121,7 +121,7 @@ func (s *cachedMedicineService) FindByID(id uint) (*dto.MedicineResponse, error)
 	}
 	result, err := s.inner.FindByID(id)
 	if err != nil {
-		return  nil, err
+		return nil, err
 	}
 	s.setCache(key, result)
 	return result, nil

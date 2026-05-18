@@ -6,8 +6,8 @@ import (
 )
 
 type eventMedicineService struct {
-  inner MedicineService
-  publisher kafka.EventPublisher
+	inner     MedicineService
+	publisher kafka.EventPublisher
 }
 
 func NewMedicineEventService(inner MedicineService, publisher kafka.EventPublisher) MedicineService {
@@ -15,7 +15,7 @@ func NewMedicineEventService(inner MedicineService, publisher kafka.EventPublish
 		return inner
 	}
 	return &eventMedicineService{
-		inner: inner,
+		inner:     inner,
 		publisher: publisher,
 	}
 }
@@ -41,12 +41,12 @@ func (s *eventMedicineService) ListByOutStock(query *dto.MedicinePaginationQuery
 }
 
 func (s *eventMedicineService) ListByInactive(query *dto.MedicinePaginationQuery) (*dto.MedicineInactiveResponse, error) {
-	return  s.inner.ListByInactive(query)
+	return s.inner.ListByInactive(query)
 }
 
 func (s *eventMedicineService) FindByID(id uint) (*dto.MedicineResponse, error) {
 	return s.inner.FindByID(id)
-} 
+}
 
 func (s *eventMedicineService) FindByName(name string) (*dto.MedicineResponse, error) {
 	return s.inner.FindByName(name)

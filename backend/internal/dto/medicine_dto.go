@@ -13,9 +13,9 @@ type MedicineDeletedListResponse struct {
 }
 
 type MedicineAvailableResponse struct {
-	TotalAvailable     int64                  `json:"total_available"`
-	Data               []MedicineResponse     `json:"data"`
-	Meta               MedicinePaginationMeta `json:"meta"`
+	TotalAvailable int64                  `json:"total_available"`
+	Data           []MedicineResponse     `json:"data"`
+	Meta           MedicinePaginationMeta `json:"meta"`
 }
 
 type MedicineTypeCount struct {
@@ -24,28 +24,28 @@ type MedicineTypeCount struct {
 }
 
 type MedicineLowStockResponse struct {
-	Threshold          int                    `json:"threshold"`
-	TotalLowStock      int64                  `json:"total_low_stock"`
-	Data               []MedicineResponse `json:"data"`
-	Meta               MedicinePaginationMeta `json:"meta"`
+	Threshold     int                    `json:"threshold"`
+	TotalLowStock int64                  `json:"total_low_stock"`
+	Data          []MedicineResponse     `json:"data"`
+	Meta          MedicinePaginationMeta `json:"meta"`
 }
 
 type MedicineOutOfStockResponse struct {
-	TotalOutOfStock int64                    `json:"total_out_of_stock"`
-	Data            []MedicineResponse `json:"data"`
-	Meta            MedicinePaginationMeta   `json:"meta"`
+	TotalOutOfStock int64                  `json:"total_out_of_stock"`
+	Data            []MedicineResponse     `json:"data"`
+	Meta            MedicinePaginationMeta `json:"meta"`
 }
 
 type MedicineInactiveResponse struct {
-	TotalInactive int64 `json:"total_inactive"`
-	Data []MedicineResponse `json:"data"`
-	Meta MedicinePaginationMeta `json:"meta"`
+	TotalInactive int64                  `json:"total_inactive"`
+	Data          []MedicineResponse     `json:"data"`
+	Meta          MedicinePaginationMeta `json:"meta"`
 }
 
 type MedicineByTypeResponse struct {
-	TotalMedicines     int64                  `json:"total_medicines"`
-	Data               []MedicineResponse     `json:"data"`
-	Meta               MedicinePaginationMeta `json:"meta"`
+	TotalMedicines int64                  `json:"total_medicines"`
+	Data           []MedicineResponse     `json:"data"`
+	Meta           MedicinePaginationMeta `json:"meta"`
 }
 
 type MedicineSearchResponse struct {
@@ -166,21 +166,21 @@ type MedicineDetails struct {
 }
 
 type MedicineDeletedResponse struct {
-	ID            uint      `json:"id"`
-	Name          string    `json:"name"`
-	GenericName   string    `json:"generic_name"`
-	BrandName     string    `json:"brand_name"`
-	Type          string    `json:"type"`
-	Strength      string    `json:"strength"`
-	Manufacturer  string    `json:"manufacturer"`
-	Unit          string    `json:"unit"`
-	StockQuantity int       `json:"stock_quantity"`
-	Price         float64   `json:"price"`
-	IsActive      bool      `json:"is_active"`
-	IsLowStock    bool      `json:"is_low_stock"`
-	IsOutOfStock  bool      `json:"is_out_of_stock"`
-	CreatedAt     time.Time `json:"created_at"`
-	UpdatedAt     time.Time `json:"updated_at"`
+	ID            uint       `json:"id"`
+	Name          string     `json:"name"`
+	GenericName   string     `json:"generic_name"`
+	BrandName     string     `json:"brand_name"`
+	Type          string     `json:"type"`
+	Strength      string     `json:"strength"`
+	Manufacturer  string     `json:"manufacturer"`
+	Unit          string     `json:"unit"`
+	StockQuantity int        `json:"stock_quantity"`
+	Price         float64    `json:"price"`
+	IsActive      bool       `json:"is_active"`
+	IsLowStock    bool       `json:"is_low_stock"`
+	IsOutOfStock  bool       `json:"is_out_of_stock"`
+	CreatedAt     time.Time  `json:"created_at"`
+	UpdatedAt     time.Time  `json:"updated_at"`
 	DeletedAt     *time.Time `json:"deleted_at"`
 }
 

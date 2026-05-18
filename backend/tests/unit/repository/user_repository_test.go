@@ -15,7 +15,7 @@ import (
 func TestUserRepository_Create_Success(t *testing.T) {
 	// This test demonstrates the pattern for repository testing
 	// In a real scenario, you would use a test database or database mock
-	
+
 	user := mocks.NewTestUser()
 	user.Username = "newuser"
 	user.Email = "newuser@example.com"

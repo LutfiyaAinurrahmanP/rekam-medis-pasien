@@ -44,7 +44,7 @@ func NewMedicineService(repo repository.MedicineRepository, config *config.Confi
 }
 
 func (s *medicineService) normalizeQuery(query *dto.MedicinePaginationQuery, defaultSortBy, defaultSortDir string) {
-if query.Page < 1 {
+	if query.Page < 1 {
 		query.Page = 1
 	}
 
@@ -82,8 +82,8 @@ func (s *medicineService) List(query *dto.MedicinePaginationQuery) (*dto.Medicin
 	return &dto.MedicineListResponse{
 		Data: responses,
 		Meta: dto.MedicinePaginationMeta{
-			Page: query.Page,
-			PageSize: query.PageSize,
+			Page:       query.Page,
+			PageSize:   query.PageSize,
 			TotalItems: total,
 			TotalPages: totalPages,
 		},
@@ -93,13 +93,13 @@ func (s *medicineService) List(query *dto.MedicinePaginationQuery) (*dto.Medicin
 func (s *medicineService) DeletedList(query *dto.MedicinePaginationQuery) (*dto.MedicineDeletedListResponse, error) {
 	s.normalizeQuery(query, "name", "asc")
 
-	medicines, total, err :=s.repo.DeletedList(query)
+	medicines, total, err := s.repo.DeletedList(query)
 	if err != nil {
 		return nil, err
 	}
 
 	responses := make([]dto.MedicineDeletedResponse, len(medicines))
-	for i, m := range medicines{
+	for i, m := range medicines {
 		responses[i] = *s.toDeletedResponse(&m)
 	}
 
@@ -107,8 +107,8 @@ func (s *medicineService) DeletedList(query *dto.MedicinePaginationQuery) (*dto.
 	return &dto.MedicineDeletedListResponse{
 		Data: responses,
 		Meta: dto.MedicinePaginationMeta{
-			Page: query.Page,
-			PageSize: query.PageSize,
+			Page:       query.Page,
+			PageSize:   query.PageSize,
 			TotalItems: total,
 			TotalPages: totalPages,
 		},
@@ -130,8 +130,8 @@ func (s *medicineService) ListByAvailable(query *dto.MedicinePaginationQuery) (*
 
 	totalPages := int(math.Ceil(float64(total) / float64(query.PageSize)))
 	return &dto.MedicineAvailableResponse{
-		TotalAvailable:     total,
-		Data:               responses,
+		TotalAvailable: total,
+		Data:           responses,
 		Meta: dto.MedicinePaginationMeta{
 			Page:       query.Page,
 			PageSize:   query.PageSize,
@@ -150,15 +150,15 @@ func (s *medicineService) ListByLowStock(query *dto.MedicinePaginationQuery) (*d
 	}
 
 	responses := make([]dto.MedicineResponse, len(medicines))
-	for i, m := range medicines{
+	for i, m := range medicines {
 		responses[i] = *s.toResponse(&m)
 	}
 
 	totalPages := int(math.Ceil(float64(total) / float64(query.PageSize)))
 	return &dto.MedicineLowStockResponse{
-		Threshold:          10, 
-		TotalLowStock:      total,
-		Data:               responses,
+		Threshold:     10,
+		TotalLowStock: total,
+		Data:          responses,
 		Meta: dto.MedicinePaginationMeta{
 			Page:       query.Page,
 			PageSize:   query.PageSize,
@@ -166,7 +166,7 @@ func (s *medicineService) ListByLowStock(query *dto.MedicinePaginationQuery) (*d
 			TotalPages: totalPages,
 		},
 	}, nil
-} 
+}
 
 func (s *medicineService) ListByOutStock(query *dto.MedicinePaginationQuery) (*dto.MedicineOutOfStockResponse, error) {
 	s.normalizeQuery(query, "name", "asc")
@@ -184,7 +184,7 @@ func (s *medicineService) ListByOutStock(query *dto.MedicinePaginationQuery) (*d
 	totalPages := int(math.Ceil(float64(total) / float64(query.PageSize)))
 	return &dto.MedicineOutOfStockResponse{
 		TotalOutOfStock: total,
-		Data:               responses,
+		Data:            responses,
 		Meta: dto.MedicinePaginationMeta{
 			Page:       query.Page,
 			PageSize:   query.PageSize,
@@ -203,14 +203,14 @@ func (s *medicineService) ListByInactive(query *dto.MedicinePaginationQuery) (*d
 	}
 
 	responses := make([]dto.MedicineResponse, len(medicines))
-	for i, m := range medicines{
+	for i, m := range medicines {
 		responses[i] = *s.toResponse(&m)
 	}
 
 	totalPages := int(math.Ceil(float64(total) / float64(query.PageSize)))
 	return &dto.MedicineInactiveResponse{
 		TotalInactive: total,
-		Data:               responses,
+		Data:          responses,
 		Meta: dto.MedicinePaginationMeta{
 			Page:       query.Page,
 			PageSize:   query.PageSize,
@@ -252,54 +252,53 @@ func (s *medicineService) ListByType(query *dto.MedicinePaginationQuery) (*dto.M
 	totalPages := int(math.Ceil(float64(total) / float64(query.PageSize)))
 	return &dto.MedicineByTypeResponse{
 		TotalMedicines: total,
-		Data: responses,
+		Data:           responses,
 		Meta: dto.MedicinePaginationMeta{
-			Page: query.Page,
-			PageSize: query.PageSize,
+			Page:       query.Page,
+			PageSize:   query.PageSize,
 			TotalItems: total,
 			TotalPages: totalPages,
 		},
 	}, nil
 }
 
-
-func (s *medicineService) toResponse(m *models.Medicine) *dto.MedicineResponse{
+func (s *medicineService) toResponse(m *models.Medicine) *dto.MedicineResponse {
 	return &dto.MedicineResponse{
-		ID: m.ID,
-		Name: m.Name,
-		GenericName: m.GenericName,
-		BrandName: m.BrandName,
-		Type: m.Type,
-		Strength: m.Strength,
-		Manufacturer: m.Manufacturer,
-		Unit: m.Unit,
+		ID:            m.ID,
+		Name:          m.Name,
+		GenericName:   m.GenericName,
+		BrandName:     m.BrandName,
+		Type:          m.Type,
+		Strength:      m.Strength,
+		Manufacturer:  m.Manufacturer,
+		Unit:          m.Unit,
 		StockQuantity: m.StockQuantity,
-		Price: m.Price,
-		IsActive: m.IsActive,
-		IsLowStock: m.StockQuantity == 10,
-		IsOutOfStock: m.StockQuantity == 0,
-		CreatedAt: m.CreatedAt,
-		UpdatedAt: m.UpdatedAt,
+		Price:         m.Price,
+		IsActive:      m.IsActive,
+		IsLowStock:    m.StockQuantity == 10,
+		IsOutOfStock:  m.StockQuantity == 0,
+		CreatedAt:     m.CreatedAt,
+		UpdatedAt:     m.UpdatedAt,
 	}
-} 
+}
 
-func (s *medicineService) toDeletedResponse(m *models.Medicine) *dto.MedicineDeletedResponse{
+func (s *medicineService) toDeletedResponse(m *models.Medicine) *dto.MedicineDeletedResponse {
 	return &dto.MedicineDeletedResponse{
-		ID: m.ID,
-		Name: m.Name,
-		GenericName: m.GenericName,
-		BrandName: m.BrandName,
-		Type: m.Type,
-		Strength: m.Strength,
-		Manufacturer: m.Manufacturer,
-		Unit: m.Unit,
+		ID:            m.ID,
+		Name:          m.Name,
+		GenericName:   m.GenericName,
+		BrandName:     m.BrandName,
+		Type:          m.Type,
+		Strength:      m.Strength,
+		Manufacturer:  m.Manufacturer,
+		Unit:          m.Unit,
 		StockQuantity: m.StockQuantity,
-		Price: m.Price,
-		IsActive: m.IsActive,
-		IsLowStock: m.StockQuantity == 10,
-		IsOutOfStock: m.StockQuantity == 0,
-		CreatedAt: m.CreatedAt,
-		UpdatedAt: m.UpdatedAt,
-		DeletedAt: &m.DeletedAt.Time,
+		Price:         m.Price,
+		IsActive:      m.IsActive,
+		IsLowStock:    m.StockQuantity == 10,
+		IsOutOfStock:  m.StockQuantity == 0,
+		CreatedAt:     m.CreatedAt,
+		UpdatedAt:     m.UpdatedAt,
+		DeletedAt:     &m.DeletedAt.Time,
 	}
-} 
+}
