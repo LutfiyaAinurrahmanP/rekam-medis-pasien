@@ -3,6 +3,7 @@ package patient
 import (
 	"context"
 	"log"
+	"strings"
 
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/cache"
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/dto"
@@ -31,7 +32,18 @@ func NewCachedPatientService(inner PatientService, redisClient *cache.RedisClien
 // ─── Read operations (dengan cache) ────────────────────────────────────────
 
 func (s *cachedPatientService) ListPatients(query *dto.PatientPaginationQuery) (*dto.PatientListResponse, error) {
-	key := cache.PatientListKey(query.Page, query.PageSize)
+	key := cache.PatientListQueryKey(
+		query.Page,
+		query.PageSize,
+		normalizeCachePart(query.Search),
+		normalizeCachePart(query.Gender),
+		normalizeCachePart(query.BloodType),
+		normalizeCachePart(query.InsuranceProvider),
+		query.MinAge,
+		query.MaxAge,
+		normalizeCachePart(query.SortBy),
+		normalizeCachePart(query.SortDir),
+	)
 	var resp dto.PatientListResponse
 	if err := s.redis.Get(context.Background(), key, &resp); err == nil {
 		return &resp, nil
@@ -45,8 +57,28 @@ func (s *cachedPatientService) ListPatients(query *dto.PatientPaginationQuery) (
 }
 
 func (s *cachedPatientService) DeleteListPatients(query *dto.PatientPaginationQuery) (*dto.PatientDeletedListResponse, error) {
-	// Deleted list tidak di-cache karena berubah sangat dinamis
-	return s.inner.DeleteListPatients(query)
+	key := cache.PatientDeletedListQueryKey(
+		query.Page,
+		query.PageSize,
+		normalizeCachePart(query.Search),
+		normalizeCachePart(query.Gender),
+		normalizeCachePart(query.BloodType),
+		normalizeCachePart(query.InsuranceProvider),
+		query.MinAge,
+		query.MaxAge,
+		normalizeCachePart(query.SortBy),
+		normalizeCachePart(query.SortDir),
+	)
+	var resp dto.PatientDeletedListResponse
+	if err := s.redis.Get(context.Background(), key, &resp); err == nil {
+		return &resp, nil
+	}
+	result, err := s.inner.DeleteListPatients(query)
+	if err != nil {
+		return nil, err
+	}
+	s.setCache(key, result)
+	return result, nil
 }
 
 func (s *cachedPatientService) GetPatientByID(id uint) (*dto.PatientResponse, error) {
@@ -165,6 +197,10 @@ func (s *cachedPatientService) invalidateAll() {
 	if err := s.redis.DeleteByPattern(context.Background(), cache.PatternPatientAll); err != nil {
 		log.Printf("⚠️  Redis invalidate failed for pattern %q: %v", cache.PatternPatientAll, err)
 	}
+}
+
+func normalizeCachePart(value string) string {
+	return strings.ToLower(strings.TrimSpace(value))
 }
 
 // compile-time interface check

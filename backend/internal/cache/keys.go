@@ -77,8 +77,41 @@ func DepartmentDeletedListQueryKey(page, size int, search, sortBy, sortDir strin
 
 // ─── Patient ───────────────────────────────────────────────────────────────
 
-func PatientKey(id uint) string             { return fmt.Sprintf("patient:id:%d", id) }
-func PatientListKey(page, size int) string  { return fmt.Sprintf("patient:list:p%d:s%d", page, size) }
+func PatientKey(id uint) string            { return fmt.Sprintf("patient:id:%d", id) }
+func PatientListKey(page, size int) string { return fmt.Sprintf("patient:list:p%d:s%d", page, size) }
+func PatientListQueryKey(page, size int, search, gender, bloodType, insuranceProvider string, minAge, maxAge int, sortBy, sortDir string) string {
+	return fmt.Sprintf(
+		"patient:list:p%d:s%d:q%s:g%s:b%s:ip%s:min%d:max%d:sb%s:sd%s",
+		page,
+		size,
+		search,
+		gender,
+		bloodType,
+		insuranceProvider,
+		minAge,
+		maxAge,
+		sortBy,
+		sortDir,
+	)
+}
+func PatientDeletedListKey(page, size int) string {
+	return fmt.Sprintf("patient:deleted:p%d:s%d", page, size)
+}
+func PatientDeletedListQueryKey(page, size int, search, gender, bloodType, insuranceProvider string, minAge, maxAge int, sortBy, sortDir string) string {
+	return fmt.Sprintf(
+		"patient:deleted:p%d:s%d:q%s:g%s:b%s:ip%s:min%d:max%d:sb%s:sd%s",
+		page,
+		size,
+		search,
+		gender,
+		bloodType,
+		insuranceProvider,
+		minAge,
+		maxAge,
+		sortBy,
+		sortDir,
+	)
+}
 func PatientByCodeKey(code string) string   { return fmt.Sprintf("patient:code:%s", code) }
 func PatientByUserIDKey(userID uint) string { return fmt.Sprintf("patient:user:%d", userID) }
 
