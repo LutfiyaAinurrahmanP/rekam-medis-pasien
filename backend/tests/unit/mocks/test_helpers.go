@@ -296,3 +296,174 @@ func NewTestDepartmentResponseList(count int) []dto.DepartmentResponse {
 	}
 	return responses
 }
+
+// ============= Patient Model Builders =============
+
+// NewTestPatient creates a test patient with default values
+func NewTestPatient() *models.Patient {
+	userID := uint(1)
+	return &models.Patient{
+		ID:                    1,
+		UserID:                &userID,
+		PatientCode:           "PAT001",
+		FullName:              "John Doe",
+		DateOfBirth:           "1990-01-01",
+		Gender:                "male",
+		BloodType:             "O",
+		Phone:                 "08123456789",
+		Email:                 "john@example.com",
+		Address:               "Jakarta",
+		EmergencyContactName:  "Jane Doe",
+		EmergencyContactPhone: "08129876543",
+		InsuranceNumber:       "INS-001",
+		InsuranceProvider:     "BPJS",
+		Allergies:             "None",
+		CreatedAt:             time.Now(),
+		UpdatedAt:             time.Now(),
+	}
+}
+
+// NewTestPatientWithData creates a test patient with custom data
+func NewTestPatientWithData(id uint, patientCode, fullName, dateOfBirth, gender, bloodType string) *models.Patient {
+	userID := id
+	return &models.Patient{
+		ID:                    id,
+		UserID:                &userID,
+		PatientCode:           patientCode,
+		FullName:              fullName,
+		DateOfBirth:           dateOfBirth,
+		Gender:                gender,
+		BloodType:             bloodType,
+		Phone:                 "08123456789",
+		Email:                 "patient@example.com",
+		Address:               "Jakarta",
+		EmergencyContactName:  "Emergency Contact",
+		EmergencyContactPhone: "08129876543",
+		InsuranceNumber:       "INS-001",
+		InsuranceProvider:     "BPJS",
+		Allergies:             "None",
+		CreatedAt:             time.Now(),
+		UpdatedAt:             time.Now(),
+	}
+}
+
+// ============= Patient DTO Builders =============
+
+// NewTestPatientResponse creates a test patient response with default values
+func NewTestPatientResponse() *dto.PatientResponse {
+	userID := uint(1)
+	return &dto.PatientResponse{
+		ID:                    1,
+		UserID:                &userID,
+		PatientCode:           "PAT001",
+		FullName:              "John Doe",
+		DateOfBirth:           "1990-01-01",
+		Age:                   35,
+		Gender:                "male",
+		BloodType:             "O",
+		Phone:                 "08123456789",
+		Email:                 "john@example.com",
+		Address:               "Jakarta",
+		EmergencyContactName:  "Jane Doe",
+		EmergencyContactPhone: "08129876543",
+		InsuranceNumber:       "INS-001",
+		InsuranceProvider:     "BPJS",
+		Allergies:             "None",
+		CreatedAt:             time.Now(),
+		UpdatedAt:             time.Now(),
+	}
+}
+
+// NewTestPatientResponseWithData creates a test patient response with custom data
+func NewTestPatientResponseWithData(id uint, patientCode, fullName, dateOfBirth, gender, bloodType string) *dto.PatientResponse {
+	userID := id
+	return &dto.PatientResponse{
+		ID:                    id,
+		UserID:                &userID,
+		PatientCode:           patientCode,
+		FullName:              fullName,
+		DateOfBirth:           dateOfBirth,
+		Age:                   35,
+		Gender:                gender,
+		BloodType:             bloodType,
+		Phone:                 "08123456789",
+		Email:                 "patient@example.com",
+		Address:               "Jakarta",
+		EmergencyContactName:  "Emergency Contact",
+		EmergencyContactPhone: "08129876543",
+		InsuranceNumber:       "INS-001",
+		InsuranceProvider:     "BPJS",
+		Allergies:             "None",
+		CreatedAt:             time.Now(),
+		UpdatedAt:             time.Now(),
+	}
+}
+
+// NewDeletedPatientResponse creates a test deleted patient response with default values
+func NewDeletedPatientResponse() *dto.DeletedPatientResponse {
+	patient := NewTestPatientResponse()
+	deletedAt := time.Now()
+	return &dto.DeletedPatientResponse{
+		ID:                    patient.ID,
+		UserID:                patient.UserID,
+		PatientCode:           patient.PatientCode,
+		FullName:              patient.FullName,
+		DateOfBirth:           patient.DateOfBirth,
+		Age:                   patient.Age,
+		Gender:                patient.Gender,
+		BloodType:             patient.BloodType,
+		Phone:                 patient.Phone,
+		Email:                 patient.Email,
+		Address:               patient.Address,
+		EmergencyContactName:  patient.EmergencyContactName,
+		EmergencyContactPhone: patient.EmergencyContactPhone,
+		InsuranceNumber:       patient.InsuranceNumber,
+		InsuranceProvider:     patient.InsuranceProvider,
+		Allergies:             patient.Allergies,
+		CreatedAt:             patient.CreatedAt,
+		UpdatedAt:             patient.UpdatedAt,
+		DeletedAt:             &deletedAt,
+	}
+}
+
+// NewPatientPaginationQuery creates a test pagination query for patients
+func NewPatientPaginationQuery(page, pageSize int) *dto.PatientPaginationQuery {
+	return &dto.PatientPaginationQuery{
+		Page:     page,
+		PageSize: pageSize,
+		SortBy:   "created_at",
+		SortDir:  "desc",
+	}
+}
+
+// NewTestPatientList creates a list of test patients
+func NewTestPatientList(count int) []models.Patient {
+	patients := make([]models.Patient, count)
+	for i := 0; i < count; i++ {
+		patients[i] = *NewTestPatientWithData(
+			uint(i+1),
+			"PAT00"+string(rune(i+1)),
+			"Patient "+string(rune(i+1)),
+			"1990-01-01",
+			"male",
+			"O",
+		)
+	}
+	return patients
+}
+
+// NewTestDeletedPatientList creates a list of test deleted patients
+func NewTestDeletedPatientList(count int) []models.Patient {
+	patients := make([]models.Patient, count)
+	for i := 0; i < count; i++ {
+		patients[i] = *NewTestPatientWithData(
+			uint(i+1),
+			"PATDEL00"+string(rune(i+1)),
+			"Deleted Patient "+string(rune(i+1)),
+			"1990-01-01",
+			"female",
+			"A",
+		)
+	}
+	return patients
+}
