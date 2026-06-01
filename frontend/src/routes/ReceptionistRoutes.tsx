@@ -3,6 +3,7 @@ import { Route } from "react-router";
 import RoleDashboardPage from "../pages/Roles/RoleDashboardPage";
 import RoleReportsPage from "../pages/Roles/RoleReportsPage";
 import DepartmentsIndex from "../pages/Admin/Departments/Index";
+import PatientsIndex from "../pages/Admin/Patients/Index";
 // import DepartmentsShow from "../pages/Admin/Departments/Show";
 
 export default function ReceptionistRoutes() {
@@ -12,6 +13,7 @@ export default function ReceptionistRoutes() {
       <Route path="/receptionist/reports" element={<RoleReportsPage />} />
 
       <Route path="/receptionist/departments" element={<DepartmentsIndex />} />
+      <Route path="/receptionist/patients" element={<PatientsIndex />} />
     </Fragment>
   );
 }

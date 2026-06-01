@@ -4,9 +4,11 @@ import { Modal } from "../ui/modal";
 export interface CreateFormFieldDef {
   name: string;
   label: string;
-  type?: "text" | "email" | "tel" | "password" | "select";
+  type?: "text" | "email" | "tel" | "password" | "date" | "select" | "textarea";
   placeholder?: string;
   required?: boolean;
+  disabled?: boolean;
+  rows?: number;
   options?: { value: string; label: string }[];
 }
 
@@ -14,7 +16,9 @@ interface CreateFormModalProps {
   isOpen: boolean;
   formData: Record<string, string>;
   onChange: (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >,
   ) => void;
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   onClose: () => void;
@@ -93,7 +97,7 @@ export default function CreateFormModal({
                       onChange={onChange}
                       className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:focus:ring-brand-500"
                       required={field.required}
-                      disabled={loading || disabled}
+                      disabled={loading || disabled || field.disabled}
                     >
                       <option value="">
                         Select {field.label.toLowerCase()}
@@ -104,6 +108,17 @@ export default function CreateFormModal({
                         </option>
                       ))}
                     </select>
+                  ) : field.type === "textarea" ? (
+                    <textarea
+                      name={field.name}
+                      value={formData[field.name] || ""}
+                      onChange={onChange}
+                      rows={field.rows ?? 3}
+                      className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:focus:ring-brand-500"
+                      placeholder={field.placeholder}
+                      required={field.required}
+                      disabled={loading || disabled || field.disabled}
+                    />
                   ) : (
                     <input
                       name={field.name}
@@ -113,7 +128,7 @@ export default function CreateFormModal({
                       className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:focus:ring-brand-500"
                       placeholder={field.placeholder}
                       required={field.required}
-                      disabled={loading || disabled}
+                      disabled={loading || disabled || field.disabled}
                     />
                   )}
                 </div>

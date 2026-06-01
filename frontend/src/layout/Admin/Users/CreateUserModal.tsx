@@ -10,6 +10,7 @@ import { getRoleUsersPath } from "../../../pages/Roles/shared/role-routing";
 interface CreateUserModalProps {
   isOpen: boolean;
   role?: string;
+  forcedRole?: string;
   onClose?: () => void; // optional callback for inline usage
   onSuccess?: () => void; // optional callback for inline usage
 }
@@ -24,7 +25,7 @@ type CreateUserFormState = {
 };
 
 // Form field configuration
-const formFields: CreateFormFieldDef[] = [
+const baseFormFields: CreateFormFieldDef[] = [
   {
     name: "username",
     label: "Username",
@@ -78,6 +79,7 @@ const formFields: CreateFormFieldDef[] = [
 export default function CreateUserModal({
   isOpen,
   role,
+  forcedRole,
   onClose,
   onSuccess,
 }: CreateUserModalProps) {
@@ -94,8 +96,13 @@ export default function CreateUserModal({
     phone: "",
     password: "",
     confirmPassword: "",
-    role: role || "",
+    role: forcedRole || role || "",
   });
+
+  const formFields =
+    forcedRole && forcedRole.length > 0
+      ? baseFormFields.filter((field) => field.name !== "role")
+      : baseFormFields;
 
   const close = useCallback(() => {
     if (onClose) {
@@ -126,9 +133,16 @@ export default function CreateUserModal({
   }, [showSuccessModal, handleSuccessModalClose]);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >,
   ) => {
     const { name, value } = e.target;
+
+    if (forcedRole && name === "role") {
+      return;
+    }
+
     setFormData((previous) => ({
       ...previous,
       [name]: value,
@@ -183,7 +197,7 @@ export default function CreateUserModal({
         email: formData.email,
         phone: formData.phone,
         password: formData.password,
-        role: formData.role || undefined,
+        role: forcedRole || formData.role || undefined,
       });
 
       // Store username for success modal
@@ -197,7 +211,7 @@ export default function CreateUserModal({
         phone: "",
         password: "",
         confirmPassword: "",
-        role: role || "",
+        role: forcedRole || role || "",
       });
     } catch (unknownErr) {
       console.error("Create user error:", unknownErr);
