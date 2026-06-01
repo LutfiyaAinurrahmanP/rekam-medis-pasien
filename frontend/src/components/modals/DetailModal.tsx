@@ -4,6 +4,7 @@ import { Modal } from "../ui/modal";
 interface FieldDef {
   key: string;
   label?: string;
+  type?: "text" | "button";
   render?: (
     value: unknown,
     record?: Record<string, unknown>,
@@ -79,9 +80,13 @@ export default function DetailModal({
                   <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">
                     {f.label ?? f.key.charAt(0).toUpperCase() + f.key.slice(1)}
                   </label>
-                  <p className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-800 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90">
-                    {renderValue(f.key, f.render)}
-                  </p>
+                  {f.type === "button" ? (
+                    <div>{renderValue(f.key, f.render)}</div>
+                  ) : (
+                    <p className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-800 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90">
+                      {renderValue(f.key, f.render)}
+                    </p>
+                  )}
                 </div>
               ))}
             </div>

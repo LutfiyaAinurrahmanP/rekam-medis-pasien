@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router";
 import { get } from "../../../services/api";
 import { useAuth } from "../../../context/AuthContext";
 import DetailModal from "../../../components/modals/DetailModal";
+import ShowUserModal from "../Users/ShowUserModal";
 import { formatDateIndonesian } from "../../../utils";
 import { getRolePatientsPath } from "../../../pages/Roles/shared/role-routing";
 import type { Patient } from "../../../hooks/Patients/usePatients";
@@ -25,6 +26,7 @@ export default function ShowPatientModal({
 
   const [loading, setLoading] = useState(true);
   const [patient, setPatient] = useState<Patient | null>(null);
+  const [isUserModalOpen, setIsUserModalOpen] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -68,50 +70,77 @@ export default function ShowPatientModal({
   };
 
   return (
-    <DetailModal
-      isOpen={isOpen}
-      loading={loading}
-      data={patient as Record<string, unknown> | null}
-      fields={[
-        { key: "patient_code", label: "Patient Code" },
-        { key: "user_id", label: "User ID" },
-        { key: "full_name", label: "Full Name" },
-        { key: "age", label: "Age" },
-        {
-          key: "date_of_birth",
-          label: "Date of Birth",
-          render: (v) =>
-            formatDateIndonesian((v as string | null | undefined) ?? null),
-        },
-        {
-          key: "gender",
-          label: "Gender",
-          render: (v) =>
-            String(v ?? "-").replace(/^./, (char) => char.toUpperCase()),
-        },
-        { key: "blood_type", label: "Blood Type" },
-        { key: "phone", label: "Phone" },
-        { key: "email", label: "Email" },
-        { key: "address", label: "Address" },
-        { key: "emergency_contact_name", label: "Emergency Contact Name" },
-        { key: "emergency_contact_phone", label: "Emergency Contact Phone" },
-        { key: "insurance_number", label: "Insurance Number" },
-        { key: "insurance_provider", label: "Insurance Provider" },
-        { key: "allergies", label: "Allergies" },
-        {
-          key: "created_at",
-          label: "Created At",
-          render: (v) =>
-            formatDateIndonesian((v as string | null | undefined) ?? null),
-        },
-        {
-          key: "updated_at",
-          label: "Updated At",
-          render: (v) =>
-            formatDateIndonesian((v as string | null | undefined) ?? null),
-        },
-      ]}
-      onClose={close}
-    />
+    <>
+      <DetailModal
+        isOpen={isOpen}
+        loading={loading}
+        data={patient as Record<string, unknown> | null}
+        fields={[
+          { key: "patient_code", label: "Patient Code" },
+          {
+            key: "user_id",
+            label: "Linked User",
+            type: "button",
+            render: (value) => {
+              if (!value) return "-";
+
+              return (
+                <button
+                  type="button"
+                  onClick={() => setIsUserModalOpen(true)}
+                  className="inline-flex items-center rounded-lg border border-brand-300 px-3 py-1.5 text-xs font-medium text-brand-700 transition-colors hover:bg-brand-50 dark:border-brand-700 dark:text-brand-300 dark:hover:bg-brand-500/10"
+                >
+                  View User
+                </button>
+              );
+            },
+          },
+          { key: "full_name", label: "Full Name" },
+          { key: "age", label: "Age" },
+          {
+            key: "date_of_birth",
+            label: "Date of Birth",
+            render: (v) =>
+              formatDateIndonesian((v as string | null | undefined) ?? null),
+          },
+          {
+            key: "gender",
+            label: "Gender",
+            render: (v) =>
+              String(v ?? "-").replace(/^./, (char) => char.toUpperCase()),
+          },
+          { key: "blood_type", label: "Blood Type" },
+          { key: "phone", label: "Phone" },
+          { key: "email", label: "Email" },
+          { key: "address", label: "Address" },
+          { key: "emergency_contact_name", label: "Emergency Contact Name" },
+          { key: "emergency_contact_phone", label: "Emergency Contact Phone" },
+          { key: "insurance_number", label: "Insurance Number" },
+          { key: "insurance_provider", label: "Insurance Provider" },
+          { key: "allergies", label: "Allergies" },
+          {
+            key: "created_at",
+            label: "Created At",
+            render: (v) =>
+              formatDateIndonesian((v as string | null | undefined) ?? null),
+          },
+          {
+            key: "updated_at",
+            label: "Updated At",
+            render: (v) =>
+              formatDateIndonesian((v as string | null | undefined) ?? null),
+          },
+        ]}
+        onClose={close}
+      />
+
+      {isUserModalOpen && patient?.user_id ? (
+        <ShowUserModal
+          isOpen={isUserModalOpen}
+          id={String(patient.user_id)}
+          onClose={() => setIsUserModalOpen(false)}
+        />
+      ) : null}
+    </>
   );
 }
