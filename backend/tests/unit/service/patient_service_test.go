@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"testing"
+	"time"
 
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/config"
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/dto"
@@ -12,6 +13,22 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
+
+func expectedAgeFromDOB(t *testing.T, dateOfBirth string) int {
+	t.Helper()
+	parsedBirthDate, err := time.Parse("2006-01-02", dateOfBirth)
+	if err != nil {
+		t.Fatalf("failed to parse test birth date %q: %v", dateOfBirth, err)
+	}
+
+	now := time.Now()
+	age := now.Year() - parsedBirthDate.Year()
+	if now.Month() < parsedBirthDate.Month() || (now.Month() == parsedBirthDate.Month() && now.Day() < parsedBirthDate.Day()) {
+		age--
+	}
+
+	return age
+}
 
 // ============= Test Cases: GetPatientByID =============
 
@@ -31,6 +48,7 @@ func TestGetPatientByID_Success(t *testing.T) {
 	assert.Equal(t, uint(1), result.ID)
 	assert.Equal(t, "PAT001", result.PatientCode)
 	assert.Equal(t, "John Doe", result.FullName)
+	assert.Equal(t, expectedAgeFromDOB(t, "1990-01-01"), result.Age)
 	mockRepo.AssertExpectations(t)
 }
 
@@ -204,6 +222,7 @@ func TestDeleteListPatients_Success(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
 	assert.Equal(t, 1, len(result.Data))
+	assert.Equal(t, expectedAgeFromDOB(t, "1990-01-01"), result.Data[0].Age)
 	mockRepo.AssertExpectations(t)
 }
 

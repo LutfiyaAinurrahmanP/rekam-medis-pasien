@@ -8,7 +8,6 @@ import (
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/dto"
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/models"
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/repository"
-	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/utils"
 )
 
 type PatientService interface {
@@ -312,17 +311,13 @@ func (s *patientService) HardDeletePatient(id uint) error {
 }
 
 func (s *patientService) toPatientResponse(patient *models.Patient) *dto.PatientResponse {
-	age, err := utils.CalculateAge(patient.DateOfBirth)
-	if err != nil {
-		age = 0
-	}
 	return &dto.PatientResponse{
 		ID:                    patient.ID,
 		UserID:                patient.UserID,
 		PatientCode:           patient.PatientCode,
 		FullName:              patient.FullName,
 		DateOfBirth:           patient.DateOfBirth,
-		Age:                   age,
+		Age:                   patient.Age(),
 		Gender:                patient.Gender,
 		BloodType:             patient.BloodType,
 		Phone:                 patient.Phone,
@@ -339,17 +334,13 @@ func (s *patientService) toPatientResponse(patient *models.Patient) *dto.Patient
 }
 
 func (s *patientService) toDeletePatientResponse(patient *models.Patient) *dto.DeletedPatientResponse {
-	age, err := utils.CalculateAge(patient.DateOfBirth)
-	if err != nil {
-		age = 0
-	}
 	return &dto.DeletedPatientResponse{
 		ID:                    patient.ID,
 		UserID:                patient.UserID,
 		PatientCode:           patient.PatientCode,
 		FullName:              patient.FullName,
 		DateOfBirth:           patient.DateOfBirth,
-		Age:                   age,
+		Age:                   patient.Age(),
 		Gender:                patient.Gender,
 		BloodType:             patient.BloodType,
 		Phone:                 patient.Phone,

@@ -4,6 +4,8 @@ import (
 	"time"
 
 	"gorm.io/gorm"
+
+	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/utils"
 )
 
 type Patient struct {
@@ -41,4 +43,12 @@ func (p *Patient) BeforeCreate(tx *gorm.DB) error {
 		p.UpdatedAt = now
 	}
 	return nil
+}
+
+func (p *Patient) Age() int {
+	age, err := utils.CalculateAge(p.DateOfBirth)
+	if err != nil {
+		return 0
+	}
+	return age
 }
