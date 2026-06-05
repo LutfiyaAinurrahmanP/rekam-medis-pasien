@@ -61,6 +61,7 @@ func DepartmentListQueryKey(page, size int, search, sortBy, sortDir string) stri
 		sortDir,
 	)
 }
+
 func DepartmentDeletedListKey(page, size int) string {
 	return fmt.Sprintf("department:deleted:p%d:s%d", page, size)
 }
@@ -114,6 +115,34 @@ func PatientDeletedListQueryKey(page, size int, search, gender, bloodType, insur
 }
 func PatientByCodeKey(code string) string   { return fmt.Sprintf("patient:code:%s", code) }
 func PatientByUserIDKey(userID uint) string { return fmt.Sprintf("patient:user:%d", userID) }
+
+// ─── Doctor Specialization ─────────────────────────────────────────────────
+
+func DoctorSpecializationKey(id uint) string {
+	return fmt.Sprintf("doctor_specialization:id:%d", id)
+}
+
+func DoctorSpecializationListQuery(page, size int, search, sortBy, sortDir string) string {
+	return fmt.Sprintf(
+		"doctor_specialization:list:p%d:s%d:q%s:sb%s:sd%s",
+		page,
+		size,
+		search,
+		sortBy,
+		sortDir,
+	)
+}
+
+func DoctorSpecializationDeletedListQuery(page, size int, search, sortBy, sortDir string) string {
+	return fmt.Sprintf(
+		"doctor_specialization:deleted:p%d:s%d:q%s:sb%s:sd%s",
+		page,
+		size,
+		search,
+		sortBy,
+		sortDir,
+	)
+}
 
 // ─── Doctor ────────────────────────────────────────────────────────────────
 
@@ -173,11 +202,12 @@ func MedicineTypeKey(page, size int) string {
 // ─── Invalidation patterns ─────────────────────────────────────────────────
 
 const (
-	PatternUserAll       = "user:*"
-	PatternDepartmentAll = "department:*"
-	PatternPatientAll    = "patient:*"
-	PatternDoctorAll     = "doctor:*"
-	PatternRoomAll       = "room:*"
-	PatternTypeTestAll   = "typetest:*"
-	PatternMedicineAll   = "medicine:*"
+	PatternUserAll                 = "user:*"
+	PatternDepartmentAll           = "department:*"
+	PatternPatientAll              = "patient:*"
+	PatternDoctorSpecializationAll = "doctor_specialization:*"
+	PatternDoctorAll               = "doctor:*"
+	PatternRoomAll                 = "room:*"
+	PatternTypeTestAll             = "typetest:*"
+	PatternMedicineAll             = "medicine:*"
 )

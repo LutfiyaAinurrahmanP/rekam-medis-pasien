@@ -20,6 +20,7 @@ import (
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/routes"
 	departmentservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/department"
 	doctorservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/doctor"
+	doctorspecializationservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/doctor-specialization"
 	medicineservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/medicine"
 	patientservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/patient"
 	roomservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/room"
@@ -91,14 +92,15 @@ func main() {
 
 	// Setup router with all routes
 	router := routes.SetupRouter(&routes.RouteConfig{
-		Config:            cfg,
-		UserHandler:       dependencies.UserHandler,
-		DepartmentHandler: dependencies.DepartmentHandler,
-		PatientHandler:    dependencies.PatientHandler,
-		DoctorHandler:     dependencies.DoctorHandler,
-		RoomHandler:       dependencies.RoomHandler,
-		TypeTestHandler:   dependencies.TypeTestHandler,
-		MedicineHandler:   dependencies.MedicineHandler,
+		Config:                      cfg,
+		UserHandler:                 dependencies.UserHandler,
+		DepartmentHandler:           dependencies.DepartmentHandler,
+		PatientHandler:              dependencies.PatientHandler,
+		DoctorSpecializationHandler: dependencies.DoctorSpecializationHandler,
+		DoctorHandler:               dependencies.DoctorHandler,
+		RoomHandler:                 dependencies.RoomHandler,
+		TypeTestHandler:             dependencies.TypeTestHandler,
+		MedicineHandler:             dependencies.MedicineHandler,
 	})
 
 	// Setup HTTP server
@@ -133,31 +135,34 @@ func main() {
 // Dependencies holds all application dependencies
 type Dependencies struct {
 	// Repositories
-	UserRepository       repository.UserRepository
-	DepartmentRepository repository.DepartmentRepository
-	PatientRepository    repository.PatientRepository
-	DoctorRepository     repository.DoctorRepository
-	RoomRepository       repository.RoomRepository
-	TypeTestRepository   repository.TypeTestRepository
-	MedicineRepository   repository.MedicineRepository
+	UserRepository                 repository.UserRepository
+	DepartmentRepository           repository.DepartmentRepository
+	PatientRepository              repository.PatientRepository
+	DoctorSpecializationRepository repository.DoctorSpecializationRepository
+	DoctorRepository               repository.DoctorRepository
+	RoomRepository                 repository.RoomRepository
+	TypeTestRepository             repository.TypeTestRepository
+	MedicineRepository             repository.MedicineRepository
 
 	// Services
-	UserService       userservice.UserService
-	DepartmentService departmentservice.DepartmentService
-	PatientService    patientservice.PatientService
-	DoctorService     doctorservice.DoctorService
-	RoomService       roomservice.RoomService
-	TypeTestService   typetestservice.TypeTestService
-	MedicineService   medicineservice.MedicineService
+	UserService                 userservice.UserService
+	DepartmentService           departmentservice.DepartmentService
+	PatientService              patientservice.PatientService
+	DoctorSpecializationService doctorspecializationservice.DoctorSpecializationService
+	DoctorService               doctorservice.DoctorService
+	RoomService                 roomservice.RoomService
+	TypeTestService             typetestservice.TypeTestService
+	MedicineService             medicineservice.MedicineService
 
 	// Handlers
-	UserHandler       *handler.UserHandler
-	DepartmentHandler *handler.DepartmentHandler
-	PatientHandler    *handler.PatientHandler
-	DoctorHandler     *handler.DoctorHandler
-	RoomHandler       *handler.RoomHandler
-	TypeTestHandler   *handler.TypeTestHandler
-	MedicineHandler   *handler.MedicineHandler
+	UserHandler                 *handler.UserHandler
+	DepartmentHandler           *handler.DepartmentHandler
+	PatientHandler              *handler.PatientHandler
+	DoctorSpecializationHandler *handler.DoctorSpecializationHandler
+	DoctorHandler               *handler.DoctorHandler
+	RoomHandler                 *handler.RoomHandler
+	TypeTestHandler             *handler.TypeTestHandler
+	MedicineHandler             *handler.MedicineHandler
 }
 
 // initDependencies initializes all application dependencies
@@ -166,6 +171,7 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 	userRepo := repository.NewUserRepository(db)
 	departmentRepo := repository.NewDepartmentRepository(db)
 	patientRepo := repository.NewPatientRepository(db)
+	doctorSpecializationRepo := repository.NewDoctorSpecializationRepository(db)
 	doctorRepo := repository.NewDoctorRepository(db)
 	roomRepo := repository.NewRoomRepository(db)
 	typeTestRepo := repository.NewTypeTestRepository(db)
@@ -193,6 +199,12 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 		patientservice.NewCachedPatientService(patientservice.NewPatientService(patientRepo, cfg), redisClient),
 		publisher,
 	)
+
+	doctorSpecializationService := doctorspecializationservice.NewEventDoctorSpecializationService(
+		doctorspecializationservice.NewCachedDoctorSpecializationService(doctorspecializationservice.NewDoctorSpecializationService(doctorSpecializationRepo, cfg), redisClient),
+		publisher,
+	)
+
 	doctorService := doctorservice.NewEventDoctorService(
 		doctorservice.NewCachedDoctorService(doctorservice.NewDoctorService(doctorRepo, cfg), redisClient),
 		publisher,
@@ -214,6 +226,7 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 	userHandler := handler.NewUserHandler(userService)
 	departmentHandler := handler.NewDepartmentHandler(departmentService)
 	patientHandler := handler.NewPatientHandler(patientService)
+	doctorSpecializationHandler := handler.NewDoctorSpecializationHandler(doctorSpecializationService)
 	doctorHandler := handler.NewDoctorHandler(doctorService)
 	roomHandler := handler.NewRoomHandler(roomService)
 	typeTestHandler := handler.NewTypeTestHandler(typeTestService)
@@ -231,6 +244,10 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 		PatientRepository: patientRepo,
 		PatientService:    patientService,
 		PatientHandler:    patientHandler,
+
+		DoctorSpecializationRepository: doctorSpecializationRepo,
+		DoctorSpecializationService:    doctorSpecializationService,
+		DoctorSpecializationHandler:    doctorSpecializationHandler,
 
 		DoctorRepository: doctorRepo,
 		DoctorService:    doctorService,

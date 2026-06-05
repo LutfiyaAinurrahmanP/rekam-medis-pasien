@@ -17,6 +17,10 @@ func SetupAPIRouter(rg *gin.RouterGroup, cfg *RouteConfig) {
 		SetupDepartmentsRouter(rg, cfg, cfg.DepartmentHandler)
 	}
 
+	if cfg.DoctorSpecializationHandler != nil {
+		SetupDoctorSpecializationRouter(rg, cfg, cfg.DoctorSpecializationHandler)
+	}
+
 	// Setup Doctors routes
 	if cfg.DoctorHandler != nil {
 		SetupDoctorRouter(rg, cfg, cfg.DoctorHandler)

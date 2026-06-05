@@ -248,6 +248,93 @@ func NewPatientRestoredEvent(id uint, code, fullName string) PatientRestoredEven
 	return e
 }
 
+// ─── Doctor Specialization Events ─────────────────────────────────────────────
+
+type DoctorSpecializationPayload struct {
+	ID          uint   `json:"id"`
+	Name        string `json:"name"`
+	Code        string `json:"code"`
+	Description string `json:"description"`
+	IsActive    bool   `json:"is_active"`
+}
+
+type DoctorSpecializationCreatedEvent struct {
+	BaseEvent
+	Payload DoctorSpecializationPayload `json:"payload"`
+}
+
+type DoctorSpecializationUpdatedEvent struct {
+	BaseEvent
+	Payload struct {
+		DoctorSpecializationPayload
+		Action string `json:"action"`
+	} `json:"payload"`
+}
+
+type DoctorSpecializationDeletedEvent struct {
+	BaseEvent
+	Payload struct {
+		DoctorSpecializationID uint   `json:"doctor_specialization_id"`
+		Name                   string `json:"name"`
+		Code                   string `json:"code"`
+		Action                 string `json:"action"`
+	} `json:"payload"`
+}
+
+type DoctorSpecializationRestoredEvent struct {
+	BaseEvent
+	Payload struct {
+		DoctorSpecializationID uint   `json:"doctor_specialization_id"`
+		Name                   string `json:"name"`
+		Code                   string `json:"code"`
+	} `json:"payload"`
+}
+
+// Constructors ─────────────────────────────────────────────────────────────────
+
+func NewDoctorSpecializationCreatedEvent(id uint, name, code, desc string, isActive bool) DoctorSpecializationCreatedEvent {
+	return DoctorSpecializationCreatedEvent{
+		BaseEvent: newBase("doctorspecialization.created"),
+		Payload: DoctorSpecializationPayload{
+			ID:          id,
+			Name:        name,
+			Code:        code,
+			Description: desc,
+			IsActive:    isActive,
+		},
+	}
+}
+
+func NewDoctorSpecializationUpdatedEvent(id uint, name, code, desc string, isActive bool) DoctorSpecializationUpdatedEvent {
+	e := DoctorSpecializationUpdatedEvent{
+		BaseEvent: newBase("doctor_specialization.updated")}
+	e.Payload.DoctorSpecializationPayload = DoctorSpecializationPayload{
+		ID:          id,
+		Name:        name,
+		Code:        code,
+		Description: desc,
+		IsActive:    isActive,
+	}
+	return e
+}
+
+func NewDoctorSpecializationDeletedEvent(id uint, name, code, action string) DoctorSpecializationDeletedEvent {
+	e := DoctorSpecializationDeletedEvent{BaseEvent: newBase("doctor_specialization.deleted")}
+	e.Payload.DoctorSpecializationID = id
+	e.Payload.Name = name
+	e.Payload.Code = code
+	e.Payload.Action = action
+	return e
+}
+
+func NewDoctorSpecializationRestoredEvent(id uint, name, code string) DoctorSpecializationRestoredEvent {
+	e := DoctorSpecializationRestoredEvent{BaseEvent: newBase("doctor_specialization.restored")}
+	e.Payload.DoctorSpecializationID = id
+	e.Payload.Name = name
+	e.Payload.Code = code
+	return e
+}
+
 // ─── Doctor Events ────────────────────────────────────────────────────────────
 
 type DoctorPayload struct {

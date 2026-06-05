@@ -11,14 +11,15 @@ import (
 )
 
 type RouteConfig struct {
-	Config            *config.Config
-	UserHandler       *handler.UserHandler
-	DepartmentHandler *handler.DepartmentHandler
-	PatientHandler    *handler.PatientHandler
-	DoctorHandler     *handler.DoctorHandler
-	RoomHandler       *handler.RoomHandler
-	TypeTestHandler   *handler.TypeTestHandler
-	MedicineHandler   *handler.MedicineHandler
+	Config                      *config.Config
+	UserHandler                 *handler.UserHandler
+	DepartmentHandler           *handler.DepartmentHandler
+	PatientHandler              *handler.PatientHandler
+	DoctorSpecializationHandler *handler.DoctorSpecializationHandler
+	DoctorHandler               *handler.DoctorHandler
+	RoomHandler                 *handler.RoomHandler
+	TypeTestHandler             *handler.TypeTestHandler
+	MedicineHandler             *handler.MedicineHandler
 }
 
 func SetupRouter(cfg *RouteConfig) *gin.Engine {

@@ -18,6 +18,12 @@ const (
 	TopicPatientDeleted  = "patient.deleted"
 	TopicPatientRestored = "patient.restored"
 
+	// ── Doctor Specialization Topics ─────────────────────────────────────────────────────────
+	TopicDoctorSpecializationCreated  = "doctor_specialization.created"
+	TopicDoctorSpecializationUpdated  = "doctor_specialization.updated"
+	TopicDoctorSpecializationDeleted  = "doctor_specialization.deleted"
+	TopicDoctorSpecializationRestored = "doctor_specialization.restored"
+
 	// ── Doctor Topics ─────────────────────────────────────────────────────────
 	TopicDoctorCreated  = "doctor.created"
 	TopicDoctorUpdated  = "doctor.updated"
@@ -58,6 +64,11 @@ func AllTopics() []string {
 		TopicPatientUpdated,
 		TopicPatientDeleted,
 		TopicPatientRestored,
+
+		TopicDoctorSpecializationCreated,
+		TopicDoctorSpecializationUpdated,
+		TopicDoctorSpecializationDeleted,
+		TopicDoctorSpecializationRestored,
 
 		TopicDoctorCreated,
 		TopicDoctorUpdated,
