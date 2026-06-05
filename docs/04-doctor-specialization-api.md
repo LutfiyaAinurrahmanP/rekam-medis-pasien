@@ -1,4 +1,4 @@
-# Doctor Specializations API Documentation
+\*\*\*\*# Doctor Specializations API Documentation
 
 ## Overview
 
@@ -34,15 +34,18 @@ Authorization: Bearer <your-jwt-token>
 
 ## Authorization
 
-| Endpoint                                        | Patient | Doctor | Receptionist | Admin | Super Admin |
-| ----------------------------------------------- | ------- | ------ | ------------ | ----- | ----------- |
-| GET /doctor-specializations                     | ✅      | ✅     | ✅           | ✅    | ✅          |
-| GET /doctor-specializations/active              | ✅      | ✅     | ✅           | ✅    | ✅          |
-| GET /doctor-specializations/:id                 | ✅      | ✅     | ✅           | ✅    | ✅          |
-| POST /doctor-specializations                    | ❌      | ❌     | ❌           | ✅    | ✅          |
-| PUT /doctor-specializations/:id                 | ❌      | ❌     | ❌           | ✅    | ✅          |
-| DELETE /doctor-specializations/:id              | ❌      | ❌     | ❌           | ✅    | ✅          |
-| DELETE /doctor-specializations/:id/hard-delete  | ❌      | ❌     | ❌           | ❌    | ✅          |
+| Endpoint                                       | Patient | Doctor | Receptionist | Admin | Super Admin |
+| ---------------------------------------------- | ------- | ------ | ------------ | ----- | ----------- |
+| GET /doctor-specializations                    | ✅      | ✅     | ✅           | ✅    | ✅          |
+| GET /doctor-specializations/:id                | ✅      | ✅     | ✅           | ✅    | ✅          |
+| GET /doctor-specializations/deleted            | ❌      | ❌     | ❌           | ✅    | ✅          |
+| POST /doctor-specializations                   | ❌      | ❌     | ❌           | ✅    | ✅          |
+| PUT /doctor-specializations/:id                | ❌      | ❌     | ❌           | ✅    | ✅          |
+| PATCH /doctor-specializations/:id/activate     | ❌      | ❌     | ❌           | ✅    | ✅          |
+| PATCH /doctor-specializations/:id/deactivate   | ❌      | ❌     | ❌           | ✅    | ✅          |
+| DELETE /doctor-specializations/:id             | ❌      | ❌     | ❌           | ✅    | ✅          |
+| PATCH /doctor-specializations/:id/restore      | ❌      | ❌     | ❌           | ✅    | ✅          |
+| DELETE /doctor-specializations/:id/hard-delete | ❌      | ❌     | ❌           | ❌    | ✅          |
 
 ---
 
@@ -50,24 +53,27 @@ Authorization: Bearer <your-jwt-token>
 
 ### Public Endpoints (All Authenticated)
 
-| Method | Endpoint                             | Description                           | Role Required                            |
-| ------ | ------------------------------------ | ------------------------------------- | ---------------------------------------- |
-| GET    | `/doctor-specializations`            | List all doctor specializations       | All Authenticated                        |
-| GET    | `/doctor-specializations/active`     | List active doctor specializations    | All Authenticated                        |
-| GET    | `/doctor-specializations/:id`        | Get doctor specialization by ID       | All Authenticated                        |
+| Method | Endpoint                      | Description                     | Role Required     |
+| ------ | ----------------------------- | ------------------------------- | ----------------- |
+| GET    | `/doctor-specializations`     | List all doctor specializations | All Authenticated |
+| GET    | `/doctor-specializations/:id` | Get doctor specialization by ID | All Authenticated |
 
 ### Admin Endpoints
 
-| Method | Endpoint                        | Description                         | Role Required      |
-| ------ | ------------------------------- | ----------------------------------- | ------------------ |
-| POST   | `/doctor-specializations`       | Create doctor specialization        | Admin, Super Admin |
-| PUT    | `/doctor-specializations/:id`   | Update doctor specialization        | Admin, Super Admin |
-| DELETE | `/doctor-specializations/:id`   | Soft delete doctor specialization   | Admin, Super Admin |
+| Method | Endpoint                                 | Description                       | Role Required      |
+| ------ | ---------------------------------------- | --------------------------------- | ------------------ |
+| GET    | `/doctor-specializations/deleted`        | List deleted specializations      | Admin, Super Admin |
+| POST   | `/doctor-specializations`                | Create doctor specialization      | Admin, Super Admin |
+| PUT    | `/doctor-specializations/:id`            | Update doctor specialization      | Admin, Super Admin |
+| PATCH  | `/doctor-specializations/:id/activate`   | Activate specialization           | Admin, Super Admin |
+| PATCH  | `/doctor-specializations/:id/deactivate` | Deactivate specialization         | Admin, Super Admin |
+| DELETE | `/doctor-specializations/:id`            | Soft delete doctor specialization | Admin, Super Admin |
+| PATCH  | `/doctor-specializations/:id/restore`    | Restore deleted specialization    | Admin, Super Admin |
 
 ### Super Admin Endpoints
 
-| Method | Endpoint                                | Description                              | Role Required |
-| ------ | --------------------------------------- | ---------------------------------------- | ------------- |
+| Method | Endpoint                                  | Description                              | Role Required |
+| ------ | ----------------------------------------- | ---------------------------------------- | ------------- |
 | DELETE | `/doctor-specializations/:id/hard-delete` | Permanently delete doctor specialization | Super Admin   |
 
 ---
@@ -90,14 +96,14 @@ Authorization: Bearer <token>
 
 **Query Parameters:**
 
-| Parameter   | Type    | Default | Description                          |
-| ----------- | ------- | ------- | ------------------------------------ |
-| `page`      | integer | 1       | Halaman                              |
-| `page_size` | integer | 10      | Jumlah data per halaman (max: 100)   |
-| `search`    | string  | -       | Cari berdasarkan nama spesialisasi   |
-| `is_active` | boolean | -       | Filter by active status              |
-| `sort_by`   | string  | name    | Sort field (name, created_at)        |
-| `sort_dir`  | string  | asc     | Sort direction (asc, desc)           |
+| Parameter   | Type    | Default | Description                        |
+| ----------- | ------- | ------- | ---------------------------------- |
+| `page`      | integer | 1       | Halaman                            |
+| `page_size` | integer | 10      | Jumlah data per halaman (max: 100) |
+| `search`    | string  | -       | Cari berdasarkan nama spesialisasi |
+| `is_active` | boolean | -       | Filter by active status            |
+| `sort_by`   | string  | name    | Sort field (name, created_at)      |
+| `sort_dir`  | string  | asc     | Sort direction (asc, desc)         |
 
 **Example Request:**
 
@@ -157,81 +163,7 @@ curl -X GET "http://localhost:8080/api/v1/doctor-specializations?page=1&page_siz
 
 ---
 
-### 2. List Active Doctor Specializations
-
-**Endpoint:** `GET /api/v1/doctor-specializations/active`
-
-**Description:** Mendapatkan daftar doctor specializations yang aktif saja.
-
-**Authentication:** Required (All Authenticated Users)
-
-**Request Headers:**
-
-```
-Authorization: Bearer <token>
-```
-
-**Query Parameters:**
-
-| Parameter   | Type    | Description              |
-| ----------- | ------- | ------------------------ |
-| `page`      | integer | Page number              |
-| `page_size` | integer | Items per page           |
-| `sort_by`   | string  | Sort field (name, id)    |
-| `sort_dir`  | string  | Sort direction (asc, desc) |
-
-**Example Request:**
-
-```
-GET /api/v1/doctor-specializations/active?page=1&page_size=10
-```
-
-**Response Success (200 OK):**
-
-```json
-{
-  "success": true,
-  "message": "Active doctor specializations retrieved successfully",
-  "data": {
-    "total_active": 3,
-    "data": [
-      {
-        "id": 1,
-        "name": "Kardiologi",
-        "description": "Spesialisasi penyakit jantung dan pembuluh darah",
-        "code": "CARDIO",
-        "is_active": true,
-        "created_at": "2024-01-19T10:00:00Z"
-      },
-      {
-        "id": 2,
-        "name": "Ortopedi",
-        "description": "Spesialisasi tulang dan sendi",
-        "code": "ORTHO",
-        "is_active": true,
-        "created_at": "2024-01-19T10:05:00Z"
-      }
-    ],
-    "meta": {
-      "page": 1,
-      "page_size": 10,
-      "total_items": 2,
-      "total_pages": 1
-    }
-  }
-}
-```
-
-**cURL Example:**
-
-```bash
-curl -X GET "http://localhost:8080/api/v1/doctor-specializations/active" \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN"
-```
-
----
-
-### 3. Get Doctor Specialization by ID
+### 2. Get Doctor Specialization by ID
 
 **Endpoint:** `GET /api/v1/doctor-specializations/:id`
 
@@ -288,6 +220,84 @@ curl -X GET http://localhost:8080/api/v1/doctor-specializations/1 \
 ---
 
 ## Admin Endpoints
+
+### 3. List Deleted Doctor Specializations
+
+**Endpoint:** `GET /api/v1/doctor-specializations/deleted`
+
+**Description:** Mendapatkan daftar doctor specializations yang sudah di-soft delete.
+
+**Authentication:** Required (Admin, Super Admin)
+
+**Request Headers:**
+
+```
+Authorization: Bearer <token>
+```
+
+**Query Parameters:**
+
+| Parameter   | Type    | Default | Description                        |
+| ----------- | ------- | ------- | ---------------------------------- |
+| `page`      | integer | 1       | Halaman                            |
+| `page_size` | integer | 10      | Jumlah data per halaman (max: 100) |
+| `search`    | string  | -       | Cari berdasarkan nama spesialisasi |
+| `sort_by`   | string  | name    | Sort field (name, created_at)      |
+| `sort_dir`  | string  | asc     | Sort direction (asc, desc)         |
+
+**Example Request:**
+
+```
+GET /api/v1/doctor-specializations/deleted?page=1&page_size=10
+```
+
+**Response Success (200 OK):**
+
+```json
+{
+  "success": true,
+  "message": "Deleted doctor specializations retrieved successfully",
+  "data": {
+    "data": [
+      {
+        "id": 5,
+        "name": "Pediatri",
+        "description": "Spesialisasi anak-anak",
+        "code": "PEDIA",
+        "is_active": false,
+        "created_at": "2024-01-19T10:00:00Z",
+        "updated_at": "2024-01-20T10:00:00Z",
+        "deleted_at": "2024-01-20T10:00:00Z"
+      },
+      {
+        "id": 6,
+        "name": "Dermatologi",
+        "description": "Spesialisasi kulit",
+        "code": "DERM",
+        "is_active": false,
+        "created_at": "2024-01-19T10:00:00Z",
+        "updated_at": "2024-01-20T10:00:00Z",
+        "deleted_at": "2024-01-20T10:00:00Z"
+      }
+    ],
+    "meta": {
+      "page": 1,
+      "page_size": 10,
+      "total_items": 2,
+      "total_pages": 1
+    }
+  }
+}
+```
+
+**cURL Example:**
+
+```bash
+curl -X GET "http://localhost:8080/api/v1/doctor-specializations/deleted?page=1&page_size=10" \
+  -H "Authorization: Bearer ADMIN_JWT_TOKEN"
+```
+
+---
 
 ### 4. Create Doctor Specialization
 
@@ -440,7 +450,113 @@ curl -X PUT http://localhost:8080/api/v1/doctor-specializations/1 \
 
 ---
 
-### 6. Delete Doctor Specialization
+### 6. Activate Doctor Specialization
+
+**Endpoint:** `PATCH /api/v1/doctor-specializations/:id/activate`
+
+**Description:** Admin mengaktifkan doctor specialization yang tidak aktif.
+
+**Authentication:** Required (Admin, Super Admin)
+
+**Request Headers:**
+
+```
+Authorization: Bearer <admin-token>
+```
+
+**URL Parameters:**
+
+- `id`: Doctor Specialization ID (integer)
+
+**Response Success (200 OK):**
+
+```json
+{
+  "success": true,
+  "message": "Doctor specialization activated successfully",
+  "data": {
+    "id": 1,
+    "name": "Kardiologi",
+    "code": "CARDIO",
+    "is_active": true,
+    "updated_at": "2024-01-19T16:00:00Z"
+  }
+}
+```
+
+**Response Error (404 Not Found):**
+
+```json
+{
+  "success": false,
+  "message": "Doctor specialization not found",
+  "error": "specialization not found"
+}
+```
+
+**cURL Example:**
+
+```bash
+curl -X PATCH http://localhost:8080/api/v1/doctor-specializations/1/activate \
+  -H "Authorization: Bearer ADMIN_JWT_TOKEN"
+```
+
+---
+
+### 7. Deactivate Doctor Specialization
+
+**Endpoint:** `PATCH /api/v1/doctor-specializations/:id/deactivate`
+
+**Description:** Admin menonaktifkan doctor specialization.
+
+**Authentication:** Required (Admin, Super Admin)
+
+**Request Headers:**
+
+```
+Authorization: Bearer <admin-token>
+```
+
+**URL Parameters:**
+
+- `id`: Doctor Specialization ID (integer)
+
+**Response Success (200 OK):**
+
+```json
+{
+  "success": true,
+  "message": "Doctor specialization deactivated successfully",
+  "data": {
+    "id": 1,
+    "name": "Kardiologi",
+    "code": "CARDIO",
+    "is_active": false,
+    "updated_at": "2024-01-19T16:00:00Z"
+  }
+}
+```
+
+**Response Error (404 Not Found):**
+
+```json
+{
+  "success": false,
+  "message": "Doctor specialization not found",
+  "error": "specialization not found"
+}
+```
+
+**cURL Example:**
+
+```bash
+curl -X PATCH http://localhost:8080/api/v1/doctor-specializations/1/deactivate \
+  -H "Authorization: Bearer ADMIN_JWT_TOKEN"
+```
+
+---
+
+### 8. Delete Doctor Specialization
 
 **Endpoint:** `DELETE /api/v1/doctor-specializations/:id`
 
@@ -494,7 +610,71 @@ curl -X DELETE http://localhost:8080/api/v1/doctor-specializations/1 \
 
 ## Super Admin Endpoints
 
-### 7. Hard Delete Doctor Specialization
+### 9. Restore Doctor Specialization
+
+**Endpoint:** `PATCH /api/v1/doctor-specializations/:id/restore`
+
+**Description:** Admin me-restore doctor specialization yang sudah di-soft delete.
+
+**Authentication:** Required (Admin, Super Admin)
+
+**Request Headers:**
+
+```
+Authorization: Bearer <admin-token>
+```
+
+**URL Parameters:**
+
+- `id`: Doctor Specialization ID (integer)
+
+**Response Success (200 OK):**
+
+```json
+{
+  "success": true,
+  "message": "Doctor specialization restored successfully",
+  "data": {
+    "id": 1,
+    "name": "Kardiologi",
+    "code": "CARDIO",
+    "is_active": false,
+    "created_at": "2024-01-19T10:00:00Z",
+    "updated_at": "2024-01-20T15:30:00Z",
+    "deleted_at": null
+  }
+}
+```
+
+**Response Error (404 Not Found):**
+
+```json
+{
+  "success": false,
+  "message": "Doctor specialization not found",
+  "error": "specialization not found"
+}
+```
+
+**cURL Example:**
+
+```bash
+curl -X PATCH http://localhost:8080/api/v1/doctor-specializations/1/restore \
+  -H "Authorization: Bearer ADMIN_JWT_TOKEN"
+```
+
+**Notes:**
+
+- Setelah di-restore, specialization masih dalam status `is_active: false`
+- Perlu activate manual jika ingin mengaktifkan kembali
+
+---
+
+## Super Admin Endpoints
+
+### 10. Hard Delete Doctor Specialization
+
+### 10. Hard Delete Doctor Specialization
 
 **Endpoint:** `DELETE /api/v1/doctor-specializations/:id/hard-delete`
 
@@ -545,26 +725,29 @@ curl -X DELETE http://localhost:8080/api/v1/doctor-specializations/1/hard-delete
 
 ### Table: doctor_specializations
 
-| Field | Type | Constraints | Description |
-| --- | --- | --- | --- |
-| id | BIGINT | PRIMARY KEY, AUTO_INCREMENT | Unique identifier |
-| name | VARCHAR(100) | NOT NULL, UNIQUE, INDEX | Nama spesialisasi (e.g., Kardiologi, Neurologi) |
-| code | VARCHAR(20) | UNIQUE, INDEX | Kode spesialisasi (e.g., KARDIO, NEURO) |
-| description | TEXT | NULLABLE | Deskripsi detail spesialisasi |
-| is_active | BOOLEAN | NOT NULL, DEFAULT true, INDEX | Status aktif |
-| created_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | Waktu pembuatan record |
-| updated_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | Waktu update terakhir |
-| deleted_at | TIMESTAMP | INDEX, NULLABLE | Soft delete timestamp |
+| Field       | Type         | Constraints                                           | Description                                     |
+| ----------- | ------------ | ----------------------------------------------------- | ----------------------------------------------- |
+| id          | BIGINT       | PRIMARY KEY, AUTO_INCREMENT                           | Unique identifier                               |
+| name        | VARCHAR(100) | NOT NULL, UNIQUE, INDEX                               | Nama spesialisasi (e.g., Kardiologi, Neurologi) |
+| code        | VARCHAR(20)  | UNIQUE, INDEX                                         | Kode spesialisasi (e.g., KARDIO, NEURO)         |
+| description | TEXT         | NULLABLE                                              | Deskripsi detail spesialisasi                   |
+| is_active   | BOOLEAN      | NOT NULL, DEFAULT true, INDEX                         | Status aktif                                    |
+| created_at  | TIMESTAMP    | DEFAULT CURRENT_TIMESTAMP                             | Waktu pembuatan record                          |
+| updated_at  | TIMESTAMP    | DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | Waktu update terakhir                           |
+| deleted_at  | TIMESTAMP    | INDEX, NULLABLE                                       | Soft delete timestamp                           |
 
 **Indexes:**
+
 - Primary Key: id
 - Unique Index: name, code
 - Regular Index: is_active, deleted_at
 
 **Relationships:**
+
 - Has Many Doctors (one-to-many) - doctors reference specialization
 
 **Notes:**
+
 - Master data untuk standardisasi spesialisasi dokter
 - Code sebaiknya uppercase (KARDIO, NEURO, ORTHO, dll)
 - is_active untuk hide inactive specializations dari list
@@ -575,14 +758,14 @@ curl -X DELETE http://localhost:8080/api/v1/doctor-specializations/1/hard-delete
 
 ### Common Error Codes
 
-| Status Code | Message                           | Description                                    |
-| ----------- | --------------------------------- | ---------------------------------------------- |
-| 400         | Bad Request                       | Invalid request body or query parameters       |
-| 401         | Unauthorized                      | Missing or invalid JWT token                   |
-| 403         | Forbidden                         | User does not have permission                  |
-| 404         | Not Found                         | Resource not found                             |
-| 409         | Conflict                          | Duplicate data (e.g., specialization exists)   |
-| 500         | Internal Server Error             | Unexpected server error                        |
+| Status Code | Message               | Description                                  |
+| ----------- | --------------------- | -------------------------------------------- |
+| 400         | Bad Request           | Invalid request body or query parameters     |
+| 401         | Unauthorized          | Missing or invalid JWT token                 |
+| 403         | Forbidden             | User does not have permission                |
+| 404         | Not Found             | Resource not found                           |
+| 409         | Conflict              | Duplicate data (e.g., specialization exists) |
+| 500         | Internal Server Error | Unexpected server error                      |
 
 ### Example Error Response
 

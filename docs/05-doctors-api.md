@@ -35,21 +35,20 @@ Authorization: Bearer <your-jwt-token>
 
 ## Authorization
 
-| Endpoint                          | Doctor (Own) | Patient | Receptionist | Admin | Super Admin |
-| --------------------------------- | ------------ | ------- | ------------ | ----- | ----------- |
-| GET /doctors/me                   | ✅           | ❌      | ❌           | ❌    | ❌          |
-| PUT /doctors/me                   | ✅           | ❌      | ❌           | ❌    | ❌          |
-| GET /doctors                      | ✅           | ✅      | ✅           | ✅    | ✅          |
-| GET /doctors/deleted              | ❌           | ❌      | ❌           | ✅    | ✅          |
-| GET /doctors/:id                  | ✅           | ✅      | ✅           | ✅    | ✅          |
-| GET /doctors/specialization/:spec | ✅           | ✅      | ✅           | ✅    | ✅          |
-| POST /doctors                     | ❌           | ❌      | ❌           | ✅    | ✅          |
-| PUT /doctors/:id                  | ❌           | ❌      | ❌           | ✅    | ✅          |
-| PATCH /doctors/:id/activate       | ❌           | ❌      | ❌           | ✅    | ✅          |
-| PATCH /doctors/:id/deactivate     | ❌           | ❌      | ❌           | ✅    | ✅          |
-| DELETE /doctors/:id               | ❌           | ❌      | ❌           | ✅    | ✅          |
-| PATCH /doctors/:id/restore        | ❌           | ❌      | ❌           | ✅    | ✅          |
-| DELETE /doctors/:id/hard-delete   | ❌           | ❌      | ❌           | ❌    | ✅          |
+| Endpoint                        | Doctor (Own) | Patient | Receptionist | Admin | Super Admin |
+| ------------------------------- | ------------ | ------- | ------------ | ----- | ----------- |
+| GET /doctors/me                 | ✅           | ❌      | ❌           | ❌    | ❌          |
+| PUT /doctors/me                 | ✅           | ❌      | ❌           | ❌    | ❌          |
+| GET /doctors                    | ✅           | ✅      | ✅           | ✅    | ✅          |
+| GET /doctors/deleted            | ❌           | ❌      | ❌           | ✅    | ✅          |
+| GET /doctors/:id                | ✅           | ✅      | ✅           | ✅    | ✅          |
+| POST /doctors                   | ❌           | ❌      | ❌           | ✅    | ✅          |
+| PUT /doctors/:id                | ❌           | ❌      | ❌           | ✅    | ✅          |
+| PATCH /doctors/:id/activate     | ❌           | ❌      | ❌           | ✅    | ✅          |
+| PATCH /doctors/:id/deactivate   | ❌           | ❌      | ❌           | ✅    | ✅          |
+| DELETE /doctors/:id             | ❌           | ❌      | ❌           | ✅    | ✅          |
+| PATCH /doctors/:id/restore      | ❌           | ❌      | ❌           | ✅    | ✅          |
+| DELETE /doctors/:id/hard-delete | ❌           | ❌      | ❌           | ❌    | ✅          |
 
 ---
 
@@ -64,11 +63,10 @@ Authorization: Bearer <your-jwt-token>
 
 ### Public Endpoints (All Authenticated)
 
-| Method | Endpoint                        | Description                   | Role Required     |
-| ------ | ------------------------------- | ----------------------------- | ----------------- |
-| GET    | `/doctors`                      | List active doctors           | All Authenticated |
-| GET    | `/doctors/:id`                  | Get doctor by ID              | All Authenticated |
-| GET    | `/doctors/specialization/:spec` | Get doctors by specialization | All Authenticated |
+| Method | Endpoint       | Description         | Role Required     |
+| ------ | -------------- | ------------------- | ----------------- |
+| GET    | `/doctors`     | List active doctors | All Authenticated |
+| GET    | `/doctors/:id` | Get doctor by ID    | All Authenticated |
 
 ### Admin Endpoints (Management)
 
@@ -117,7 +115,6 @@ Authorization: Bearer <token>
     "user_id": 2,
     "employee_id": "DOC001",
     "full_name": "Dr. John Smith",
-    "specialization": "Cardiology",
     "license_number": "LIC123456",
     "phone": "081234567890",
     "email": "drsmith@hospital.com",
@@ -126,6 +123,12 @@ Authorization: Bearer <token>
       "id": 1,
       "name": "Cardiology Department",
       "code": "CARD"
+    },
+    "doctor_specialization_id": 1,
+    "doctor_specialization": {
+      "id": 1,
+      "name": "Cardiology",
+      "code": "CARDIO"
     },
     "is_active": true,
     "created_at": "2024-01-19T10:00:00Z",
@@ -186,7 +189,7 @@ Content-Type: application/json
 
 - `phone`: optional, max 15 characters
 - `email`: optional, valid email format
-- ❌ **Cannot update:** `employee_id`, `full_name`, `specialization`, `license_number`, `department_id`, `is_active`
+- ❌ **Cannot update:** `employee_id`, `full_name`, `doctor_specialization_id`, `license_number`, `department_id`, `is_active`
 
 **Response Success (200 OK):**
 
@@ -199,11 +202,11 @@ Content-Type: application/json
     "user_id": 2,
     "employee_id": "DOC001",
     "full_name": "Dr. John Smith",
-    "specialization": "Cardiology",
     "license_number": "LIC123456",
     "phone": "081234567899",
     "email": "newdremail@hospital.com",
     "department_id": 1,
+    "doctor_specialization_id": 1,
     "is_active": true,
     "created_at": "2024-01-19T10:00:00Z",
     "updated_at": "2024-01-19T14:30:00Z"
@@ -243,21 +246,21 @@ Authorization: Bearer <token>
 
 **Query Parameters:**
 
-| Parameter        | Type    | Default    | Description                                     |
-| ---------------- | ------- | ---------- | ----------------------------------------------- |
-| `page`           | integer | 1          | Halaman                                         |
-| `page_size`      | integer | 10         | Jumlah data per halaman (max: 100)              |
-| `search`         | string  | -          | Cari berdasarkan name, employee_id              |
-| `specialization` | string  | -          | Filter by specialization                        |
-| `department_id`  | integer | -          | Filter by department                            |
-| `is_active`      | boolean | true       | Filter by active status                         |
-| `sort_by`        | string  | created_at | Sort field (created_at, full_name, employee_id) |
-| `sort_dir`       | string  | desc       | Sort direction (asc, desc)                      |
+| Parameter                  | Type    | Default    | Description                                     |
+| -------------------------- | ------- | ---------- | ----------------------------------------------- |
+| `page`                     | integer | 1          | Halaman                                         |
+| `page_size`                | integer | 10         | Jumlah data per halaman (max: 100)              |
+| `search`                   | string  | -          | Cari berdasarkan name, employee_id              |
+| `doctor_specialization_id` | integer | -          | Filter by doctor specialization ID              |
+| `department_id`            | integer | -          | Filter by department                            |
+| `is_active`                | boolean | true       | Filter by active status                         |
+| `sort_by`                  | string  | created_at | Sort field (created_at, full_name, employee_id) |
+| `sort_dir`                 | string  | desc       | Sort direction (asc, desc)                      |
 
 **Example Request:**
 
 ```
-GET /api/v1/doctors?page=1&page_size=10&search=john&specialization=Cardiology&is_active=true&sort_by=full_name&sort_dir=asc
+GET /api/v1/doctors?page=1&page_size=10&search=john&doctor_specialization_id=1&is_active=true&sort_by=full_name&sort_dir=asc
 ```
 
 **Response Success (200 OK):**
@@ -272,7 +275,6 @@ GET /api/v1/doctors?page=1&page_size=10&search=john&specialization=Cardiology&is
         "id": 1,
         "employee_id": "DOC001",
         "full_name": "Dr. John Smith",
-        "specialization": "Cardiology",
         "license_number": "LIC123456",
         "phone": "081234567890",
         "email": "drsmith@hospital.com",
@@ -281,6 +283,11 @@ GET /api/v1/doctors?page=1&page_size=10&search=john&specialization=Cardiology&is
           "name": "Cardiology Department",
           "code": "CARD"
         },
+        "doctor_specialization": {
+          "id": 1,
+          "name": "Cardiology",
+          "code": "CARDIO"
+        },
         "is_active": true,
         "created_at": "2024-01-19T10:00:00Z"
       },
@@ -288,7 +295,6 @@ GET /api/v1/doctors?page=1&page_size=10&search=john&specialization=Cardiology&is
         "id": 2,
         "employee_id": "DOC002",
         "full_name": "Dr. John Doe",
-        "specialization": "Cardiology",
         "license_number": "LIC789012",
         "phone": "081234567891",
         "email": "drjohn@hospital.com",
@@ -296,6 +302,11 @@ GET /api/v1/doctors?page=1&page_size=10&search=john&specialization=Cardiology&is
           "id": 1,
           "name": "Cardiology Department",
           "code": "CARD"
+        },
+        "doctor_specialization": {
+          "id": 1,
+          "name": "Cardiology",
+          "code": "CARDIO"
         },
         "is_active": true,
         "created_at": "2024-01-19T11:00:00Z"
@@ -314,7 +325,7 @@ GET /api/v1/doctors?page=1&page_size=10&search=john&specialization=Cardiology&is
 **cURL Example:**
 
 ```bash
-curl -X GET "http://localhost:8080/api/v1/doctors?page=1&page_size=10&specialization=Cardiology" \
+curl -X GET "http://localhost:8080/api/v1/doctors?page=1&page_size=10&doctor_specialization_id=1" \
   -H "Authorization: Bearer YOUR_JWT_TOKEN"
 ```
 
@@ -349,7 +360,6 @@ Authorization: Bearer <token>
     "user_id": 2,
     "employee_id": "DOC001",
     "full_name": "Dr. John Smith",
-    "specialization": "Cardiology",
     "license_number": "LIC123456",
     "phone": "081234567890",
     "email": "drsmith@hospital.com",
@@ -359,6 +369,13 @@ Authorization: Bearer <token>
       "name": "Cardiology Department",
       "code": "CARD",
       "description": "Department for heart and cardiovascular diseases"
+    },
+    "doctor_specialization_id": 1,
+    "doctor_specialization": {
+      "id": 1,
+      "name": "Cardiology",
+      "code": "CARDIO",
+      "description": "Heart and cardiovascular diseases"
     },
     "is_active": true,
     "created_at": "2024-01-19T10:00:00Z",
@@ -389,76 +406,9 @@ curl -X GET http://localhost:8080/api/v1/doctors/1 \
 
 ---
 
-### 5. Get Doctors by Specialization
-
-**Endpoint:** `GET /api/v1/doctors/specialization/:spec`
-
-**Description:** Mendapatkan daftar doctor berdasarkan spesialisasi.
-
-**Authentication:** Required (All Authenticated Users)
-
-**Request Headers:**
-
-```
-Authorization: Bearer <token>
-```
-
-**URL Parameters:**
-
-- `spec`: Specialization name (string), e.g., "Cardiology"
-
-**Query Parameters:**
-
-| Parameter   | Type    | Default | Description             |
-| ----------- | ------- | ------- | ----------------------- |
-| `is_active` | boolean | true    | Filter by active status |
-| `page`      | integer | 1       | Halaman                 |
-| `page_size` | integer | 10      | Jumlah data per halaman |
-
-**Response Success (200 OK):**
-
-```json
-{
-  "success": true,
-  "message": "Doctors retrieved successfully",
-  "data": {
-    "data": [
-      {
-        "id": 1,
-        "employee_id": "DOC001",
-        "full_name": "Dr. John Smith",
-        "specialization": "Cardiology",
-        "phone": "081234567890",
-        "email": "drsmith@hospital.com",
-        "department": {
-          "id": 1,
-          "name": "Cardiology Department"
-        },
-        "is_active": true
-      }
-    ],
-    "meta": {
-      "page": 1,
-      "page_size": 10,
-      "total_items": 1,
-      "total_pages": 1
-    }
-  }
-}
-```
-
-**cURL Example:**
-
-```bash
-curl -X GET http://localhost:8080/api/v1/doctors/specialization/Cardiology \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN"
-```
-
----
-
 ## Admin Endpoints
 
-### 6. List Deleted Doctors
+### 5. List Deleted Doctors
 
 **Endpoint:** `GET /api/v1/doctors/deleted`
 
@@ -487,7 +437,7 @@ Same as List Doctors endpoint.
         "id": 10,
         "employee_id": "DOC010",
         "full_name": "Dr. Deleted Doctor",
-        "specialization": "General Practice",
+        "doctor_specialization_id": 5,
         "phone": "081234567899",
         "created_at": "2024-01-18T10:00:00Z",
         "updated_at": "2024-01-19T10:00:00Z",
@@ -513,7 +463,7 @@ curl -X GET "http://localhost:8080/api/v1/doctors/deleted?page=1&page_size=10" \
 
 ---
 
-### 7. Create Doctor
+### 6. Create Doctor
 
 **Endpoint:** `POST /api/v1/doctors`
 
@@ -535,7 +485,7 @@ Content-Type: application/json
   "user_id": 3,
   "employee_id": "DOC002",
   "full_name": "Dr. Jane Doe",
-  "specialization": "Neurology",
+  "doctor_specialization_id": 2,
   "license_number": "LIC789012",
   "phone": "081234567891",
   "email": "drjane@hospital.com",
@@ -549,7 +499,7 @@ Content-Type: application/json
 - `user_id`: optional, FK to users table (if doctor has user account)
 - `employee_id`: required, unique, max 50 characters, indexed
 - `full_name`: required, max 100 characters
-- `specialization`: required, max 100 characters
+- `doctor_specialization_id`: required, FK to doctor_specializations table
 - `license_number`: required, unique, max 50 characters
 - `phone`: optional, max 15 characters
 - `email`: optional, valid email format
@@ -567,7 +517,6 @@ Content-Type: application/json
     "user_id": 3,
     "employee_id": "DOC002",
     "full_name": "Dr. Jane Doe",
-    "specialization": "Neurology",
     "license_number": "LIC789012",
     "phone": "081234567891",
     "email": "drjane@hospital.com",
@@ -576,6 +525,12 @@ Content-Type: application/json
       "id": 2,
       "name": "Neurology Department",
       "code": "NEUR"
+    },
+    "doctor_specialization_id": 2,
+    "doctor_specialization": {
+      "id": 2,
+      "name": "Neurology",
+      "code": "NEURO"
     },
     "is_active": true,
     "created_at": "2024-01-19T10:00:00Z",
@@ -603,7 +558,7 @@ curl -X POST http://localhost:8080/api/v1/doctors \
   -d '{
     "employee_id": "DOC002",
     "full_name": "Dr. Jane Doe",
-    "specialization": "Neurology",
+    "doctor_specialization_id": 2,
     "license_number": "LIC789012",
     "phone": "081234567891",
     "email": "drjane@hospital.com",
@@ -619,7 +574,7 @@ curl -X POST http://localhost:8080/api/v1/doctors \
 
 ---
 
-### 8. Update Doctor
+### 7. Update Doctor
 
 **Endpoint:** `PUT /api/v1/doctors/:id`
 
@@ -643,7 +598,7 @@ Content-Type: application/json
 ```json
 {
   "full_name": "Dr. Jane Doe Smith",
-  "specialization": "Neurology & Neurosurgery",
+  "doctor_specialization_id": 3,
   "phone": "081234567899",
   "email": "drjane_new@hospital.com",
   "department_id": 3,
@@ -668,11 +623,16 @@ Content-Type: application/json
     "id": 2,
     "employee_id": "DOC002",
     "full_name": "Dr. Jane Doe Smith",
-    "specialization": "Neurology & Neurosurgery",
     "license_number": "LIC789012",
     "phone": "081234567899",
     "email": "drjane_new@hospital.com",
     "department_id": 3,
+    "doctor_specialization_id": 3,
+    "doctor_specialization": {
+      "id": 3,
+      "name": "Psychiatric",
+      "code": "PSY"
+    },
     "is_active": true,
     "created_at": "2024-01-19T10:00:00Z",
     "updated_at": "2024-01-19T15:00:00Z"
@@ -694,7 +654,7 @@ curl -X PUT http://localhost:8080/api/v1/doctors/2 \
 
 ---
 
-### 9. Activate Doctor
+### 8. Activate Doctor
 
 **Endpoint:** `PATCH /api/v1/doctors/:id/activate`
 
@@ -742,7 +702,7 @@ curl -X PATCH http://localhost:8080/api/v1/doctors/2/activate \
 
 ---
 
-### 10. Deactivate Doctor
+### 9. Deactivate Doctor
 
 **Endpoint:** `PATCH /api/v1/doctors/:id/deactivate`
 
@@ -791,7 +751,7 @@ curl -X PATCH http://localhost:8080/api/v1/doctors/2/deactivate \
 
 ---
 
-### 11. Soft Delete Doctor
+### 10. Soft Delete Doctor
 
 **Endpoint:** `DELETE /api/v1/doctors/:id`
 
@@ -839,7 +799,7 @@ curl -X DELETE http://localhost:8080/api/v1/doctors/2 \
 
 ---
 
-### 12. Restore Doctor
+### 11. Restore Doctor
 
 **Endpoint:** `PATCH /api/v1/doctors/:id/restore`
 
@@ -891,7 +851,7 @@ curl -X PATCH http://localhost:8080/api/v1/doctors/2/restore \
 
 ## Super Admin Endpoints
 
-### 13. Hard Delete Doctor
+### 12. Hard Delete Doctor
 
 **Endpoint:** `DELETE /api/v1/doctors/:id/hard-delete`
 
@@ -945,40 +905,44 @@ curl -X DELETE http://localhost:8080/api/v1/doctors/2/hard-delete \
 
 ### Table: doctors
 
-| Field | Type | Constraints | Description |
-| --- | --- | --- | --- |
-| id | BIGINT | PRIMARY KEY, AUTO_INCREMENT | Unique identifier untuk doctor |
-| user_id | BIGINT | FOREIGN KEY (users.id), INDEX | Reference ke user yang login |
-| employee_id | VARCHAR(50) | UNIQUE, NOT NULL, INDEX | ID karyawan dari HR |
-| full_name | VARCHAR(100) | NOT NULL | Nama lengkap dokter |
-| specialization | VARCHAR(100) | NOT NULL | Spesialisasi medis (e.g., Kardiologi, Neurologi) |
-| license_number | VARCHAR(50) | UNIQUE, NOT NULL | Nomor lisensi STR/SIP |
-| phone | VARCHAR(15) | NULLABLE | Nomor telepon |
-| email | VARCHAR(100) | NULLABLE | Email kontak |
-| department_id | BIGINT | FOREIGN KEY (departments.id), NOT NULL, INDEX | Department tempat bekerja |
-| is_active | BOOLEAN | NOT NULL, DEFAULT true, INDEX | Status aktif dokter |
-| created_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | Waktu pembuatan record |
-| updated_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | Waktu update terakhir |
-| deleted_at | TIMESTAMP | INDEX, NULLABLE | Soft delete timestamp |
+| Field                    | Type         | Constraints                                              | Description                                    |
+| ------------------------ | ------------ | -------------------------------------------------------- | ---------------------------------------------- |
+| id                       | BIGINT       | PRIMARY KEY, AUTO_INCREMENT                              | Unique identifier untuk doctor                 |
+| user_id                  | BIGINT       | FOREIGN KEY (users.id), INDEX                            | Reference ke user yang login                   |
+| employee_id              | VARCHAR(50)  | UNIQUE, NOT NULL, INDEX                                  | ID karyawan dari HR                            |
+| full_name                | VARCHAR(100) | NOT NULL                                                 | Nama lengkap dokter                            |
+| doctor_specialization_id | BIGINT       | FOREIGN KEY (doctor_specializations.id), NOT NULL, INDEX | Spesialisasi dokter (reference ke master data) |
+| license_number           | VARCHAR(50)  | UNIQUE, NOT NULL                                         | Nomor lisensi STR/SIP                          |
+| phone                    | VARCHAR(15)  | NULLABLE                                                 | Nomor telepon                                  |
+| email                    | VARCHAR(100) | NULLABLE                                                 | Email kontak                                   |
+| department_id            | BIGINT       | FOREIGN KEY (departments.id), NOT NULL, INDEX            | Department tempat bekerja                      |
+| is_active                | BOOLEAN      | NOT NULL, DEFAULT true, INDEX                            | Status aktif dokter                            |
+| created_at               | TIMESTAMP    | DEFAULT CURRENT_TIMESTAMP                                | Waktu pembuatan record                         |
+| updated_at               | TIMESTAMP    | DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP    | Waktu update terakhir                          |
+| deleted_at               | TIMESTAMP    | INDEX, NULLABLE                                          | Soft delete timestamp                          |
 
 **Indexes:**
+
 - Primary Key: id
 - Unique Index: employee_id, license_number
-- Foreign Key: user_id, department_id
+- Foreign Key: user_id, department_id, doctor_specialization_id
 - Regular Index: is_active, deleted_at
 
 **Relationships:**
+
 - Belongs To User (one-to-one)
 - Belongs To Department (many-to-one)
+- Belongs To DoctorSpecialization (many-to-one)
 - Has Many Appointments (one-to-many)
 - Has Many Medical Records (one-to-many)
 - Has Many Referrals (one-to-many)
 
 **Notes:**
+
 - License number adalah nomor STR (Surat Tanda Registrasi) atau SIP (Surat Izin Praktik)
 - Department menentukan lokasi kerja utama dokter
+- Doctor Specialization adalah reference ke master data untuk standardisasi
 - is_active dapat diubah untuk non-permanent leave atau retirement
-- Specialization bisa reference ke master data atau string langsung
 
 ---
 
@@ -1046,7 +1010,6 @@ curl -X DELETE http://localhost:8080/api/v1/doctors/2/hard-delete \
   "user_id": 2,
   "employee_id": "DOC001",
   "full_name": "Dr. John Smith",
-  "specialization": "Cardiology",
   "license_number": "LIC123456",
   "phone": "081234567890",
   "email": "drsmith@hospital.com",
@@ -1055,6 +1018,12 @@ curl -X DELETE http://localhost:8080/api/v1/doctors/2/hard-delete \
     "id": 1,
     "name": "Cardiology Department",
     "code": "CARD"
+  },
+  "doctor_specialization_id": 1,
+  "doctor_specialization": {
+    "id": 1,
+    "name": "Cardiology",
+    "code": "CARDIO"
   },
   "is_active": true,
   "created_at": "2024-01-19T10:00:00Z",
@@ -1070,11 +1039,15 @@ curl -X DELETE http://localhost:8080/api/v1/doctors/2/hard-delete \
   "id": 1,
   "employee_id": "DOC001",
   "full_name": "Dr. John Smith",
-  "specialization": "Cardiology",
   "phone": "081234567890",
   "department": {
     "id": 1,
     "name": "Cardiology Department"
+  },
+  "doctor_specialization": {
+    "id": 1,
+    "name": "Cardiology",
+    "code": "CARDIO"
   },
   "is_active": true,
   "created_at": "2024-01-19T10:00:00Z"
@@ -1137,7 +1110,7 @@ curl -X POST http://localhost:8080/api/v1/doctors \
   -d '{
     "employee_id": "DOC015",
     "full_name": "Dr. Sarah Johnson",
-    "specialization": "Pediatrics",
+    "doctor_specialization_id": 4,
     "license_number": "LIC987654",
     "phone": "081234567892",
     "email": "drsarah@hospital.com",
@@ -1146,11 +1119,15 @@ curl -X POST http://localhost:8080/api/v1/doctors \
   }'
 ```
 
-### Use Case 2: Patient Finding Doctor by Specialization
+### Use Case 2: Patient Finding Doctors by Department or Specialization
 
 ```bash
-# Patient searches for cardiologists
-curl -X GET "http://localhost:8080/api/v1/doctors/specialization/Cardiology?is_active=true" \
+# Patient lists all available doctors
+curl -X GET "http://localhost:8080/api/v1/doctors?is_active=true&page=1&page_size=20" \
+  -H "Authorization: Bearer PATIENT_TOKEN"
+
+# Patient filters doctors by specialization
+curl -X GET "http://localhost:8080/api/v1/doctors?is_active=true&doctor_specialization_id=1" \
   -H "Authorization: Bearer PATIENT_TOKEN"
 
 # Patient views doctor details
@@ -1200,19 +1177,19 @@ curl -X POST http://localhost:8080/api/v1/doctors \
   -H "Content-Type: application/json" \
   -d '{
     "full_name": "Dr. Test Doctor",
-    "specialization": "General Practice",
+    "doctor_specialization_id": 5,
     "license_number": "LIC-TEST-001",
     "phone": "081234567890",
     "email": "testdoc@hospital.com",
     "department_id": 1
   }'
 
-# 2. List All Doctors
+# 2. List All Active Doctors
 curl -X GET "http://localhost:8080/api/v1/doctors?page=1&page_size=10" \
   -H "Authorization: Bearer PATIENT_TOKEN"
 
-# 3. Search by Specialization
-curl -X GET "http://localhost:8080/api/v1/doctors/specialization/General%20Practice" \
+# 3. Filter Doctors by Specialization
+curl -X GET "http://localhost:8080/api/v1/doctors?doctor_specialization_id=5&is_active=true" \
   -H "Authorization: Bearer PATIENT_TOKEN"
 
 # 4. View Doctor Details
