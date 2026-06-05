@@ -46,8 +46,8 @@ func (s *eventDoctorService) GetDoctorByID(id uint) (*dto.DoctorResponse, error)
 	return s.inner.GetDoctorByID(id)
 }
 
-func (s *eventDoctorService) GetDoctorBySpecialization(spec string) (*dto.DoctorResponse, error) {
-	return s.inner.GetDoctorBySpecialization(spec)
+func (s *eventDoctorService) GetDoctorBySpecializationID(specID uint) (*dto.DoctorResponse, error) {
+	return s.inner.GetDoctorBySpecializationID(specID)
 }
 
 // ─── Write operations ─────────────────────────────────────────────────────────
@@ -59,7 +59,7 @@ func (s *eventDoctorService) CreateDoctor(req *dto.CreateDoctorRequest) (*dto.Do
 	}
 	s.publisher.PublishAsync(kafka.TopicDoctorCreated,
 		events.NewDoctorCreatedEvent(
-			result.ID, result.FullName, result.Specialization,
+			result.ID, result.FullName, result.SpecializationID,
 			result.Phone, result.Email, result.DepartmentID, doctorIsActive(result),
 		))
 	return result, nil
@@ -72,7 +72,7 @@ func (s *eventDoctorService) UpdateDoctor(id uint, req *dto.UpdateDoctorRequest)
 	}
 	s.publisher.PublishAsync(kafka.TopicDoctorUpdated,
 		events.NewDoctorUpdatedEvent(
-			result.ID, result.FullName, result.Specialization,
+			result.ID, result.FullName, result.SpecializationID,
 			result.Phone, result.Email, result.DepartmentID, doctorIsActive(result), "admin_update",
 		))
 	return result, nil
@@ -85,7 +85,7 @@ func (s *eventDoctorService) UpdateMyDoctorData(userID uint, req *dto.UpdateDoct
 	}
 	s.publisher.PublishAsync(kafka.TopicDoctorUpdated,
 		events.NewDoctorUpdatedEvent(
-			result.ID, result.FullName, result.Specialization,
+			result.ID, result.FullName, result.SpecializationID,
 			result.Phone, result.Email, result.DepartmentID, doctorIsActive(result), "self_update",
 		))
 	return result, nil
@@ -98,7 +98,7 @@ func (s *eventDoctorService) ActivateDoctor(id uint) (*dto.DoctorResponse, error
 	}
 	s.publisher.PublishAsync(kafka.TopicDoctorUpdated,
 		events.NewDoctorUpdatedEvent(
-			result.ID, result.FullName, result.Specialization,
+			result.ID, result.FullName, result.SpecializationID,
 			result.Phone, result.Email, result.DepartmentID, true, "activate",
 		))
 	return result, nil
@@ -111,7 +111,7 @@ func (s *eventDoctorService) DeactivateDoctor(id uint) (*dto.DoctorResponse, err
 	}
 	s.publisher.PublishAsync(kafka.TopicDoctorUpdated,
 		events.NewDoctorUpdatedEvent(
-			result.ID, result.FullName, result.Specialization,
+			result.ID, result.FullName, result.SpecializationID,
 			result.Phone, result.Email, result.DepartmentID, false, "deactivate",
 		))
 	return result, nil

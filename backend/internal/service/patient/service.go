@@ -14,7 +14,7 @@ type PatientService interface {
 	ListPatients(query *dto.PatientPaginationQuery) (*dto.PatientListResponse, error)
 	DeleteListPatients(query *dto.PatientPaginationQuery) (*dto.PatientDeletedListResponse, error)
 	GetPatientByID(id uint) (*dto.PatientResponse, error)
-	GetPatientByCode(code string) (*dto.PatientResponse, error)
+
 	GetMyPatientData(userID uint) (*dto.PatientResponse, error)
 	UpdateMyPatientData(userID uint, req *dto.UpdatePatientRequest) (*dto.PatientResponse, error)
 	CreatePatient(req *dto.CreatePatientRequest) (*dto.PatientResponse, error)
@@ -132,13 +132,7 @@ func (s *patientService) GetPatientByID(id uint) (*dto.PatientResponse, error) {
 	return s.toPatientResponse(patient), nil
 }
 
-func (s *patientService) GetPatientByCode(code string) (*dto.PatientResponse, error) {
-	patient, err := s.repo.FindByCode(code)
-	if err != nil {
-		return nil, err
-	}
-	return s.toPatientResponse(patient), nil
-}
+
 
 func (s *patientService) GetMyPatientData(userID uint) (*dto.PatientResponse, error) {
 	patient, err := s.repo.FindByUserID(userID)

@@ -78,20 +78,7 @@ func (h *PatientHandler) ListPatients(ctx *gin.Context) {
 	utils.SuccessResponse(ctx, http.StatusOK, "Patients retrieved successfully", patients)
 }
 
-func (h *PatientHandler) SearchPatients(ctx *gin.Context) {
-	var query dto.PatientPaginationQuery
-	if err := ctx.ShouldBindQuery(&query); err != nil {
-		utils.ValidationErrorResponse(ctx, err)
-		return
-	}
 
-	patients, err := h.service.ListPatients(&query)
-	if err != nil {
-		utils.ErrorResponse(ctx, http.StatusBadRequest, "Failed to search patients", err.Error())
-		return
-	}
-	utils.SuccessResponse(ctx, http.StatusOK, "Patients search results retrieved successfully", patients)
-}
 
 func (h *PatientHandler) DeleteListPatients(ctx *gin.Context) {
 	var query dto.PatientPaginationQuery
@@ -136,17 +123,6 @@ func (h *PatientHandler) GetPatientByID(ctx *gin.Context) {
 	utils.SuccessResponse(ctx, http.StatusOK, "Patient retrieved successfully", patient)
 }
 
-func (h *PatientHandler) GetPatientByCode(ctx *gin.Context) {
-	code := ctx.Param("code")
-
-	patient, err := h.service.GetPatientByCode(code)
-	if err != nil {
-		utils.ErrorResponse(ctx, http.StatusNotFound, "Patient not found", err.Error())
-		return
-	}
-
-	utils.SuccessResponse(ctx, http.StatusOK, "Patient retrieved successfully", patient)
-}
 
 func (h *PatientHandler) CreatePatient(ctx *gin.Context) {
 	var req dto.CreatePatientRequest

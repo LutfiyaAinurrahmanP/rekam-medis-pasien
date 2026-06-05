@@ -338,13 +338,13 @@ func NewDoctorSpecializationRestoredEvent(id uint, name, code string) DoctorSpec
 // ─── Doctor Events ────────────────────────────────────────────────────────────
 
 type DoctorPayload struct {
-	ID             uint   `json:"id"`
-	FullName       string `json:"full_name"`
-	Specialization string `json:"specialization"`
-	Phone          string `json:"phone"`
-	Email          string `json:"email"`
-	DepartmentID   *uint  `json:"department_id,omitempty"`
-	IsActive       bool   `json:"is_active"`
+	ID               uint   `json:"id"`
+	FullName         string `json:"full_name"`
+	SpecializationID uint   `json:"specialization_id"`
+	Phone            string `json:"phone"`
+	Email            string `json:"email"`
+	DepartmentID     *uint  `json:"department_id,omitempty"`
+	IsActive         bool   `json:"is_active"`
 }
 
 type DoctorCreatedEvent struct {
@@ -379,20 +379,20 @@ type DoctorRestoredEvent struct {
 
 // Constructors ────────────────────────────────────────────────────────────────
 
-func NewDoctorCreatedEvent(id uint, fullName, specialization, phone, email string, deptID *uint, isActive bool) DoctorCreatedEvent {
+func NewDoctorCreatedEvent(id uint, fullName string, specializationID uint, phone, email string, deptID *uint, isActive bool) DoctorCreatedEvent {
 	return DoctorCreatedEvent{
 		BaseEvent: newBase("doctor.created"),
 		Payload: DoctorPayload{
-			ID: id, FullName: fullName, Specialization: specialization,
+			ID: id, FullName: fullName, SpecializationID: specializationID,
 			Phone: phone, Email: email, DepartmentID: deptID, IsActive: isActive,
 		},
 	}
 }
 
-func NewDoctorUpdatedEvent(id uint, fullName, specialization, phone, email string, deptID *uint, isActive bool, action string) DoctorUpdatedEvent {
+func NewDoctorUpdatedEvent(id uint, fullName string, specializationID uint, phone, email string, deptID *uint, isActive bool, action string) DoctorUpdatedEvent {
 	e := DoctorUpdatedEvent{BaseEvent: newBase("doctor.updated")}
 	e.Payload.DoctorPayload = DoctorPayload{
-		ID: id, FullName: fullName, Specialization: specialization,
+		ID: id, FullName: fullName, SpecializationID: specializationID,
 		Phone: phone, Email: email, DepartmentID: deptID, IsActive: isActive,
 	}
 	e.Payload.Action = action

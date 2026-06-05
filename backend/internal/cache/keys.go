@@ -80,12 +80,11 @@ func DepartmentDeletedListQueryKey(page, size int, search, sortBy, sortDir strin
 
 func PatientKey(id uint) string            { return fmt.Sprintf("patient:id:%d", id) }
 func PatientListKey(page, size int) string { return fmt.Sprintf("patient:list:p%d:s%d", page, size) }
-func PatientListQueryKey(page, size int, search, gender, bloodType, insuranceProvider string, minAge, maxAge int, sortBy, sortDir string) string {
+func PatientListQueryKey(page, size int, gender, bloodType, insuranceProvider string, minAge, maxAge int, sortBy, sortDir string) string {
 	return fmt.Sprintf(
-		"patient:list:p%d:s%d:q%s:g%s:b%s:ip%s:min%d:max%d:sb%s:sd%s",
+		"patient:list:p%d:s%d:g%s:b%s:ip%s:min%d:max%d:sb%s:sd%s",
 		page,
 		size,
-		search,
 		gender,
 		bloodType,
 		insuranceProvider,
@@ -98,12 +97,11 @@ func PatientListQueryKey(page, size int, search, gender, bloodType, insurancePro
 func PatientDeletedListKey(page, size int) string {
 	return fmt.Sprintf("patient:deleted:p%d:s%d", page, size)
 }
-func PatientDeletedListQueryKey(page, size int, search, gender, bloodType, insuranceProvider string, minAge, maxAge int, sortBy, sortDir string) string {
+func PatientDeletedListQueryKey(page, size int, gender, bloodType, insuranceProvider string, minAge, maxAge int, sortBy, sortDir string) string {
 	return fmt.Sprintf(
-		"patient:deleted:p%d:s%d:q%s:g%s:b%s:ip%s:min%d:max%d:sb%s:sd%s",
+		"patient:deleted:p%d:s%d:g%s:b%s:ip%s:min%d:max%d:sb%s:sd%s",
 		page,
 		size,
-		search,
 		gender,
 		bloodType,
 		insuranceProvider,
@@ -148,7 +146,7 @@ func DoctorSpecializationDeletedListQuery(page, size int, search, sortBy, sortDi
 
 func DoctorKey(id uint) string             { return fmt.Sprintf("doctor:id:%d", id) }
 func DoctorListKey(page, size int) string  { return fmt.Sprintf("doctor:list:p%d:s%d", page, size) }
-func DoctorBySpecKey(spec string) string   { return fmt.Sprintf("doctor:spec:%s", spec) }
+func DoctorBySpecKey(specID uint) string   { return fmt.Sprintf("doctor:spec:%d", specID) }
 func DoctorByUserIDKey(userID uint) string { return fmt.Sprintf("doctor:user:%d", userID) }
 
 // ─── Room ──────────────────────────────────────────────────────────────────

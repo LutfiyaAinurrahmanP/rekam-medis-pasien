@@ -8,25 +8,12 @@ import (
 	"gorm.io/gorm"
 )
 
-func seedDoctors(tx *gorm.DB, count int, users []models.User, departments []models.Department) ([]models.Doctor, error) {
+func seedDoctors(tx *gorm.DB, count int, users []models.User, departments []models.Department, specializations []models.DoctorSpecialization) ([]models.Doctor, error) {
 	doctorUsers := make([]models.User, 0)
 	for _, user := range users {
 		if user.Role == models.RoleDoctor {
 			doctorUsers = append(doctorUsers, user)
 		}
-	}
-
-	specializations := []string{
-		"Cardiology",
-		"Neurology",
-		"Pediatrics",
-		"Obstetrics",
-		"Orthopedics",
-		"Radiology",
-		"Internal Medicine",
-		"General Surgery",
-		"Pulmonology",
-		"Dermatology",
 	}
 
 	doctors := make([]models.Doctor, 0, count)
@@ -43,16 +30,21 @@ func seedDoctors(tx *gorm.DB, count int, users []models.User, departments []mode
 			departmentID = &selected
 		}
 
+		var specializationID uint
+		if len(specializations) > 0 {
+			specializationID = specializations[(i-1)%len(specializations)].ID
+		}
+
 		doctor := models.Doctor{
-			UserID:         userID,
-			EmployeeID:     fmt.Sprintf("DOC-%04d", i),
-			FullName:       fmt.Sprintf("dr. Sample Doctor %02d", i),
-			Specialization: specializations[(i-1)%len(specializations)],
-			LicenseNumber:  fmt.Sprintf("STR-2026-%05d", i),
-			Phone:          fmt.Sprintf("0831100%05d", i),
-			Email:          fmt.Sprintf("doctor%02d@sirekam.local", i),
-			DepartmentID:   departmentID,
-			IsActive:       i%6 != 0,
+			UserID:           userID,
+			EmployeeID:       fmt.Sprintf("DOC-%04d", i),
+			FullName:         fmt.Sprintf("dr. Sample Doctor %02d", i),
+			SpecializationID: specializationID,
+			LicenseNumber:    fmt.Sprintf("STR-2026-%05d", i),
+			Phone:            fmt.Sprintf("0831100%05d", i),
+			Email:            fmt.Sprintf("doctor%02d@sirekam.local", i),
+			DepartmentID:     departmentID,
+			IsActive:         i%6 != 0,
 		}
 		doctors = append(doctors, doctor)
 	}
@@ -65,17 +57,12 @@ func seedDoctors(tx *gorm.DB, count int, users []models.User, departments []mode
 }
 
 func seedDeletedDoctors(tx *gorm.DB) error {
-	specializations := []string{
-		"Cardiology",
-		"Neurology",
-		"Pediatrics",
-		"Obstetrics",
-		"Orthopedics",
-		"Radiology",
-		"Internal Medicine",
-		"General Surgery",
-		"Pulmonology",
-		"Dermatology",
+	var specializations []models.DoctorSpecialization
+	if err := tx.Where("deleted_at IS NULL").Find(&specializations).Error; err != nil {
+		return fmt.Errorf("failed to fetch specializations: %w", err)
+	}
+	if len(specializations) == 0 {
+		return fmt.Errorf("no active doctor specializations found for doctor assignment")
 	}
 
 	// Get active departments for assignment
@@ -94,17 +81,18 @@ func seedDeletedDoctors(tx *gorm.DB) error {
 	doctors := make([]models.Doctor, 0, 12)
 	for i := 3001; i <= 3012; i++ {
 		selected := departments[(i-1)%len(departments)].ID
+		selectedSpec := specializations[(i-1)%len(specializations)].ID
 
 		doctor := models.Doctor{
-			EmployeeID:     fmt.Sprintf("DOC-DEL-%04d", i-3000),
-			FullName:       fmt.Sprintf("dr. Deleted Doctor %02d", i-3000),
-			Specialization: specializations[(i-1)%len(specializations)],
-			LicenseNumber:  fmt.Sprintf("STR-DEL-%05d", i),
-			Phone:          fmt.Sprintf("0887100%05d", i),
-			Email:          fmt.Sprintf("deleted-doctor%02d@sirekam.local", i-3000),
-			DepartmentID:   &selected,
-			IsActive:       false,
-			DeletedAt:      deletedAt,
+			EmployeeID:       fmt.Sprintf("DOC-DEL-%04d", i-3000),
+			FullName:         fmt.Sprintf("dr. Deleted Doctor %02d", i-3000),
+			SpecializationID: selectedSpec,
+			LicenseNumber:    fmt.Sprintf("STR-DEL-%05d", i),
+			Phone:            fmt.Sprintf("0887100%05d", i),
+			Email:            fmt.Sprintf("deleted-doctor%02d@sirekam.local", i-3000),
+			DepartmentID:     &selected,
+			IsActive:         false,
+			DeletedAt:        deletedAt,
 		}
 		doctors = append(doctors, doctor)
 	}

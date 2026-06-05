@@ -28,11 +28,14 @@ var notificationTopics = []string{
 	kafka.TopicUserRegistered,
 	kafka.TopicUserLogin,
 	kafka.TopicUserCreated,
+	kafka.TopicUserUpdated,
 	kafka.TopicUserDeleted,
+	kafka.TopicUserRestored,
 	kafka.TopicUserPasswordResetRequested,
 	kafka.TopicPatientCreated,
 	kafka.TopicPatientUpdated,
 	kafka.TopicPatientDeleted,
+	kafka.TopicPatientRestored,
 	kafka.TopicDoctorSpecializationCreated,
 	kafka.TopicDoctorSpecializationUpdated,
 	kafka.TopicDoctorSpecializationRestored,
@@ -40,11 +43,19 @@ var notificationTopics = []string{
 	kafka.TopicDoctorCreated,
 	kafka.TopicDoctorUpdated,
 	kafka.TopicDoctorDeleted,
+	kafka.TopicDoctorRestored,
 	kafka.TopicDepartmentCreated,
+	kafka.TopicDepartmentUpdated,
 	kafka.TopicDepartmentDeleted,
+	kafka.TopicDepartmentRestored,
 	kafka.TopicRoomCreated,
 	kafka.TopicRoomUpdated,
+	kafka.TopicRoomDeleted,
+	kafka.TopicRoomRestored,
 	kafka.TopicTypeTestCreated,
+	kafka.TopicTypeTestUpdated,
+	kafka.TopicTypeTestDeleted,
+	kafka.TopicTypeTestRestored,
 }
 
 // NewNotificationEventHandler membuat notification handler baru.
@@ -98,12 +109,26 @@ func (h *NotificationEventHandler) handle(ctx context.Context, topic string, key
 		}
 		h.sendAccountCreatedNotification(e.Payload.Email, e.Payload.Username, e.Payload.Role)
 
+	case kafka.TopicUserUpdated:
+		var e events.UserUpdatedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 👤 User profile updated: %s (action=%s)", e.Payload.Username, e.Payload.Action)
+
 	case kafka.TopicUserDeleted:
 		var e events.UserDeletedEvent
 		if err := json.Unmarshal(value, &e); err != nil {
 			return err
 		}
 		log.Printf("[NOTIFICATION] ⚠️  User account deleted: %s (action=%s)", e.Payload.Username, e.Payload.Action)
+
+	case kafka.TopicUserRestored:
+		var e events.UserRestoredEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] ♻️  User account restored: %s", e.Payload.Username)
 
 	case kafka.TopicUserPasswordResetRequested:
 		var e events.UserPasswordResetRequestedEvent
@@ -136,6 +161,43 @@ func (h *NotificationEventHandler) handle(ctx context.Context, topic string, key
 		}
 		log.Printf("[NOTIFICATION] 🗑️  Patient record deleted: %s (action=%s)", e.Payload.FullName, e.Payload.Action)
 
+	case kafka.TopicPatientRestored:
+		var e events.PatientRestoredEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] ♻️  Patient record restored: %s (code=%s)", e.Payload.FullName, e.Payload.PatientCode)
+
+	// ── Doctor Specialization Events ─────────────────────────────────────────
+
+	case kafka.TopicDoctorSpecializationCreated:
+		var e events.DoctorSpecializationCreatedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🩺 New doctor specialization created: %s (code=%s)", e.Payload.Name, e.Payload.Code)
+
+	case kafka.TopicDoctorSpecializationUpdated:
+		var e events.DoctorSpecializationUpdatedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🩺 Doctor specialization updated: %s (code=%s, action=%s)", e.Payload.Name, e.Payload.Code, e.Payload.Action)
+
+	case kafka.TopicDoctorSpecializationRestored:
+		var e events.DoctorSpecializationRestoredEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🩺 Doctor specialization restored: %s (code=%s)", e.Payload.Name, e.Payload.Code)
+
+	case kafka.TopicDoctorSpecializationDeleted:
+		var e events.DoctorSpecializationDeletedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🩺 Doctor specialization deleted: %s (code=%s, action=%s)", e.Payload.Name, e.Payload.Code, e.Payload.Action)
+
 	// ── Doctor Events ────────────────────────────────────────────────────────
 
 	case kafka.TopicDoctorCreated:
@@ -143,7 +205,7 @@ func (h *NotificationEventHandler) handle(ctx context.Context, topic string, key
 		if err := json.Unmarshal(value, &e); err != nil {
 			return err
 		}
-		h.sendDoctorOnboardingNotification(e.Payload.Email, e.Payload.FullName, e.Payload.Specialization)
+		h.sendDoctorOnboardingNotification(e.Payload.Email, e.Payload.FullName, e.Payload.SpecializationID)
 
 	case kafka.TopicDoctorUpdated:
 		var e events.DoctorUpdatedEvent
@@ -158,7 +220,12 @@ func (h *NotificationEventHandler) handle(ctx context.Context, topic string, key
 			return err
 		}
 		log.Printf("[NOTIFICATION] 🗑️  Doctor record deleted: %s (action=%s)", e.Payload.FullName, e.Payload.Action)
-
+	case kafka.TopicDoctorRestored:
+		var e events.DoctorRestoredEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] ♻️  Doctor record restored: %s", e.Payload.FullName)
 	// ── Department Events ────────────────────────────────────────────────────
 
 	case kafka.TopicDepartmentCreated:
@@ -168,12 +235,26 @@ func (h *NotificationEventHandler) handle(ctx context.Context, topic string, key
 		}
 		log.Printf("[NOTIFICATION] 🏥 New department created: %s (code=%s)", e.Payload.Name, e.Payload.Code)
 
+	case kafka.TopicDepartmentUpdated:
+		var e events.DepartmentUpdatedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🏥 Department updated: %s (code=%s)", e.Payload.Name, e.Payload.Code)
+
 	case kafka.TopicDepartmentDeleted:
 		var e events.DepartmentDeletedEvent
 		if err := json.Unmarshal(value, &e); err != nil {
 			return err
 		}
 		log.Printf("[NOTIFICATION] 🗑️  Department deleted: %s (action=%s)", e.Payload.Name, e.Payload.Action)
+
+	case kafka.TopicDepartmentRestored:
+		var e events.DepartmentRestoredEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] ♻️  Department restored: %s", e.Payload.Name)
 
 	// ── Room Events ──────────────────────────────────────────────────────────
 
@@ -195,6 +276,20 @@ func (h *NotificationEventHandler) handle(ctx context.Context, topic string, key
 				e.Payload.RoomNumber, e.Payload.AvailableBeds, e.Payload.Action)
 		}
 
+	case kafka.TopicRoomDeleted:
+		var e events.RoomDeletedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🗑️  Room deleted: %s (action=%s)", e.Payload.RoomNumber, e.Payload.Action)
+
+	case kafka.TopicRoomRestored:
+		var e events.RoomRestoredEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] ♻️  Room restored: %s", e.Payload.RoomNumber)
+
 	// ── TypeTest Events ──────────────────────────────────────────────────────
 
 	case kafka.TopicTypeTestCreated:
@@ -204,6 +299,32 @@ func (h *NotificationEventHandler) handle(ctx context.Context, topic string, key
 		}
 		log.Printf("[NOTIFICATION] 🧪 New test type added: %s (code=%s, category=%s)",
 			e.Payload.Name, e.Payload.Code, e.Payload.Category)
+
+	case kafka.TopicTypeTestUpdated:
+		var e events.TypeTestUpdatedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🧪 Test type updated: %s (code=%s, action=%s)",
+			e.Payload.Name, e.Payload.Code, e.Payload.Action)
+
+	case kafka.TopicTypeTestDeleted:
+		var e events.TypeTestDeletedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🗑️  Test type deleted: %s (code=%s, action=%s)",
+			e.Payload.Name, e.Payload.Code, e.Payload.Action)
+
+	case kafka.TopicTypeTestRestored:
+		var e events.TypeTestRestoredEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] ♻️  Test type restored: %s (code=%s)", e.Payload.Name, e.Payload.Code)
+
+	default:
+		log.Printf("[NOTIFICATION] ⚠️  Received unsupported topic: %s", topic)
 	}
 
 	return nil
@@ -227,9 +348,9 @@ func (h *NotificationEventHandler) sendPatientRegistrationConfirmation(email, fu
 	// TODO: Send booklet / patient welcome kit info
 }
 
-func (h *NotificationEventHandler) sendDoctorOnboardingNotification(email, fullName, specialization string) {
-	log.Printf("[NOTIFICATION] 📧 [EMAIL] Doctor onboarding → %s (%s) spec=%s",
-		email, fullName, specialization)
+func (h *NotificationEventHandler) sendDoctorOnboardingNotification(email, fullName string, specializationID uint) {
+	log.Printf("[NOTIFICATION] 📧 [EMAIL] Doctor onboarding → %s (%s) specialization_id=%d",
+		email, fullName, specializationID)
 	// TODO: Send onboarding materials
 }
 

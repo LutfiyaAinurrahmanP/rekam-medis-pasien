@@ -101,10 +101,14 @@ func (h *DoctorHandler) GetDoctorByID(ctx *gin.Context) {
 
 	utils.SuccessResponse(ctx, http.StatusOK, "Doctor retrieved successfully", doctor)
 }
-func (h *DoctorHandler) GetDoctorBySpecialization(ctx *gin.Context) {
-	specialization := ctx.Param("spec")
+func (h *DoctorHandler) GetDoctorBySpecializationID(ctx *gin.Context) {
+	specID, err := strconv.ParseUint(ctx.Param("spec_id"), 10, 32)
+	if err != nil {
+		utils.ErrorResponse(ctx, http.StatusBadRequest, "Invalid specialization ID", err.Error())
+		return
+	}
 
-	doctor, err := h.service.GetDoctorBySpecialization(specialization)
+	doctor, err := h.service.GetDoctorBySpecializationID(uint(specID))
 	if err != nil {
 		utils.ErrorResponse(ctx, http.StatusNotFound, "Doctor not found", err.Error())
 		return

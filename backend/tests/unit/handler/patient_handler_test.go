@@ -227,27 +227,6 @@ func TestGetPatientByID_OwnershipForbidden(t *testing.T) {
 	mockService.AssertExpectations(t)
 }
 
-// ============= Test Cases: GetPatientByCode =============
-
-func TestGetPatientByCode_Success(t *testing.T) {
-	gin.SetMode(gin.TestMode)
-	mockService := new(mocks.MockPatientService)
-
-	expectedPatient := mocks.NewTestPatientResponse()
-	mockService.On("GetPatientByCode", "PAT001").Return(expectedPatient, nil)
-
-	h := handler.NewPatientHandler(mockService)
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/patients/code/PAT001", nil)
-	c, _ := gin.CreateTestContext(w)
-	c.Request = req
-	c.Params = gin.Params{{Key: "code", Value: "PAT001"}}
-
-	h.GetPatientByCode(c)
-
-	assert.Equal(t, http.StatusOK, w.Code)
-	mockService.AssertExpectations(t)
-}
 
 // ============= Test Cases: CreatePatient =============
 

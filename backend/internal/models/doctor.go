@@ -12,7 +12,8 @@ type Doctor struct {
 	User           User           `gorm:"foreignKey:UserID;references:ID" json:"-"`
 	EmployeeID     string         `gorm:"unique;not null;size:50;index" json:"employee_id"`
 	FullName       string         `gorm:"not null;size:100" json:"full_name"`
-	Specialization string         `gorm:"not null;size:100" json:"specialization"`
+	SpecializationID uint           `gorm:"not null;index;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT" json:"specialization_id"`
+	Specialization   DoctorSpecialization `gorm:"foreignKey:SpecializationID;references:ID" json:"-"`
 	LicenseNumber  string         `gorm:"unique;not null;size:50" json:"license_number"`
 	Phone          string         `gorm:"size:15" json:"phone"`
 	Email          string         `gorm:"size:100" json:"email"`

@@ -78,13 +78,13 @@ func (s *cachedDoctorService) GetDoctorByID(id uint) (*dto.DoctorResponse, error
 	return result, nil
 }
 
-func (s *cachedDoctorService) GetDoctorBySpecialization(spec string) (*dto.DoctorResponse, error) {
-	key := cache.DoctorBySpecKey(spec)
+func (s *cachedDoctorService) GetDoctorBySpecializationID(specID uint) (*dto.DoctorResponse, error) {
+	key := cache.DoctorBySpecKey(specID)
 	var resp dto.DoctorResponse
 	if err := s.redis.Get(context.Background(), key, &resp); err == nil {
 		return &resp, nil
 	}
-	result, err := s.inner.GetDoctorBySpecialization(spec)
+	result, err := s.inner.GetDoctorBySpecializationID(specID)
 	if err != nil {
 		return nil, err
 	}

@@ -16,7 +16,7 @@ type DoctorService interface {
 	ListDoctors(query *dto.DoctorPaginationQuery) (*dto.DoctorListResponse, error)
 	DeletedListDoctors(query *dto.DoctorPaginationQuery) (*dto.DoctorDeletedListResponse, error)
 	GetDoctorByID(id uint) (*dto.DoctorResponse, error)
-	GetDoctorBySpecialization(spec string) (*dto.DoctorResponse, error)
+	GetDoctorBySpecializationID(specID uint) (*dto.DoctorResponse, error)
 	CreateDoctor(req *dto.CreateDoctorRequest) (*dto.DoctorResponse, error)
 	UpdateDoctor(id uint, req *dto.UpdateDoctorRequest) (*dto.DoctorResponse, error)
 	ActivateDoctor(id uint) (*dto.DoctorResponse, error)
@@ -60,8 +60,8 @@ func (s doctorService) UpdateMyDoctorData(userID uint, req *dto.UpdateDoctorRequ
 		doctor.FullName = *req.FullName
 	}
 
-	if req.Specialization != nil {
-		doctor.Specialization = *req.Specialization
+	if req.SpecializationID != nil {
+		doctor.SpecializationID = *req.SpecializationID
 	}
 
 	if req.Phone != nil {
@@ -179,8 +179,8 @@ func (s doctorService) GetDoctorByID(id uint) (*dto.DoctorResponse, error) {
 	return s.toDoctorResponse(doctor), nil
 }
 
-func (s doctorService) GetDoctorBySpecialization(specialization string) (*dto.DoctorResponse, error) {
-	spec, err := s.repo.FindBySpecialization(specialization)
+func (s doctorService) GetDoctorBySpecializationID(specializationID uint) (*dto.DoctorResponse, error) {
+	spec, err := s.repo.FindBySpecializationID(specializationID)
 	if err != nil {
 		return nil, err
 	}
@@ -198,15 +198,15 @@ func (s doctorService) CreateDoctor(req *dto.CreateDoctorRequest) (*dto.DoctorRe
 	}
 
 	doctors := &models.Doctor{
-		UserID:         req.UserID,
-		EmployeeID:     req.EmployeeID,
-		FullName:       req.FullName,
-		Specialization: req.Specialization,
-		LicenseNumber:  req.LicenseNumber,
-		Phone:          req.Phone,
-		Email:          req.Email,
-		DepartmentID:   req.DepartmentID,
-		IsActive:       true,
+		UserID:           req.UserID,
+		EmployeeID:       req.EmployeeID,
+		FullName:         req.FullName,
+		SpecializationID: *req.SpecializationID,
+		LicenseNumber:    req.LicenseNumber,
+		Phone:            req.Phone,
+		Email:            req.Email,
+		DepartmentID:     req.DepartmentID,
+		IsActive:         true,
 	}
 
 	if err := s.repo.Create(doctors); err != nil {
@@ -226,8 +226,8 @@ func (s doctorService) UpdateDoctor(id uint, req *dto.UpdateDoctorRequest) (*dto
 		doctor.FullName = *req.FullName
 	}
 
-	if req.Specialization != nil {
-		doctor.Specialization = *req.Specialization
+	if req.SpecializationID != nil {
+		doctor.SpecializationID = *req.SpecializationID
 	}
 
 	if req.Phone != nil {
@@ -302,35 +302,35 @@ func (s doctorService) HardDeleteDoctor(id uint) error {
 
 func (s *doctorService) toDoctorResponse(doctor *models.Doctor) *dto.DoctorResponse {
 	return &dto.DoctorResponse{
-		ID:             doctor.ID,
-		UserID:         doctor.UserID,
-		EmployeeID:     doctor.EmployeeID,
-		FullName:       doctor.FullName,
-		Specialization: doctor.Specialization,
-		LicenseNumber:  doctor.LicenseNumber,
-		Phone:          doctor.Phone,
-		Email:          doctor.Email,
-		DepartmentID:   doctor.DepartmentID,
-		IsActive:       &doctor.IsActive,
-		CreatedAt:      doctor.CreatedAt,
-		UpdatedAt:      doctor.UpdatedAt,
+		ID:               doctor.ID,
+		UserID:           doctor.UserID,
+		EmployeeID:       doctor.EmployeeID,
+		FullName:         doctor.FullName,
+		SpecializationID: doctor.SpecializationID,
+		LicenseNumber:    doctor.LicenseNumber,
+		Phone:            doctor.Phone,
+		Email:            doctor.Email,
+		DepartmentID:     doctor.DepartmentID,
+		IsActive:         &doctor.IsActive,
+		CreatedAt:        doctor.CreatedAt,
+		UpdatedAt:        doctor.UpdatedAt,
 	}
 }
 
 func (s *doctorService) toDeleteDoctorResponse(doctor *models.Doctor) *dto.DeletedDoctorResponse {
 	return &dto.DeletedDoctorResponse{
-		ID:             doctor.ID,
-		UserID:         doctor.UserID,
-		EmployeeID:     doctor.EmployeeID,
-		FullName:       doctor.FullName,
-		Specialization: doctor.Specialization,
-		LicenseNumber:  doctor.LicenseNumber,
-		Phone:          doctor.Phone,
-		Email:          doctor.Email,
-		DepartmentID:   doctor.DepartmentID,
-		IsActive:       &doctor.IsActive,
-		CreatedAt:      doctor.CreatedAt,
-		UpdatedAt:      doctor.UpdatedAt,
-		DeletedAt:      &doctor.DeletedAt.Time,
+		ID:               doctor.ID,
+		UserID:           doctor.UserID,
+		EmployeeID:       doctor.EmployeeID,
+		FullName:         doctor.FullName,
+		SpecializationID: doctor.SpecializationID,
+		LicenseNumber:    doctor.LicenseNumber,
+		Phone:            doctor.Phone,
+		Email:            doctor.Email,
+		DepartmentID:     doctor.DepartmentID,
+		IsActive:         &doctor.IsActive,
+		CreatedAt:        doctor.CreatedAt,
+		UpdatedAt:        doctor.UpdatedAt,
+		DeletedAt:        &doctor.DeletedAt.Time,
 	}
 }

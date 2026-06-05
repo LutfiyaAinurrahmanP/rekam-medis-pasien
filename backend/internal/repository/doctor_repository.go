@@ -15,7 +15,7 @@ type DoctorRepository interface {
 	FindByID(id uint) (*models.Doctor, error)
 	FindByUserID(userID uint) (*models.Doctor, error)
 	FindByDepartmentID(departmentID uint) (*models.Doctor, error)
-	FindBySpecialization(specialization string) (*models.Doctor, error)
+	FindBySpecializationID(specializationID uint) (*models.Doctor, error)
 	Create(doctor *models.Doctor) error
 	Update(doctor *models.Doctor) error
 	SoftDelete(id uint) error
@@ -44,7 +44,11 @@ func (r *doctorRepository) List(query *dto.DoctorPaginationQuery) ([]models.Doct
 
 	if query.Search != "" {
 		searchPattern := fmt.Sprintf("%%%s%%", query.Search)
-		db = db.Where("full_name ILIKE ? OR specialization = ?", searchPattern, searchPattern)
+		db = db.Where("full_name ILIKE ?", searchPattern)
+	}
+
+	if query.SpecializationID != nil {
+		db = db.Where("specialization_id = ?", query.SpecializationID)
 	}
 
 	if err := db.Count(&total).Error; err != nil {
@@ -76,7 +80,11 @@ func (r *doctorRepository) DeleteList(query *dto.DoctorPaginationQuery) ([]model
 
 	if query.Search != "" {
 		searchPattern := fmt.Sprintf("%%%s%%", query.Search)
-		db = db.Where("full_name ILIKE ? OR specialization = ?", searchPattern, searchPattern)
+		db = db.Where("full_name ILIKE ?", searchPattern)
+	}
+
+	if query.SpecializationID != nil {
+		db = db.Where("specialization_id = ?", query.SpecializationID)
 	}
 
 	if err := db.Count(&total).Error; err != nil {
@@ -135,9 +143,9 @@ func (r *doctorRepository) FindByDepartmentID(departmentID uint) (*models.Doctor
 	return &doctor, nil
 }
 
-func (r *doctorRepository) FindBySpecialization(specialization string) (*models.Doctor, error) {
+func (r *doctorRepository) FindBySpecializationID(specializationID uint) (*models.Doctor, error) {
 	var doctor models.Doctor
-	err := r.db.Where("specialization = ?", specialization).First(&doctor).Error
+	err := r.db.Where("specialization_id = ?", specializationID).First(&doctor).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New("doctor not found")
