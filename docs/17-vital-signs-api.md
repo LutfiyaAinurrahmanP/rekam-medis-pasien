@@ -36,7 +36,6 @@ Authorization: Bearer <your-jwt-token>
 | GET /vital-signs                           | ❌      | ✅     | ✅           | ✅    | ✅          |
 | GET /vital-signs/deleted                   | ❌      | ❌     | ❌           | ✅    | ✅          |
 | GET /vital-signs/:id                       | ✅      | ✅     | ✅           | ✅    | ✅          |
-| GET /vital-signs/medical-record/:record_id | ✅      | ✅     | ✅           | ✅    | ✅          |
 | POST /vital-signs                          | ❌      | ✅     | ✅           | ✅    | ✅          |
 | PUT /vital-signs/:id                       | ❌      | ✅     | ✅           | ✅    | ✅          |
 | DELETE /vital-signs/:id                    | ❌      | ❌     | ❌           | ✅    | ✅          |
@@ -233,53 +232,7 @@ curl -X GET "http://localhost:8080/api/v1/vital-signs/1" \
 
 ---
 
-### 4. Get Vital Signs by Medical Record
-
-**Endpoint:** `GET /api/v1/vital-signs/medical-record/:record_id`
-
-**Description:** Mendapatkan pencatatan tanda vital berdasarkan ID rekam medis. Setiap rekam medis memiliki satu data tanda vital (relasi unique).
-
-**Authentication:** Required (All Authenticated Users)
-
-**Path Parameters:**
-
-| Parameter | Type    | Required | Description    |
-| --------- | ------- | -------- | -------------- |
-| record_id | integer | Yes      | ID rekam medis |
-
-**Response Success (200):**
-
-```json
-{
-  "status": "success",
-  "message": "Vital signs retrieved successfully",
-  "data": {
-    "id": 1,
-    "medical_record_id": 5,
-    "blood_pressure_systolic": 120,
-    "blood_pressure_diastolic": 80,
-    "heart_rate": 75,
-    "temperature": 36.8,
-    "respiratory_rate": 18,
-    "oxygen_saturation": 98.5,
-    "weight_kg": 65.5,
-    "height_cm": 168.0,
-    "bmi": 23.21,
-    "recorded_at": "2024-01-15T08:30:00Z"
-  }
-}
-```
-
-**cURL Example:**
-
-```bash
-curl -X GET "http://localhost:8080/api/v1/vital-signs/medical-record/5" \
-  -H "Authorization: Bearer <token>"
-```
-
----
-
-### 5. Record Vital Signs
+### 4. Record Vital Signs
 
 **Endpoint:** `POST /api/v1/vital-signs`
 
@@ -375,7 +328,7 @@ curl -X POST "http://localhost:8080/api/v1/vital-signs" \
 
 ---
 
-### 6. Update Vital Signs
+### 5. Update Vital Signs
 
 **Endpoint:** `PUT /api/v1/vital-signs/:id`
 
@@ -442,7 +395,7 @@ curl -X PUT "http://localhost:8080/api/v1/vital-signs/1" \
 
 ---
 
-### 7. Soft Delete Vital Signs
+### 6. Soft Delete Vital Signs
 
 **Endpoint:** `DELETE /api/v1/vital-signs/:id`
 
@@ -474,7 +427,7 @@ curl -X DELETE "http://localhost:8080/api/v1/vital-signs/1" \
 
 ---
 
-### 8. Restore Deleted Vital Signs
+### 7. Restore Deleted Vital Signs
 
 **Endpoint:** `PATCH /api/v1/vital-signs/:id/restore`
 
@@ -511,7 +464,7 @@ curl -X PATCH "http://localhost:8080/api/v1/vital-signs/1/restore" \
 
 ---
 
-### 9. Hard Delete Vital Signs
+### 8. Hard Delete Vital Signs
 
 **Endpoint:** `DELETE /api/v1/vital-signs/:id/hard-delete`
 

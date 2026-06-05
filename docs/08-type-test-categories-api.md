@@ -38,10 +38,15 @@ Authorization: Bearer <your-jwt-token>
 | ---------------------------------------- | ------- | ------ | ------------ | ----- | ----------- |
 | GET /test-categories                     | ✅      | ✅     | ✅           | ✅    | ✅          |
 | GET /test-categories/active              | ✅      | ✅     | ✅           | ✅    | ✅          |
+| GET /test-categories/inactive             | ❌      | ❌     | ❌           | ✅    | ✅          |
 | GET /test-categories/:id                 | ✅      | ✅     | ✅           | ✅    | ✅          |
 | POST /test-categories                    | ❌      | ❌     | ❌           | ✅    | ✅          |
 | PUT /test-categories/:id                 | ❌      | ❌     | ❌           | ✅    | ✅          |
 | DELETE /test-categories/:id              | ❌      | ❌     | ❌           | ✅    | ✅          |
+| GET /test-categories/deleted             | ❌      | ❌     | ❌           | ✅    | ✅          |
+| PATCH /test-categories/:id/activate      | ❌      | ❌     | ❌           | ✅    | ✅          |
+| PATCH /test-categories/:id/deactivate    | ❌      | ❌     | ❌           | ✅    | ✅          |
+| PATCH /test-categories/:id/restore       | ❌      | ❌     | ❌           | ✅    | ✅          |
 | DELETE /test-categories/:id/hard-delete  | ❌      | ❌     | ❌           | ❌    | ✅          |
 
 ---
@@ -58,11 +63,64 @@ Authorization: Bearer <your-jwt-token>
 
 ### Admin Endpoints
 
+### X. List Inactive Test Types Categories
+
+**Endpoint:** `GET /api/v1/test-categories/inactive`
+
+**Description:** Mendapatkan daftar test types categories yang tidak aktif.
+
+**Authentication:** Required (Admin, Super Admin)
+
+**Request Headers:**
+
+```
+Authorization: Bearer <admin-token>
+```
+
+**Query Parameters:**
+
+| Parameter   | Type    | Default | Description                          |
+| ----------- | ------- | ------- | ------------------------------------ |
+| `page`      | integer | 1       | Halaman                              |
+| `page_size` | integer | 10      | Jumlah data per halaman              |
+
+**Response Success (200 OK):**
+
+```json
+{
+  "success": true,
+  "message": "Inactive test types categories retrieved successfully",
+  "data": {
+    "data": [],
+    "meta": {
+      "page": 1,
+      "page_size": 10,
+      "total_items": 0,
+      "total_pages": 0
+    }
+  }
+}
+```
+
+**cURL Example:**
+
+```bash
+curl -X GET "http://localhost:8080/api/v1/test-categories/inactive" \
+  -H "Authorization: Bearer ADMIN_JWT_TOKEN"
+```
+
+---
+
 | Method | Endpoint               | Description               | Role Required      |
 | ------ | ---------------------- | ------------------------- | ------------------ |
+| GET    | `/test-categories/inactive` | List inactive test types categories | Admin, Super Admin |
 | POST   | `/test-categories`     | Create test category      | Admin, Super Admin |
 | PUT    | `/test-categories/:id` | Update test category      | Admin, Super Admin |
 | DELETE | `/test-categories/:id` | Soft delete test category | Admin, Super Admin |
+| GET    | `/test-categories/deleted`     | List deleted test categories | Admin, Super Admin |
+| PATCH  | `/test-categories/:id/activate`| Activate test category       | Admin, Super Admin |
+| PATCH  | `/test-categories/:id/deactivate`| Deactivate test category   | Admin, Super Admin |
+| PATCH  | `/test-categories/:id/restore` | Restore deleted category     | Admin, Super Admin |
 
 ### Super Admin Endpoints
 
@@ -283,6 +341,54 @@ curl -X GET http://localhost:8080/api/v1/test-categories/1 \
 
 ## Admin Endpoints
 
+### X. List Inactive Test Types Categories
+
+**Endpoint:** `GET /api/v1/test-categories/inactive`
+
+**Description:** Mendapatkan daftar test types categories yang tidak aktif.
+
+**Authentication:** Required (Admin, Super Admin)
+
+**Request Headers:**
+
+```
+Authorization: Bearer <admin-token>
+```
+
+**Query Parameters:**
+
+| Parameter   | Type    | Default | Description                          |
+| ----------- | ------- | ------- | ------------------------------------ |
+| `page`      | integer | 1       | Halaman                              |
+| `page_size` | integer | 10      | Jumlah data per halaman              |
+
+**Response Success (200 OK):**
+
+```json
+{
+  "success": true,
+  "message": "Inactive test types categories retrieved successfully",
+  "data": {
+    "data": [],
+    "meta": {
+      "page": 1,
+      "page_size": 10,
+      "total_items": 0,
+      "total_pages": 0
+    }
+  }
+}
+```
+
+**cURL Example:**
+
+```bash
+curl -X GET "http://localhost:8080/api/v1/test-categories/inactive" \
+  -H "Authorization: Bearer ADMIN_JWT_TOKEN"
+```
+
+---
+
 ### 4. Create Test Category
 
 **Endpoint:** `POST /api/v1/test-categories`
@@ -425,9 +531,94 @@ curl -X PUT http://localhost:8080/api/v1/test-categories/1 \
   }'
 ```
 
+
 ---
 
-### 6. Delete Test Category
+### 6. Activate Test Category
+
+**Endpoint:** `PATCH /api/v1/test-categories/:id/activate`
+
+**Description:** Admin mengaktifkan kembali test category.
+
+**Authentication:** Required (Admin, Super Admin)
+
+**Request Headers:**
+
+```
+Authorization: Bearer <admin-token>
+```
+
+**URL Parameters:**
+
+- `id`: Test Category ID (integer)
+
+**Response Success (200 OK):**
+
+```json
+{
+  "success": true,
+  "message": "Test category activated successfully",
+  "data": {
+    "id": 1,
+    "name": "Hematologi",
+    "is_active": true,
+    "updated_at": "2024-01-19T16:00:00Z"
+  }
+}
+```
+
+**cURL Example:**
+
+```bash
+curl -X PATCH http://localhost:8080/api/v1/test-categories/1/activate \
+  -H "Authorization: Bearer ADMIN_JWT_TOKEN"
+```
+
+---
+
+### 7. Deactivate Test Category
+
+**Endpoint:** `PATCH /api/v1/test-categories/:id/deactivate`
+
+**Description:** Admin menonaktifkan test category.
+
+**Authentication:** Required (Admin, Super Admin)
+
+**Request Headers:**
+
+```
+Authorization: Bearer <admin-token>
+```
+
+**URL Parameters:**
+
+- `id`: Test Category ID (integer)
+
+**Response Success (200 OK):**
+
+```json
+{
+  "success": true,
+  "message": "Test category deactivated successfully",
+  "data": {
+    "id": 1,
+    "name": "Hematologi",
+    "is_active": false,
+    "updated_at": "2024-01-19T16:00:00Z"
+  }
+}
+```
+
+**cURL Example:**
+
+```bash
+curl -X PATCH http://localhost:8080/api/v1/test-categories/1/deactivate \
+  -H "Authorization: Bearer ADMIN_JWT_TOKEN"
+```
+
+---
+
+### 8. Soft Delete Test Category
 
 **Endpoint:** `DELETE /api/v1/test-categories/:id`
 
@@ -477,11 +668,113 @@ curl -X DELETE http://localhost:8080/api/v1/test-categories/1 \
   -H "Authorization: Bearer ADMIN_JWT_TOKEN"
 ```
 
+
+---
+
+### 9. List Deleted Test Categories
+
+**Endpoint:** `GET /api/v1/test-categories/deleted`
+
+**Description:** Mendapatkan daftar test categories yang sudah di-soft delete.
+
+**Authentication:** Required (Admin, Super Admin)
+
+**Request Headers:**
+
+```
+Authorization: Bearer <token>
+```
+
+**Query Parameters:**
+
+| Parameter   | Type    | Default | Description                          |
+| ----------- | ------- | ------- | ------------------------------------ |
+| `page`      | integer | 1       | Halaman                              |
+| `page_size` | integer | 10      | Jumlah data per halaman              |
+
+**Response Success (200 OK):**
+
+```json
+{
+  "success": true,
+  "message": "Deleted test categories retrieved successfully",
+  "data": {
+    "data": [
+      {
+        "id": 5,
+        "name": "Kategori Lama",
+        "description": "Tidak dipakai lagi",
+        "is_active": false,
+        "created_at": "2023-01-01T10:00:00Z",
+        "updated_at": "2024-01-19T10:00:00Z",
+        "deleted_at": "2024-01-19T10:00:00Z"
+      }
+    ],
+    "meta": {
+      "page": 1,
+      "page_size": 10,
+      "total_items": 1,
+      "total_pages": 1
+    }
+  }
+}
+```
+
+**cURL Example:**
+
+```bash
+curl -X GET "http://localhost:8080/api/v1/test-categories/deleted" \
+  -H "Authorization: Bearer ADMIN_JWT_TOKEN"
+```
+
+---
+
+### 10. Restore Test Category
+
+**Endpoint:** `PATCH /api/v1/test-categories/:id/restore`
+
+**Description:** Admin memulihkan (restore) test category yang sudah di-soft delete.
+
+**Authentication:** Required (Admin, Super Admin)
+
+**Request Headers:**
+
+```
+Authorization: Bearer <admin-token>
+```
+
+**URL Parameters:**
+
+- `id`: Test Category ID (integer)
+
+**Response Success (200 OK):**
+
+```json
+{
+  "success": true,
+  "message": "Test category restored successfully",
+  "data": {
+    "id": 5,
+    "name": "Kategori Lama",
+    "is_active": false,
+    "deleted_at": null,
+    "updated_at": "2024-01-19T16:00:00Z"
+  }
+}
+```
+
+**cURL Example:**
+
+```bash
+curl -X PATCH http://localhost:8080/api/v1/test-categories/5/restore \
+  -H "Authorization: Bearer ADMIN_JWT_TOKEN"
+```
+
 ---
 
 ## Super Admin Endpoints
 
-### 7. Hard Delete Test Category
+### 11. Hard Delete Test Category
 
 **Endpoint:** `DELETE /api/v1/test-categories/:id/hard-delete`
 

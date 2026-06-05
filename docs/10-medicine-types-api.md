@@ -38,10 +38,15 @@ Authorization: Bearer <your-jwt-token>
 | ----------------------------------- | ------- | ------ | ------------ | ----- | ----------- |
 | GET /medicine-types                 | ✅      | ✅     | ✅           | ✅    | ✅          |
 | GET /medicine-types/active          | ✅      | ✅     | ✅           | ✅    | ✅          |
+| GET /medicine-types/inactive              | ❌      | ❌     | ❌           | ✅    | ✅          |
 | GET /medicine-types/:id             | ✅      | ✅     | ✅           | ✅    | ✅          |
 | POST /medicine-types                | ❌      | ❌     | ❌           | ✅    | ✅          |
 | PUT /medicine-types/:id             | ❌      | ❌     | ❌           | ✅    | ✅          |
 | DELETE /medicine-types/:id          | ❌      | ❌     | ❌           | ✅    | ✅          |
+| GET /medicine-types/deleted             | ❌      | ❌     | ❌           | ✅    | ✅          |
+| PATCH /medicine-types/:id/activate      | ❌      | ❌     | ❌           | ✅    | ✅          |
+| PATCH /medicine-types/:id/deactivate    | ❌      | ❌     | ❌           | ✅    | ✅          |
+| PATCH /medicine-types/:id/restore       | ❌      | ❌     | ❌           | ✅    | ✅          |
 | DELETE /medicine-types/:id/hard-delete | ❌      | ❌     | ❌           | ❌    | ✅          |
 
 ---
@@ -58,8 +63,57 @@ Authorization: Bearer <your-jwt-token>
 
 ### Admin Endpoints
 
+### X. List Inactive Medicine Types
+
+**Endpoint:** `GET /api/v1/medicine-types/inactive`
+
+**Description:** Mendapatkan daftar medicine types yang tidak aktif.
+
+**Authentication:** Required (Admin, Super Admin)
+
+**Request Headers:**
+
+```
+Authorization: Bearer <admin-token>
+```
+
+**Query Parameters:**
+
+| Parameter   | Type    | Default | Description                          |
+| ----------- | ------- | ------- | ------------------------------------ |
+| `page`      | integer | 1       | Halaman                              |
+| `page_size` | integer | 10      | Jumlah data per halaman              |
+
+**Response Success (200 OK):**
+
+```json
+{
+  "success": true,
+  "message": "Inactive medicine types retrieved successfully",
+  "data": {
+    "data": [],
+    "meta": {
+      "page": 1,
+      "page_size": 10,
+      "total_items": 0,
+      "total_pages": 0
+    }
+  }
+}
+```
+
+**cURL Example:**
+
+```bash
+curl -X GET "http://localhost:8080/api/v1/medicine-types/inactive" \
+  -H "Authorization: Bearer ADMIN_JWT_TOKEN"
+```
+
+---
+
 | Method | Endpoint                | Description               | Role Required      |
 | ------ | ----------------------- | ------------------------- | ------------------ |
+| GET    | `/medicine-types/inactive` | List inactive medicine types | Admin, Super Admin |
 | POST   | `/medicine-types`       | Create medicine type      | Admin, Super Admin |
 | PUT    | `/medicine-types/:id`   | Update medicine type      | Admin, Super Admin |
 | DELETE | `/medicine-types/:id`   | Soft delete medicine type | Admin, Super Admin |
@@ -289,6 +343,54 @@ curl -X GET http://localhost:8080/api/v1/medicine-types/1 \
 
 ## Admin Endpoints
 
+### X. List Inactive Medicine Types
+
+**Endpoint:** `GET /api/v1/medicine-types/inactive`
+
+**Description:** Mendapatkan daftar medicine types yang tidak aktif.
+
+**Authentication:** Required (Admin, Super Admin)
+
+**Request Headers:**
+
+```
+Authorization: Bearer <admin-token>
+```
+
+**Query Parameters:**
+
+| Parameter   | Type    | Default | Description                          |
+| ----------- | ------- | ------- | ------------------------------------ |
+| `page`      | integer | 1       | Halaman                              |
+| `page_size` | integer | 10      | Jumlah data per halaman              |
+
+**Response Success (200 OK):**
+
+```json
+{
+  "success": true,
+  "message": "Inactive medicine types retrieved successfully",
+  "data": {
+    "data": [],
+    "meta": {
+      "page": 1,
+      "page_size": 10,
+      "total_items": 0,
+      "total_pages": 0
+    }
+  }
+}
+```
+
+**cURL Example:**
+
+```bash
+curl -X GET "http://localhost:8080/api/v1/medicine-types/inactive" \
+  -H "Authorization: Bearer ADMIN_JWT_TOKEN"
+```
+
+---
+
 ### 4. Create Medicine Type
 
 **Endpoint:** `POST /api/v1/medicine-types`
@@ -438,9 +540,94 @@ curl -X PUT http://localhost:8080/api/v1/medicine-types/1 \
   }'
 ```
 
+
 ---
 
-### 6. Delete Medicine Type
+### 6. Activate Medicine Type
+
+**Endpoint:** `PATCH /api/v1/medicine-types/:id/activate`
+
+**Description:** Admin mengaktifkan kembali medicine type.
+
+**Authentication:** Required (Admin, Super Admin)
+
+**Request Headers:**
+
+```
+Authorization: Bearer <admin-token>
+```
+
+**URL Parameters:**
+
+- `id`: Medicine Type ID (integer)
+
+**Response Success (200 OK):**
+
+```json
+{
+  "success": true,
+  "message": "Medicine type activated successfully",
+  "data": {
+    "id": 1,
+    "name": "Tablet",
+    "is_active": true,
+    "updated_at": "2024-01-19T16:00:00Z"
+  }
+}
+```
+
+**cURL Example:**
+
+```bash
+curl -X PATCH http://localhost:8080/api/v1/medicine-types/1/activate \
+  -H "Authorization: Bearer ADMIN_JWT_TOKEN"
+```
+
+---
+
+### 7. Deactivate Medicine Type
+
+**Endpoint:** `PATCH /api/v1/medicine-types/:id/deactivate`
+
+**Description:** Admin menonaktifkan medicine type.
+
+**Authentication:** Required (Admin, Super Admin)
+
+**Request Headers:**
+
+```
+Authorization: Bearer <admin-token>
+```
+
+**URL Parameters:**
+
+- `id`: Medicine Type ID (integer)
+
+**Response Success (200 OK):**
+
+```json
+{
+  "success": true,
+  "message": "Medicine type deactivated successfully",
+  "data": {
+    "id": 1,
+    "name": "Tablet",
+    "is_active": false,
+    "updated_at": "2024-01-19T16:00:00Z"
+  }
+}
+```
+
+**cURL Example:**
+
+```bash
+curl -X PATCH http://localhost:8080/api/v1/medicine-types/1/deactivate \
+  -H "Authorization: Bearer ADMIN_JWT_TOKEN"
+```
+
+---
+
+### 8. Soft Delete Medicine Type
 
 **Endpoint:** `DELETE /api/v1/medicine-types/:id`
 
@@ -490,11 +677,113 @@ curl -X DELETE http://localhost:8080/api/v1/medicine-types/1 \
   -H "Authorization: Bearer ADMIN_JWT_TOKEN"
 ```
 
+
+---
+
+### 9. List Deleted Medicine Types
+
+**Endpoint:** `GET /api/v1/medicine-types/deleted`
+
+**Description:** Mendapatkan daftar medicine types yang sudah di-soft delete.
+
+**Authentication:** Required (Admin, Super Admin)
+
+**Request Headers:**
+
+```
+Authorization: Bearer <token>
+```
+
+**Query Parameters:**
+
+| Parameter   | Type    | Default | Description                          |
+| ----------- | ------- | ------- | ------------------------------------ |
+| `page`      | integer | 1       | Halaman                              |
+| `page_size` | integer | 10      | Jumlah data per halaman              |
+
+**Response Success (200 OK):**
+
+```json
+{
+  "success": true,
+  "message": "Deleted medicine types retrieved successfully",
+  "data": {
+    "data": [
+      {
+        "id": 5,
+        "name": "Serbuk Lama",
+        "description": "Tidak dipakai lagi",
+        "is_active": false,
+        "created_at": "2023-01-01T10:00:00Z",
+        "updated_at": "2024-01-19T10:00:00Z",
+        "deleted_at": "2024-01-19T10:00:00Z"
+      }
+    ],
+    "meta": {
+      "page": 1,
+      "page_size": 10,
+      "total_items": 1,
+      "total_pages": 1
+    }
+  }
+}
+```
+
+**cURL Example:**
+
+```bash
+curl -X GET "http://localhost:8080/api/v1/medicine-types/deleted" \
+  -H "Authorization: Bearer ADMIN_JWT_TOKEN"
+```
+
+---
+
+### 10. Restore Medicine Type
+
+**Endpoint:** `PATCH /api/v1/medicine-types/:id/restore`
+
+**Description:** Admin memulihkan (restore) medicine type yang sudah di-soft delete.
+
+**Authentication:** Required (Admin, Super Admin)
+
+**Request Headers:**
+
+```
+Authorization: Bearer <admin-token>
+```
+
+**URL Parameters:**
+
+- `id`: Medicine Type ID (integer)
+
+**Response Success (200 OK):**
+
+```json
+{
+  "success": true,
+  "message": "Medicine type restored successfully",
+  "data": {
+    "id": 5,
+    "name": "Serbuk Lama",
+    "is_active": false,
+    "deleted_at": null,
+    "updated_at": "2024-01-19T16:00:00Z"
+  }
+}
+```
+
+**cURL Example:**
+
+```bash
+curl -X PATCH http://localhost:8080/api/v1/medicine-types/5/restore \
+  -H "Authorization: Bearer ADMIN_JWT_TOKEN"
+```
+
 ---
 
 ## Super Admin Endpoints
 
-### 7. Hard Delete Medicine Type
+### 11. Hard Delete Medicine Type
 
 **Endpoint:** `DELETE /api/v1/medicine-types/:id/hard-delete`
 

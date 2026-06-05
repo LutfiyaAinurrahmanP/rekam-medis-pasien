@@ -37,6 +37,8 @@ Authorization: Bearer <your-jwt-token>
 | Endpoint                                       | Patient | Doctor | Receptionist | Admin | Super Admin |
 | ---------------------------------------------- | ------- | ------ | ------------ | ----- | ----------- |
 | GET /doctor-specializations                    | ✅      | ✅     | ✅           | ✅    | ✅          |
+| GET /doctor-specializations/active             | ✅      | ✅     | ✅           | ✅    | ✅          |
+| GET /doctor-specializations/inactive      | ❌      | ❌     | ❌           | ✅    | ✅          |
 | GET /doctor-specializations/:id                | ✅      | ✅     | ✅           | ✅    | ✅          |
 | GET /doctor-specializations/deleted            | ❌      | ❌     | ❌           | ✅    | ✅          |
 | POST /doctor-specializations                   | ❌      | ❌     | ❌           | ✅    | ✅          |
@@ -53,15 +55,65 @@ Authorization: Bearer <your-jwt-token>
 
 ### Public Endpoints (All Authenticated)
 
-| Method | Endpoint                      | Description                     | Role Required     |
-| ------ | ----------------------------- | ------------------------------- | ----------------- |
-| GET    | `/doctor-specializations`     | List all doctor specializations | All Authenticated |
-| GET    | `/doctor-specializations/:id` | Get doctor specialization by ID | All Authenticated |
+| Method | Endpoint                         | Description                        | Role Required     |
+| ------ | -------------------------------- | ---------------------------------- | ----------------- |
+| GET    | `/doctor-specializations`        | List all doctor specializations    | All Authenticated |
+| GET    | `/doctor-specializations/active` | List active doctor specializations | All Authenticated |
+| GET    | `/doctor-specializations/:id`    | Get doctor specialization by ID    | All Authenticated |
 
 ### Admin Endpoints
 
+### X. List Inactive Doctor Specializations
+
+**Endpoint:** `GET /api/v1/doctor-specializations/inactive`
+
+**Description:** Mendapatkan daftar doctor specializations yang tidak aktif.
+
+**Authentication:** Required (Admin, Super Admin)
+
+**Request Headers:**
+
+```
+Authorization: Bearer <admin-token>
+```
+
+**Query Parameters:**
+
+| Parameter   | Type    | Default | Description                          |
+| ----------- | ------- | ------- | ------------------------------------ |
+| `page`      | integer | 1       | Halaman                              |
+| `page_size` | integer | 10      | Jumlah data per halaman              |
+
+**Response Success (200 OK):**
+
+```json
+{
+  "success": true,
+  "message": "Inactive doctor specializations retrieved successfully",
+  "data": {
+    "data": [],
+    "meta": {
+      "page": 1,
+      "page_size": 10,
+      "total_items": 0,
+      "total_pages": 0
+    }
+  }
+}
+```
+
+**cURL Example:**
+
+```bash
+curl -X GET "http://localhost:8080/api/v1/doctor-specializations/inactive" \
+  -H "Authorization: Bearer ADMIN_JWT_TOKEN"
+```
+
+---
+
 | Method | Endpoint                                 | Description                       | Role Required      |
 | ------ | ---------------------------------------- | --------------------------------- | ------------------ |
+| GET    | `/doctor-specializations/inactive` | List inactive doctor specializations | Admin, Super Admin |
 | GET    | `/doctor-specializations/deleted`        | List deleted specializations      | Admin, Super Admin |
 | POST   | `/doctor-specializations`                | Create doctor specialization      | Admin, Super Admin |
 | PUT    | `/doctor-specializations/:id`            | Update doctor specialization      | Admin, Super Admin |
@@ -163,7 +215,81 @@ curl -X GET "http://localhost:8080/api/v1/doctor-specializations?page=1&page_siz
 
 ---
 
-### 2. Get Doctor Specialization by ID
+### 2. List Active Doctor Specializations
+
+**Endpoint:** `GET /api/v1/doctor-specializations/active`
+
+**Description:** Mendapatkan daftar doctor specializations yang aktif saja.
+
+**Authentication:** Required (All Authenticated Users)
+
+**Request Headers:**
+
+```
+Authorization: Bearer <token>
+```
+
+**Query Parameters:**
+
+| Parameter   | Type    | Default | Description                        |
+| ----------- | ------- | ------- | ---------------------------------- |
+| `page`      | integer | 1       | Halaman                            |
+| `page_size` | integer | 10      | Jumlah data per halaman (max: 100) |
+| `search`    | string  | -       | Cari berdasarkan nama spesialisasi |
+| `sort_by`   | string  | name    | Sort field (name, created_at)      |
+| `sort_dir`  | string  | asc     | Sort direction (asc, desc)         |
+
+**Example Request:**
+
+```
+GET /api/v1/doctor-specializations/active?page=1&page_size=10&sort_by=name&sort_dir=asc
+```
+
+**Response Success (200 OK):**
+
+```json
+{
+  "success": true,
+  "message": "Active doctor specializations retrieved successfully",
+  "data": {
+    "data": [
+      {
+        "id": 1,
+        "name": "Kardiologi",
+        "description": "Spesialisasi penyakit jantung dan pembuluh darah",
+        "code": "CARDIO",
+        "is_active": true,
+        "created_at": "2024-01-19T10:00:00Z"
+      },
+      {
+        "id": 2,
+        "name": "Ortopedi",
+        "description": "Spesialisasi tulang dan sendi",
+        "code": "ORTHO",
+        "is_active": true,
+        "created_at": "2024-01-19T10:05:00Z"
+      }
+    ],
+    "meta": {
+      "page": 1,
+      "page_size": 10,
+      "total_items": 2,
+      "total_pages": 1
+    }
+  }
+}
+```
+
+**cURL Example:**
+
+```bash
+curl -X GET "http://localhost:8080/api/v1/doctor-specializations/active?page=1&page_size=10" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+---
+
+### 3. Get Doctor Specialization by ID
 
 **Endpoint:** `GET /api/v1/doctor-specializations/:id`
 
@@ -221,7 +347,55 @@ curl -X GET http://localhost:8080/api/v1/doctor-specializations/1 \
 
 ## Admin Endpoints
 
-### 3. List Deleted Doctor Specializations
+### X. List Inactive Doctor Specializations
+
+**Endpoint:** `GET /api/v1/doctor-specializations/inactive`
+
+**Description:** Mendapatkan daftar doctor specializations yang tidak aktif.
+
+**Authentication:** Required (Admin, Super Admin)
+
+**Request Headers:**
+
+```
+Authorization: Bearer <admin-token>
+```
+
+**Query Parameters:**
+
+| Parameter   | Type    | Default | Description                          |
+| ----------- | ------- | ------- | ------------------------------------ |
+| `page`      | integer | 1       | Halaman                              |
+| `page_size` | integer | 10      | Jumlah data per halaman              |
+
+**Response Success (200 OK):**
+
+```json
+{
+  "success": true,
+  "message": "Inactive doctor specializations retrieved successfully",
+  "data": {
+    "data": [],
+    "meta": {
+      "page": 1,
+      "page_size": 10,
+      "total_items": 0,
+      "total_pages": 0
+    }
+  }
+}
+```
+
+**cURL Example:**
+
+```bash
+curl -X GET "http://localhost:8080/api/v1/doctor-specializations/inactive" \
+  -H "Authorization: Bearer ADMIN_JWT_TOKEN"
+```
+
+---
+
+### 4. List Deleted Doctor Specializations
 
 **Endpoint:** `GET /api/v1/doctor-specializations/deleted`
 
@@ -299,7 +473,7 @@ curl -X GET "http://localhost:8080/api/v1/doctor-specializations/deleted?page=1&
 
 ---
 
-### 4. Create Doctor Specialization
+### 5. Create Doctor Specialization
 
 **Endpoint:** `POST /api/v1/doctor-specializations`
 
@@ -376,7 +550,7 @@ curl -X POST http://localhost:8080/api/v1/doctor-specializations \
 
 ---
 
-### 5. Update Doctor Specialization
+### 6. Update Doctor Specialization
 
 **Endpoint:** `PUT /api/v1/doctor-specializations/:id`
 
@@ -450,7 +624,7 @@ curl -X PUT http://localhost:8080/api/v1/doctor-specializations/1 \
 
 ---
 
-### 6. Activate Doctor Specialization
+### 7. Activate Doctor Specialization
 
 **Endpoint:** `PATCH /api/v1/doctor-specializations/:id/activate`
 
@@ -503,7 +677,7 @@ curl -X PATCH http://localhost:8080/api/v1/doctor-specializations/1/activate \
 
 ---
 
-### 7. Deactivate Doctor Specialization
+### 8. Deactivate Doctor Specialization
 
 **Endpoint:** `PATCH /api/v1/doctor-specializations/:id/deactivate`
 
@@ -556,7 +730,7 @@ curl -X PATCH http://localhost:8080/api/v1/doctor-specializations/1/deactivate \
 
 ---
 
-### 8. Delete Doctor Specialization
+### 9. Delete Doctor Specialization
 
 **Endpoint:** `DELETE /api/v1/doctor-specializations/:id`
 
@@ -610,7 +784,7 @@ curl -X DELETE http://localhost:8080/api/v1/doctor-specializations/1 \
 
 ## Super Admin Endpoints
 
-### 9. Restore Doctor Specialization
+### 10. Restore Doctor Specialization
 
 **Endpoint:** `PATCH /api/v1/doctor-specializations/:id/restore`
 
@@ -672,9 +846,9 @@ curl -X PATCH http://localhost:8080/api/v1/doctor-specializations/1/restore \
 
 ## Super Admin Endpoints
 
-### 10. Hard Delete Doctor Specialization
+### 11. Hard Delete Doctor Specialization
 
-### 10. Hard Delete Doctor Specialization
+### 12. Hard Delete Doctor Specialization
 
 **Endpoint:** `DELETE /api/v1/doctor-specializations/:id/hard-delete`
 

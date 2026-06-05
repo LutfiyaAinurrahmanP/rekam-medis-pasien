@@ -40,6 +40,8 @@ Authorization: Bearer <your-jwt-token>
 | GET /doctors/me                 | ✅           | ❌      | ❌           | ❌    | ❌          |
 | PUT /doctors/me                 | ✅           | ❌      | ❌           | ❌    | ❌          |
 | GET /doctors                    | ✅           | ✅      | ✅           | ✅    | ✅          |
+| GET /doctors/active             | ✅           | ✅      | ✅           | ✅    | ✅          |
+| GET /doctors/inactive                     | ❌      | ❌     | ❌           | ✅    | ✅          |
 | GET /doctors/deleted            | ❌           | ❌      | ❌           | ✅    | ✅          |
 | GET /doctors/:id                | ✅           | ✅      | ✅           | ✅    | ✅          |
 | POST /doctors                   | ❌           | ❌      | ❌           | ✅    | ✅          |
@@ -63,10 +65,11 @@ Authorization: Bearer <your-jwt-token>
 
 ### Public Endpoints (All Authenticated)
 
-| Method | Endpoint       | Description         | Role Required     |
-| ------ | -------------- | ------------------- | ----------------- |
-| GET    | `/doctors`     | List active doctors | All Authenticated |
-| GET    | `/doctors/:id` | Get doctor by ID    | All Authenticated |
+| Method | Endpoint          | Description              | Role Required     |
+| ------ | ----------------- | ------------------------ | ----------------- |
+| GET    | `/doctors`        | List active doctors      | All Authenticated |
+| GET    | `/doctors/active` | List active doctors only | All Authenticated |
+| GET    | `/doctors/:id`    | Get doctor by ID         | All Authenticated |
 
 ### Admin Endpoints (Management)
 
@@ -331,7 +334,83 @@ curl -X GET "http://localhost:8080/api/v1/doctors?page=1&page_size=10&doctor_spe
 
 ---
 
-### 4. Get Doctor by ID
+### 4. List Active Doctors
+
+**Endpoint:** `GET /api/v1/doctors/active`
+
+**Description:** Mendapatkan daftar doctors yang aktif saja.
+
+**Authentication:** Required (All Authenticated Users)
+
+**Request Headers:**
+
+```
+Authorization: Bearer <token>
+```
+
+**Query Parameters:**
+
+| Parameter                  | Type    | Default    | Description                                     |
+| -------------------------- | ------- | ---------- | ----------------------------------------------- |
+| `page`                     | integer | 1          | Halaman                                         |
+| `page_size`                | integer | 10         | Jumlah data per halaman (max: 100)              |
+| `search`                   | string  | -          | Cari berdasarkan name, employee_id              |
+| `doctor_specialization_id` | integer | -          | Filter by doctor specialization ID              |
+| `department_id`            | integer | -          | Filter by department                            |
+| `sort_by`                  | string  | created_at | Sort field (created_at, full_name, employee_id) |
+| `sort_dir`                 | string  | desc       | Sort direction (asc, desc)                      |
+
+**Example Request:**
+
+```
+GET /api/v1/doctors/active?page=1&page_size=10&doctor_specialization_id=1&sort_by=full_name&sort_dir=asc
+```
+
+**Response Success (200 OK):**
+
+```json
+{
+  "success": true,
+  "message": "Active doctors retrieved successfully",
+  "data": {
+    "data": [
+      {
+        "id": 1,
+        "employee_id": "DOC-0001",
+        "full_name": "Dr. John Doe",
+        "doctor_specialization": {
+          "id": 1,
+          "name": "Kardiologi",
+          "code": "CARDIO"
+        },
+        "department": {
+          "id": 1,
+          "name": "Cardiac Department"
+        },
+        "is_active": true,
+        "created_at": "2024-01-19T10:00:00Z"
+      }
+    ],
+    "meta": {
+      "page": 1,
+      "page_size": 10,
+      "total_items": 1,
+      "total_pages": 1
+    }
+  }
+}
+```
+
+**cURL Example:**
+
+```bash
+curl -X GET "http://localhost:8080/api/v1/doctors/active?page=1&page_size=10" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+---
+
+### 5. Get Doctor by ID
 
 **Endpoint:** `GET /api/v1/doctors/:id`
 
@@ -408,7 +487,55 @@ curl -X GET http://localhost:8080/api/v1/doctors/1 \
 
 ## Admin Endpoints
 
-### 5. List Deleted Doctors
+### X. List Inactive Doctors
+
+**Endpoint:** `GET /api/v1/doctors/inactive`
+
+**Description:** Mendapatkan daftar doctors yang tidak aktif.
+
+**Authentication:** Required (Admin, Super Admin)
+
+**Request Headers:**
+
+```
+Authorization: Bearer <admin-token>
+```
+
+**Query Parameters:**
+
+| Parameter   | Type    | Default | Description                          |
+| ----------- | ------- | ------- | ------------------------------------ |
+| `page`      | integer | 1       | Halaman                              |
+| `page_size` | integer | 10      | Jumlah data per halaman              |
+
+**Response Success (200 OK):**
+
+```json
+{
+  "success": true,
+  "message": "Inactive doctors retrieved successfully",
+  "data": {
+    "data": [],
+    "meta": {
+      "page": 1,
+      "page_size": 10,
+      "total_items": 0,
+      "total_pages": 0
+    }
+  }
+}
+```
+
+**cURL Example:**
+
+```bash
+curl -X GET "http://localhost:8080/api/v1/doctors/inactive" \
+  -H "Authorization: Bearer ADMIN_JWT_TOKEN"
+```
+
+---
+
+### 6. List Deleted Doctors
 
 **Endpoint:** `GET /api/v1/doctors/deleted`
 
@@ -463,7 +590,7 @@ curl -X GET "http://localhost:8080/api/v1/doctors/deleted?page=1&page_size=10" \
 
 ---
 
-### 6. Create Doctor
+### 7. Create Doctor
 
 **Endpoint:** `POST /api/v1/doctors`
 
@@ -574,7 +701,7 @@ curl -X POST http://localhost:8080/api/v1/doctors \
 
 ---
 
-### 7. Update Doctor
+### 8. Update Doctor
 
 **Endpoint:** `PUT /api/v1/doctors/:id`
 
@@ -654,7 +781,7 @@ curl -X PUT http://localhost:8080/api/v1/doctors/2 \
 
 ---
 
-### 8. Activate Doctor
+### 9. Activate Doctor
 
 **Endpoint:** `PATCH /api/v1/doctors/:id/activate`
 
@@ -702,7 +829,7 @@ curl -X PATCH http://localhost:8080/api/v1/doctors/2/activate \
 
 ---
 
-### 9. Deactivate Doctor
+### 10. Deactivate Doctor
 
 **Endpoint:** `PATCH /api/v1/doctors/:id/deactivate`
 
@@ -751,7 +878,7 @@ curl -X PATCH http://localhost:8080/api/v1/doctors/2/deactivate \
 
 ---
 
-### 10. Soft Delete Doctor
+### 11. Soft Delete Doctor
 
 **Endpoint:** `DELETE /api/v1/doctors/:id`
 
@@ -799,7 +926,7 @@ curl -X DELETE http://localhost:8080/api/v1/doctors/2 \
 
 ---
 
-### 11. Restore Doctor
+### 12. Restore Doctor
 
 **Endpoint:** `PATCH /api/v1/doctors/:id/restore`
 
@@ -851,7 +978,7 @@ curl -X PATCH http://localhost:8080/api/v1/doctors/2/restore \
 
 ## Super Admin Endpoints
 
-### 12. Hard Delete Doctor
+### 13. Hard Delete Doctor
 
 **Endpoint:** `DELETE /api/v1/doctors/:id/hard-delete`
 

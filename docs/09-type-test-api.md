@@ -41,7 +41,6 @@ Authorization: Bearer <your-jwt-token>
 | GET /test-types/inactive           | ❌      | ✅     | ✅           | ✅    | ✅          |
 | GET /test-types/deleted            | ❌      | ❌     | ❌           | ✅    | ✅          |
 | GET /test-types/:id                | ✅      | ✅     | ✅           | ✅    | ✅          |
-| GET /test-types/category/:category | ✅      | ✅     | ✅           | ✅    | ✅          |
 | POST /test-types                   | ❌      | ❌     | ❌           | ✅    | ✅          |
 | PUT /test-types/:id                | ❌      | ❌     | ❌           | ✅    | ✅          |
 | PATCH /test-types/:id/activate     | ❌      | ❌     | ❌           | ✅    | ✅          |
@@ -430,100 +429,9 @@ curl -X GET http://localhost:8080/api/v1/test-types/1 \
   -H "Authorization: Bearer YOUR_JWT_TOKEN"
 ```
 
----
-
-### 6. Get Test Types by Category
-
-**Endpoint:** `GET /api/v1/test-types/category/:category`
-
-**Description:** Mendapatkan daftar test types berdasarkan kategori.
-
-**Authentication:** Required (All Authenticated Users)
-
-**Request Headers:**
-
-```
-Authorization: Bearer <token>
-```
-
-**URL Parameters:**
-
-- `category`: Category (string), e.g., "Hematologi"
-
-**Query Parameters:**
-
-| Parameter   | Type    | Description                        |
-| ----------- | ------- | ---------------------------------- |
-| `is_active` | boolean | Filter active only (default: true) |
-| `page`      | integer | Page number                        |
-| `page_size` | integer | Items per page                     |
-
-**Example Request:**
-
-```
-GET /api/v1/test-types/category/Hematologi?is_active=true
-```
-
-**Response Success (200 OK):**
-
-```json
-{
-  "success": true,
-  "message": "Test types by category retrieved successfully",
-  "data": {
-    "category": "Hematologi",
-    "description": "Pemeriksaan yang berkaitan dengan darah dan komponen darah",
-    "total_tests": 15,
-    "active_tests": 12,
-    "price_range": {
-      "min": 50000.0,
-      "max": 500000.0
-    },
-    "data": [
-      {
-        "id": 1,
-        "name": "Complete Blood Count (CBC)",
-        "code": "LAB-HEM-001",
-        "price": 150000.0,
-        "is_active": true
-      },
-      {
-        "id": 2,
-        "name": "Hemoglobin (Hb)",
-        "code": "LAB-HEM-002",
-        "price": 50000.0,
-        "is_active": true
-      },
-      {
-        "id": 3,
-        "name": "Hematokrit (Ht)",
-        "code": "LAB-HEM-003",
-        "price": 50000.0,
-        "is_active": true
-      }
-    ],
-    "meta": {
-      "page": 1,
-      "page_size": 10,
-      "total_items": 3,
-      "total_pages": 1
-    }
-  }
-}
-```
-
-**cURL Example:**
-
-```bash
-curl -X GET "http://localhost:8080/api/v1/test-types/category/Hematologi?is_active=true" \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN"
-```
-
----
-
 ## Admin Endpoints
 
-### 7. Create Test Type
+### 6. Create Test Type
 
 **Endpoint:** `POST /api/v1/test-types`
 
@@ -614,7 +522,7 @@ curl -X POST http://localhost:8080/api/v1/test-types \
 
 ---
 
-### 8. Update Test Type
+### 7. Update Test Type
 
 **Endpoint:** `PUT /api/v1/test-types/:id`
 
@@ -685,7 +593,7 @@ curl -X PUT http://localhost:8080/api/v1/test-types/1 \
 
 ---
 
-### 9. Activate Test Type
+### 8. Activate Test Type
 
 **Endpoint:** `PATCH /api/v1/test-types/:id/activate`
 
@@ -728,7 +636,7 @@ curl -X PATCH http://localhost:8080/api/v1/test-types/1/activate \
 
 ---
 
-### 10. Deactivate Test Type
+### 9. Deactivate Test Type
 
 **Endpoint:** `PATCH /api/v1/test-types/:id/deactivate`
 
@@ -777,7 +685,7 @@ curl -X PATCH http://localhost:8080/api/v1/test-types/1/deactivate \
 
 ---
 
-### 11. Soft Delete Test Type
+### 10. Soft Delete Test Type
 
 **Endpoint:** `DELETE /api/v1/test-types/:id`
 
@@ -827,7 +735,7 @@ curl -X DELETE http://localhost:8080/api/v1/test-types/1 \
 
 ---
 
-### 12. Restore Test Type
+### 11. Restore Test Type
 
 **Endpoint:** `PATCH /api/v1/test-types/:id/restore`
 
@@ -871,7 +779,7 @@ curl -X PATCH http://localhost:8080/api/v1/test-types/1/restore \
 
 ## Super Admin Endpoints
 
-### 13. Hard Delete Test Type
+### 12. Hard Delete Test Type
 
 **Endpoint:** `DELETE /api/v1/test-types/:id/hard-delete`
 

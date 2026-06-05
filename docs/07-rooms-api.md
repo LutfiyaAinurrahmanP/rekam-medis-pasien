@@ -37,13 +37,12 @@ Authorization: Bearer <your-jwt-token>
 | Endpoint                       | Patient | Doctor | Receptionist | Admin | Super Admin |
 | ------------------------------ | ------- | ------ | ------------ | ----- | ----------- |
 | GET /rooms                     | ✅      | ✅     | ✅           | ✅    | ✅          |
+| GET /rooms/active              | ✅      | ✅     | ✅           | ✅    | ✅          |
 | GET /rooms/available           | ✅      | ✅     | ✅           | ✅    | ✅          |
 | GET /rooms/occupied            | ❌      | ✅     | ✅           | ✅    | ✅          |
 | GET /rooms/inactive            | ❌      | ❌     | ✅           | ✅    | ✅          |
 | GET /rooms/deleted             | ❌      | ❌     | ❌           | ✅    | ✅          |
 | GET /rooms/:id                 | ✅      | ✅     | ✅           | ✅    | ✅          |
-| GET /rooms/type/:room_type     | ✅      | ✅     | ✅           | ✅    | ✅          |
-| GET /rooms/department/:dept_id | ✅      | ✅     | ✅           | ✅    | ✅          |
 | POST /rooms                    | ❌      | ❌     | ❌           | ✅    | ✅          |
 | PUT /rooms/:id                 | ❌      | ❌     | ❌           | ✅    | ✅          |
 | PATCH /rooms/:id/activate      | ❌      | ❌     | ❌           | ✅    | ✅          |
@@ -63,13 +62,12 @@ Authorization: Bearer <your-jwt-token>
 | Method | Endpoint                     | Description             | Role Required                            |
 | ------ | ---------------------------- | ----------------------- | ---------------------------------------- |
 | GET    | `/rooms`                     | List all rooms          | All Authenticated                        |
+| GET    | `/rooms/active`              | List active rooms       | All Authenticated                        |
 | GET    | `/rooms/available`           | List available rooms    | All Authenticated                        |
 | GET    | `/rooms/occupied`            | List occupied rooms     | Doctor, Receptionist, Admin, Super Admin |
 | GET    | `/rooms/inactive`            | List inactive rooms     | Receptionist, Admin, Super Admin         |
 | GET    | `/rooms/deleted`             | List deleted rooms      | Admin, Super Admin                       |
 | GET    | `/rooms/:id`                 | Get room by ID          | All Authenticated                        |
-| GET    | `/rooms/type/:room_type`     | Get rooms by type       | All Authenticated                        |
-| GET    | `/rooms/department/:dept_id` | Get rooms by department | All Authenticated                        |
 
 ### Admin Endpoints
 
@@ -115,17 +113,17 @@ Authorization: Bearer <token>
 | `page`               | integer | 1           | Halaman                                                        |
 | `page_size`          | integer | 10          | Jumlah data per halaman (max: 100)                             |
 | `search`             | string  | -           | Cari berdasarkan room_number                                   |
-| `room_type`          | string  | -           | Filter by room type                                            |
+| `room_type_id`       | integer | -           | Filter by room type ID                                            |
 | `department_id`      | integer | -           | Filter by department                                           |
 | `is_active`          | boolean | -           | Filter by active status                                        |
 | `has_available_beds` | boolean | -           | Filter rooms with available beds                               |
-| `sort_by`            | string  | room_number | Sort field (room_number, room_type, price_per_day, created_at) |
+| `sort_by`            | string  | room_number | Sort field (room_number, room_type_id, price_per_day, created_at) |
 | `sort_dir`           | string  | asc         | Sort direction (asc, desc)                                     |
 
 **Example Request:**
 
 ```
-GET /api/v1/rooms?page=1&page_size=10&room_type=vip&has_available_beds=true&sort_by=room_number&sort_dir=asc
+GET /api/v1/rooms?page=1&page_size=10&room_type_id=1&has_available_beds=true&sort_by=room_number&sort_dir=asc
 ```
 
 **Response Success (200 OK):**
@@ -139,7 +137,7 @@ GET /api/v1/rooms?page=1&page_size=10&room_type=vip&has_available_beds=true&sort
       {
         "id": 1,
         "room_number": "301-A",
-        "room_type": "vip",
+        "room_type_id": 1,
         "department_id": 1,
         "department": {
           "id": 1,
@@ -156,7 +154,7 @@ GET /api/v1/rooms?page=1&page_size=10&room_type=vip&has_available_beds=true&sort
       {
         "id": 2,
         "room_number": "302-A",
-        "room_type": "vip",
+        "room_type_id": 1,
         "department_id": 1,
         "department": {
           "id": 1,
@@ -184,13 +182,99 @@ GET /api/v1/rooms?page=1&page_size=10&room_type=vip&has_available_beds=true&sort
 **cURL Example:**
 
 ```bash
-curl -X GET "http://localhost:8080/api/v1/rooms?page=1&page_size=10&room_type=vip" \
+curl -X GET "http://localhost:8080/api/v1/rooms?page=1&page_size=10&room_type_id=1" \
   -H "Authorization: Bearer YOUR_JWT_TOKEN"
 ```
 
 ---
 
-### 2. List Available Rooms
+
+---
+
+### 2. List Active Rooms
+
+**Endpoint:** `GET /api/v1/rooms/active`
+
+**Description:** Mendapatkan daftar rooms yang aktif.
+
+**Authentication:** Required (All Authenticated Users)
+
+**Request Headers:**
+
+```
+Authorization: Bearer <token>
+```
+
+**Query Parameters:**
+
+| Parameter            | Type    | Default     | Description                                                    |
+| -------------------- | ------- | ----------- | -------------------------------------------------------------- |
+| `page`               | integer | 1           | Halaman                                                        |
+| `page_size`          | integer | 10          | Jumlah data per halaman (max: 100)                             |
+| `search`             | string  | -           | Cari berdasarkan room_number                                   |
+| `room_type_id`       | integer | -           | Filter by room type ID                                         |
+| `department_id`      | integer | -           | Filter by department                                           |
+| `has_available_beds` | boolean | -           | Filter rooms with available beds                               |
+| `sort_by`            | string  | room_number | Sort field (room_number, room_type_id, price_per_day, created_at) |
+| `sort_dir`           | string  | asc         | Sort direction (asc, desc)                                     |
+
+**Example Request:**
+
+```
+GET /api/v1/rooms/active?page=1&page_size=10&has_available_beds=true
+```
+
+**Response Success (200 OK):**
+
+```json
+{
+  "success": true,
+  "message": "Active rooms retrieved successfully",
+  "data": {
+    "total_rooms": 1,
+    "total_beds": 1,
+    "available_beds": 1,
+    "occupancy_rate": 0.0,
+    "data": [
+      {
+        "id": 1,
+        "room_number": "301-A",
+        "room_type_id": 1,
+        "room_type": {
+          "id": 1,
+          "name": "VIP",
+          "code": "VIP"
+        },
+        "department_id": 1,
+        "department": {
+          "id": 1,
+          "name": "Kardiologi",
+          "code": "KARDIO"
+        },
+        "bed_capacity": 1,
+        "available_beds": 1,
+        "price_per_day": 1500000.0,
+        "is_active": true
+      }
+    ],
+    "meta": {
+      "page": 1,
+      "page_size": 10,
+      "total_items": 1,
+      "total_pages": 1
+    }
+  }
+}
+```
+
+**cURL Example:**
+
+```bash
+curl -X GET "http://localhost:8080/api/v1/rooms/active?has_available_beds=true" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+### 3. List Available Rooms
 
 **Endpoint:** `GET /api/v1/rooms/available`
 
@@ -208,7 +292,7 @@ Authorization: Bearer <token>
 
 | Parameter       | Type    | Description                     |
 | --------------- | ------- | ------------------------------- |
-| `room_type`     | string  | Filter by room type             |
+| `room_type_id`  | integer | Filter by room type ID             |
 | `department_id` | integer | Filter by department            |
 | `min_beds`      | integer | Minimum available beds required |
 | `max_price`     | decimal | Maximum price per day           |
@@ -218,7 +302,7 @@ Authorization: Bearer <token>
 **Example Request:**
 
 ```
-GET /api/v1/rooms/available?room_type=class_1&min_beds=1&max_price=500000
+GET /api/v1/rooms/available?room_type_id=2&min_beds=1&max_price=500000
 ```
 
 **Response Success (200 OK):**
@@ -234,7 +318,7 @@ GET /api/v1/rooms/available?room_type=class_1&min_beds=1&max_price=500000
       {
         "id": 5,
         "room_number": "201-A",
-        "room_type": "class_1",
+        "room_type_id": 2,
         "department": {
           "id": 2,
           "name": "Penyakit Dalam"
@@ -247,7 +331,7 @@ GET /api/v1/rooms/available?room_type=class_1&min_beds=1&max_price=500000
       {
         "id": 6,
         "room_number": "201-B",
-        "room_type": "class_1",
+        "room_type_id": 2,
         "department": {
           "id": 2,
           "name": "Penyakit Dalam"
@@ -271,7 +355,7 @@ GET /api/v1/rooms/available?room_type=class_1&min_beds=1&max_price=500000
 **cURL Example:**
 
 ```bash
-curl -X GET "http://localhost:8080/api/v1/rooms/available?room_type=class_1" \
+curl -X GET "http://localhost:8080/api/v1/rooms/available?room_type_id=2" \
   -H "Authorization: Bearer YOUR_JWT_TOKEN"
 ```
 
@@ -283,7 +367,7 @@ curl -X GET "http://localhost:8080/api/v1/rooms/available?room_type=class_1" \
 
 ---
 
-### 3. List Occupied Rooms
+### 4. List Occupied Rooms
 
 **Endpoint:** `GET /api/v1/rooms/occupied`
 
@@ -313,7 +397,7 @@ Same as List Available Rooms.
       {
         "id": 1,
         "room_number": "301-A",
-        "room_type": "vip",
+        "room_type_id": 1,
         "department": {
           "id": 1,
           "name": "Kardiologi"
@@ -349,7 +433,7 @@ curl -X GET "http://localhost:8080/api/v1/rooms/occupied" \
 
 ---
 
-### 4. List Inactive Rooms
+### 5. List Inactive Rooms
 
 **Endpoint:** `GET /api/v1/rooms/inactive`
 
@@ -377,7 +461,12 @@ Same as List Rooms.
       {
         "id": 20,
         "room_number": "401-A",
-        "room_type": "icu",
+        "room_type_id": 3,
+        "room_type": {
+          "id": 3,
+          "name": "ICU",
+          "code": "ICU"
+        },
         "department": {
           "id": 5,
           "name": "ICU"
@@ -407,7 +496,7 @@ curl -X GET "http://localhost:8080/api/v1/rooms/inactive" \
 
 ---
 
-### 5. List Deleted Rooms
+### 6. List Deleted Rooms
 
 **Endpoint:** `GET /api/v1/rooms/deleted`
 
@@ -435,7 +524,12 @@ Same as List Rooms.
       {
         "id": 50,
         "room_number": "OLD-101",
-        "room_type": "class_3",
+        "room_type_id": 4,
+        "room_type": {
+          "id": 4,
+          "name": "Class 3",
+          "code": "CLS-3"
+        },
         "is_active": false,
         "created_at": "2023-01-01T10:00:00Z",
         "updated_at": "2024-01-19T10:00:00Z",
@@ -461,7 +555,7 @@ curl -X GET "http://localhost:8080/api/v1/rooms/deleted" \
 
 ---
 
-### 6. Get Room by ID
+### 7. Get Room by ID
 
 **Endpoint:** `GET /api/v1/rooms/:id`
 
@@ -488,7 +582,7 @@ Authorization: Bearer <token>
   "data": {
     "id": 1,
     "room_number": "301-A",
-    "room_type": "vip",
+    "room_type_id": 1,
     "department_id": 1,
     "department": {
       "id": 1,
@@ -544,168 +638,9 @@ curl -X GET http://localhost:8080/api/v1/rooms/1 \
 
 ---
 
-### 7. Get Rooms by Type
-
-**Endpoint:** `GET /api/v1/rooms/type/:room_type`
-
-**Description:** Mendapatkan daftar room berdasarkan tipe.
-
-**Authentication:** Required (All Authenticated Users)
-
-**Request Headers:**
-
-```
-Authorization: Bearer <token>
-```
-
-**URL Parameters:**
-
-- `room_type`: Room Type (string), values: vip, class_1, class_2, class_3, icu, emergency
-
-**Query Parameters:**
-
-| Parameter            | Type    | Description           |
-| -------------------- | ------- | --------------------- |
-| `is_active`          | boolean | Filter active only    |
-| `has_available_beds` | boolean | Filter available only |
-| `page`               | integer | Page number           |
-| `page_size`          | integer | Items per page        |
-
-**Example Request:**
-
-```
-GET /api/v1/rooms/type/vip?is_active=true&has_available_beds=true
-```
-
-**Response Success (200 OK):**
-
-```json
-{
-  "success": true,
-  "message": "Rooms by type retrieved successfully",
-  "data": {
-    "room_type": "vip",
-    "total_rooms": 10,
-    "total_beds": 10,
-    "available_beds": 3,
-    "occupancy_rate": 70.0,
-    "price_range": {
-      "min": 1500000.0,
-      "max": 2000000.0
-    },
-    "data": [
-      {
-        "id": 2,
-        "room_number": "302-A",
-        "department": {
-          "id": 1,
-          "name": "Kardiologi"
-        },
-        "bed_capacity": 1,
-        "available_beds": 1,
-        "price_per_day": 1500000.0,
-        "is_active": true
-      }
-    ],
-    "meta": {
-      "page": 1,
-      "page_size": 10,
-      "total_items": 1,
-      "total_pages": 1
-    }
-  }
-}
-```
-
-**cURL Example:**
-
-```bash
-curl -X GET "http://localhost:8080/api/v1/rooms/type/vip?has_available_beds=true" \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN"
-```
-
----
-
-### 8. Get Rooms by Department
-
-**Endpoint:** `GET /api/v1/rooms/department/:dept_id`
-
-**Description:** Mendapatkan daftar room berdasarkan department.
-
-**Authentication:** Required (All Authenticated Users)
-
-**Request Headers:**
-
-```
-Authorization: Bearer <token>
-```
-
-**URL Parameters:**
-
-- `dept_id`: Department ID (integer)
-
-**Query Parameters:**
-Same as Get Rooms by Type.
-
-**Response Success (200 OK):**
-
-```json
-{
-  "success": true,
-  "message": "Rooms by department retrieved successfully",
-  "data": {
-    "department": {
-      "id": 1,
-      "name": "Kardiologi",
-      "code": "KARDIO",
-      "floor_location": "Lantai 3"
-    },
-    "total_rooms": 15,
-    "total_beds": 25,
-    "available_beds": 8,
-    "occupancy_rate": 68.0,
-    "data": [
-      {
-        "id": 1,
-        "room_number": "301-A",
-        "room_type": "vip",
-        "bed_capacity": 1,
-        "available_beds": 0,
-        "price_per_day": 1500000.0,
-        "is_active": true
-      },
-      {
-        "id": 5,
-        "room_number": "201-A",
-        "room_type": "class_1",
-        "bed_capacity": 2,
-        "available_beds": 1,
-        "price_per_day": 450000.0,
-        "is_active": true
-      }
-    ],
-    "meta": {
-      "page": 1,
-      "page_size": 10,
-      "total_items": 2,
-      "total_pages": 1
-    }
-  }
-}
-```
-
-**cURL Example:**
-
-```bash
-curl -X GET "http://localhost:8080/api/v1/rooms/department/1" \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN"
-```
-
----
-
 ## Admin Endpoints
 
-### 9. Create Room
+### 8. Create Room
 
 **Endpoint:** `POST /api/v1/rooms`
 
@@ -725,7 +660,7 @@ Content-Type: application/json
 ```json
 {
   "room_number": "301-A",
-  "room_type": "vip",
+  "room_type_id": 1,
   "department_id": 1,
   "bed_capacity": 1,
   "available_beds": 1,
@@ -737,7 +672,7 @@ Content-Type: application/json
 **Field Rules:**
 
 - `room_number`: required, unique, max 20 characters, indexed
-- `room_type`: required, enum (vip, class_1, class_2, class_3, icu, emergency)
+- `room_type_id`: required, integer, exists in room_types table
 - `department_id`: optional, FK to departments table
 - `bed_capacity`: required, min 1
 - `available_beds`: optional, defaults to bed_capacity
@@ -753,7 +688,7 @@ Content-Type: application/json
   "data": {
     "id": 1,
     "room_number": "301-A",
-    "room_type": "vip",
+    "room_type_id": 1,
     "department_id": 1,
     "bed_capacity": 1,
     "available_beds": 1,
@@ -784,7 +719,7 @@ curl -X POST http://localhost:8080/api/v1/rooms \
   -H "Content-Type: application/json" \
   -d '{
     "room_number": "301-A",
-    "room_type": "vip",
+    "room_type_id": 1,
     "department_id": 1,
     "bed_capacity": 1,
     "price_per_day": 1500000
@@ -799,7 +734,7 @@ curl -X POST http://localhost:8080/api/v1/rooms \
 
 ---
 
-### 10. Update Room
+### 9. Update Room
 
 **Endpoint:** `PUT /api/v1/rooms/:id`
 
@@ -823,7 +758,7 @@ Content-Type: application/json
 ```json
 {
   "room_number": "301-A-Updated",
-  "room_type": "vip",
+  "room_type_id": 1,
   "department_id": 2,
   "bed_capacity": 2,
   "price_per_day": 1800000.0,
@@ -847,7 +782,7 @@ Content-Type: application/json
   "data": {
     "id": 1,
     "room_number": "301-A-Updated",
-    "room_type": "vip",
+    "room_type_id": 1,
     "department_id": 2,
     "bed_capacity": 2,
     "available_beds": 2,
@@ -872,7 +807,7 @@ curl -X PUT http://localhost:8080/api/v1/rooms/1 \
 
 ---
 
-### 11. Activate Room
+### 10. Activate Room
 
 **Endpoint:** `PATCH /api/v1/rooms/:id/activate`
 
@@ -915,7 +850,7 @@ curl -X PATCH http://localhost:8080/api/v1/rooms/1/activate \
 
 ---
 
-### 12. Deactivate Room
+### 11. Deactivate Room
 
 **Endpoint:** `PATCH /api/v1/rooms/:id/deactivate`
 
@@ -963,7 +898,7 @@ curl -X PATCH http://localhost:8080/api/v1/rooms/1/deactivate \
 
 ---
 
-### 13. Occupy Bed
+### 12. Occupy Bed
 
 **Endpoint:** `PATCH /api/v1/rooms/:id/occupy`
 
@@ -1041,7 +976,7 @@ curl -X PATCH http://localhost:8080/api/v1/rooms/5/occupy \
 
 ---
 
-### 14. Release Bed
+### 13. Release Bed
 
 **Endpoint:** `PATCH /api/v1/rooms/:id/release`
 
@@ -1119,7 +1054,7 @@ curl -X PATCH http://localhost:8080/api/v1/rooms/5/release \
 
 ---
 
-### 15. Soft Delete Room
+### 14. Soft Delete Room
 
 **Endpoint:** `DELETE /api/v1/rooms/:id`
 
@@ -1168,7 +1103,7 @@ curl -X DELETE http://localhost:8080/api/v1/rooms/1 \
 
 ---
 
-### 16. Restore Room
+### 15. Restore Room
 
 **Endpoint:** `PATCH /api/v1/rooms/:id/restore`
 
@@ -1212,7 +1147,7 @@ curl -X PATCH http://localhost:8080/api/v1/rooms/1/restore \
 
 ## Super Admin Endpoints
 
-### 17. Hard Delete Room
+### 16. Hard Delete Room
 
 **Endpoint:** `DELETE /api/v1/rooms/:id/hard-delete`
 
@@ -1269,7 +1204,7 @@ curl -X DELETE http://localhost:8080/api/v1/rooms/1/hard-delete \
 | --- | --- | --- | --- |
 | id | BIGINT | PRIMARY KEY, AUTO_INCREMENT | Unique identifier untuk room |
 | room_number | VARCHAR(20) | UNIQUE, NOT NULL, INDEX | Nomor ruangan (e.g., 101, 202-A) |
-| room_type | VARCHAR(20) | NOT NULL, INDEX | Tipe ruangan (Standard, VIP, ICU, dll) |
+| room_type_id | BIGINT | NOT NULL, INDEX, FOREIGN KEY | Referensi ke tabel room_types |
 | department_id | BIGINT | FOREIGN KEY (departments.id), INDEX | Department tempat ruangan berada |
 | bed_capacity | INT | NOT NULL, DEFAULT 1 | Jumlah maksimal tempat tidur |
 | available_beds | INT | NOT NULL, DEFAULT 1 | Jumlah tempat tidur yang tersedia |
@@ -1282,15 +1217,16 @@ curl -X DELETE http://localhost:8080/api/v1/rooms/1/hard-delete \
 **Indexes:**
 - Primary Key: id
 - Unique Index: room_number
-- Foreign Key: department_id
-- Regular Index: room_type, is_active, deleted_at
+- Foreign Key: department_id, room_type_id
+- Regular Index: is_active, deleted_at
 
 **Relationships:**
 - Belongs To Department (many-to-one)
+- Belongs To Room Type (many-to-one)
 - Has Many Hospitalizations (one-to-many)
 
 **Notes:**
-- room_type bisa hardcoded atau reference ke master data
+- room_type_id reference ke master data room_types
 - available_beds otomatis update saat ada admission/discharge
 - price_per_day bisa berbeda untuk setiap room type dan department
 - is_active untuk maintenance atau permanent closure
@@ -1350,7 +1286,7 @@ curl -X DELETE http://localhost:8080/api/v1/rooms/1/hard-delete \
 {
   "id": 1,
   "room_number": "301-A",
-  "room_type": "vip",
+  "room_type_id": 1,
   "department_id": 1,
   "department": {
     "id": 1,
@@ -1445,7 +1381,7 @@ curl -X DELETE http://localhost:8080/api/v1/rooms/1/hard-delete \
 
 ```bash
 # 1. Find available rooms
-GET /api/v1/rooms/available?room_type=class_1
+GET /api/v1/rooms/available?room_type_id=2
 
 # 2. Check room details
 GET /api/v1/rooms/5
@@ -1496,7 +1432,7 @@ curl -X POST http://localhost:8080/api/v1/rooms \
   -H "Content-Type: application/json" \
   -d '{
     "room_number": "TEST-101",
-    "room_type": "class_1",
+    "room_type_id": 2,
     "bed_capacity": 2,
     "price_per_day": 450000
   }'

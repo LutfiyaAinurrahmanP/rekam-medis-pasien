@@ -37,12 +37,16 @@ Authorization: Bearer <your-jwt-token>
 | Endpoint                           | Patient | Doctor | Receptionist | Admin | Super Admin |
 | ---------------------------------- | ------- | ------ | ------------ | ----- | ----------- |
 | GET /room-types                    | ✅      | ✅     | ✅           | ✅    | ✅          |
+| GET /room-types/active             | ✅      | ✅     | ✅           | ✅    | ✅          |
+| GET /room-types/inactive                  | ❌      | ❌     | ❌           | ✅    | ✅          |
 | GET /room-types/:id                | ✅      | ✅     | ✅           | ✅    | ✅          |
+| GET /room-types/deleted            | ❌      | ❌     | ❌           | ✅    | ✅          |
 | POST /room-types                   | ❌      | ❌     | ❌           | ✅    | ✅          |
 | PUT /room-types/:id                | ❌      | ❌     | ❌           | ✅    | ✅          |
 | PATCH /room-types/:id/activate     | ❌      | ❌     | ❌           | ✅    | ✅          |
 | PATCH /room-types/:id/deactivate   | ❌      | ❌     | ❌           | ✅    | ✅          |
 | DELETE /room-types/:id             | ❌      | ❌     | ❌           | ✅    | ✅          |
+| PATCH /room-types/:id/restore      | ❌      | ❌     | ❌           | ✅    | ✅          |
 | DELETE /room-types/:id/hard-delete | ❌      | ❌     | ❌           | ❌    | ✅          |
 
 ---
@@ -51,20 +55,73 @@ Authorization: Bearer <your-jwt-token>
 
 ### Public Endpoints (All Authenticated)
 
-| Method | Endpoint          | Description         | Role Required     |
-| ------ | ----------------- | ------------------- | ----------------- |
-| GET    | `/room-types`     | List all room types | All Authenticated |
-| GET    | `/room-types/:id` | Get room type by ID | All Authenticated |
+| Method | Endpoint             | Description            | Role Required     |
+| ------ | -------------------- | ---------------------- | ----------------- |
+| GET    | `/room-types`        | List all room types    | All Authenticated |
+| GET    | `/room-types/active` | List active room types | All Authenticated |
+| ------ | -------------------- | ---------------------- | ----------------- |
+| GET    | `/room-types/:id`    | Get room type by ID    | All Authenticated |
 
 ### Admin Endpoints
 
-| Method | Endpoint                     | Description           | Role Required      |
-| ------ | ---------------------------- | --------------------- | ------------------ |
-| POST   | `/room-types`                | Create room type      | Admin, Super Admin |
-| PUT    | `/room-types/:id`            | Update room type      | Admin, Super Admin |
-| PATCH  | `/room-types/:id/activate`   | Activate room type    | Admin, Super Admin |
-| PATCH  | `/room-types/:id/deactivate` | Deactivate room type  | Admin, Super Admin |
-| DELETE | `/room-types/:id`            | Soft delete room type | Admin, Super Admin |
+### X. List Inactive Room Types
+
+**Endpoint:** `GET /api/v1/room-types/inactive`
+
+**Description:** Mendapatkan daftar room types yang tidak aktif.
+
+**Authentication:** Required (Admin, Super Admin)
+
+**Request Headers:**
+
+```
+Authorization: Bearer <admin-token>
+```
+
+**Query Parameters:**
+
+| Parameter   | Type    | Default | Description                          |
+| ----------- | ------- | ------- | ------------------------------------ |
+| `page`      | integer | 1       | Halaman                              |
+| `page_size` | integer | 10      | Jumlah data per halaman              |
+
+**Response Success (200 OK):**
+
+```json
+{
+  "success": true,
+  "message": "Inactive room types retrieved successfully",
+  "data": {
+    "data": [],
+    "meta": {
+      "page": 1,
+      "page_size": 10,
+      "total_items": 0,
+      "total_pages": 0
+    }
+  }
+}
+```
+
+**cURL Example:**
+
+```bash
+curl -X GET "http://localhost:8080/api/v1/room-types/inactive" \
+  -H "Authorization: Bearer ADMIN_JWT_TOKEN"
+```
+
+---
+
+| Method | Endpoint                     | Description               | Role Required      |
+| ------ | ---------------------------- | ------------------------- | ------------------ |
+| GET    | `/room-types/inactive` | List inactive room types | Admin, Super Admin |
+| GET    | `/room-types/deleted`        | List deleted room types   | Admin, Super Admin |
+| POST   | `/room-types`                | Create room type          | Admin, Super Admin |
+| PUT    | `/room-types/:id`            | Update room type          | Admin, Super Admin |
+| PATCH  | `/room-types/:id/activate`   | Activate room type        | Admin, Super Admin |
+| PATCH  | `/room-types/:id/deactivate` | Deactivate room type      | Admin, Super Admin |
+| DELETE | `/room-types/:id`            | Soft delete room type     | Admin, Super Admin |
+| PATCH  | `/room-types/:id/restore`    | Restore deleted room type | Admin, Super Admin |
 
 ### Super Admin Endpoints
 
@@ -159,7 +216,81 @@ curl -X GET "http://localhost:8080/api/v1/room-types?page=1&page_size=10" \
 
 ---
 
-### 2. Get Room Type by ID
+### 2. List Active Room Types
+
+**Endpoint:** `GET /api/v1/room-types/active`
+
+**Description:** Mendapatkan daftar room types yang aktif saja.
+
+**Authentication:** Required (All Authenticated Users)
+
+**Request Headers:**
+
+```
+Authorization: Bearer <token>
+```
+
+**Query Parameters:**
+
+| Parameter   | Type    | Default | Description                        |
+| ----------- | ------- | ------- | ---------------------------------- |
+| `page`      | integer | 1       | Halaman                            |
+| `page_size` | integer | 10      | Jumlah data per halaman (max: 100) |
+| `search`    | string  | -       | Cari berdasarkan nama tipe ruangan |
+| `sort_by`   | string  | name    | Sort field (name, created_at)      |
+| `sort_dir`  | string  | asc     | Sort direction (asc, desc)         |
+
+**Example Request:**
+
+```
+GET /api/v1/room-types/active?page=1&page_size=10&sort_by=name&sort_dir=asc
+```
+
+**Response Success (200 OK):**
+
+```json
+{
+  "success": true,
+  "message": "Active room types retrieved successfully",
+  "data": {
+    "data": [
+      {
+        "id": 1,
+        "name": "VIP",
+        "description": "Ruangan VIP dengan fasilitas premium",
+        "code": "VIP",
+        "is_active": true,
+        "created_at": "2024-01-19T10:00:00Z"
+      },
+      {
+        "id": 2,
+        "name": "Class 1",
+        "description": "Ruangan kelas 1 dengan fasilitas standar",
+        "code": "CLS1",
+        "is_active": true,
+        "created_at": "2024-01-19T10:05:00Z"
+      }
+    ],
+    "meta": {
+      "page": 1,
+      "page_size": 10,
+      "total_items": 2,
+      "total_pages": 1
+    }
+  }
+}
+```
+
+**cURL Example:**
+
+```bash
+curl -X GET "http://localhost:8080/api/v1/room-types/active?page=1&page_size=10" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+---
+
+### 3. Get Room Type by ID
 
 **Endpoint:** `GET /api/v1/room-types/:id`
 
@@ -217,7 +348,55 @@ curl -X GET http://localhost:8080/api/v1/room-types/1 \
 
 ## Admin Endpoints
 
-### 3. Create Room Type
+### X. List Inactive Room Types
+
+**Endpoint:** `GET /api/v1/room-types/inactive`
+
+**Description:** Mendapatkan daftar room types yang tidak aktif.
+
+**Authentication:** Required (Admin, Super Admin)
+
+**Request Headers:**
+
+```
+Authorization: Bearer <admin-token>
+```
+
+**Query Parameters:**
+
+| Parameter   | Type    | Default | Description                          |
+| ----------- | ------- | ------- | ------------------------------------ |
+| `page`      | integer | 1       | Halaman                              |
+| `page_size` | integer | 10      | Jumlah data per halaman              |
+
+**Response Success (200 OK):**
+
+```json
+{
+  "success": true,
+  "message": "Inactive room types retrieved successfully",
+  "data": {
+    "data": [],
+    "meta": {
+      "page": 1,
+      "page_size": 10,
+      "total_items": 0,
+      "total_pages": 0
+    }
+  }
+}
+```
+
+**cURL Example:**
+
+```bash
+curl -X GET "http://localhost:8080/api/v1/room-types/inactive" \
+  -H "Authorization: Bearer ADMIN_JWT_TOKEN"
+```
+
+---
+
+### 4. Create Room Type
 
 **Endpoint:** `POST /api/v1/room-types`
 
@@ -294,7 +473,7 @@ curl -X POST http://localhost:8080/api/v1/room-types \
 
 ---
 
-### 4. Update Room Type
+### 5. Update Room Type
 
 **Endpoint:** `PUT /api/v1/room-types/:id`
 
@@ -368,7 +547,7 @@ curl -X PUT http://localhost:8080/api/v1/room-types/1 \
 
 ---
 
-### 5. Activate Room Type
+### 6. Activate Room Type
 
 **Endpoint:** `PATCH /api/v1/room-types/:id/activate`
 
@@ -411,7 +590,7 @@ curl -X PATCH http://localhost:8080/api/v1/room-types/1/activate \
 
 ---
 
-### 6. Deactivate Room Type
+### 7. Deactivate Room Type
 
 **Endpoint:** `PATCH /api/v1/room-types/:id/deactivate`
 
@@ -454,7 +633,7 @@ curl -X PATCH http://localhost:8080/api/v1/room-types/1/deactivate \
 
 ---
 
-### 7. Delete Room Type
+### 8. Delete Room Type
 
 **Endpoint:** `DELETE /api/v1/room-types/:id`
 
@@ -506,9 +685,138 @@ curl -X DELETE http://localhost:8080/api/v1/room-types/1 \
 
 ---
 
+### 9. List Deleted Room Types
+
+**Endpoint:** `GET /api/v1/room-types/deleted`
+
+**Description:** Mendapatkan daftar room types yang sudah di-soft delete.
+
+**Authentication:** Required (Admin, Super Admin)
+
+**Request Headers:**
+
+```http
+Authorization: Bearer <token>
+```
+
+**Query Parameters:**
+
+| Parameter   | Type    | Default | Description                        |
+| ----------- | ------- | ------- | ---------------------------------- |
+| `page`      | integer | 1       | Halaman                            |
+| `page_size` | integer | 10      | Jumlah data per halaman (max: 100) |
+| `search`    | string  | -       | Cari berdasarkan nama tipe ruangan |
+| `sort_by`   | string  | name    | Sort field (name, created_at)      |
+| `sort_dir`  | string  | asc     | Sort direction (asc, desc)         |
+
+**Example Request:**
+
+```http
+GET /api/v1/room-types/deleted?page=1&page_size=10&sort_by=name&sort_dir=asc
+```
+
+**Response Success (200 OK):**
+
+```json
+{
+  "success": true,
+  "message": "Deleted room types retrieved successfully",
+  "data": {
+    "data": [
+      {
+        "id": 4,
+        "name": "Suite",
+        "description": "Ruangan suite mewah",
+        "code": "SUT",
+        "is_active": false,
+        "created_at": "2024-01-19T10:00:00Z",
+        "updated_at": "2024-01-20T10:00:00Z",
+        "deleted_at": "2024-01-20T10:00:00Z"
+      }
+    ],
+    "meta": {
+      "page": 1,
+      "page_size": 10,
+      "total_items": 1,
+      "total_pages": 1
+    }
+  }
+}
+```
+
+**cURL Example:**
+
+```bash
+curl -X GET "http://localhost:8080/api/v1/room-types/deleted?page=1&page_size=10" \
+  -H "Authorization: Bearer ADMIN_JWT_TOKEN"
+```
+
+---
+
+### 10. Restore Room Type
+
+**Endpoint:** `PATCH /api/v1/room-types/:id/restore`
+
+**Description:** Admin me-restore room type yang sudah di-soft delete.
+
+**Authentication:** Required (Admin, Super Admin)
+
+**Request Headers:**
+
+```http
+Authorization: Bearer <admin-token>
+```
+
+**URL Parameters:**
+
+- `id`: Room Type ID (integer)
+
+**Response Success (200 OK):**
+
+```json
+{
+  "success": true,
+  "message": "Room type restored successfully",
+  "data": {
+    "id": 4,
+    "name": "Suite",
+    "description": "Ruangan suite mewah",
+    "code": "SUT",
+    "is_active": false,
+    "created_at": "2024-01-19T10:00:00Z",
+    "updated_at": "2024-01-20T15:30:00Z",
+    "deleted_at": null
+  }
+}
+```
+
+**Response Error (404 Not Found):**
+
+```json
+{
+  "success": false,
+  "message": "Room type not found",
+  "error": "room type not found"
+}
+```
+
+**cURL Example:**
+
+```bash
+curl -X PATCH http://localhost:8080/api/v1/room-types/4/restore \
+  -H "Authorization: Bearer ADMIN_JWT_TOKEN"
+```
+
+**Notes:**
+
+- Setelah di-restore, room type masih dalam status `is_active: false`
+- Perlu activate manual jika ingin mengaktifkan kembali
+
+---
+
 ## Super Admin Endpoints
 
-### 8. Hard Delete Room Type
+### 11. Hard Delete Room Type
 
 **Endpoint:** `DELETE /api/v1/room-types/:id/hard-delete`
 
@@ -619,5 +927,7 @@ curl -X DELETE http://localhost:8080/api/v1/room-types/1/hard-delete \
 
 - Tipe ruangan digunakan untuk menstandarisasi tipe ruangan pada data rooms
 - Nama tipe ruangan bersifat unique dan case-sensitive
-- Soft delete hanya mengubah status, data tetap tersimpan
+- Soft delete hanya mengubah status, data tetap tersimpan (timestamp disimpan di field `deleted_at`)
+- Soft deleted room types muncul di endpoint `/room-types/deleted`
+- Room type yang di-soft delete bisa di-restore dengan endpoint restore
 - Hard delete hanya bisa dilakukan oleh Super Admin dan bersifat permanent

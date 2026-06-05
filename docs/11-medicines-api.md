@@ -38,13 +38,13 @@ Authorization: Bearer <your-jwt-token>
 | Endpoint                          | Patient | Doctor | Receptionist | Admin | Super Admin |
 | --------------------------------- | ------- | ------ | ------------ | ----- | ----------- |
 | GET /medicines                    | ✅      | ✅     | ✅           | ✅    | ✅          |
+| GET /medicines/active             | ✅      | ✅     | ✅           | ✅    | ✅          |
 | GET /medicines/available          | ✅      | ✅     | ✅           | ✅    | ✅          |
 | GET /medicines/low-stock          | ❌      | ✅     | ✅           | ✅    | ✅          |
 | GET /medicines/out-of-stock       | ❌      | ✅     | ✅           | ✅    | ✅          |
 | GET /medicines/inactive           | ❌      | ❌     | ✅           | ✅    | ✅          |
 | GET /medicines/deleted            | ❌      | ❌     | ❌           | ✅    | ✅          |
 | GET /medicines/:id                | ✅      | ✅     | ✅           | ✅    | ✅          |
-| GET /medicines/type/:type         | ✅      | ✅     | ✅           | ✅    | ✅          |
 | POST /medicines                   | ❌      | ❌     | ❌           | ✅    | ✅          |
 | PUT /medicines/:id                | ❌      | ❌     | ❌           | ✅    | ✅          |
 | PATCH /medicines/:id/add-stock    | ❌      | ❌     | ✅           | ✅    | ✅          |
@@ -133,7 +133,7 @@ Authorization: Bearer <token>
 **Example Request:**
 
 ```
-GET /api/v1/medicines?page=1&page_size=10&type=tablet&has_stock=true&sort_by=name&sort_dir=asc
+GET /api/v1/medicines?page=1&page_size=10&medicine_type_id=1&has_stock=true&sort_by=name&sort_dir=asc
 ```
 
 **Response Success (200 OK):**
@@ -149,7 +149,11 @@ GET /api/v1/medicines?page=1&page_size=10&type=tablet&has_stock=true&sort_by=nam
         "name": "Paracetamol 500mg",
         "generic_name": "Paracetamol",
         "brand_name": "Sanmol",
-        "type": "tablet",
+        "medicine_type_id": 1,
+        "medicine_type": {
+          "id": 1,
+          "name": "Tablet"
+        },
         "strength": "500mg",
         "manufacturer": "PT. Sanbe Farma",
         "unit": "tablet",
@@ -165,7 +169,11 @@ GET /api/v1/medicines?page=1&page_size=10&type=tablet&has_stock=true&sort_by=nam
         "name": "Amoxicillin 500mg",
         "generic_name": "Amoxicillin",
         "brand_name": "Amoxan",
-        "type": "capsule",
+        "medicine_type_id": 2,
+        "medicine_type": {
+          "id": 2,
+          "name": "Capsule"
+        },
         "strength": "500mg",
         "manufacturer": "PT. Kimia Farma",
         "unit": "capsule",
@@ -190,13 +198,87 @@ GET /api/v1/medicines?page=1&page_size=10&type=tablet&has_stock=true&sort_by=nam
 **cURL Example:**
 
 ```bash
-curl -X GET "http://localhost:8080/api/v1/medicines?page=1&page_size=10&type=tablet" \
+curl -X GET "http://localhost:8080/api/v1/medicines?page=1&page_size=10&medicine_type_id=1" \
   -H "Authorization: Bearer YOUR_JWT_TOKEN"
 ```
 
 ---
 
-### 2. List Available Medicines
+### 2. List Active Medicines
+
+**Endpoint:** `GET /api/v1/medicines/active`
+
+**Description:** Mendapatkan daftar obat yang aktif.
+
+**Authentication:** Required (All Authenticated Users)
+
+**Request Headers:**
+
+```
+Authorization: Bearer <token>
+```
+
+**Query Parameters:**
+
+| Parameter   | Type    | Default | Description                          |
+| ----------- | ------- | ------- | ------------------------------------ |
+| `page`      | integer | 1       | Halaman                              |
+| `page_size` | integer | 10      | Jumlah data per halaman              |
+| `search`    | string  | -       | Cari berdasarkan nama atau kode      |
+| `medicine_type_id` | integer | -       | Filter by medicine type ID           |
+| `sort_by`   | string  | name    | Sort field (name, medicine_type_id, price, stock, created_at) |
+| `sort_dir`  | string  | asc     | Sort direction (asc, desc)           |
+
+**Example Request:**
+
+```
+GET /api/v1/medicines/active?page=1&page_size=10&medicine_type_id=1
+```
+
+**Response Success (200 OK):**
+
+```json
+{
+  "success": true,
+  "message": "Active medicines retrieved successfully",
+  "data": {
+    "data": [
+      {
+        "id": 1,
+        "name": "Paracetamol 500mg",
+        "code": "MED-001",
+        "medicine_type_id": 1,
+        "medicine_type": {
+          "id": 1,
+          "name": "Tablet"
+        },
+        "price": 5000.0,
+        "stock": 100,
+        "min_stock_level": 20,
+        "is_active": true,
+        "created_at": "2024-01-19T10:00:00Z"
+      }
+    ],
+    "meta": {
+      "page": 1,
+      "page_size": 10,
+      "total_items": 1,
+      "total_pages": 1
+    }
+  }
+}
+```
+
+**cURL Example:**
+
+```bash
+curl -X GET "http://localhost:8080/api/v1/medicines/active" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+---
+
+### 3. List Available Medicines
 
 **Endpoint:** `GET /api/v1/medicines/available`
 
@@ -223,7 +305,7 @@ Authorization: Bearer <token>
 **Example Request:**
 
 ```
-GET /api/v1/medicines/available?type=tablet&min_stock=100
+GET /api/v1/medicines/available?medicine_type_id=1&min_stock=100
 ```
 
 **Response Success (200 OK):**
@@ -237,23 +319,43 @@ GET /api/v1/medicines/available?type=tablet&min_stock=100
     "total_stock_value": 50000000.0,
     "medicine_types": [
       {
-        "type": "tablet",
+        "medicine_type_id": 1,
+        "medicine_type": {
+          "id": 1,
+          "name": "Tablet"
+        },
         "count": 60
       },
       {
-        "type": "capsule",
+        "medicine_type_id": 2,
+        "medicine_type": {
+          "id": 2,
+          "name": "Capsule"
+        },
         "count": 40
       },
       {
-        "type": "syrup",
+        "medicine_type_id": 3,
+        "medicine_type": {
+          "id": 3,
+          "name": "Syrup"
+        },
         "count": 30
       },
       {
-        "type": "injection",
+        "medicine_type_id": 4,
+        "medicine_type": {
+          "id": 4,
+          "name": "Injection"
+        },
         "count": 15
       },
       {
-        "type": "ointment",
+        "medicine_type_id": 5,
+        "medicine_type": {
+          "id": 5,
+          "name": "Ointment"
+        },
         "count": 5
       }
     ],
@@ -262,7 +364,11 @@ GET /api/v1/medicines/available?type=tablet&min_stock=100
         "id": 1,
         "name": "Paracetamol 500mg",
         "generic_name": "Paracetamol",
-        "type": "tablet",
+        "medicine_type_id": 1,
+        "medicine_type": {
+          "id": 1,
+          "name": "Tablet"
+        },
         "strength": "500mg",
         "stock_quantity": 1000,
         "price": 500.0,
@@ -282,7 +388,7 @@ GET /api/v1/medicines/available?type=tablet&min_stock=100
 **cURL Example:**
 
 ```bash
-curl -X GET "http://localhost:8080/api/v1/medicines/available?type=tablet" \
+curl -X GET "http://localhost:8080/api/v1/medicines/available?medicine_type_id=1" \
   -H "Authorization: Bearer YOUR_JWT_TOKEN"
 ```
 
@@ -294,7 +400,7 @@ curl -X GET "http://localhost:8080/api/v1/medicines/available?type=tablet" \
 
 ---
 
-### 3. List Low Stock Medicines
+### 4. List Low Stock Medicines
 
 **Endpoint:** `GET /api/v1/medicines/low-stock`
 
@@ -337,7 +443,11 @@ GET /api/v1/medicines/low-stock?threshold=100
         "id": 10,
         "name": "Insulin Glargine 100IU/ml",
         "generic_name": "Insulin Glargine",
-        "type": "injection",
+        "medicine_type_id": 4,
+        "medicine_type": {
+          "id": 4,
+          "name": "Injection"
+        },
         "stock_quantity": 10,
         "minimum_stock": 50,
         "price": 350000.0,
@@ -349,7 +459,11 @@ GET /api/v1/medicines/low-stock?threshold=100
         "id": 15,
         "name": "Salbutamol Inhaler",
         "generic_name": "Salbutamol",
-        "type": "other",
+        "medicine_type_id": 6,
+        "medicine_type": {
+          "id": 6,
+          "name": "Other"
+        },
         "stock_quantity": 25,
         "minimum_stock": 100,
         "price": 75000.0,
@@ -383,7 +497,7 @@ curl -X GET "http://localhost:8080/api/v1/medicines/low-stock?threshold=100" \
 
 ---
 
-### 4. List Out of Stock Medicines
+### 5. List Out of Stock Medicines
 
 **Endpoint:** `GET /api/v1/medicines/out-of-stock`
 
@@ -413,7 +527,11 @@ Same as List Low Stock.
         "id": 20,
         "name": "Ceftriaxone 1g Injection",
         "generic_name": "Ceftriaxone",
-        "type": "injection",
+        "medicine_type_id": 4,
+        "medicine_type": {
+          "id": 4,
+          "name": "Injection"
+        },
         "stock_quantity": 0,
         "price": 45000.0,
         "last_stock_date": "2024-01-10T10:00:00Z",
@@ -440,7 +558,7 @@ curl -X GET "http://localhost:8080/api/v1/medicines/out-of-stock" \
 
 ---
 
-### 5. List Inactive Medicines
+### 6. List Inactive Medicines
 
 **Endpoint:** `GET /api/v1/medicines/inactive`
 
@@ -469,7 +587,11 @@ Same as List Medicines.
         "id": 100,
         "name": "Old Medicine Brand",
         "generic_name": "Generic Name",
-        "type": "tablet",
+        "medicine_type_id": 1,
+        "medicine_type": {
+          "id": 1,
+          "name": "Tablet"
+        },
         "stock_quantity": 50,
         "is_active": false,
         "deactivated_reason": "Discontinued by manufacturer",
@@ -496,7 +618,7 @@ curl -X GET "http://localhost:8080/api/v1/medicines/inactive" \
 
 ---
 
-### 6. List Deleted Medicines
+### 7. List Deleted Medicines
 
 **Endpoint:** `GET /api/v1/medicines/deleted`
 
@@ -525,7 +647,11 @@ Same as List Medicines.
         "id": 150,
         "name": "Deleted Medicine",
         "generic_name": "Generic",
-        "type": "tablet",
+        "medicine_type_id": 1,
+        "medicine_type": {
+          "id": 1,
+          "name": "Tablet"
+        },
         "stock_quantity": 0,
         "is_active": false,
         "created_at": "2023-01-01T10:00:00Z",
@@ -552,7 +678,7 @@ curl -X GET "http://localhost:8080/api/v1/medicines/deleted" \
 
 ---
 
-### 7. Get Medicine by ID
+### 8. Get Medicine by ID
 
 **Endpoint:** `GET /api/v1/medicines/:id`
 
@@ -581,7 +707,11 @@ Authorization: Bearer <token>
     "name": "Paracetamol 500mg",
     "generic_name": "Paracetamol",
     "brand_name": "Sanmol",
-    "type": "tablet",
+    "medicine_type_id": 1,
+    "medicine_type": {
+      "id": 1,
+      "name": "Tablet"
+    },
     "strength": "500mg",
     "manufacturer": "PT. Sanbe Farma",
     "unit": "tablet",
@@ -630,89 +760,6 @@ Authorization: Bearer <token>
 
 ```bash
 curl -X GET http://localhost:8080/api/v1/medicines/1 \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN"
-```
-
----
-
-### 8. Get Medicines by Type
-
-**Endpoint:** `GET /api/v1/medicines/type/:type`
-
-**Description:** Mendapatkan daftar medicines berdasarkan tipe.
-
-**Authentication:** Required (All Authenticated Users)
-
-**Request Headers:**
-
-```
-Authorization: Bearer <token>
-```
-
-**URL Parameters:**
-
-- `type`: Medicine Type (string), values: tablet, capsule, syrup, injection, ointment, other
-
-**Query Parameters:**
-
-| Parameter   | Type    | Description                        |
-| ----------- | ------- | ---------------------------------- |
-| `is_active` | boolean | Filter active only (default: true) |
-| `has_stock` | boolean | Filter with stock only             |
-| `page`      | integer | Page number                        |
-| `page_size` | integer | Items per page                     |
-
-**Example Request:**
-
-```
-GET /api/v1/medicines/type/tablet?is_active=true&has_stock=true
-```
-
-**Response Success (200 OK):**
-
-```json
-{
-  "success": true,
-  "message": "Medicines by type retrieved successfully",
-  "data": {
-    "type": "tablet",
-    "total_medicines": 60,
-    "available_medicines": 55,
-    "total_stock": 15000,
-    "data": [
-      {
-        "id": 1,
-        "name": "Paracetamol 500mg",
-        "generic_name": "Paracetamol",
-        "strength": "500mg",
-        "stock_quantity": 1000,
-        "price": 500.0,
-        "is_active": true
-      },
-      {
-        "id": 2,
-        "name": "Ibuprofen 400mg",
-        "generic_name": "Ibuprofen",
-        "strength": "400mg",
-        "stock_quantity": 800,
-        "price": 1500.0,
-        "is_active": true
-      }
-    ],
-    "meta": {
-      "page": 1,
-      "page_size": 10,
-      "total_items": 2,
-      "total_pages": 1
-    }
-  }
-}
-```
-
-**cURL Example:**
-
-```bash
-curl -X GET "http://localhost:8080/api/v1/medicines/type/tablet?has_stock=true" \
   -H "Authorization: Bearer YOUR_JWT_TOKEN"
 ```
 
@@ -906,7 +953,11 @@ Content-Type: application/json
   "name": "Paracetamol 500mg",
   "generic_name": "Paracetamol",
   "brand_name": "Sanmol",
-  "type": "tablet",
+  "medicine_type_id": 1,
+  "medicine_type": {
+    "id": 1,
+    "name": "Tablet"
+  },
   "strength": "500mg",
   "manufacturer": "PT. Sanbe Farma",
   "unit": "tablet",
@@ -921,7 +972,7 @@ Content-Type: application/json
 - `name`: required, max 200 characters, indexed
 - `generic_name`: optional, max 200 characters
 - `brand_name`: optional, max 200 characters
-- `type`: required, enum (tablet, capsule, syrup, injection, ointment, other)
+- `medicine_type_id`: required, integer, exists in medicine_types table
 - `strength`: optional, max 50 (e.g., "500mg", "10ml")
 - `manufacturer`: optional, max 100
 - `unit`: optional, max 20 (tablet, capsule, ml, mg, etc)
@@ -940,7 +991,11 @@ Content-Type: application/json
     "name": "Paracetamol 500mg",
     "generic_name": "Paracetamol",
     "brand_name": "Sanmol",
-    "type": "tablet",
+    "medicine_type_id": 1,
+    "medicine_type": {
+      "id": 1,
+      "name": "Tablet"
+    },
     "strength": "500mg",
     "manufacturer": "PT. Sanbe Farma",
     "unit": "tablet",
@@ -972,7 +1027,11 @@ curl -X POST http://localhost:8080/api/v1/medicines \
   -d '{
     "name": "Paracetamol 500mg",
     "generic_name": "Paracetamol",
-    "type": "tablet",
+    "medicine_type_id": 1,
+    "medicine_type": {
+      "id": 1,
+      "name": "Tablet"
+    },
     "strength": "500mg",
     "stock_quantity": 1000,
     "price": 500
@@ -1014,7 +1073,11 @@ Content-Type: application/json
   "name": "Paracetamol 500mg Updated",
   "generic_name": "Paracetamol",
   "brand_name": "Sanmol Plus",
-  "type": "tablet",
+  "medicine_type_id": 1,
+  "medicine_type": {
+    "id": 1,
+    "name": "Tablet"
+  },
   "strength": "500mg",
   "manufacturer": "PT. Sanbe Farma",
   "price": 550.0,
@@ -1039,7 +1102,11 @@ Content-Type: application/json
     "name": "Paracetamol 500mg Updated",
     "generic_name": "Paracetamol",
     "brand_name": "Sanmol Plus",
-    "type": "tablet",
+    "medicine_type_id": 1,
+    "medicine_type": {
+      "id": 1,
+      "name": "Tablet"
+    },
     "strength": "500mg",
     "manufacturer": "PT. Sanbe Farma",
     "unit": "tablet",
@@ -1357,7 +1424,11 @@ curl -X DELETE http://localhost:8080/api/v1/medicines/1/hard-delete \
   "name": "Paracetamol 500mg",
   "generic_name": "Paracetamol",
   "brand_name": "Sanmol",
-  "type": "tablet",
+  "medicine_type_id": 1,
+  "medicine_type": {
+    "id": 1,
+    "name": "Tablet"
+  },
   "strength": "500mg",
   "manufacturer": "PT. Sanbe Farma",
   "unit": "tablet",
@@ -1432,10 +1503,26 @@ curl -X DELETE http://localhost:8080/api/v1/medicines/1/hard-delete \
 
 ```json
 [
-  { "name": "Paracetamol 500mg", "type": "tablet", "price": 500 },
-  { "name": "Ibuprofen 400mg", "type": "tablet", "price": 1500 },
-  { "name": "Asam Mefenamat 500mg", "type": "capsule", "price": 2000 },
-  { "name": "Paracetamol Syrup 120mg/5ml", "type": "syrup", "price": 15000 }
+  { "name": "Paracetamol 500mg", "medicine_type_id": 1,
+ "medicine_type": {
+   "id": 1,
+   "name": "Tablet"
+ }, "price": 500 },
+  { "name": "Ibuprofen 400mg", "medicine_type_id": 1,
+ "medicine_type": {
+   "id": 1,
+   "name": "Tablet"
+ }, "price": 1500 },
+  { "name": "Asam Mefenamat 500mg", "medicine_type_id": 2,
+ "medicine_type": {
+   "id": 2,
+   "name": "Capsule"
+ }, "price": 2000 },
+  { "name": "Paracetamol Syrup 120mg/5ml", "medicine_type_id": 3,
+ "medicine_type": {
+   "id": 3,
+   "name": "Syrup"
+ }, "price": 15000 }
 ]
 ```
 
@@ -1443,10 +1530,26 @@ curl -X DELETE http://localhost:8080/api/v1/medicines/1/hard-delete \
 
 ```json
 [
-  { "name": "Amoxicillin 500mg", "type": "capsule", "price": 2000 },
-  { "name": "Ciprofloxacin 500mg", "type": "tablet", "price": 3500 },
-  { "name": "Cefadroxil 500mg", "type": "capsule", "price": 5000 },
-  { "name": "Azithromycin 500mg", "type": "tablet", "price": 8000 }
+  { "name": "Amoxicillin 500mg", "medicine_type_id": 2,
+ "medicine_type": {
+   "id": 2,
+   "name": "Capsule"
+ }, "price": 2000 },
+  { "name": "Ciprofloxacin 500mg", "medicine_type_id": 1,
+ "medicine_type": {
+   "id": 1,
+   "name": "Tablet"
+ }, "price": 3500 },
+  { "name": "Cefadroxil 500mg", "medicine_type_id": 2,
+ "medicine_type": {
+   "id": 2,
+   "name": "Capsule"
+ }, "price": 5000 },
+  { "name": "Azithromycin 500mg", "medicine_type_id": 1,
+ "medicine_type": {
+   "id": 1,
+   "name": "Tablet"
+ }, "price": 8000 }
 ]
 ```
 
@@ -1454,9 +1557,21 @@ curl -X DELETE http://localhost:8080/api/v1/medicines/1/hard-delete \
 
 ```json
 [
-  { "name": "Metformin 500mg", "type": "tablet", "price": 1000 },
-  { "name": "Glimepiride 2mg", "type": "tablet", "price": 3000 },
-  { "name": "Insulin Glargine 100IU/ml", "type": "injection", "price": 350000 }
+  { "name": "Metformin 500mg", "medicine_type_id": 1,
+ "medicine_type": {
+   "id": 1,
+   "name": "Tablet"
+ }, "price": 1000 },
+  { "name": "Glimepiride 2mg", "medicine_type_id": 1,
+ "medicine_type": {
+   "id": 1,
+   "name": "Tablet"
+ }, "price": 3000 },
+  { "name": "Insulin Glargine 100IU/ml", "medicine_type_id": 4,
+ "medicine_type": {
+   "id": 4,
+   "name": "Injection"
+ }, "price": 350000 }
 ]
 ```
 
@@ -1464,9 +1579,21 @@ curl -X DELETE http://localhost:8080/api/v1/medicines/1/hard-delete \
 
 ```json
 [
-  { "name": "Amlodipine 10mg", "type": "tablet", "price": 2500 },
-  { "name": "Captopril 25mg", "type": "tablet", "price": 1500 },
-  { "name": "Valsartan 80mg", "type": "tablet", "price": 5000 }
+  { "name": "Amlodipine 10mg", "medicine_type_id": 1,
+ "medicine_type": {
+   "id": 1,
+   "name": "Tablet"
+ }, "price": 2500 },
+  { "name": "Captopril 25mg", "medicine_type_id": 1,
+ "medicine_type": {
+   "id": 1,
+   "name": "Tablet"
+ }, "price": 1500 },
+  { "name": "Valsartan 80mg", "medicine_type_id": 1,
+ "medicine_type": {
+   "id": 1,
+   "name": "Tablet"
+ }, "price": 5000 }
 ]
 ```
 
@@ -1531,7 +1658,11 @@ curl -X POST http://localhost:8080/api/v1/medicines \
   -d '{
     "name": "Paracetamol 500mg",
     "generic_name": "Paracetamol",
-    "type": "tablet",
+    "medicine_type_id": 1,
+    "medicine_type": {
+      "id": 1,
+      "name": "Tablet"
+    },
     "stock_quantity": 1000,
     "price": 500
   }'
@@ -1582,9 +1713,10 @@ curl -X PATCH http://localhost:8080/api/v1/medicines/1/deactivate \
 
 **Indexes:**
 - Primary Key: id
-- Regular Index: name, generic_name, type, is_active, deleted_at
+- Regular Index: name, generic_name, medicine_type_id, is_active, deleted_at
 
 **Relationships:**
+- Belongs To Medicine Type (many-to-one)
 - Has Many Prescription Items (one-to-many)
 - Has Many Stock Movements (one-to-many, audit trail)
 

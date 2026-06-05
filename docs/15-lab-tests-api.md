@@ -36,7 +36,6 @@ Authorization: Bearer <your-jwt-token>
 | GET /lab-tests                           | ❌      | ✅     | ✅           | ✅    | ✅          |
 | GET /lab-tests/deleted                   | ❌      | ❌     | ❌           | ✅    | ✅          |
 | GET /lab-tests/:id                       | ✅      | ✅     | ✅           | ✅    | ✅          |
-| GET /lab-tests/medical-record/:record_id | ✅      | ✅     | ✅           | ✅    | ✅          |
 | POST /lab-tests                          | ❌      | ✅     | ❌           | ✅    | ✅          |
 | PUT /lab-tests/:id                       | ❌      | ✅     | ❌           | ✅    | ✅          |
 | PATCH /lab-tests/:id/collect-sample      | ❌      | ❌     | ✅           | ✅    | ✅          |
@@ -56,7 +55,6 @@ Authorization: Bearer <your-jwt-token>
 | GET    | `/lab-tests`                           | List all lab tests              | Doctor, Receptionist, Admin, Super Admin |
 | GET    | `/lab-tests/deleted`                   | List deleted lab tests          | Admin, Super Admin                       |
 | GET    | `/lab-tests/:id`                       | Get lab test by ID              | All Authenticated                        |
-| GET    | `/lab-tests/medical-record/:record_id` | Get lab tests by medical record | All Authenticated                        |
 | POST   | `/lab-tests`                           | Create/order new lab test       | Doctor, Admin, Super Admin               |
 | PUT    | `/lab-tests/:id`                       | Update lab test                 | Doctor, Admin, Super Admin               |
 | PATCH  | `/lab-tests/:id/collect-sample`        | Mark sample as collected        | Receptionist, Admin, Super Admin         |
@@ -254,62 +252,7 @@ curl -X GET "http://localhost:8080/api/v1/lab-tests/1" \
 
 ---
 
-### 4. Get Lab Tests by Medical Record
-
-**Endpoint:** `GET /api/v1/lab-tests/medical-record/:record_id`
-
-**Description:** Mendapatkan daftar pemeriksaan laboratorium berdasarkan ID rekam medis.
-
-**Authentication:** Required (All Authenticated Users)
-
-**Path Parameters:**
-
-| Parameter | Type    | Required | Description    |
-| --------- | ------- | -------- | -------------- |
-| record_id | integer | Yes      | ID rekam medis |
-
-**Query Parameters:**
-
-| Parameter | Type   | Required | Default | Description                                                                           |
-| --------- | ------ | -------- | ------- | ------------------------------------------------------------------------------------- |
-| status    | string | No       | -       | Filter status: `ordered`, `sample_collected`, `in_progress`, `completed`, `cancelled` |
-
-**Response Success (200):**
-
-```json
-{
-  "status": "success",
-  "message": "Medical record lab tests retrieved successfully",
-  "data": [
-    {
-      "id": 1,
-      "test_type_id": 3,
-      "ordered_by_doctor_id": 2,
-      "order_date": "2024-01-15",
-      "result_value": "12.5",
-      "result_unit": "g/dL",
-      "reference_range": "12.0 - 16.0 g/dL",
-      "status": "completed",
-      "test_type": {
-        "id": 3,
-        "name": "Hemoglobin",
-        "code": "HGB"
-      }
-    }
-  ]
-}
-```
-
-**cURL Example:**
-
-```bash
-curl -X GET "http://localhost:8080/api/v1/lab-tests/medical-record/5?status=completed" \
-  -H "Authorization: Bearer <token>"
-```
-
----
-
-### 5. Create Lab Test (Order)
+### 4. Create Lab Test (Order)
 
 **Endpoint:** `POST /api/v1/lab-tests`
 
@@ -389,7 +332,7 @@ curl -X POST "http://localhost:8080/api/v1/lab-tests" \
 
 ---
 
-### 6. Update Lab Test
+### 5. Update Lab Test
 
 **Endpoint:** `PUT /api/v1/lab-tests/:id`
 
@@ -442,7 +385,7 @@ curl -X PUT "http://localhost:8080/api/v1/lab-tests/1" \
 
 ---
 
-### 7. Mark Sample as Collected
+### 6. Mark Sample as Collected
 
 **Endpoint:** `PATCH /api/v1/lab-tests/:id/collect-sample`
 
@@ -480,7 +423,7 @@ curl -X PATCH "http://localhost:8080/api/v1/lab-tests/1/collect-sample" \
 
 ---
 
-### 8. Mark Lab Test as In-Progress
+### 7. Mark Lab Test as In-Progress
 
 **Endpoint:** `PATCH /api/v1/lab-tests/:id/start`
 
@@ -517,7 +460,7 @@ curl -X PATCH "http://localhost:8080/api/v1/lab-tests/1/start" \
 
 ---
 
-### 9. Complete Lab Test
+### 8. Complete Lab Test
 
 **Endpoint:** `PATCH /api/v1/lab-tests/:id/complete`
 
@@ -586,7 +529,7 @@ curl -X PATCH "http://localhost:8080/api/v1/lab-tests/1/complete" \
 
 ---
 
-### 10. Cancel Lab Test
+### 9. Cancel Lab Test
 
 **Endpoint:** `PATCH /api/v1/lab-tests/:id/cancel`
 
@@ -623,7 +566,7 @@ curl -X PATCH "http://localhost:8080/api/v1/lab-tests/1/cancel" \
 
 ---
 
-### 11. Soft Delete Lab Test
+### 10. Soft Delete Lab Test
 
 **Endpoint:** `DELETE /api/v1/lab-tests/:id`
 
@@ -655,7 +598,7 @@ curl -X DELETE "http://localhost:8080/api/v1/lab-tests/1" \
 
 ---
 
-### 12. Restore Deleted Lab Test
+### 11. Restore Deleted Lab Test
 
 **Endpoint:** `PATCH /api/v1/lab-tests/:id/restore`
 
@@ -691,7 +634,7 @@ curl -X PATCH "http://localhost:8080/api/v1/lab-tests/1/restore" \
 
 ---
 
-### 13. Hard Delete Lab Test
+### 12. Hard Delete Lab Test
 
 **Endpoint:** `DELETE /api/v1/lab-tests/:id/hard-delete`
 

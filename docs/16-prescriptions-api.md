@@ -39,7 +39,6 @@ Authorization: Bearer <your-jwt-token>
 | GET /prescriptions                           | ❌      | ✅     | ✅           | ✅    | ✅          |
 | GET /prescriptions/deleted                   | ❌      | ❌     | ❌           | ✅    | ✅          |
 | GET /prescriptions/:id                       | ✅      | ✅     | ✅           | ✅    | ✅          |
-| GET /prescriptions/medical-record/:record_id | ✅      | ✅     | ✅           | ✅    | ✅          |
 | POST /prescriptions                          | ❌      | ✅     | ❌           | ✅    | ✅          |
 | PUT /prescriptions/:id                       | ❌      | ✅     | ❌           | ✅    | ✅          |
 | PATCH /prescriptions/:id/dispense            | ❌      | ❌     | ✅           | ✅    | ✅          |
@@ -287,66 +286,7 @@ curl -X GET "http://localhost:8080/api/v1/prescriptions/1" \
 
 ---
 
-### 4. Get Prescriptions by Medical Record
-
-**Endpoint:** `GET /api/v1/prescriptions/medical-record/:record_id`
-
-**Description:** Mendapatkan semua resep berdasarkan ID rekam medis.
-
-**Authentication:** Required (All Authenticated Users)
-
-**Path Parameters:**
-
-| Parameter | Type    | Required | Description    |
-| --------- | ------- | -------- | -------------- |
-| record_id | integer | Yes      | ID rekam medis |
-
-**Query Parameters:**
-
-| Parameter | Type   | Required | Default | Description                                        |
-| --------- | ------ | -------- | ------- | -------------------------------------------------- |
-| status    | string | No       | -       | Filter status: `pending`, `dispensed`, `cancelled` |
-
-**Response Success (200):**
-
-```json
-{
-  "status": "success",
-  "message": "Medical record prescriptions retrieved successfully",
-  "data": [
-    {
-      "id": 1,
-      "doctor_id": 2,
-      "prescription_date": "2024-01-15",
-      "status": "dispensed",
-      "doctor": {
-        "id": 2,
-        "name": "dr. Siti Rahayu"
-      },
-      "items": [
-        {
-          "id": 1,
-          "medicine_id": 3,
-          "dosage": "500mg",
-          "frequency": "3x sehari",
-          "quantity": 21
-        }
-      ]
-    }
-  ]
-}
-```
-
-**cURL Example:**
-
-```bash
-curl -X GET "http://localhost:8080/api/v1/prescriptions/medical-record/5" \
-  -H "Authorization: Bearer <token>"
-```
-
----
-
-### 5. Create Prescription
+### 4. Create Prescription
 
 **Endpoint:** `POST /api/v1/prescriptions`
 
@@ -417,7 +357,7 @@ curl -X POST "http://localhost:8080/api/v1/prescriptions" \
 
 ---
 
-### 6. Update Prescription
+### 5. Update Prescription
 
 **Endpoint:** `PUT /api/v1/prescriptions/:id`
 
@@ -468,7 +408,7 @@ curl -X PUT "http://localhost:8080/api/v1/prescriptions/1" \
 
 ---
 
-### 7. Dispense Prescription
+### 6. Dispense Prescription
 
 **Endpoint:** `PATCH /api/v1/prescriptions/:id/dispense`
 
@@ -505,7 +445,7 @@ curl -X PATCH "http://localhost:8080/api/v1/prescriptions/1/dispense" \
 
 ---
 
-### 8. Cancel Prescription
+### 7. Cancel Prescription
 
 **Endpoint:** `PATCH /api/v1/prescriptions/:id/cancel`
 
@@ -542,7 +482,7 @@ curl -X PATCH "http://localhost:8080/api/v1/prescriptions/1/cancel" \
 
 ---
 
-### 9. Soft Delete Prescription
+### 8. Soft Delete Prescription
 
 **Endpoint:** `DELETE /api/v1/prescriptions/:id`
 
@@ -574,7 +514,7 @@ curl -X DELETE "http://localhost:8080/api/v1/prescriptions/1" \
 
 ---
 
-### 10. Restore Deleted Prescription
+### 9. Restore Deleted Prescription
 
 **Endpoint:** `PATCH /api/v1/prescriptions/:id/restore`
 
@@ -610,7 +550,7 @@ curl -X PATCH "http://localhost:8080/api/v1/prescriptions/1/restore" \
 
 ---
 
-### 11. Hard Delete Prescription
+### 10. Hard Delete Prescription
 
 **Endpoint:** `DELETE /api/v1/prescriptions/:id/hard-delete`
 
@@ -642,407 +582,3 @@ curl -X DELETE "http://localhost:8080/api/v1/prescriptions/1/hard-delete" \
 
 ---
 
-## Prescription Item Endpoints
-
-### 1. List Prescription Items
-
-**Endpoint:** `GET /api/v1/prescriptions/:id/items`
-
-**Description:** Mendapatkan semua item obat dalam sebuah resep.
-
-**Authentication:** Required (All Authenticated Users)
-
-**Path Parameters:**
-
-| Parameter | Type    | Required | Description |
-| --------- | ------- | -------- | ----------- |
-| id        | integer | Yes      | ID resep    |
-
-**Response Success (200):**
-
-```json
-{
-  "status": "success",
-  "message": "Prescription items retrieved successfully",
-  "data": [
-    {
-      "id": 1,
-      "prescription_id": 1,
-      "medicine_id": 3,
-      "dosage": "500mg",
-      "frequency": "3x sehari",
-      "duration_days": 7,
-      "quantity": 21,
-      "instructions": "Diminum setelah makan",
-      "created_at": "2024-01-15T10:00:00Z",
-      "updated_at": "2024-01-15T10:00:00Z",
-      "medicine": {
-        "id": 3,
-        "name": "Amoxicillin",
-        "unit": "tablet",
-        "category": "antibiotic"
-      }
-    }
-  ]
-}
-```
-
-**cURL Example:**
-
-```bash
-curl -X GET "http://localhost:8080/api/v1/prescriptions/1/items" \
-  -H "Authorization: Bearer <token>"
-```
-
----
-
-### 2. Get Prescription Item by ID
-
-**Endpoint:** `GET /api/v1/prescriptions/:id/items/:item_id`
-
-**Description:** Mendapatkan detail satu item resep berdasarkan ID.
-
-**Authentication:** Required (All Authenticated Users)
-
-**Path Parameters:**
-
-| Parameter | Type    | Required | Description   |
-| --------- | ------- | -------- | ------------- |
-| id        | integer | Yes      | ID resep      |
-| item_id   | integer | Yes      | ID item resep |
-
-**Response Success (200):**
-
-```json
-{
-  "status": "success",
-  "message": "Prescription item retrieved successfully",
-  "data": {
-    "id": 1,
-    "prescription_id": 1,
-    "medicine_id": 3,
-    "dosage": "500mg",
-    "frequency": "3x sehari",
-    "duration_days": 7,
-    "quantity": 21,
-    "instructions": "Diminum setelah makan",
-    "created_at": "2024-01-15T10:00:00Z",
-    "updated_at": "2024-01-15T10:00:00Z"
-  }
-}
-```
-
-**cURL Example:**
-
-```bash
-curl -X GET "http://localhost:8080/api/v1/prescriptions/1/items/1" \
-  -H "Authorization: Bearer <token>"
-```
-
----
-
-### 3. Add Prescription Item
-
-**Endpoint:** `POST /api/v1/prescriptions/:id/items`
-
-**Description:** Menambahkan obat baru ke dalam resep.
-
-**Authentication:** Required (Doctor, Admin, Super Admin)
-
-**Path Parameters:**
-
-| Parameter | Type    | Required | Description |
-| --------- | ------- | -------- | ----------- |
-| id        | integer | Yes      | ID resep    |
-
-**Request Body:**
-
-| Field         | Type    | Required | Description                                                  |
-| ------------- | ------- | -------- | ------------------------------------------------------------ |
-| medicine_id   | integer | Yes      | ID obat dari daftar medicines                                |
-| dosage        | string  | Yes      | Dosis per pemberian, mis. `"500mg"`, `"10ml"` (max 100 kar.) |
-| frequency     | string  | Yes      | Frekuensi pemberian, mis. `"3x sehari"` (max 100 karakter)   |
-| duration_days | integer | Yes      | Lama penggunaan dalam hari (min: 1)                          |
-| quantity      | integer | Yes      | Total jumlah obat yang diberikan (min: 1)                    |
-| instructions  | string  | No       | Instruksi penggunaan khusus                                  |
-
-**Example Request Body:**
-
-```json
-{
-  "medicine_id": 3,
-  "dosage": "500mg",
-  "frequency": "3x sehari",
-  "duration_days": 7,
-  "quantity": 21,
-  "instructions": "Diminum setelah makan, habiskan meski sudah merasa sembuh"
-}
-```
-
-**Response Success (201):**
-
-```json
-{
-  "status": "success",
-  "message": "Prescription item added successfully",
-  "data": {
-    "id": 1,
-    "prescription_id": 1,
-    "medicine_id": 3,
-    "dosage": "500mg",
-    "frequency": "3x sehari",
-    "duration_days": 7,
-    "quantity": 21,
-    "instructions": "Diminum setelah makan, habiskan meski sudah merasa sembuh",
-    "created_at": "2024-01-15T10:00:00Z",
-    "updated_at": "2024-01-15T10:00:00Z"
-  }
-}
-```
-
-**cURL Example:**
-
-```bash
-curl -X POST "http://localhost:8080/api/v1/prescriptions/1/items" \
-  -H "Authorization: Bearer <token>" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "medicine_id": 3,
-    "dosage": "500mg",
-    "frequency": "3x sehari",
-    "duration_days": 7,
-    "quantity": 21,
-    "instructions": "Diminum setelah makan, habiskan meski sudah merasa sembuh"
-  }'
-```
-
----
-
-### 4. Update Prescription Item
-
-**Endpoint:** `PUT /api/v1/prescriptions/:id/items/:item_id`
-
-**Description:** Memperbarui data item resep berdasarkan ID.
-
-**Authentication:** Required (Doctor, Admin, Super Admin)
-
-**Path Parameters:**
-
-| Parameter | Type    | Required | Description   |
-| --------- | ------- | -------- | ------------- |
-| id        | integer | Yes      | ID resep      |
-| item_id   | integer | Yes      | ID item resep |
-
-**Request Body:** (Same fields as Add Prescription Item, all optional for update)
-
-**Example Request Body:**
-
-```json
-{
-  "dosage": "250mg",
-  "frequency": "2x sehari",
-  "duration_days": 5,
-  "quantity": 10
-}
-```
-
-**Response Success (200):**
-
-```json
-{
-  "status": "success",
-  "message": "Prescription item updated successfully",
-  "data": {
-    "id": 1,
-    "prescription_id": 1,
-    "medicine_id": 3,
-    "dosage": "250mg",
-    "frequency": "2x sehari",
-    "duration_days": 5,
-    "quantity": 10,
-    "updated_at": "2024-01-15T11:00:00Z"
-  }
-}
-```
-
-**cURL Example:**
-
-```bash
-curl -X PUT "http://localhost:8080/api/v1/prescriptions/1/items/1" \
-  -H "Authorization: Bearer <token>" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "dosage": "250mg",
-    "frequency": "2x sehari",
-    "duration_days": 5,
-    "quantity": 10
-  }'
-```
-
----
-
-### 5. Delete Prescription Item
-
-**Endpoint:** `DELETE /api/v1/prescriptions/:id/items/:item_id`
-
-**Description:** Menghapus item obat dari resep (soft delete).
-
-**Authentication:** Required (Doctor, Admin, Super Admin)
-
-**Path Parameters:**
-
-| Parameter | Type    | Required | Description   |
-| --------- | ------- | -------- | ------------- |
-| id        | integer | Yes      | ID resep      |
-| item_id   | integer | Yes      | ID item resep |
-
-**Response Success (200):**
-
-```json
-{
-  "status": "success",
-  "message": "Prescription item deleted successfully"
-}
-```
-
-**cURL Example:**
-
-```bash
-curl -X DELETE "http://localhost:8080/api/v1/prescriptions/1/items/1" \
-  -H "Authorization: Bearer <token>"
-```
-
----
-
-## Error Responses
-
-### 400 Bad Request
-
-```json
-{
-  "status": "error",
-  "message": "Validation error",
-  "errors": {
-    "medical_record_id": "medical_record_id is required",
-    "doctor_id": "doctor_id is required",
-    "prescription_date": "prescription_date is required"
-  }
-}
-```
-
-### 401 Unauthorized
-
-```json
-{
-  "status": "error",
-  "message": "Unauthorized: missing or invalid token"
-}
-```
-
-### 403 Forbidden
-
-```json
-{
-  "status": "error",
-  "message": "Forbidden: insufficient permissions"
-}
-```
-
-### 404 Not Found
-
-```json
-{
-  "status": "error",
-  "message": "Prescription not found"
-}
-```
-
-### 422 Unprocessable Entity
-
-```json
-{
-  "status": "error",
-  "message": "Cannot modify a dispensed or cancelled prescription"
-}
-```
-
-### 500 Internal Server Error
-
-```json
-{
-  "status": "error",
-  "message": "Internal server error"
-}
-```
-
----
-
-## Database Model
-
-### Table: prescriptions
-
-| Field | Type | Constraints | Description |
-| --- | --- | --- | --- |
-| id | BIGINT | PRIMARY KEY, AUTO_INCREMENT | Unique identifier |
-| medical_record_id | BIGINT | FOREIGN KEY (medical_records.id), NOT NULL, INDEX | Reference ke medical record |
-| doctor_id | BIGINT | FOREIGN KEY (doctors.id), NOT NULL, INDEX | Doctor yang membuat resep |
-| patient_id | BIGINT | FOREIGN KEY (patients.id), NOT NULL, INDEX | Patient penerima resep |
-| prescription_date | DATE | NOT NULL | Tanggal pembuatan resep |
-| dispense_date | DATE | NULLABLE | Tanggal obat diberikan |
-| status | VARCHAR(20) | NOT NULL, DEFAULT 'issued', INDEX | Status (issued, dispensed, completed, cancelled) |
-| notes | TEXT | NULLABLE | Catatan khusus untuk pasien |
-| created_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | Waktu pembuatan |
-| updated_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | Waktu update |
-| deleted_at | TIMESTAMP | INDEX, NULLABLE | Soft delete timestamp |
-
-### Table: prescription_items
-
-| Field | Type | Constraints | Description |
-| --- | --- | --- | --- |
-| id | BIGINT | PRIMARY KEY, AUTO_INCREMENT | Unique identifier |
-| prescription_id | BIGINT | FOREIGN KEY (prescriptions.id), NOT NULL, INDEX | Reference ke resep |
-| medicine_id | BIGINT | FOREIGN KEY (medicines.id), NOT NULL, INDEX | Reference ke obat |
-| quantity | INT | NOT NULL | Jumlah obat |
-| dosage | VARCHAR(100) | NOT NULL | Dosis (e.g., 3x2 tablet) |
-| frequency | VARCHAR(100) | NOT NULL | Frekuensi pemberian |
-| duration_days | INT | NULLABLE | Durasi dalam hari |
-| instructions | TEXT | NULLABLE | Instruksi khusus penggunaan |
-| created_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | Waktu pembuatan |
-| updated_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | Waktu update |
-
-**Indexes:**
-- Primary Keys: id (each table)
-- Foreign Keys: medical_record_id, doctor_id, patient_id (prescriptions), prescription_id, medicine_id (items)
-
-**Relationships:**
-- Prescription Belongs To Medical Record, Doctor, Patient
-- Prescription Has Many Prescription Items
-- Prescription Item Belongs To Medicine
-
-**Notes:**
-- Status: issued -> dispensed -> completed atau cancelled
-- Setiap prescription_items adalah satu obat dalam resep
-- Integration dengan inventory untuk stock tracking
-
----
-
-## Prescription Status Flow
-
-```
-pending → dispensed
-pending → cancelled
-```
-
-**Status Values:**
-
-- `pending` — Resep telah dibuat, menunggu penyiapan obat
-- `dispensed` — Obat telah disiapkan dan diserahkan kepada pasien
-- `cancelled` — Resep dibatalkan
-
-> **Notes:**
->
-> - `dosage` berisi dosis per pemberian, mis. `"500mg"`, `"1 tablet"`, `"10ml"`
-> - `frequency` berisi frekuensi pemberian, mis. `"3x sehari"`, `"setiap 8 jam"`, `"1x sebelum tidur"`
-> - `duration_days` menunjukkan berapa hari obat dikonsumsi
-> - `quantity` adalah total jumlah unit obat yang disiapkan (biasanya = frekuensi per hari × duration_days)
-> - Item resep hanya dapat dimodifikasi selama status resep masih `pending`

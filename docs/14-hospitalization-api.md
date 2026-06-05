@@ -36,12 +36,14 @@ Authorization: Bearer <your-jwt-token>
 | GET /hospitalizations                     | ❌      | ✅     | ✅           | ✅    | ✅          |
 | GET /hospitalizations/deleted             | ❌      | ❌     | ❌           | ✅    | ✅          |
 | GET /hospitalizations/:id                 | ✅      | ✅     | ✅           | ✅    | ✅          |
-| GET /hospitalizations/patient/:patient_id | ✅      | ✅     | ✅           | ✅    | ✅          |
 | GET /hospitalizations/active              | ❌      | ✅     | ✅           | ✅    | ✅          |
+| GET /hospitalizations/inactive            | ❌      | ✅     | ✅           | ✅    | ✅          |
 | POST /hospitalizations                    | ❌      | ❌     | ✅           | ✅    | ✅          |
 | PUT /hospitalizations/:id                 | ❌      | ✅     | ✅           | ✅    | ✅          |
 | PATCH /hospitalizations/:id/discharge     | ❌      | ✅     | ✅           | ✅    | ✅          |
 | PATCH /hospitalizations/:id/transfer      | ❌      | ✅     | ✅           | ✅    | ✅          |
+| PATCH /hospitalizations/:id/activate      | ❌      | ❌     | ❌           | ✅    | ✅          |
+| PATCH /hospitalizations/:id/deactivate    | ❌      | ❌     | ❌           | ✅    | ✅          |
 | DELETE /hospitalizations/:id              | ❌      | ❌     | ❌           | ✅    | ✅          |
 | PATCH /hospitalizations/:id/restore       | ❌      | ❌     | ❌           | ✅    | ✅          |
 | DELETE /hospitalizations/:id/hard-delete  | ❌      | ❌     | ❌           | ❌    | ✅          |
@@ -55,8 +57,8 @@ Authorization: Bearer <your-jwt-token>
 | GET    | `/hospitalizations`                     | List all hospitalizations               | Doctor, Receptionist, Admin, Super Admin |
 | GET    | `/hospitalizations/deleted`             | List deleted hospitalizations           | Admin, Super Admin                       |
 | GET    | `/hospitalizations/active`              | List active (admitted) hospitalizations | Doctor, Receptionist, Admin, Super Admin |
+| GET    | `/hospitalizations/inactive`            | List inactive hospitalizations          | Doctor, Receptionist, Admin, Super Admin |
 | GET    | `/hospitalizations/:id`                 | Get hospitalization by ID               | All Authenticated                        |
-| GET    | `/hospitalizations/patient/:patient_id` | Get hospitalizations by patient         | All Authenticated                        |
 | POST   | `/hospitalizations`                     | Create new hospitalization              | Receptionist, Admin, Super Admin         |
 | PUT    | `/hospitalizations/:id`                 | Update hospitalization                  | Doctor, Receptionist, Admin, Super Admin |
 | PATCH  | `/hospitalizations/:id/discharge`       | Discharge patient                       | Doctor, Receptionist, Admin, Super Admin |
@@ -259,7 +261,60 @@ curl -X GET "http://localhost:8080/api/v1/hospitalizations/active?room_id=3" \
 
 ---
 
-### 4. Get Hospitalization by ID
+### 4. List Inactive Hospitalizations
+
+**Endpoint:** `GET /api/v1/hospitalizations/inactive`
+
+**Description:** Mendapatkan daftar rawat inap yang sudah tidak aktif (discharged, transferred, dsb).
+
+**Authentication:** Required (Doctor, Receptionist, Admin, Super Admin)
+
+**Request Headers:**
+
+```
+Authorization: Bearer <token>
+```
+
+**Query Parameters:**
+
+| Parameter            | Type    | Default      | Description                                |
+| -------------------- | ------- | ------------ | ------------------------------------------ |
+| `page`               | integer | 1            | Halaman                                    |
+| `page_size`          | integer | 10           | Jumlah data per halaman                    |
+| `patient_id`         | integer | -            | Filter by patient                          |
+| `room_id`            | integer | -            | Filter by room                             |
+| `doctor_id`          | integer | -            | Filter by doctor                           |
+| `sort_by`            | string  | admission_date | Sort field                                 |
+| `sort_dir`           | string  | desc         | Sort direction (asc, desc)                 |
+
+**Response Success (200 OK):**
+
+```json
+{
+  "success": true,
+  "message": "Inactive hospitalizations retrieved successfully",
+  "data": {
+    "data": [],
+    "meta": {
+      "page": 1,
+      "page_size": 10,
+      "total_items": 0,
+      "total_pages": 0
+    }
+  }
+}
+```
+
+**cURL Example:**
+
+```bash
+curl -X GET "http://localhost:8080/api/v1/hospitalizations/inactive" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+---
+
+### 5. Get Hospitalization by ID
 
 **Endpoint:** `GET /api/v1/hospitalizations/:id`
 
@@ -322,64 +377,6 @@ curl -X GET "http://localhost:8080/api/v1/hospitalizations/active?room_id=3" \
 
 ```bash
 curl -X GET "http://localhost:8080/api/v1/hospitalizations/1" \
-  -H "Authorization: Bearer <token>"
-```
-
----
-
-### 5. Get Hospitalizations by Patient
-
-**Endpoint:** `GET /api/v1/hospitalizations/patient/:patient_id`
-
-**Description:** Mendapatkan riwayat rawat inap berdasarkan ID pasien.
-
-**Authentication:** Required (All Authenticated Users)
-
-**Path Parameters:**
-
-| Parameter  | Type    | Required | Description |
-| ---------- | ------- | -------- | ----------- |
-| patient_id | integer | Yes      | ID pasien   |
-
-**Query Parameters:**
-
-| Parameter | Type    | Required | Default | Description                                            |
-| --------- | ------- | -------- | ------- | ------------------------------------------------------ |
-| page      | integer | No       | 1       | Halaman saat ini                                       |
-| page_size | integer | No       | 10      | Jumlah data per halaman (max: 100)                     |
-| status    | string  | No       | -       | Filter status: `admitted`, `discharged`, `transferred` |
-
-**Response Success (200):**
-
-```json
-{
-  "status": "success",
-  "message": "Patient hospitalizations retrieved successfully",
-  "data": [
-    {
-      "id": 1,
-      "medical_record_id": 5,
-      "room_id": 3,
-      "attending_doctor_id": 2,
-      "admission_date": "2024-01-15T08:00:00Z",
-      "discharge_date": "2024-01-20T10:00:00Z",
-      "admission_reason": "Demam tinggi dan sesak napas",
-      "status": "discharged"
-    }
-  ],
-  "meta": {
-    "page": 1,
-    "page_size": 10,
-    "total_items": 1,
-    "total_pages": 1
-  }
-}
-```
-
-**cURL Example:**
-
-```bash
-curl -X GET "http://localhost:8080/api/v1/hospitalizations/patient/10?status=discharged" \
   -H "Authorization: Bearer <token>"
 ```
 
@@ -646,7 +643,93 @@ curl -X PATCH "http://localhost:8080/api/v1/hospitalizations/1/transfer" \
 
 ---
 
-### 10. Soft Delete Hospitalization
+
+
+---
+
+### 10. Activate Hospitalization
+
+**Endpoint:** `PATCH /api/v1/hospitalizations/:id/activate`
+
+**Description:** Admin mengaktifkan kembali data rawat inap.
+
+**Authentication:** Required (Admin, Super Admin)
+
+**Request Headers:**
+
+```
+Authorization: Bearer <admin-token>
+```
+
+**URL Parameters:**
+
+- `id`: Hospitalization ID (integer)
+
+**Response Success (200 OK):**
+
+```json
+{
+  "success": true,
+  "message": "Hospitalization activated successfully",
+  "data": {
+    "id": 1,
+    "status": "admitted",
+    "is_active": true,
+    "updated_at": "2024-01-20T10:00:00Z"
+  }
+}
+```
+
+**cURL Example:**
+
+```bash
+curl -X PATCH http://localhost:8080/api/v1/hospitalizations/1/activate \
+  -H "Authorization: Bearer ADMIN_JWT_TOKEN"
+```
+
+---
+
+### 11. Deactivate Hospitalization
+
+**Endpoint:** `PATCH /api/v1/hospitalizations/:id/deactivate`
+
+**Description:** Admin menonaktifkan data rawat inap.
+
+**Authentication:** Required (Admin, Super Admin)
+
+**Request Headers:**
+
+```
+Authorization: Bearer <admin-token>
+```
+
+**URL Parameters:**
+
+- `id`: Hospitalization ID (integer)
+
+**Response Success (200 OK):**
+
+```json
+{
+  "success": true,
+  "message": "Hospitalization deactivated successfully",
+  "data": {
+    "id": 1,
+    "status": "discharged",
+    "is_active": false,
+    "updated_at": "2024-01-20T10:00:00Z"
+  }
+}
+```
+
+**cURL Example:**
+
+```bash
+curl -X PATCH http://localhost:8080/api/v1/hospitalizations/1/deactivate \
+  -H "Authorization: Bearer ADMIN_JWT_TOKEN"
+```
+
+### 12. Soft Delete Hospitalization
 
 **Endpoint:** `DELETE /api/v1/hospitalizations/:id`
 
@@ -678,7 +761,7 @@ curl -X DELETE "http://localhost:8080/api/v1/hospitalizations/1" \
 
 ---
 
-### 11. Restore Deleted Hospitalization
+### 13. Restore Deleted Hospitalization
 
 **Endpoint:** `PATCH /api/v1/hospitalizations/:id/restore`
 
@@ -715,7 +798,7 @@ curl -X PATCH "http://localhost:8080/api/v1/hospitalizations/1/restore" \
 
 ---
 
-### 12. Hard Delete Hospitalization
+### 14. Hard Delete Hospitalization
 
 **Endpoint:** `DELETE /api/v1/hospitalizations/:id/hard-delete`
 
