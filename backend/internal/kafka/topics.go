@@ -91,7 +91,7 @@ func AllTopics() []string {
 		TopicRoomTypeDeleted,
 		TopicRoomTypeRestored,
 
-		TopicRoomCreated,	
+		TopicRoomCreated,
 		TopicRoomUpdated,
 		TopicRoomDeleted,
 		TopicRoomRestored,

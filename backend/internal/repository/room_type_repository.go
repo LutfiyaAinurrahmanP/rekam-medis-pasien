@@ -62,7 +62,7 @@ func (r *roomTypeRepository) List(query *dto.RoomTypePaginationQuery) ([]models.
 	// Define variables
 	var (
 		roomTypes []models.RoomType
-		total                 int64
+		total     int64
 	)
 
 	// Base query
@@ -100,7 +100,7 @@ func (r *roomTypeRepository) List(query *dto.RoomTypePaginationQuery) ([]models.
 func (r *roomTypeRepository) DeletedList(query *dto.RoomTypePaginationQuery) ([]models.RoomType, int64, error) {
 	var (
 		roomTypes []models.RoomType
-		total                 int64
+		total     int64
 	)
 
 	db := r.db.Unscoped().Model(&models.RoomType{}).Where("deleted_at IS NOT NULL")
@@ -202,7 +202,7 @@ func (r *roomTypeRepository) IsCodeExists(code string, excludeID ...uint) (bool,
 func (r *roomTypeRepository) ActiveList(query *dto.RoomTypePaginationQuery) ([]models.RoomType, int64, error) {
 	var (
 		roomTypes []models.RoomType
-		total                 int64
+		total     int64
 	)
 
 	db := r.db.Model(&models.RoomType{}).Where("is_active = ?", true)
@@ -234,7 +234,7 @@ func (r *roomTypeRepository) ActiveList(query *dto.RoomTypePaginationQuery) ([]m
 func (r *roomTypeRepository) InactiveList(query *dto.RoomTypePaginationQuery) ([]models.RoomType, int64, error) {
 	var (
 		roomTypes []models.RoomType
-		total                 int64
+		total     int64
 	)
 
 	db := r.db.Model(&models.RoomType{}).Where("is_active = ?", false)
