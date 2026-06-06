@@ -56,6 +56,10 @@ var notificationTopics = []string{
 	kafka.TopicTypeTestUpdated,
 	kafka.TopicTypeTestDeleted,
 	kafka.TopicTypeTestRestored,
+	kafka.TopicRoomTypeCreated,
+	kafka.TopicRoomTypeUpdated,
+	kafka.TopicRoomTypeDeleted,
+	kafka.TopicRoomTypeRestored,
 }
 
 // NewNotificationEventHandler membuat notification handler baru.
@@ -263,8 +267,8 @@ func (h *NotificationEventHandler) handle(ctx context.Context, topic string, key
 		if err := json.Unmarshal(value, &e); err != nil {
 			return err
 		}
-		log.Printf("[NOTIFICATION] 🛏️  New room created: %s (type=%s, beds=%d)",
-			e.Payload.RoomNumber, e.Payload.RoomType, e.Payload.TotalBeds)
+		log.Printf("[NOTIFICATION] 🛏️  New room created: %s (type=%s, capacity=%d)",
+			e.Payload.RoomNumber, e.Payload.RoomType, e.Payload.BedCapacity)
 
 	case kafka.TopicRoomUpdated:
 		var e events.RoomUpdatedEvent
@@ -289,6 +293,38 @@ func (h *NotificationEventHandler) handle(ctx context.Context, topic string, key
 			return err
 		}
 		log.Printf("[NOTIFICATION] ♻️  Room restored: %s", e.Payload.RoomNumber)
+
+	// ── RoomType Events ──────────────────────────────────────────────────────────
+
+	case kafka.TopicRoomTypeCreated:
+		var e events.RoomTypeCreatedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🏢 New room type created: %s (code=%s)",
+			e.Payload.Name, e.Payload.Code)
+
+	case kafka.TopicRoomTypeUpdated:
+		var e events.RoomTypeUpdatedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🏢 Room type updated: %s (code=%s, action=%s)",
+			e.Payload.Name, e.Payload.Code, e.Payload.Action)
+
+	case kafka.TopicRoomTypeDeleted:
+		var e events.RoomTypeDeletedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🗑️  Room type deleted: %s (action=%s)", e.Payload.Name, e.Payload.Action)
+
+	case kafka.TopicRoomTypeRestored:
+		var e events.RoomTypeRestoredEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] ♻️  Room type restored: %s", e.Payload.Name)
 
 	// ── TypeTest Events ──────────────────────────────────────────────────────
 

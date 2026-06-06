@@ -41,8 +41,6 @@ func (r patientRepository) List(query *dto.PatientPaginationQuery) ([]models.Pat
 
 	db := r.db.Model(&models.Patient{})
 
-
-
 	if query.Gender != "" {
 		db = db.Where("gender = ?", query.Gender)
 	}
@@ -81,8 +79,6 @@ func (r patientRepository) DeleteList(query *dto.PatientPaginationQuery) ([]mode
 	)
 
 	db := r.db.Unscoped().Model(&models.Patient{}).Where("deleted_at IS NOT NULL")
-
-
 
 	if query.Gender != "" {
 		db = db.Where("gender = ?", query.Gender)
@@ -126,7 +122,6 @@ func (r patientRepository) FindByUserID(userID uint) (*models.Patient, error) {
 	}
 	return &patient, nil
 }
-
 
 func (r patientRepository) Create(patient *models.Patient) error {
 	return r.db.Create(patient).Error

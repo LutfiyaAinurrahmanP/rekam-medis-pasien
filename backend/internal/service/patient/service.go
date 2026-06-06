@@ -132,8 +132,6 @@ func (s *patientService) GetPatientByID(id uint) (*dto.PatientResponse, error) {
 	return s.toPatientResponse(patient), nil
 }
 
-
-
 func (s *patientService) GetMyPatientData(userID uint) (*dto.PatientResponse, error) {
 	patient, err := s.repo.FindByUserID(userID)
 	if err != nil {

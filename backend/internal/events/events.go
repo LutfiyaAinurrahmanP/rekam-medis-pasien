@@ -31,12 +31,16 @@ func newBase(eventType string) BaseEvent {
 // ─── User Events ─────────────────────────────────────────────────────────────
 
 type UserPayload struct {
-	ID       uint   `json:"id"`
-	Username string `json:"username"`
-	Email    string `json:"email"`
-	Phone    string `json:"phone"`
-	Role     string `json:"role"`
-	IsActive bool   `json:"is_active"`
+	ID        uint   `json:"id"`
+	Username  string `json:"username"`
+	Email     string `json:"email"`
+	Phone     string `json:"phone"`
+	Role      string `json:"role"`
+	IsActive  bool   `json:"is_active"`
+	CreatedAt string `json:"created_at,omitempty"`
+	UpdatedAt string `json:"updated_at,omitempty"`
+	DeletedAt string `json:"deleted_at,omitempty"`
+	Action    string `json:"action,omitempty"`
 }
 
 type UserRegisteredEvent struct {
@@ -61,27 +65,17 @@ type UserCreatedEvent struct {
 
 type UserUpdatedEvent struct {
 	BaseEvent
-	Payload struct {
-		UserPayload
-		Action string `json:"action"` // "profile_update", "password_change", "activate", "deactivate"
-	} `json:"payload"`
+	Payload UserPayload `json:"payload"`
 }
 
 type UserDeletedEvent struct {
 	BaseEvent
-	Payload struct {
-		UserID   uint   `json:"user_id"`
-		Username string `json:"username"`
-		Action   string `json:"action"` // "soft_delete", "hard_delete"
-	} `json:"payload"`
+	Payload UserPayload `json:"payload"`
 }
 
 type UserRestoredEvent struct {
 	BaseEvent
-	Payload struct {
-		UserID   uint   `json:"user_id"`
-		Username string `json:"username"`
-	} `json:"payload"`
+	Payload UserPayload `json:"payload"`
 }
 
 type UserPasswordResetRequestedEvent struct {
@@ -127,28 +121,35 @@ func NewUserCreatedEvent(id uint, username, email, phone, role string, isActive 
 }
 
 func NewUserUpdatedEvent(id uint, username, email, phone, role string, isActive bool, action string) UserUpdatedEvent {
-	e := UserUpdatedEvent{BaseEvent: newBase("user.updated")}
-	e.Payload.UserPayload = UserPayload{
-		ID: id, Username: username, Email: email,
-		Phone: phone, Role: role, IsActive: isActive,
+	return UserUpdatedEvent{
+		BaseEvent: newBase("user.updated"),
+		Payload: UserPayload{
+			ID: id, Username: username, Email: email,
+			Phone: phone, Role: role, IsActive: isActive,
+			Action: action,
+		},
 	}
-	e.Payload.Action = action
-	return e
 }
 
 func NewUserDeletedEvent(userID uint, username, action string) UserDeletedEvent {
-	e := UserDeletedEvent{BaseEvent: newBase("user.deleted")}
-	e.Payload.UserID = userID
-	e.Payload.Username = username
-	e.Payload.Action = action
-	return e
+	return UserDeletedEvent{
+		BaseEvent: newBase("user.deleted"),
+		Payload: UserPayload{
+			ID:       userID,
+			Username: username,
+			Action:   action,
+		},
+	}
 }
 
 func NewUserRestoredEvent(userID uint, username string) UserRestoredEvent {
-	e := UserRestoredEvent{BaseEvent: newBase("user.restored")}
-	e.Payload.UserID = userID
-	e.Payload.Username = username
-	return e
+	return UserRestoredEvent{
+		BaseEvent: newBase("user.restored"),
+		Payload: UserPayload{
+			ID:       userID,
+			Username: username,
+		},
+	}
 }
 
 func NewUserPasswordResetRequestedEvent(userID uint, username, email, resetCode string, expiresIn int) UserPasswordResetRequestedEvent {
@@ -164,15 +165,25 @@ func NewUserPasswordResetRequestedEvent(userID uint, username, email, resetCode 
 // ─── Patient Events ───────────────────────────────────────────────────────────
 
 type PatientPayload struct {
-	ID                uint   `json:"id"`
-	PatientCode       string `json:"patient_code"`
-	FullName          string `json:"full_name"`
-	DateOfBirth       string `json:"date_of_birth"`
-	Gender            string `json:"gender"`
-	BloodType         string `json:"blood_type"`
-	Phone             string `json:"phone"`
-	Email             string `json:"email"`
-	InsuranceProvider string `json:"insurance_provider"`
+	ID                    uint   `json:"id"`
+	UserID                *uint  `json:"user_id,omitempty"`
+	PatientCode           string `json:"patient_code"`
+	FullName              string `json:"full_name"`
+	DateOfBirth           string `json:"date_of_birth"`
+	Gender                string `json:"gender"`
+	BloodType             string `json:"blood_type"`
+	Phone                 string `json:"phone"`
+	Email                 string `json:"email"`
+	Address               string `json:"address"`
+	EmergencyContactName  string `json:"emergency_contact_name"`
+	EmergencyContactPhone string `json:"emergency_contact_phone"`
+	InsuranceNumber       string `json:"insurance_number"`
+	InsuranceProvider     string `json:"insurance_provider"`
+	Allergies             string `json:"allergies"`
+	CreatedAt             string `json:"created_at,omitempty"`
+	UpdatedAt             string `json:"updated_at,omitempty"`
+	DeletedAt             string `json:"deleted_at,omitempty"`
+	Action                string `json:"action,omitempty"`
 }
 
 type PatientCreatedEvent struct {
@@ -182,29 +193,17 @@ type PatientCreatedEvent struct {
 
 type PatientUpdatedEvent struct {
 	BaseEvent
-	Payload struct {
-		PatientPayload
-		Action string `json:"action"` // "admin_update", "self_update"
-	} `json:"payload"`
+	Payload PatientPayload `json:"payload"`
 }
 
 type PatientDeletedEvent struct {
 	BaseEvent
-	Payload struct {
-		PatientID   uint   `json:"patient_id"`
-		PatientCode string `json:"patient_code"`
-		FullName    string `json:"full_name"`
-		Action      string `json:"action"` // "soft_delete", "hard_delete"
-	} `json:"payload"`
+	Payload PatientPayload `json:"payload"`
 }
 
 type PatientRestoredEvent struct {
 	BaseEvent
-	Payload struct {
-		PatientID   uint   `json:"patient_id"`
-		PatientCode string `json:"patient_code"`
-		FullName    string `json:"full_name"`
-	} `json:"payload"`
+	Payload PatientPayload `json:"payload"`
 }
 
 // Constructors ────────────────────────────────────────────────────────────────
@@ -221,31 +220,32 @@ func NewPatientCreatedEvent(id uint, code, fullName, dob, gender, blood, phone, 
 }
 
 func NewPatientUpdatedEvent(id uint, code, fullName, dob, gender, blood, phone, email, insurance, action string) PatientUpdatedEvent {
-	e := PatientUpdatedEvent{BaseEvent: newBase("patient.updated")}
-	e.Payload.PatientPayload = PatientPayload{
-		ID: id, PatientCode: code, FullName: fullName, DateOfBirth: dob,
-		Gender: gender, BloodType: blood, Phone: phone, Email: email,
-		InsuranceProvider: insurance,
+	return PatientUpdatedEvent{
+		BaseEvent: newBase("patient.updated"),
+		Payload: PatientPayload{
+			ID: id, PatientCode: code, FullName: fullName, DateOfBirth: dob,
+			Gender: gender, BloodType: blood, Phone: phone, Email: email,
+			InsuranceProvider: insurance, Action: action,
+		},
 	}
-	e.Payload.Action = action
-	return e
 }
 
 func NewPatientDeletedEvent(id uint, code, fullName, action string) PatientDeletedEvent {
-	e := PatientDeletedEvent{BaseEvent: newBase("patient.deleted")}
-	e.Payload.PatientID = id
-	e.Payload.PatientCode = code
-	e.Payload.FullName = fullName
-	e.Payload.Action = action
-	return e
+	return PatientDeletedEvent{
+		BaseEvent: newBase("patient.deleted"),
+		Payload: PatientPayload{
+			ID: id, PatientCode: code, FullName: fullName, Action: action,
+		},
+	}
 }
 
 func NewPatientRestoredEvent(id uint, code, fullName string) PatientRestoredEvent {
-	e := PatientRestoredEvent{BaseEvent: newBase("patient.restored")}
-	e.Payload.PatientID = id
-	e.Payload.PatientCode = code
-	e.Payload.FullName = fullName
-	return e
+	return PatientRestoredEvent{
+		BaseEvent: newBase("patient.restored"),
+		Payload: PatientPayload{
+			ID: id, PatientCode: code, FullName: fullName,
+		},
+	}
 }
 
 // ─── Doctor Specialization Events ─────────────────────────────────────────────
@@ -256,6 +256,10 @@ type DoctorSpecializationPayload struct {
 	Code        string `json:"code"`
 	Description string `json:"description"`
 	IsActive    bool   `json:"is_active"`
+	CreatedAt   string `json:"created_at,omitempty"`
+	UpdatedAt   string `json:"updated_at,omitempty"`
+	DeletedAt   string `json:"deleted_at,omitempty"`
+	Action      string `json:"action,omitempty"`
 }
 
 type DoctorSpecializationCreatedEvent struct {
@@ -265,29 +269,17 @@ type DoctorSpecializationCreatedEvent struct {
 
 type DoctorSpecializationUpdatedEvent struct {
 	BaseEvent
-	Payload struct {
-		DoctorSpecializationPayload
-		Action string `json:"action"`
-	} `json:"payload"`
+	Payload DoctorSpecializationPayload `json:"payload"`
 }
 
 type DoctorSpecializationDeletedEvent struct {
 	BaseEvent
-	Payload struct {
-		DoctorSpecializationID uint   `json:"doctor_specialization_id"`
-		Name                   string `json:"name"`
-		Code                   string `json:"code"`
-		Action                 string `json:"action"`
-	} `json:"payload"`
+	Payload DoctorSpecializationPayload `json:"payload"`
 }
 
 type DoctorSpecializationRestoredEvent struct {
 	BaseEvent
-	Payload struct {
-		DoctorSpecializationID uint   `json:"doctor_specialization_id"`
-		Name                   string `json:"name"`
-		Code                   string `json:"code"`
-	} `json:"payload"`
+	Payload DoctorSpecializationPayload `json:"payload"`
 }
 
 // Constructors ─────────────────────────────────────────────────────────────────
@@ -306,46 +298,59 @@ func NewDoctorSpecializationCreatedEvent(id uint, name, code, desc string, isAct
 }
 
 func NewDoctorSpecializationUpdatedEvent(id uint, name, code, desc string, isActive bool, action string) DoctorSpecializationUpdatedEvent {
-	e := DoctorSpecializationUpdatedEvent{
-		BaseEvent: newBase("doctor_specialization.updated")}
-	e.Payload.DoctorSpecializationPayload = DoctorSpecializationPayload{
-		ID:          id,
-		Name:        name,
-		Code:        code,
-		Description: desc,
-		IsActive:    isActive,
+	return DoctorSpecializationUpdatedEvent{
+		BaseEvent: newBase("doctor_specialization.updated"),
+		Payload: DoctorSpecializationPayload{
+			ID:          id,
+			Name:        name,
+			Code:        code,
+			Description: desc,
+			IsActive:    isActive,
+			Action:      action,
+		},
 	}
-	e.Payload.Action = action
-	return e
 }
 
 func NewDoctorSpecializationDeletedEvent(id uint, name, code, action string) DoctorSpecializationDeletedEvent {
-	e := DoctorSpecializationDeletedEvent{BaseEvent: newBase("doctor_specialization.deleted")}
-	e.Payload.DoctorSpecializationID = id
-	e.Payload.Name = name
-	e.Payload.Code = code
-	e.Payload.Action = action
-	return e
+	return DoctorSpecializationDeletedEvent{
+		BaseEvent: newBase("doctor_specialization.deleted"),
+		Payload: DoctorSpecializationPayload{
+			ID:     id,
+			Name:   name,
+			Code:   code,
+			Action: action,
+		},
+	}
 }
 
 func NewDoctorSpecializationRestoredEvent(id uint, name, code string) DoctorSpecializationRestoredEvent {
-	e := DoctorSpecializationRestoredEvent{BaseEvent: newBase("doctor_specialization.restored")}
-	e.Payload.DoctorSpecializationID = id
-	e.Payload.Name = name
-	e.Payload.Code = code
-	return e
+	return DoctorSpecializationRestoredEvent{
+		BaseEvent: newBase("doctor_specialization.restored"),
+		Payload: DoctorSpecializationPayload{
+			ID:   id,
+			Name: name,
+			Code: code,
+		},
+	}
 }
 
 // ─── Doctor Events ────────────────────────────────────────────────────────────
 
 type DoctorPayload struct {
 	ID               uint   `json:"id"`
+	UserID           *uint  `json:"user_id,omitempty"`
+	EmployeeID       string `json:"employee_id"`
 	FullName         string `json:"full_name"`
 	SpecializationID uint   `json:"specialization_id"`
+	LicenseNumber    string `json:"license_number"`
 	Phone            string `json:"phone"`
 	Email            string `json:"email"`
 	DepartmentID     *uint  `json:"department_id,omitempty"`
 	IsActive         bool   `json:"is_active"`
+	CreatedAt        string `json:"created_at,omitempty"`
+	UpdatedAt        string `json:"updated_at,omitempty"`
+	DeletedAt        string `json:"deleted_at,omitempty"`
+	Action           string `json:"action,omitempty"`
 }
 
 type DoctorCreatedEvent struct {
@@ -355,27 +360,17 @@ type DoctorCreatedEvent struct {
 
 type DoctorUpdatedEvent struct {
 	BaseEvent
-	Payload struct {
-		DoctorPayload
-		Action string `json:"action"`
-	} `json:"payload"`
+	Payload DoctorPayload `json:"payload"`
 }
 
 type DoctorDeletedEvent struct {
 	BaseEvent
-	Payload struct {
-		DoctorID uint   `json:"doctor_id"`
-		FullName string `json:"full_name"`
-		Action   string `json:"action"` // "soft_delete", "hard_delete"
-	} `json:"payload"`
+	Payload DoctorPayload `json:"payload"`
 }
 
 type DoctorRestoredEvent struct {
 	BaseEvent
-	Payload struct {
-		DoctorID uint   `json:"doctor_id"`
-		FullName string `json:"full_name"`
-	} `json:"payload"`
+	Payload DoctorPayload `json:"payload"`
 }
 
 // Constructors ────────────────────────────────────────────────────────────────
@@ -391,37 +386,49 @@ func NewDoctorCreatedEvent(id uint, fullName string, specializationID uint, phon
 }
 
 func NewDoctorUpdatedEvent(id uint, fullName string, specializationID uint, phone, email string, deptID *uint, isActive bool, action string) DoctorUpdatedEvent {
-	e := DoctorUpdatedEvent{BaseEvent: newBase("doctor.updated")}
-	e.Payload.DoctorPayload = DoctorPayload{
-		ID: id, FullName: fullName, SpecializationID: specializationID,
-		Phone: phone, Email: email, DepartmentID: deptID, IsActive: isActive,
+	return DoctorUpdatedEvent{
+		BaseEvent: newBase("doctor.updated"),
+		Payload: DoctorPayload{
+			ID: id, FullName: fullName, SpecializationID: specializationID,
+			Phone: phone, Email: email, DepartmentID: deptID, IsActive: isActive,
+			Action: action,
+		},
 	}
-	e.Payload.Action = action
-	return e
 }
 
 func NewDoctorDeletedEvent(id uint, fullName, action string) DoctorDeletedEvent {
-	e := DoctorDeletedEvent{BaseEvent: newBase("doctor.deleted")}
-	e.Payload.DoctorID = id
-	e.Payload.FullName = fullName
-	e.Payload.Action = action
-	return e
+	return DoctorDeletedEvent{
+		BaseEvent: newBase("doctor.deleted"),
+		Payload: DoctorPayload{
+			ID:       id,
+			FullName: fullName,
+			Action:   action,
+		},
+	}
 }
 
 func NewDoctorRestoredEvent(id uint, fullName string) DoctorRestoredEvent {
-	e := DoctorRestoredEvent{BaseEvent: newBase("doctor.restored")}
-	e.Payload.DoctorID = id
-	e.Payload.FullName = fullName
-	return e
+	return DoctorRestoredEvent{
+		BaseEvent: newBase("doctor.restored"),
+		Payload: DoctorPayload{
+			ID:       id,
+			FullName: fullName,
+		},
+	}
 }
 
 // ─── Department Events ────────────────────────────────────────────────────────
 
 type DepartmentPayload struct {
-	ID          uint   `json:"id"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Code        string `json:"code"`
+	ID            uint   `json:"id"`
+	Name          string `json:"name"`
+	Code          string `json:"code"`
+	Description   string `json:"description"`
+	FloorLocation string `json:"floor_location"`
+	CreatedAt     string `json:"created_at,omitempty"`
+	UpdatedAt     string `json:"updated_at,omitempty"`
+	DeletedAt     string `json:"deleted_at,omitempty"`
+	Action        string `json:"action,omitempty"`
 }
 
 type DepartmentCreatedEvent struct {
@@ -436,19 +443,12 @@ type DepartmentUpdatedEvent struct {
 
 type DepartmentDeletedEvent struct {
 	BaseEvent
-	Payload struct {
-		DepartmentID uint   `json:"department_id"`
-		Name         string `json:"name"`
-		Action       string `json:"action"` // "soft_delete", "hard_delete"
-	} `json:"payload"`
+	Payload DepartmentPayload `json:"payload"`
 }
 
 type DepartmentRestoredEvent struct {
 	BaseEvent
-	Payload struct {
-		DepartmentID uint   `json:"department_id"`
-		Name         string `json:"name"`
-	} `json:"payload"`
+	Payload DepartmentPayload `json:"payload"`
 }
 
 // Constructors ────────────────────────────────────────────────────────────────
@@ -468,18 +468,108 @@ func NewDepartmentUpdatedEvent(id uint, name, description, code string) Departme
 }
 
 func NewDepartmentDeletedEvent(id uint, name, action string) DepartmentDeletedEvent {
-	e := DepartmentDeletedEvent{BaseEvent: newBase("department.deleted")}
-	e.Payload.DepartmentID = id
-	e.Payload.Name = name
-	e.Payload.Action = action
-	return e
+	return DepartmentDeletedEvent{
+		BaseEvent: newBase("department.deleted"),
+		Payload: DepartmentPayload{
+			ID:     id,
+			Name:   name,
+			Action: action,
+		},
+	}
 }
 
 func NewDepartmentRestoredEvent(id uint, name string) DepartmentRestoredEvent {
-	e := DepartmentRestoredEvent{BaseEvent: newBase("department.restored")}
-	e.Payload.DepartmentID = id
-	e.Payload.Name = name
-	return e
+	return DepartmentRestoredEvent{
+		BaseEvent: newBase("department.restored"),
+		Payload: DepartmentPayload{
+			ID:   id,
+			Name: name,
+		},
+	}
+}
+
+// ─── Room Type Events ──────────────────────────────────────────────────────────────
+
+type RoomTypePayload struct {
+	ID          uint   `json:"id"`
+	Name        string `json:"name"`
+	Code        string `json:"code"`
+	Description string `json:"description"`
+	IsActive    bool   `json:"is_active"`
+	CreatedAt   string `json:"created_at,omitempty"`
+	UpdatedAt   string `json:"updated_at,omitempty"`
+	DeletedAt   string `json:"deleted_at,omitempty"`
+	Action      string `json:"action,omitempty"`
+}
+
+type RoomTypeCreatedEvent struct {
+	BaseEvent
+	Payload RoomTypePayload `json:"payload"`
+}
+
+type RoomTypeUpdatedEvent struct {
+	BaseEvent
+	Payload RoomTypePayload `json:"payload"`
+}
+
+type RoomTypeDeletedEvent struct {
+	BaseEvent
+	Payload RoomTypePayload `json:"payload"`
+}
+
+type RoomTypeRestoredEvent struct {
+	BaseEvent
+	Payload RoomTypePayload `json:"payload"`
+}
+
+// Constructors ────────────────────────────────────────────────────────────────
+
+func NewRoomTypeCreatedEvent(id uint, name, code, description string, isActive bool) RoomTypeCreatedEvent {
+	return RoomTypeCreatedEvent{
+		BaseEvent: newBase("room_type.created"),
+		Payload: RoomTypePayload{
+			ID:          id,
+			Name:        name,
+			Code:        code,
+			Description: description,
+			IsActive:    isActive,
+		},
+	}
+}
+
+func NewRoomTypeUpdatedEvent(id uint, name, code, description string, isActive bool, action string) RoomTypeUpdatedEvent {
+	return RoomTypeUpdatedEvent{
+		BaseEvent: newBase("room_type.updated"),
+		Payload: RoomTypePayload{
+			ID:          id,
+			Name:        name,
+			Code:        code,
+			Description: description,
+			IsActive:    isActive,
+			Action:      action,
+		},
+	}
+}
+
+func NewRoomTypeDeletedEvent(id uint, name, action string) RoomTypeDeletedEvent {
+	return RoomTypeDeletedEvent{
+		BaseEvent: newBase("room_type.deleted"),
+		Payload: RoomTypePayload{
+			ID:     id,
+			Name:   name,
+			Action: action,
+		},
+	}
+}
+
+func NewRoomTypeRestoredEvent(id uint, name string) RoomTypeRestoredEvent {
+	return RoomTypeRestoredEvent{
+		BaseEvent: newBase("room_type.restored"),
+		Payload: RoomTypePayload{
+			ID:   id,
+			Name: name,
+		},
+	}
 }
 
 // ─── Room Events ──────────────────────────────────────────────────────────────
@@ -489,10 +579,14 @@ type RoomPayload struct {
 	RoomNumber    string  `json:"room_number"`
 	RoomType      string  `json:"room_type"`
 	DepartmentID  *uint   `json:"department_id,omitempty"`
-	TotalBeds     int     `json:"total_beds"`
+	BedCapacity   int     `json:"bed_capacity"`
 	AvailableBeds int     `json:"available_beds"`
 	PricePerDay   float64 `json:"price_per_day"`
 	IsActive      bool    `json:"is_active"`
+	CreatedAt     string  `json:"created_at,omitempty"`
+	UpdatedAt     string  `json:"updated_at,omitempty"`
+	DeletedAt     string  `json:"deleted_at,omitempty"`
+	Action        string  `json:"action,omitempty"`
 }
 
 type RoomCreatedEvent struct {
@@ -502,27 +596,17 @@ type RoomCreatedEvent struct {
 
 type RoomUpdatedEvent struct {
 	BaseEvent
-	Payload struct {
-		RoomPayload
-		Action string `json:"action"`
-	} `json:"payload"`
+	Payload RoomPayload `json:"payload"`
 }
 
 type RoomDeletedEvent struct {
 	BaseEvent
-	Payload struct {
-		RoomID     uint   `json:"room_id"`
-		RoomNumber string `json:"room_number"`
-		Action     string `json:"action"` // "soft_delete", "hard_delete"
-	} `json:"payload"`
+	Payload RoomPayload `json:"payload"`
 }
 
 type RoomRestoredEvent struct {
 	BaseEvent
-	Payload struct {
-		RoomID     uint   `json:"room_id"`
-		RoomNumber string `json:"room_number"`
-	} `json:"payload"`
+	Payload RoomPayload `json:"payload"`
 }
 
 // Constructors ────────────────────────────────────────────────────────────────
@@ -532,45 +616,57 @@ func NewRoomCreatedEvent(id uint, roomNumber, roomType string, deptID *uint, tot
 		BaseEvent: newBase("room.created"),
 		Payload: RoomPayload{
 			ID: id, RoomNumber: roomNumber, RoomType: roomType, DepartmentID: deptID,
-			TotalBeds: total, AvailableBeds: available, PricePerDay: price, IsActive: isActive,
+			BedCapacity: total, AvailableBeds: available, PricePerDay: price, IsActive: isActive,
 		},
 	}
 }
 
 func NewRoomUpdatedEvent(id uint, roomNumber, roomType string, deptID *uint, total, available int, price float64, isActive bool, action string) RoomUpdatedEvent {
-	e := RoomUpdatedEvent{BaseEvent: newBase("room.updated")}
-	e.Payload.RoomPayload = RoomPayload{
-		ID: id, RoomNumber: roomNumber, RoomType: roomType, DepartmentID: deptID,
-		TotalBeds: total, AvailableBeds: available, PricePerDay: price, IsActive: isActive,
+	return RoomUpdatedEvent{
+		BaseEvent: newBase("room.updated"),
+		Payload: RoomPayload{
+			ID: id, RoomNumber: roomNumber, RoomType: roomType, DepartmentID: deptID,
+			BedCapacity: total, AvailableBeds: available, PricePerDay: price, IsActive: isActive,
+			Action: action,
+		},
 	}
-	e.Payload.Action = action
-	return e
 }
 
 func NewRoomDeletedEvent(id uint, roomNumber, action string) RoomDeletedEvent {
-	e := RoomDeletedEvent{BaseEvent: newBase("room.deleted")}
-	e.Payload.RoomID = id
-	e.Payload.RoomNumber = roomNumber
-	e.Payload.Action = action
-	return e
+	return RoomDeletedEvent{
+		BaseEvent: newBase("room.deleted"),
+		Payload: RoomPayload{
+			ID:         id,
+			RoomNumber: roomNumber,
+			Action:     action,
+		},
+	}
 }
 
 func NewRoomRestoredEvent(id uint, roomNumber string) RoomRestoredEvent {
-	e := RoomRestoredEvent{BaseEvent: newBase("room.restored")}
-	e.Payload.RoomID = id
-	e.Payload.RoomNumber = roomNumber
-	return e
+	return RoomRestoredEvent{
+		BaseEvent: newBase("room.restored"),
+		Payload: RoomPayload{
+			ID:         id,
+			RoomNumber: roomNumber,
+		},
+	}
 }
 
 // ─── TypeTest Events ──────────────────────────────────────────────────────────
 
 type TypeTestPayload struct {
-	ID       uint    `json:"id"`
-	Code     string  `json:"code"`
-	Name     string  `json:"name"`
-	Category string  `json:"category"`
-	Price    float64 `json:"price"`
-	IsActive bool    `json:"is_active"`
+	ID          uint    `json:"id"`
+	Code        string  `json:"code"`
+	Name        string  `json:"name"`
+	Category    string  `json:"category"`
+	Description string  `json:"description"`
+	Price       float64 `json:"price"`
+	IsActive    bool    `json:"is_active"`
+	CreatedAt   string  `json:"created_at,omitempty"`
+	UpdatedAt   string  `json:"updated_at,omitempty"`
+	DeletedAt   string  `json:"deleted_at,omitempty"`
+	Action      string  `json:"action,omitempty"`
 }
 
 type TypeTestCreatedEvent struct {
@@ -580,29 +676,17 @@ type TypeTestCreatedEvent struct {
 
 type TypeTestUpdatedEvent struct {
 	BaseEvent
-	Payload struct {
-		TypeTestPayload
-		Action string `json:"action"`
-	} `json:"payload"`
+	Payload TypeTestPayload `json:"payload"`
 }
 
 type TypeTestDeletedEvent struct {
 	BaseEvent
-	Payload struct {
-		TypeTestID uint   `json:"typetest_id"`
-		Code       string `json:"code"`
-		Name       string `json:"name"`
-		Action     string `json:"action"` // "soft_delete", "hard_delete"
-	} `json:"payload"`
+	Payload TypeTestPayload `json:"payload"`
 }
 
 type TypeTestRestoredEvent struct {
 	BaseEvent
-	Payload struct {
-		TypeTestID uint   `json:"typetest_id"`
-		Code       string `json:"code"`
-		Name       string `json:"name"`
-	} `json:"payload"`
+	Payload TypeTestPayload `json:"payload"`
 }
 
 // Constructors ────────────────────────────────────────────────────────────────
@@ -615,29 +699,36 @@ func NewTypeTestCreatedEvent(id uint, code, name, category string, price float64
 }
 
 func NewTypeTestUpdatedEvent(id uint, code, name, category string, price float64, isActive bool, action string) TypeTestUpdatedEvent {
-	e := TypeTestUpdatedEvent{BaseEvent: newBase("typetest.updated")}
-	e.Payload.TypeTestPayload = TypeTestPayload{
-		ID: id, Code: code, Name: name, Category: category, Price: price, IsActive: isActive,
+	return TypeTestUpdatedEvent{
+		BaseEvent: newBase("typetest.updated"),
+		Payload: TypeTestPayload{
+			ID: id, Code: code, Name: name, Category: category, Price: price, IsActive: isActive,
+			Action: action,
+		},
 	}
-	e.Payload.Action = action
-	return e
 }
 
 func NewTypeTestDeletedEvent(id uint, code, name, action string) TypeTestDeletedEvent {
-	e := TypeTestDeletedEvent{BaseEvent: newBase("typetest.deleted")}
-	e.Payload.TypeTestID = id
-	e.Payload.Code = code
-	e.Payload.Name = name
-	e.Payload.Action = action
-	return e
+	return TypeTestDeletedEvent{
+		BaseEvent: newBase("typetest.deleted"),
+		Payload: TypeTestPayload{
+			ID:     id,
+			Code:   code,
+			Name:   name,
+			Action: action,
+		},
+	}
 }
 
 func NewTypeTestRestoredEvent(id uint, code, name string) TypeTestRestoredEvent {
-	e := TypeTestRestoredEvent{BaseEvent: newBase("typetest.restored")}
-	e.Payload.TypeTestID = id
-	e.Payload.Code = code
-	e.Payload.Name = name
-	return e
+	return TypeTestRestoredEvent{
+		BaseEvent: newBase("typetest.restored"),
+		Payload: TypeTestPayload{
+			ID:   id,
+			Code: code,
+			Name: name,
+		},
+	}
 }
 
 // Medicine Events

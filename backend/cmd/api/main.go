@@ -24,6 +24,7 @@ import (
 	medicineservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/medicine"
 	patientservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/patient"
 	roomservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/room"
+	roomtypeservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/room-type"
 	typetestservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/typetest"
 	userservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/user"
 	"gorm.io/gorm"
@@ -98,6 +99,7 @@ func main() {
 		PatientHandler:              dependencies.PatientHandler,
 		DoctorSpecializationHandler: dependencies.DoctorSpecializationHandler,
 		DoctorHandler:               dependencies.DoctorHandler,
+		RoomTypeHandler:             dependencies.RoomTypeHandler,
 		RoomHandler:                 dependencies.RoomHandler,
 		TypeTestHandler:             dependencies.TypeTestHandler,
 		MedicineHandler:             dependencies.MedicineHandler,
@@ -140,6 +142,7 @@ type Dependencies struct {
 	PatientRepository              repository.PatientRepository
 	DoctorSpecializationRepository repository.DoctorSpecializationRepository
 	DoctorRepository               repository.DoctorRepository
+	RoomTypeRepository             repository.RoomTypeRepository
 	RoomRepository                 repository.RoomRepository
 	TypeTestRepository             repository.TypeTestRepository
 	MedicineRepository             repository.MedicineRepository
@@ -150,6 +153,7 @@ type Dependencies struct {
 	PatientService              patientservice.PatientService
 	DoctorSpecializationService doctorspecializationservice.DoctorSpecializationService
 	DoctorService               doctorservice.DoctorService
+	RoomTypeService             roomtypeservice.RoomTypeService
 	RoomService                 roomservice.RoomService
 	TypeTestService             typetestservice.TypeTestService
 	MedicineService             medicineservice.MedicineService
@@ -160,6 +164,7 @@ type Dependencies struct {
 	PatientHandler              *handler.PatientHandler
 	DoctorSpecializationHandler *handler.DoctorSpecializationHandler
 	DoctorHandler               *handler.DoctorHandler
+	RoomTypeHandler             *handler.RoomTypeHandler
 	RoomHandler                 *handler.RoomHandler
 	TypeTestHandler             *handler.TypeTestHandler
 	MedicineHandler             *handler.MedicineHandler
@@ -173,6 +178,7 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 	patientRepo := repository.NewPatientRepository(db)
 	doctorSpecializationRepo := repository.NewDoctorSpecializationRepository(db)
 	doctorRepo := repository.NewDoctorRepository(db)
+	roomTypeRepo := repository.NewRoomTypeRepository(db)
 	roomRepo := repository.NewRoomRepository(db)
 	typeTestRepo := repository.NewTypeTestRepository(db)
 	medicineRepo := repository.NewMedicineRepository(db)
@@ -209,6 +215,10 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 		doctorservice.NewCachedDoctorService(doctorservice.NewDoctorService(doctorRepo, cfg), redisClient),
 		publisher,
 	)
+	roomTypeService := roomtypeservice.NewEventRoomTypeService(
+		roomtypeservice.NewCachedRoomTypeService(roomtypeservice.NewRoomTypeService(roomTypeRepo, cfg), redisClient),
+		publisher,
+	)
 	roomService := roomservice.NewEventRoomService(
 		roomservice.NewCachedRoomService(roomservice.NewRoomService(roomRepo, cfg), redisClient),
 		publisher,
@@ -228,6 +238,7 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 	patientHandler := handler.NewPatientHandler(patientService)
 	doctorSpecializationHandler := handler.NewDoctorSpecializationHandler(doctorSpecializationService)
 	doctorHandler := handler.NewDoctorHandler(doctorService)
+	roomTypeHandler := handler.NewRoomTypeHandler(roomTypeService)
 	roomHandler := handler.NewRoomHandler(roomService)
 	typeTestHandler := handler.NewTypeTestHandler(typeTestService)
 	medicineHandler := handler.NewMedicineHandler(medicineService)
@@ -252,6 +263,10 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 		DoctorRepository: doctorRepo,
 		DoctorService:    doctorService,
 		DoctorHandler:    doctorHandler,
+
+		RoomTypeRepository: roomTypeRepo,
+		RoomTypeService:    roomTypeService,
+		RoomTypeHandler:    roomTypeHandler,
 
 		RoomRepository: roomRepo,
 		RoomService:    roomService,

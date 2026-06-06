@@ -65,6 +65,11 @@ func SeedDatabaseWithCount(db *gorm.DB, count int) error {
 		return err
 	}
 
+	if _, err := seedRoomTypes(tx, 12); err != nil {
+		tx.Rollback()
+		return err
+	}
+
 	if _, err := seedRooms(tx, count, departments); err != nil {
 		tx.Rollback()
 		return err
@@ -106,6 +111,11 @@ func SeedDatabaseWithCount(db *gorm.DB, count int) error {
 		return err
 	}
 
+	if err := seedDeletedRoomTypes(tx); err != nil {
+		tx.Rollback()
+		return err
+	}
+
 	if err := seedDeletedRooms(tx); err != nil {
 		tx.Rollback()
 		return err
@@ -134,6 +144,9 @@ func resetSeedData(tx *gorm.DB) error {
 
 	if err := session.Unscoped().Delete(&models.Room{}).Error; err != nil {
 		return fmt.Errorf("failed to clear rooms: %w", err)
+	}
+	if err := session.Unscoped().Delete(&models.RoomType{}).Error; err != nil {
+		return fmt.Errorf("failed to clear room types: %w", err)
 	}
 	if err := session.Unscoped().Delete(&models.Doctor{}).Error; err != nil {
 		return fmt.Errorf("failed to clear doctors: %w", err)

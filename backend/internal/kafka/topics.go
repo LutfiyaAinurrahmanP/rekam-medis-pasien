@@ -36,6 +36,12 @@ const (
 	TopicDepartmentDeleted  = "department.deleted"
 	TopicDepartmentRestored = "department.restored"
 
+	// ── Room Type Topics ───────────────────────────────────────────────────────────
+	TopicRoomTypeCreated  = "room_type.created"
+	TopicRoomTypeUpdated  = "room_type.updated"
+	TopicRoomTypeDeleted  = "room_type.deleted"
+	TopicRoomTypeRestored = "room_type.restored"
+
 	// ── Room Topics ───────────────────────────────────────────────────────────
 	TopicRoomCreated  = "room.created"
 	TopicRoomUpdated  = "room.updated"
@@ -80,7 +86,12 @@ func AllTopics() []string {
 		TopicDepartmentDeleted,
 		TopicDepartmentRestored,
 
-		TopicRoomCreated,
+		TopicRoomTypeCreated,
+		TopicRoomTypeUpdated,
+		TopicRoomTypeDeleted,
+		TopicRoomTypeRestored,
+
+		TopicRoomCreated,	
 		TopicRoomUpdated,
 		TopicRoomDeleted,
 		TopicRoomRestored,

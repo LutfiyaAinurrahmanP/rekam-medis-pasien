@@ -78,8 +78,6 @@ func (h *PatientHandler) ListPatients(ctx *gin.Context) {
 	utils.SuccessResponse(ctx, http.StatusOK, "Patients retrieved successfully", patients)
 }
 
-
-
 func (h *PatientHandler) DeleteListPatients(ctx *gin.Context) {
 	var query dto.PatientPaginationQuery
 	if err := ctx.ShouldBindQuery(&query); err != nil {
@@ -122,7 +120,6 @@ func (h *PatientHandler) GetPatientByID(ctx *gin.Context) {
 
 	utils.SuccessResponse(ctx, http.StatusOK, "Patient retrieved successfully", patient)
 }
-
 
 func (h *PatientHandler) CreatePatient(ctx *gin.Context) {
 	var req dto.CreatePatientRequest

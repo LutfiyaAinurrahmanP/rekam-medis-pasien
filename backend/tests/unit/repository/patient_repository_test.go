@@ -56,7 +56,6 @@ func TestPatientRepository_FindByUserID_NotFound(t *testing.T) {
 	assert.Error(t, err)
 }
 
-
 // ============= Test Cases: List =============
 
 func TestPatientRepository_List_Success(t *testing.T) {

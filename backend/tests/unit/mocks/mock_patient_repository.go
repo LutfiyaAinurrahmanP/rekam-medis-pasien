@@ -44,7 +44,6 @@ func (m *MockPatientRepository) FindByUserID(userID uint) (*models.Patient, erro
 	return args.Get(0).(*models.Patient), args.Error(1)
 }
 
-
 func (m *MockPatientRepository) Create(patient *models.Patient) error {
 	args := m.Called(patient)
 	return args.Error(0)

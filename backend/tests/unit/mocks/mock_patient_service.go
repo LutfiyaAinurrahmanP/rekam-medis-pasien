@@ -34,7 +34,6 @@ func (m *MockPatientService) GetPatientByID(id uint) (*dto.PatientResponse, erro
 	return args.Get(0).(*dto.PatientResponse), args.Error(1)
 }
 
-
 func (m *MockPatientService) GetMyPatientData(userID uint) (*dto.PatientResponse, error) {
 	args := m.Called(userID)
 	if args.Get(0) == nil {

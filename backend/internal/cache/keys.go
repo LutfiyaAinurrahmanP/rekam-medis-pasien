@@ -166,8 +166,8 @@ func DoctorSpecializationInactiveListQuery(page, size int, search, sortBy, sortD
 
 // ─── Doctor ────────────────────────────────────────────────────────────────
 
-func DoctorKey(id uint) string             { return fmt.Sprintf("doctor:id:%d", id) }
-func DoctorListKey(page, size int) string  { return fmt.Sprintf("doctor:list:p%d:s%d", page, size) }
+func DoctorKey(id uint) string            { return fmt.Sprintf("doctor:id:%d", id) }
+func DoctorListKey(page, size int) string { return fmt.Sprintf("doctor:list:p%d:s%d", page, size) }
 func DoctorListQueryKey(page, size int, search, sortBy, sortDir string) string {
 	return fmt.Sprintf(
 		"doctor:list:p%d:s%d:q%s:sb%s:sd%s",
@@ -201,6 +201,56 @@ func DoctorInactiveListQueryKey(page, size int, search, sortBy, sortDir string) 
 	)
 }
 func DoctorByUserIDKey(userID uint) string { return fmt.Sprintf("doctor:user:%d", userID) }
+
+// ─── Room Types ────────────────────────────────────────────────────────────
+
+func RoomTypeKey(id uint) string {
+	return fmt.Sprintf("room_type:id:%d", id)
+}
+
+func RoomTypeListQuery(page, size int, search, sortBy, sortDir string) string {
+	return fmt.Sprintf(
+		"room_type:list:p%d:s%d:q%s:sb%s:sd%s",
+		page,
+		size,
+		search,
+		sortBy,
+		sortDir,
+	)
+}
+
+func RoomTypeDeletedListQuery(page, size int, search, sortBy, sortDir string) string {
+	return fmt.Sprintf(
+		"room_type:deleted:p%d:s%d:q%s:sb%s:sd%s",
+		page,
+		size,
+		search,
+		sortBy,
+		sortDir,
+	)
+}
+
+func RoomTypeActiveListQuery(page, size int, search, sortBy, sortDir string) string {
+	return fmt.Sprintf(
+		"room_type:active:p%d:s%d:q%s:sb%s:sd%s",
+		page,
+		size,
+		search,
+		sortBy,
+		sortDir,
+	)
+}
+
+func RoomTypeInactiveListQuery(page, size int, search, sortBy, sortDir string) string {
+	return fmt.Sprintf(
+		"room_type:inactive:p%d:s%d:q%s:sb%s:sd%s",
+		page,
+		size,
+		search,
+		sortBy,
+		sortDir,
+	)
+}
 
 // ─── Room ──────────────────────────────────────────────────────────────────
 
@@ -258,6 +308,7 @@ const (
 	PatternPatientAll              = "patient:*"
 	PatternDoctorSpecializationAll = "doctor_specialization:*"
 	PatternDoctorAll               = "doctor:*"
+	PatternRoomTypeAll             = "room_type:*"
 	PatternRoomAll                 = "room:*"
 	PatternTypeTestAll             = "typetest:*"
 	PatternMedicineAll             = "medicine:*"

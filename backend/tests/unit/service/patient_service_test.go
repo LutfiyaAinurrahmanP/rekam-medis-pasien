@@ -67,7 +67,6 @@ func TestGetPatientByID_PatientNotFound(t *testing.T) {
 	mockRepo.AssertExpectations(t)
 }
 
-
 // ============= Test Cases: GetMyPatientData =============
 
 func TestGetMyPatientData_Success(t *testing.T) {

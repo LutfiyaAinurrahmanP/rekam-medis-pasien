@@ -93,7 +93,6 @@ func (s *cachedPatientService) GetPatientByID(id uint) (*dto.PatientResponse, er
 	return result, nil
 }
 
-
 func (s *cachedPatientService) GetMyPatientData(userID uint) (*dto.PatientResponse, error) {
 	key := cache.PatientByUserIDKey(userID)
 	var resp dto.PatientResponse

@@ -227,7 +227,6 @@ func TestGetPatientByID_OwnershipForbidden(t *testing.T) {
 	mockService.AssertExpectations(t)
 }
 
-
 // ============= Test Cases: CreatePatient =============
 
 func TestCreatePatient_Success(t *testing.T) {
