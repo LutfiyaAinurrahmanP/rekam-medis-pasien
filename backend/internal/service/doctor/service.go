@@ -16,7 +16,8 @@ type DoctorService interface {
 	ListDoctors(query *dto.DoctorPaginationQuery) (*dto.DoctorListResponse, error)
 	DeletedListDoctors(query *dto.DoctorPaginationQuery) (*dto.DoctorDeletedListResponse, error)
 	GetDoctorByID(id uint) (*dto.DoctorResponse, error)
-	GetDoctorBySpecializationID(specID uint) (*dto.DoctorResponse, error)
+	ActiveList(query *dto.DoctorPaginationQuery) (*dto.DoctorListResponse, error)
+	InactiveList(query *dto.DoctorPaginationQuery) (*dto.DoctorListResponse, error)
 	CreateDoctor(req *dto.CreateDoctorRequest) (*dto.DoctorResponse, error)
 	UpdateDoctor(id uint, req *dto.UpdateDoctorRequest) (*dto.DoctorResponse, error)
 	ActivateDoctor(id uint) (*dto.DoctorResponse, error)
@@ -179,12 +180,92 @@ func (s doctorService) GetDoctorByID(id uint) (*dto.DoctorResponse, error) {
 	return s.toDoctorResponse(doctor), nil
 }
 
-func (s doctorService) GetDoctorBySpecializationID(specializationID uint) (*dto.DoctorResponse, error) {
-	spec, err := s.repo.FindBySpecializationID(specializationID)
+func (s doctorService) ActiveList(query *dto.DoctorPaginationQuery) (*dto.DoctorListResponse, error) {
+	if query.Page < 1 {
+		query.Page = 1
+	}
+
+	if query.PageSize < 1 {
+		query.PageSize = s.config.Pagination.DefaultPageSize
+	}
+
+	if query.PageSize > s.config.Pagination.MaxPageSize {
+		query.PageSize = s.config.Pagination.MaxPageSize
+	}
+
+	if query.SortBy == "" {
+		query.SortBy = "created_at"
+	}
+
+	if query.SortDir == "" {
+		query.SortDir = "desc"
+	}
+
+	doctors, total, err := s.repo.ActiveList(query)
 	if err != nil {
 		return nil, err
 	}
-	return s.toDoctorResponse(spec), nil
+
+	doctorResponses := make([]dto.DoctorResponse, len(doctors))
+	for i, doctor := range doctors {
+		doctorResponses[i] = *s.toDoctorResponse(&doctor)
+	}
+
+	totalPages := int(math.Ceil(float64(total) / float64(query.PageSize)))
+
+	return &dto.DoctorListResponse{
+		Data: doctorResponses,
+		Meta: dto.DoctorPaginationMeta{
+			Page:       query.Page,
+			PageSize:   query.PageSize,
+			TotalItems: total,
+			TotalPages: totalPages,
+		},
+	}, nil
+}
+
+func (s doctorService) InactiveList(query *dto.DoctorPaginationQuery) (*dto.DoctorListResponse, error) {
+	if query.Page < 1 {
+		query.Page = 1
+	}
+
+	if query.PageSize < 1 {
+		query.PageSize = s.config.Pagination.DefaultPageSize
+	}
+
+	if query.PageSize > s.config.Pagination.MaxPageSize {
+		query.PageSize = s.config.Pagination.MaxPageSize
+	}
+
+	if query.SortBy == "" {
+		query.SortBy = "created_at"
+	}
+
+	if query.SortDir == "" {
+		query.SortDir = "desc"
+	}
+
+	doctors, total, err := s.repo.InactiveList(query)
+	if err != nil {
+		return nil, err
+	}
+
+	doctorResponses := make([]dto.DoctorResponse, len(doctors))
+	for i, doctor := range doctors {
+		doctorResponses[i] = *s.toDoctorResponse(&doctor)
+	}
+
+	totalPages := int(math.Ceil(float64(total) / float64(query.PageSize)))
+
+	return &dto.DoctorListResponse{
+		Data: doctorResponses,
+		Meta: dto.DoctorPaginationMeta{
+			Page:       query.Page,
+			PageSize:   query.PageSize,
+			TotalItems: total,
+			TotalPages: totalPages,
+		},
+	}, nil
 }
 
 func (s doctorService) CreateDoctor(req *dto.CreateDoctorRequest) (*dto.DoctorResponse, error) {

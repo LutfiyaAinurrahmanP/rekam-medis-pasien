@@ -101,20 +101,36 @@ func (h *DoctorHandler) GetDoctorByID(ctx *gin.Context) {
 
 	utils.SuccessResponse(ctx, http.StatusOK, "Doctor retrieved successfully", doctor)
 }
-func (h *DoctorHandler) GetDoctorBySpecializationID(ctx *gin.Context) {
-	specID, err := strconv.ParseUint(ctx.Param("spec_id"), 10, 32)
-	if err != nil {
-		utils.ErrorResponse(ctx, http.StatusBadRequest, "Invalid specialization ID", err.Error())
+func (h *DoctorHandler) ActiveList(ctx *gin.Context) {
+	var query dto.DoctorPaginationQuery
+	if err := ctx.ShouldBindQuery(&query); err != nil {
+		utils.ValidationErrorResponse(ctx, err)
 		return
 	}
 
-	doctor, err := h.service.GetDoctorBySpecializationID(uint(specID))
+	res, err := h.service.ActiveList(&query)
 	if err != nil {
-		utils.ErrorResponse(ctx, http.StatusNotFound, "Doctor not found", err.Error())
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to retrieve active doctors", err.Error())
 		return
 	}
 
-	utils.SuccessResponse(ctx, http.StatusOK, "Doctor retrieved successfully", doctor)
+	utils.SuccessResponse(ctx, http.StatusOK, "Active doctors retrieved successfully", res)
+}
+
+func (h *DoctorHandler) InactiveList(ctx *gin.Context) {
+	var query dto.DoctorPaginationQuery
+	if err := ctx.ShouldBindQuery(&query); err != nil {
+		utils.ValidationErrorResponse(ctx, err)
+		return
+	}
+
+	res, err := h.service.InactiveList(&query)
+	if err != nil {
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to retrieve inactive doctors", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "Inactive doctors retrieved successfully", res)
 }
 func (h *DoctorHandler) CreateDoctor(ctx *gin.Context) {
 	var req dto.CreateDoctorRequest

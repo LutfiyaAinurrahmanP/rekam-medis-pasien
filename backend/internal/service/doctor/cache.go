@@ -3,6 +3,7 @@ package doctor
 import (
 	"context"
 	"log"
+	"strings"
 
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/cache"
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/dto"
@@ -46,7 +47,7 @@ func (s *cachedDoctorService) GetMyDoctorData(userID uint) (*dto.DoctorResponse,
 }
 
 func (s *cachedDoctorService) ListDoctors(query *dto.DoctorPaginationQuery) (*dto.DoctorListResponse, error) {
-	key := cache.DoctorListKey(query.Page, query.PageSize)
+	key := cache.DoctorListQueryKey(query.Page, query.PageSize, normalizeCachePart(query.Search), normalizeCachePart(query.SortBy), normalizeCachePart(query.SortDir))
 	var resp dto.DoctorListResponse
 	if err := s.redis.Get(context.Background(), key, &resp); err == nil {
 		return &resp, nil
@@ -78,13 +79,27 @@ func (s *cachedDoctorService) GetDoctorByID(id uint) (*dto.DoctorResponse, error
 	return result, nil
 }
 
-func (s *cachedDoctorService) GetDoctorBySpecializationID(specID uint) (*dto.DoctorResponse, error) {
-	key := cache.DoctorBySpecKey(specID)
-	var resp dto.DoctorResponse
+func (s *cachedDoctorService) ActiveList(query *dto.DoctorPaginationQuery) (*dto.DoctorListResponse, error) {
+	key := cache.DoctorActiveListQueryKey(query.Page, query.PageSize, normalizeCachePart(query.Search), normalizeCachePart(query.SortBy), normalizeCachePart(query.SortDir))
+	var resp dto.DoctorListResponse
 	if err := s.redis.Get(context.Background(), key, &resp); err == nil {
 		return &resp, nil
 	}
-	result, err := s.inner.GetDoctorBySpecializationID(specID)
+	result, err := s.inner.ActiveList(query)
+	if err != nil {
+		return nil, err
+	}
+	s.setCache(key, result)
+	return result, nil
+}
+
+func (s *cachedDoctorService) InactiveList(query *dto.DoctorPaginationQuery) (*dto.DoctorListResponse, error) {
+	key := cache.DoctorInactiveListQueryKey(query.Page, query.PageSize, normalizeCachePart(query.Search), normalizeCachePart(query.SortBy), normalizeCachePart(query.SortDir))
+	var resp dto.DoctorListResponse
+	if err := s.redis.Get(context.Background(), key, &resp); err == nil {
+		return &resp, nil
+	}
+	result, err := s.inner.InactiveList(query)
 	if err != nil {
 		return nil, err
 	}
@@ -182,6 +197,10 @@ func (s *cachedDoctorService) invalidateAll() {
 	if err := s.redis.DeleteByPattern(context.Background(), cache.PatternDoctorAll); err != nil {
 		log.Printf("⚠️  Redis invalidate failed for pattern %q: %v", cache.PatternDoctorAll, err)
 	}
+}
+
+func normalizeCachePart(value string) string {
+	return strings.ToLower(strings.TrimSpace(value))
 }
 
 // compile-time interface check

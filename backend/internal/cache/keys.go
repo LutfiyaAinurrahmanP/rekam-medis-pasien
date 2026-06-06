@@ -168,7 +168,38 @@ func DoctorSpecializationInactiveListQuery(page, size int, search, sortBy, sortD
 
 func DoctorKey(id uint) string             { return fmt.Sprintf("doctor:id:%d", id) }
 func DoctorListKey(page, size int) string  { return fmt.Sprintf("doctor:list:p%d:s%d", page, size) }
-func DoctorBySpecKey(specID uint) string   { return fmt.Sprintf("doctor:spec:%d", specID) }
+func DoctorListQueryKey(page, size int, search, sortBy, sortDir string) string {
+	return fmt.Sprintf(
+		"doctor:list:p%d:s%d:q%s:sb%s:sd%s",
+		page,
+		size,
+		search,
+		sortBy,
+		sortDir,
+	)
+}
+
+func DoctorActiveListQueryKey(page, size int, search, sortBy, sortDir string) string {
+	return fmt.Sprintf(
+		"doctor:active:p%d:s%d:q%s:sb%s:sd%s",
+		page,
+		size,
+		search,
+		sortBy,
+		sortDir,
+	)
+}
+
+func DoctorInactiveListQueryKey(page, size int, search, sortBy, sortDir string) string {
+	return fmt.Sprintf(
+		"doctor:inactive:p%d:s%d:q%s:sb%s:sd%s",
+		page,
+		size,
+		search,
+		sortBy,
+		sortDir,
+	)
+}
 func DoctorByUserIDKey(userID uint) string { return fmt.Sprintf("doctor:user:%d", userID) }
 
 // ─── Room ──────────────────────────────────────────────────────────────────

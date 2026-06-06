@@ -16,7 +16,7 @@ type CreateDoctorRequest struct {
 	UserID           *uint  `json:"user_id" binding:"omitempty"`
 	EmployeeID       string `json:"employee_id" binding:"required,min=1,max=50"`
 	FullName         string `json:"full_name" binding:"required,min=1,max=100"`
-	SpecializationID *uint  `json:"specialization_id" binding:"required"`
+	SpecializationID *uint  `json:"doctor_specialization_id" binding:"required"`
 	LicenseNumber    string `json:"license_number" binding:"required,min=1,max=50"`
 	Phone            string `json:"phone" binding:"omitempty,max=15"`
 	Email            string `json:"email" binding:"omitempty,max=100"`
@@ -28,7 +28,7 @@ type UpdateDoctorRequest struct {
 	UserID           *uint   `json:"user_id" binding:"omitempty"`
 	EmployeeID       *string `json:"employee_id" binding:"omitempty,min=1,max=50"`
 	FullName         *string `json:"full_name" binding:"omitempty,min=1,max=100"`
-	SpecializationID *uint   `json:"specialization_id" binding:"omitempty"`
+	SpecializationID *uint   `json:"doctor_specialization_id" binding:"omitempty"`
 	LicenseNumber    *string `json:"license_number" binding:"omitempty,min=1,max=50"`
 	Phone            *string `json:"phone" binding:"omitempty,max=15"`
 	Email            *string `json:"email" binding:"omitempty,max=100"`
@@ -41,7 +41,7 @@ type DoctorResponse struct {
 	UserID           *uint     `json:"user_id"`
 	EmployeeID       string    `json:"employee_id"`
 	FullName         string    `json:"full_name"`
-	SpecializationID uint      `json:"specialization_id"`
+	SpecializationID uint      `json:"doctor_specialization_id"`
 	LicenseNumber    string    `json:"license_number"`
 	Phone            string    `json:"phone"`
 	Email            string    `json:"email"`
@@ -56,7 +56,7 @@ type DeletedDoctorResponse struct {
 	UserID           *uint      `json:"user_id"`
 	EmployeeID       string     `json:"employee_id"`
 	FullName         string     `json:"full_name"`
-	SpecializationID uint       `json:"specialization_id"`
+	SpecializationID uint       `json:"doctor_specialization_id"`
 	LicenseNumber    string     `json:"license_number"`
 	Phone            string     `json:"phone"`
 	Email            string     `json:"email"`
@@ -71,7 +71,7 @@ type DoctorPaginationQuery struct {
 	Page             int    `form:"page,default=1" binding:"omitempty,min=1"`
 	PageSize         int    `form:"page_size,default=10" binding:"omitempty,min=1,max=100"`
 	Search           string `form:"search" binding:"omitempty"`
-	SpecializationID *uint  `form:"specialization_id" binding:"omitempty"`
+	SpecializationID *uint  `form:"doctor_specialization_id" binding:"omitempty"`
 	IsActive         *bool  `form:"is_active" binding:"omitempty"`
 	SortBy           string `form:"sort_by,default=created_at" binding:"omitempty,oneof=created_at full_name employee_id license_number specialization_id"`
 	SortDir          string `form:"sort_dir,default=desc" binding:"omitempty,oneof=asc desc"`

@@ -46,8 +46,12 @@ func (s *eventDoctorService) GetDoctorByID(id uint) (*dto.DoctorResponse, error)
 	return s.inner.GetDoctorByID(id)
 }
 
-func (s *eventDoctorService) GetDoctorBySpecializationID(specID uint) (*dto.DoctorResponse, error) {
-	return s.inner.GetDoctorBySpecializationID(specID)
+func (s *eventDoctorService) ActiveList(query *dto.DoctorPaginationQuery) (*dto.DoctorListResponse, error) {
+	return s.inner.ActiveList(query)
+}
+
+func (s *eventDoctorService) InactiveList(query *dto.DoctorPaginationQuery) (*dto.DoctorListResponse, error) {
+	return s.inner.InactiveList(query)
 }
 
 // ─── Write operations ─────────────────────────────────────────────────────────
