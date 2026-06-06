@@ -9,7 +9,13 @@ import (
 )
 
 func seedRooms(tx *gorm.DB, count int, departments []models.Department) ([]models.Room, error) {
-	roomTypes := []string{"vip", "class_1", "class_2", "class_3", "icu", "emergency"}
+	var roomTypes []models.RoomType
+	if err := tx.Where("deleted_at IS NULL").Find(&roomTypes).Error; err != nil {
+		return nil, fmt.Errorf("failed to fetch room types: %w", err)
+	}
+	if len(roomTypes) == 0 {
+		return nil, fmt.Errorf("no room types available to seed rooms")
+	}
 
 	rooms := make([]models.Room, 0, count)
 	for i := 1; i <= count; i++ {
@@ -25,11 +31,11 @@ func seedRooms(tx *gorm.DB, count int, departments []models.Department) ([]model
 
 		room := models.Room{
 			RoomNumber:    fmt.Sprintf("RM-%03d", i),
-			RoomType:      roomType,
+			RoomTypeID:    &roomType.ID,
 			DepartmentID:  departmentID,
 			BedCapacity:   bedCapacity,
 			AvailableBeds: availableBeds,
-			PricePerDay:   roomPriceByType(roomType),
+			PricePerDay:   roomPriceByType(roomType.Code),
 			IsActive:      i%8 != 0,
 		}
 		rooms = append(rooms, room)
@@ -62,7 +68,13 @@ func roomPriceByType(roomType string) float64 {
 }
 
 func seedDeletedRooms(tx *gorm.DB) error {
-	roomTypes := []string{"vip", "class_1", "class_2", "class_3", "icu", "emergency"}
+	var roomTypes []models.RoomType
+	if err := tx.Where("deleted_at IS NULL").Find(&roomTypes).Error; err != nil {
+		return fmt.Errorf("failed to fetch room types: %w", err)
+	}
+	if len(roomTypes) == 0 {
+		return fmt.Errorf("no room types available to seed deleted rooms")
+	}
 
 	// Get active departments for assignment
 	var departments []models.Department
@@ -87,11 +99,11 @@ func seedDeletedRooms(tx *gorm.DB) error {
 
 		room := models.Room{
 			RoomNumber:    fmt.Sprintf("RM-DEL-%03d", i-4000),
-			RoomType:      roomType,
+			RoomTypeID:    &roomType.ID,
 			DepartmentID:  departmentID,
 			BedCapacity:   bedCapacity,
 			AvailableBeds: availableBeds,
-			PricePerDay:   roomPriceByType(roomType),
+			PricePerDay:   roomPriceByType(roomType.Code),
 			IsActive:      false,
 			DeletedAt:     deletedAt,
 		}

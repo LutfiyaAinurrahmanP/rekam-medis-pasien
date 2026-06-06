@@ -577,7 +577,7 @@ func NewRoomTypeRestoredEvent(id uint, name string) RoomTypeRestoredEvent {
 type RoomPayload struct {
 	ID            uint    `json:"id"`
 	RoomNumber    string  `json:"room_number"`
-	RoomType      string  `json:"room_type"`
+	RoomTypeID    *uint   `json:"room_type_id,omitempty"`
 	DepartmentID  *uint   `json:"department_id,omitempty"`
 	BedCapacity   int     `json:"bed_capacity"`
 	AvailableBeds int     `json:"available_beds"`
@@ -611,21 +611,21 @@ type RoomRestoredEvent struct {
 
 // Constructors ────────────────────────────────────────────────────────────────
 
-func NewRoomCreatedEvent(id uint, roomNumber, roomType string, deptID *uint, total, available int, price float64, isActive bool) RoomCreatedEvent {
+func NewRoomCreatedEvent(id uint, roomNumber string, roomTypeID *uint, deptID *uint, total, available int, price float64, isActive bool) RoomCreatedEvent {
 	return RoomCreatedEvent{
 		BaseEvent: newBase("room.created"),
 		Payload: RoomPayload{
-			ID: id, RoomNumber: roomNumber, RoomType: roomType, DepartmentID: deptID,
+			ID: id, RoomNumber: roomNumber, RoomTypeID: roomTypeID, DepartmentID: deptID,
 			BedCapacity: total, AvailableBeds: available, PricePerDay: price, IsActive: isActive,
 		},
 	}
 }
 
-func NewRoomUpdatedEvent(id uint, roomNumber, roomType string, deptID *uint, total, available int, price float64, isActive bool, action string) RoomUpdatedEvent {
+func NewRoomUpdatedEvent(id uint, roomNumber string, roomTypeID *uint, deptID *uint, total, available int, price float64, isActive bool, action string) RoomUpdatedEvent {
 	return RoomUpdatedEvent{
 		BaseEvent: newBase("room.updated"),
 		Payload: RoomPayload{
-			ID: id, RoomNumber: roomNumber, RoomType: roomType, DepartmentID: deptID,
+			ID: id, RoomNumber: roomNumber, RoomTypeID: roomTypeID, DepartmentID: deptID,
 			BedCapacity: total, AvailableBeds: available, PricePerDay: price, IsActive: isActive,
 			Action: action,
 		},

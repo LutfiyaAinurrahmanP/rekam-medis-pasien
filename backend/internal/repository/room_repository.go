@@ -3,6 +3,7 @@ package repository
 import (
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/dto"
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/models"
@@ -14,13 +15,13 @@ type RoomRepository interface {
 	DeleteList(query *dto.RoomPaginationQuery) ([]models.Room, int64, error)
 	FindAvailableRooms(query *dto.RoomPaginationQuery) ([]models.Room, int64, error)
 	FindOccupiedRooms(query *dto.RoomPaginationQuery) ([]models.Room, int64, error)
+	FindActiveRooms(query *dto.RoomPaginationQuery) ([]models.Room, int64, error)
 	FindInactiveRooms(query *dto.RoomPaginationQuery) ([]models.Room, int64, error)
 	FindByID(id uint) (*models.Room, error)
-	FindByRoomNumber(roomNumber string) (*models.Room, error)
-	FindByRoomType(roomType string) (*models.Room, error)
-	FindByDepartmentID(deptID string) (*models.Room, error)
 	Create(room *models.Room) error
 	Update(room *models.Room) error
+	Activate(id uint) error
+	Deactivate(id uint) error
 	SoftDelete(id uint) error
 	Restore(id uint) error
 	HardDelete(id uint) error
@@ -37,6 +38,28 @@ func NewRoomRepository(db *gorm.DB) RoomRepository {
 	}
 }
 
+func escapeSearchRoomPattern(s string) string {
+	s = strings.ReplaceAll(s, `\`, `\\`)
+	s = strings.ReplaceAll(s, `%`, `\%`)
+	s = strings.ReplaceAll(s, `_`, `\_`)
+	return s
+}
+
+func applyRoomListOrder(db *gorm.DB, sortBy, sortDir string) *gorm.DB {
+	column := "created_at"
+	switch sortBy {
+	case "name", "code", "created_at":
+		column = sortBy
+	}
+
+	direction := "DESC"
+	if strings.EqualFold(sortDir, "asc") {
+		direction = "ASC"
+	}
+
+	return db.Order(fmt.Sprintf("%s %s", column, direction))
+}
+
 func (r *roomRepository) List(query *dto.RoomPaginationQuery) ([]models.Room, int64, error) {
 	var (
 		rooms []models.Room
@@ -45,22 +68,21 @@ func (r *roomRepository) List(query *dto.RoomPaginationQuery) ([]models.Room, in
 
 	db := r.db.Model(&models.Room{})
 
-	if query.Search != "" {
-		searchPattern := fmt.Sprintf("%%%s%%", query.Search)
-		db = db.Where("room_number ILIKE ? OR room_type ILIKE ?", searchPattern, searchPattern)
+	if searchTerm := strings.TrimSpace(query.Search); searchTerm != "" {
+		escaped := escapeSearchRoomPattern(searchTerm)
+		searchPattern := "%" + escaped + "%"
+
+		db = db.Where(
+			"room_number ILIKE ? ESCAPE '\\'",
+			searchPattern,
+		)
 	}
 
 	if err := db.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 
-	orderClause := query.SortBy
-	if query.SortDir == "desc" {
-		orderClause += " desc"
-	} else {
-		orderClause += " asc"
-	}
-	db = db.Order(orderClause)
+	db = applyRoomListOrder(db, query.SortBy, query.SortDir)
 
 	offset := (query.Page - 1) * query.PageSize
 	if err := db.Offset(offset).Limit(query.PageSize).Find(&rooms).Error; err != nil {
@@ -77,22 +99,21 @@ func (r *roomRepository) DeleteList(query *dto.RoomPaginationQuery) ([]models.Ro
 
 	db := r.db.Unscoped().Model(&models.Room{}).Where("deleted_at IS NOT NULL")
 
-	if query.Search != "" {
-		searchPattern := fmt.Sprintf("%%%s%%", query.Search)
-		db = db.Where("room_number ILIKE ? OR room_type ILIKE ?", searchPattern, searchPattern)
+	if searchTerm := strings.TrimSpace(query.Search); searchTerm != "" {
+		escaped := escapeSearchRoomPattern(searchTerm)
+		searchPattern := "%" + escaped + "%"
+
+		db = db.Where(
+			"room_number ILIKE ? ESCAPE '\\'",
+			searchPattern,
+		)
 	}
 
 	if err := db.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 
-	orderClause := query.SortBy
-	if query.SortDir == "desc" {
-		orderClause += " desc"
-	} else {
-		orderClause += " asc"
-	}
-	db = db.Order(orderClause)
+	db = applyRoomListOrder(db, query.SortBy, query.SortDir)
 
 	offset := (query.Page - 1) * query.PageSize
 	if err := db.Offset(offset).Limit(query.PageSize).Find(&rooms).Error; err != nil {
@@ -139,7 +160,39 @@ func (r *roomRepository) FindOccupiedRooms(query *dto.RoomPaginationQuery) ([]mo
 		total int64
 	)
 
-	db := r.db.Model(&models.Room{}).Where("available_beds < bed_capacity")
+	db := r.db.Model(&models.Room{}).Where("available_beds = 0")
+
+	if query.Search != "" {
+		searchPattern := fmt.Sprintf("%%%s%%", query.Search)
+		db = db.Where("room_number ILIKE ? OR room_type ILIKE ?", searchPattern, searchPattern)
+	}
+
+	if err := db.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	orderClause := query.SortBy
+	if query.SortDir == "desc" {
+		orderClause += " desc"
+	} else {
+		orderClause += " asc"
+	}
+	db = db.Order(orderClause)
+
+	offset := (query.Page - 1) * query.PageSize
+	if err := db.Offset(offset).Limit(query.PageSize).Find(&rooms).Error; err != nil {
+		return nil, 0, err
+	}
+	return rooms, total, nil
+}
+
+func (r *roomRepository) FindActiveRooms(query *dto.RoomPaginationQuery) ([]models.Room, int64, error) {
+	var (
+		rooms []models.Room
+		total int64
+	)
+
+	db := r.db.Model(&models.Room{}).Where("is_active = ?", true)
 
 	if query.Search != "" {
 		searchPattern := fmt.Sprintf("%%%s%%", query.Search)
@@ -209,60 +262,36 @@ func (r *roomRepository) FindByID(id uint) (*models.Room, error) {
 	return &room, nil
 }
 
-// FindByIDIncludingDeleted finds a room by ID including soft-deleted records
-func (r *roomRepository) FindByIDIncludingDeleted(id uint) (*models.Room, error) {
-	var room models.Room
-	err := r.db.Unscoped().Where("id = ?", id).First(&room).Error
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.New("room not found")
-		}
-		return nil, err
-	}
-	return &room, nil
-}
-func (r *roomRepository) FindByRoomNumber(roomNumber string) (*models.Room, error) {
-	var room models.Room
-	err := r.db.Where("room_number = ?", roomNumber).First(&room).Error
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.New("room not found")
-		}
-		return nil, err
-	}
-	return &room, nil
-}
-
-func (r *roomRepository) FindByRoomType(roomType string) (*models.Room, error) {
-	var room models.Room
-	err := r.db.Where("room_type = ?", roomType).First(&room).Error
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.New("room not found")
-		}
-		return nil, err
-	}
-	return &room, nil
-}
-
-func (r *roomRepository) FindByDepartmentID(deptID string) (*models.Room, error) {
-	var room models.Room
-	err := r.db.Where("department_id = ?", &deptID).First(&room).Error
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.New("room not found")
-		}
-		return nil, err
-	}
-	return &room, nil
-}
-
 func (r *roomRepository) Create(room *models.Room) error {
 	return r.db.Create(room).Error
 }
 
 func (r *roomRepository) Update(room *models.Room) error {
 	return r.db.Save(room).Error
+}
+
+func (r *roomRepository) Activate(id uint) error {
+	result := r.db.Model(&models.Room{}).Where("id = ?", id).Update("is_active", true)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return errors.New("room not found")
+	}
+	return nil
+}
+
+func (r *roomRepository) Deactivate(id uint) error {
+	result := r.db.Model(&models.Room{}).Where("id = ?", id).Update("is_active", false)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return errors.New("room not found")
+	}
+	return nil
 }
 
 func (r *roomRepository) SoftDelete(id uint) error {

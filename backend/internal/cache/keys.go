@@ -255,15 +255,73 @@ func RoomTypeInactiveListQuery(page, size int, search, sortBy, sortDir string) s
 // ─── Room ──────────────────────────────────────────────────────────────────
 
 func RoomKey(id uint) string            { return fmt.Sprintf("room:id:%d", id) }
-func RoomListKey(page, size int) string { return fmt.Sprintf("room:list:p%d:s%d", page, size) }
-func RoomAvailableKey(page, size int) string {
-	return fmt.Sprintf("room:available:p%d:s%d", page, size)
+
+func RoomListQuery(page, size int, search, sortBy, sortDir string) string {
+	return fmt.Sprintf(
+		"room:list:p%d:s%d:q%s:sb%s:sd%s",
+		page,
+		size,
+		search,
+		sortBy,
+		sortDir,
+	)
 }
-func RoomOccupiedKey(page, size int) string { return fmt.Sprintf("room:occupied:p%d:s%d", page, size) }
-func RoomInactiveKey(page, size int) string { return fmt.Sprintf("room:inactive:p%d:s%d", page, size) }
-func RoomByNumberKey(number string) string  { return fmt.Sprintf("room:number:%s", number) }
-func RoomByTypeKey(roomType string) string  { return fmt.Sprintf("room:type:%s", roomType) }
-func RoomByDeptKey(deptID string) string    { return fmt.Sprintf("room:dept:%s", deptID) }
+
+func RoomDeletedListQuery(page, size int, search, sortBy, sortDir string) string {
+	return fmt.Sprintf(
+		"room:deleted:p%d:s%d:q%s:sb%s:sd%s",
+		page,
+		size,
+		search,
+		sortBy,
+		sortDir,
+	)
+}
+
+func RoomActiveListQuery(page, size int, search, sortBy, sortDir string) string {
+	return fmt.Sprintf(
+		"room:active:p%d:s%d:q%s:sb%s:sd%s",
+		page,
+		size,
+		search,
+		sortBy,
+		sortDir,
+	)
+}
+
+func RoomInactiveListQuery(page, size int, search, sortBy, sortDir string) string {
+	return fmt.Sprintf(
+		"room:inactive:p%d:s%d:q%s:sb%s:sd%s",
+		page,
+		size,
+		search,
+		sortBy,
+		sortDir,
+	)
+}
+
+func RoomAvailableListQuery(page, size int, search, sortBy, sortDir string) string {
+	return fmt.Sprintf(
+		"room:available:p%d:s%d:q%s:sb%s:sd%s",
+		page,
+		size,
+		search,
+		sortBy,
+		sortDir,
+	)
+}
+
+func RoomOccupiedListQuery(page, size int, search, sortBy, sortDir string) string {
+	return fmt.Sprintf(
+		"room:occupied:p%d:s%d:q%s:sb%s:sd%s",
+		page,
+		size,
+		search,
+		sortBy,
+		sortDir,
+	)
+}
+
 
 // ─── TypeTest ──────────────────────────────────────────────────────────────
 

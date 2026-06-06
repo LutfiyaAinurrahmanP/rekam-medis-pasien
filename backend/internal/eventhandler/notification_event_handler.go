@@ -267,8 +267,14 @@ func (h *NotificationEventHandler) handle(ctx context.Context, topic string, key
 		if err := json.Unmarshal(value, &e); err != nil {
 			return err
 		}
-		log.Printf("[NOTIFICATION] 🛏️  New room created: %s (type=%s, capacity=%d)",
-			e.Payload.RoomNumber, e.Payload.RoomType, e.Payload.BedCapacity)
+
+		typeIDStr := "nil"
+		if e.Payload.RoomTypeID != nil {
+			typeIDStr = fmt.Sprintf("%d", *e.Payload.RoomTypeID)
+		}
+
+		log.Printf("[NOTIFICATION] 🛏️  New room created: %s (type_id=%s, capacity=%d)",
+			e.Payload.RoomNumber, typeIDStr, e.Payload.BedCapacity)
 
 	case kafka.TopicRoomUpdated:
 		var e events.RoomUpdatedEvent
