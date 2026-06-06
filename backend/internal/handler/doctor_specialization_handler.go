@@ -49,6 +49,39 @@ func (h *DoctorSpecializationHandler) DeletedList(ctx *gin.Context) {
 
 	utils.SuccessResponse(ctx, http.StatusOK, "Deleted doctor specialization retrieve successfully", res)
 }
+
+func (h *DoctorSpecializationHandler) ActiveList(ctx *gin.Context) {
+	var query dto.DoctorSpecializationPaginationQuery
+	if err := ctx.ShouldBindQuery(&query); err != nil {
+		utils.ValidationErrorResponse(ctx, err)
+		return
+	}
+
+	res, err := h.service.ActiveList(&query)
+	if err != nil {
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to retrieve active doctor specializations", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "Active doctor specializations retrieved successfully", res)
+}
+
+func (h *DoctorSpecializationHandler) InactiveList(ctx *gin.Context) {
+	var query dto.DoctorSpecializationPaginationQuery
+	if err := ctx.ShouldBindQuery(&query); err != nil {
+		utils.ValidationErrorResponse(ctx, err)
+		return
+	}
+
+	res, err := h.service.InactiveList(&query)
+	if err != nil {
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to retrieve inactive doctor specializations", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "Inactive doctor specializations retrieved successfully", res)
+}
+
 func (h *DoctorSpecializationHandler) FindByID(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
@@ -168,4 +201,40 @@ func (h *DoctorSpecializationHandler) HardDelete(ctx *gin.Context) {
 		return
 	}
 	utils.SuccessResponse(ctx, http.StatusOK, "Doctor specialization hard deleted successfully", nil)
+}
+
+func (h *DoctorSpecializationHandler) Activate(ctx *gin.Context) {
+	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
+	if err != nil {
+		utils.ErrorResponse(ctx, http.StatusBadRequest, "Invalid doctor specialization id", err.Error())
+		return
+	}
+
+	if err := h.service.Activate(uint(id)); err != nil {
+		if err.Error() == "doctor specialization not found" {
+			utils.ErrorResponse(ctx, http.StatusNotFound, "Doctor specialization not found", err.Error())
+			return
+		}
+		utils.ErrorResponse(ctx, http.StatusBadRequest, "Failed to activate doctor specialization", err.Error())
+		return
+	}
+	utils.SuccessResponse(ctx, http.StatusOK, "Doctor specialization activated successfully", nil)
+}
+
+func (h *DoctorSpecializationHandler) Deactivate(ctx *gin.Context) {
+	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
+	if err != nil {
+		utils.ErrorResponse(ctx, http.StatusBadRequest, "Invalid doctor specialization id", err.Error())
+		return
+	}
+
+	if err := h.service.Deactivate(uint(id)); err != nil {
+		if err.Error() == "doctor specialization not found" {
+			utils.ErrorResponse(ctx, http.StatusNotFound, "Doctor specialization not found", err.Error())
+			return
+		}
+		utils.ErrorResponse(ctx, http.StatusBadRequest, "Failed to deactivate doctor specialization", err.Error())
+		return
+	}
+	utils.SuccessResponse(ctx, http.StatusOK, "Doctor specialization deactivated successfully", nil)
 }

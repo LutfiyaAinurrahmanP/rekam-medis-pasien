@@ -66,6 +66,48 @@ func (s *cachedDoctorSpecializationService) DeletedList(query *dto.DoctorSpecial
 	return result, nil
 }
 
+func (s *cachedDoctorSpecializationService) ActiveList(query *dto.DoctorSpecializationPaginationQuery) (*dto.DoctorSpecializationListResponse, error) {
+	key := cache.DoctorSpecializationActiveListQuery(
+		query.Page,
+		query.PageSize,
+		normalizeCachePart(query.Search),
+		normalizeCachePart(query.SortBy),
+		normalizeCachePart(query.SortDir),
+	)
+	var resp dto.DoctorSpecializationListResponse
+	if err := s.redis.Get(context.Background(), key, &resp); err == nil {
+		return &resp, nil
+	}
+
+	result, err := s.inner.ActiveList(query)
+	if err != nil {
+		return nil, err
+	}
+	s.setCache(key, result)
+	return result, nil
+}
+
+func (s *cachedDoctorSpecializationService) InactiveList(query *dto.DoctorSpecializationPaginationQuery) (*dto.DoctorSpecializationListResponse, error) {
+	key := cache.DoctorSpecializationInactiveListQuery(
+		query.Page,
+		query.PageSize,
+		normalizeCachePart(query.Search),
+		normalizeCachePart(query.SortBy),
+		normalizeCachePart(query.SortDir),
+	)
+	var resp dto.DoctorSpecializationListResponse
+	if err := s.redis.Get(context.Background(), key, &resp); err == nil {
+		return &resp, nil
+	}
+
+	result, err := s.inner.InactiveList(query)
+	if err != nil {
+		return nil, err
+	}
+	s.setCache(key, result)
+	return result, nil
+}
+
 func (s *cachedDoctorSpecializationService) FindByID(id uint) (*dto.DoctorSpecializationResponse, error) {
 	key := cache.DoctorSpecializationKey(id)
 	var resp dto.DoctorSpecializationResponse
@@ -113,6 +155,22 @@ func (s *cachedDoctorSpecializationService) Restore(id uint) error {
 }
 func (s *cachedDoctorSpecializationService) HardDelete(id uint) error {
 	if err := s.inner.HardDelete(id); err != nil {
+		return err
+	}
+	s.invalidateAll()
+	return nil
+}
+
+func (s *cachedDoctorSpecializationService) Activate(id uint) error {
+	if err := s.inner.Activate(id); err != nil {
+		return err
+	}
+	s.invalidateAll()
+	return nil
+}
+
+func (s *cachedDoctorSpecializationService) Deactivate(id uint) error {
+	if err := s.inner.Deactivate(id); err != nil {
 		return err
 	}
 	s.invalidateAll()

@@ -305,7 +305,7 @@ func NewDoctorSpecializationCreatedEvent(id uint, name, code, desc string, isAct
 	}
 }
 
-func NewDoctorSpecializationUpdatedEvent(id uint, name, code, desc string, isActive bool) DoctorSpecializationUpdatedEvent {
+func NewDoctorSpecializationUpdatedEvent(id uint, name, code, desc string, isActive bool, action string) DoctorSpecializationUpdatedEvent {
 	e := DoctorSpecializationUpdatedEvent{
 		BaseEvent: newBase("doctor_specialization.updated")}
 	e.Payload.DoctorSpecializationPayload = DoctorSpecializationPayload{
@@ -315,6 +315,7 @@ func NewDoctorSpecializationUpdatedEvent(id uint, name, code, desc string, isAct
 		Description: desc,
 		IsActive:    isActive,
 	}
+	e.Payload.Action = action
 	return e
 }
 

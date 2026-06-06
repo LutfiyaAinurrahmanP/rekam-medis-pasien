@@ -142,6 +142,28 @@ func DoctorSpecializationDeletedListQuery(page, size int, search, sortBy, sortDi
 	)
 }
 
+func DoctorSpecializationActiveListQuery(page, size int, search, sortBy, sortDir string) string {
+	return fmt.Sprintf(
+		"doctor_specialization:active:p%d:s%d:q%s:sb%s:sd%s",
+		page,
+		size,
+		search,
+		sortBy,
+		sortDir,
+	)
+}
+
+func DoctorSpecializationInactiveListQuery(page, size int, search, sortBy, sortDir string) string {
+	return fmt.Sprintf(
+		"doctor_specialization:inactive:p%d:s%d:q%s:sb%s:sd%s",
+		page,
+		size,
+		search,
+		sortBy,
+		sortDir,
+	)
+}
+
 // ─── Doctor ────────────────────────────────────────────────────────────────
 
 func DoctorKey(id uint) string             { return fmt.Sprintf("doctor:id:%d", id) }

@@ -24,6 +24,12 @@ func NewEventDoctorSpecializationService(inner DoctorSpecializationService, publ
 func (s *eventDoctorSpecializationService) List(query *dto.DoctorSpecializationPaginationQuery) (*dto.DoctorSpecializationListResponse, error) {
 	return s.inner.List(query)
 }
+func (s *eventDoctorSpecializationService) ActiveList(query *dto.DoctorSpecializationPaginationQuery) (*dto.DoctorSpecializationListResponse, error) {
+	return s.inner.ActiveList(query)
+}
+func (s *eventDoctorSpecializationService) InactiveList(query *dto.DoctorSpecializationPaginationQuery) (*dto.DoctorSpecializationListResponse, error) {
+	return s.inner.InactiveList(query)
+}
 func (s *eventDoctorSpecializationService) DeletedList(query *dto.DoctorSpecializationPaginationQuery) (*dto.DoctorSpecializationDeletedListResponse, error) {
 	return s.inner.DeletedList(query)
 }
@@ -50,7 +56,7 @@ func (s *eventDoctorSpecializationService) Update(id uint, req *dto.UpdateDoctor
 	}
 	s.publisher.PublishAsync(
 		kafka.TopicDoctorSpecializationUpdated,
-		events.NewDoctorSpecializationUpdatedEvent(result.ID, result.Name, result.Code, result.Description, result.IsActive),
+		events.NewDoctorSpecializationUpdatedEvent(result.ID, result.Name, result.Code, result.Description, result.IsActive, "update"),
 	)
 	return result, nil
 }
@@ -105,6 +111,42 @@ func (s *eventDoctorSpecializationService) HardDelete(id uint) error {
 	s.publisher.PublishAsync(
 		kafka.TopicDoctorSpecializationDeleted,
 		events.NewDoctorSpecializationDeletedEvent(id, name, code, "hard_delete"),
+	)
+	return nil
+}
+
+func (s *eventDoctorSpecializationService) Activate(id uint) error {
+	ds, _ := s.inner.FindByID(id)
+	if err := s.inner.Activate(id); err != nil {
+		return err
+	}
+	name := ""
+	code := ""
+	if ds != nil {
+		name = ds.Name
+		code = ds.Code
+	}
+	s.publisher.PublishAsync(
+		kafka.TopicDoctorSpecializationUpdated,
+		events.NewDoctorSpecializationUpdatedEvent(id, name, code, ds.Description, true, "activate"),
+	)
+	return nil
+}
+
+func (s *eventDoctorSpecializationService) Deactivate(id uint) error {
+	ds, _ := s.inner.FindByID(id)
+	if err := s.inner.Deactivate(id); err != nil {
+		return err
+	}
+	name := ""
+	code := ""
+	if ds != nil {
+		name = ds.Name
+		code = ds.Code
+	}
+	s.publisher.PublishAsync(
+		kafka.TopicDoctorSpecializationUpdated,
+		events.NewDoctorSpecializationUpdatedEvent(id, name, code, ds.Description, false, "deactivate"),
 	)
 	return nil
 }

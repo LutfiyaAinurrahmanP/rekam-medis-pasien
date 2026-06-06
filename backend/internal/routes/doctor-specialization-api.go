@@ -12,11 +12,12 @@ func SetupDoctorSpecializationRouter(rg *gin.RouterGroup, cfg *RouteConfig, doct
 
 	dsGroup.Use(middleware.AuthMiddleware(cfg.Config))
 	{
-		// all roles
 		allRoutes := dsGroup.Group("")
 		allRoutes.Use(middleware.RoleMiddleware(models.RolePatient, models.RoleReceptionist, models.RoleDoctor, models.RoleAdmin, models.RoleSuperAdmin))
 		{
 			allRoutes.GET("", doctorSpecializationHandler.List)
+			allRoutes.GET("/active", doctorSpecializationHandler.ActiveList)
+			allRoutes.GET("/inactive", doctorSpecializationHandler.InactiveList)
 			allRoutes.GET("/:id", doctorSpecializationHandler.FindByID)
 		}
 
@@ -29,6 +30,8 @@ func SetupDoctorSpecializationRouter(rg *gin.RouterGroup, cfg *RouteConfig, doct
 			adminRoutes.PUT("/:id", doctorSpecializationHandler.Update)
 			adminRoutes.DELETE("/:id", doctorSpecializationHandler.SoftDelete)
 			adminRoutes.PATCH("/:id/restore", doctorSpecializationHandler.Restore)
+			adminRoutes.PATCH("/:id/activate", doctorSpecializationHandler.Activate)
+			adminRoutes.PATCH("/:id/deactivate", doctorSpecializationHandler.Deactivate)
 		}
 
 		// super admin only

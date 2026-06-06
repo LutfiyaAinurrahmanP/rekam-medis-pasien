@@ -31,6 +31,11 @@ func RunMigration(db *gorm.DB) error {
 		return err
 	}
 
+	// Hapus kolom lama jika masih ada untuk menghindari error NOT NULL saat seeding
+	if err := db.Exec(`ALTER TABLE doctors DROP COLUMN IF EXISTS specialization`).Error; err != nil {
+		return err
+	}
+
 	log.Println("✅ Database migrations completed successfully")
 	return nil
 }

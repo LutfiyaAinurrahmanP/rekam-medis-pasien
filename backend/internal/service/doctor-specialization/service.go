@@ -19,6 +19,10 @@ type DoctorSpecializationService interface {
 	SoftDelete(id uint) error
 	Restore(id uint) error
 	HardDelete(id uint) error
+	ActiveList(query *dto.DoctorSpecializationPaginationQuery) (*dto.DoctorSpecializationListResponse, error)
+	InactiveList(query *dto.DoctorSpecializationPaginationQuery) (*dto.DoctorSpecializationListResponse, error)
+	Activate(id uint) error
+	Deactivate(id uint) error
 }
 
 type doctorSpecializationService struct {
@@ -209,6 +213,102 @@ func (s *doctorSpecializationService) Restore(id uint) error {
 }
 func (s *doctorSpecializationService) HardDelete(id uint) error {
 	return s.repo.HardDelete(id)
+}
+
+func (s *doctorSpecializationService) ActiveList(query *dto.DoctorSpecializationPaginationQuery) (*dto.DoctorSpecializationListResponse, error) {
+	if query.Page < 1 {
+		query.Page = 1
+	}
+
+	if query.PageSize < 1 {
+		query.PageSize = s.config.Pagination.DefaultPageSize
+	}
+
+	if query.PageSize > s.config.Pagination.MaxPageSize {
+		query.PageSize = s.config.Pagination.MaxPageSize
+	}
+
+	if query.SortBy == "" {
+		query.SortBy = "created_at"
+	}
+
+	if query.SortDir == "" {
+		query.SortDir = "desc"
+	}
+
+	doctorSpecializations, total, err := s.repo.ActiveList(query)
+	if err != nil {
+		return nil, err
+	}
+
+	doctorSpecializationsResponse := make([]dto.DoctorSpecializationResponse, len(doctorSpecializations))
+	for i, ds := range doctorSpecializations {
+		doctorSpecializationsResponse[i] = *s.toDoctorSpecializationResponse(&ds)
+	}
+
+	totalPages := int(math.Ceil(float64(total) / float64(query.PageSize)))
+
+	return &dto.DoctorSpecializationListResponse{
+		Data: doctorSpecializationsResponse,
+		Meta: dto.DoctorSpecializationPaginationMeta{
+			Page:       query.Page,
+			PageSize:   query.PageSize,
+			TotalItems: total,
+			TotalPages: totalPages,
+		},
+	}, nil
+}
+
+func (s *doctorSpecializationService) InactiveList(query *dto.DoctorSpecializationPaginationQuery) (*dto.DoctorSpecializationListResponse, error) {
+	if query.Page < 1 {
+		query.Page = 1
+	}
+
+	if query.PageSize < 1 {
+		query.PageSize = s.config.Pagination.DefaultPageSize
+	}
+
+	if query.PageSize > s.config.Pagination.MaxPageSize {
+		query.PageSize = s.config.Pagination.MaxPageSize
+	}
+
+	if query.SortBy == "" {
+		query.SortBy = "created_at"
+	}
+
+	if query.SortDir == "" {
+		query.SortDir = "desc"
+	}
+
+	doctorSpecializations, total, err := s.repo.InactiveList(query)
+	if err != nil {
+		return nil, err
+	}
+
+	doctorSpecializationsResponse := make([]dto.DoctorSpecializationResponse, len(doctorSpecializations))
+	for i, ds := range doctorSpecializations {
+		doctorSpecializationsResponse[i] = *s.toDoctorSpecializationResponse(&ds)
+	}
+
+	totalPages := int(math.Ceil(float64(total) / float64(query.PageSize)))
+
+	return &dto.DoctorSpecializationListResponse{
+		Data: doctorSpecializationsResponse,
+		Meta: dto.DoctorSpecializationPaginationMeta{
+			Page:       query.Page,
+			PageSize:   query.PageSize,
+			TotalItems: total,
+			TotalPages: totalPages,
+		},
+	}, nil
+}
+
+func (s *doctorSpecializationService) Activate(id uint) error {
+	return s.repo.Activate(id)
+}
+
+func (s *doctorSpecializationService) Deactivate(id uint) error {
+	return s.repo.Deactivate(id)
 }
 
 func (s *doctorSpecializationService) toDoctorSpecializationResponse(ds *models.DoctorSpecialization) *dto.DoctorSpecializationResponse {
