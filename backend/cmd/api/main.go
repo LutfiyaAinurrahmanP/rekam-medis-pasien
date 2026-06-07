@@ -22,6 +22,7 @@ import (
 	doctorservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/doctor"
 	doctorspecializationservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/doctor-specialization"
 	medicineservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/medicine"
+	medicinetypeservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/medicine-type"
 	patientservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/patient"
 	roomservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/room"
 	roomtypeservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/room-type"
@@ -105,6 +106,7 @@ func main() {
 		TypeTestCategoryHandler:     dependencies.TypeTestCategoryHandler,
 		TypeTestHandler:             dependencies.TypeTestHandler,
 		MedicineHandler:             dependencies.MedicineHandler,
+		MedicineTypeHandler:         dependencies.MedicineTypeHandler,
 	})
 
 	// Setup HTTP server
@@ -149,6 +151,7 @@ type Dependencies struct {
 	TypeTestCategoryRepository     repository.TypeTestCategoryRepository
 	TypeTestRepository             repository.TypeTestRepository
 	MedicineRepository             repository.MedicineRepository
+	MedicineTypeRepository         repository.MedicineTypeRepository
 
 	// Services
 	UserService                 userservice.UserService
@@ -161,6 +164,7 @@ type Dependencies struct {
 	TypeTestCategoryService     typetestcategorieservice.TypeTestCategoryService
 	TypeTestService             typetestservice.TypeTestService
 	MedicineService             medicineservice.MedicineService
+	MedicineTypeService         medicinetypeservice.MedicineTypeService
 
 	// Handlers
 	UserHandler                 *handler.UserHandler
@@ -173,6 +177,7 @@ type Dependencies struct {
 	TypeTestCategoryHandler     *handler.TypeTestCategoryHandler
 	TypeTestHandler             *handler.TypeTestHandler
 	MedicineHandler             *handler.MedicineHandler
+	MedicineTypeHandler         *handler.MedicineTypeHandler
 }
 
 // initDependencies initializes all application dependencies
@@ -188,6 +193,7 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 	typeTestCategoryRepo := repository.NewTypeTestCategoryRepository(db)
 	typeTestRepo := repository.NewTypeTestRepository(db)
 	medicineRepo := repository.NewMedicineRepository(db)
+	medicineTypeRepo := repository.NewMedicineTypeRepository(db)
 
 	// Konversi *RedisClient ke interface RedisStore hanya jika non-nil.
 	// Tanpa ini, passing typed-nil ke parameter interface menghasilkan non-nil
@@ -241,6 +247,10 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 		medicineservice.NewCachedMedicineService(medicineservice.NewMedicineService(medicineRepo, cfg), redisClient),
 		publisher,
 	)
+	medicineTypeService := medicinetypeservice.NewEventMedicineTypeService(
+		medicinetypeservice.NewCachedMedicineTypeService(medicinetypeservice.NewMedicineTypeService(medicineTypeRepo, cfg), redisClient),
+		publisher,
+	)
 
 	// Initialize Handlers
 	userHandler := handler.NewUserHandler(userService)
@@ -253,6 +263,7 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 	typeTestCategoryHandler := handler.NewTypeTestCategoryHandler(typeTestCategoryService)
 	typeTestHandler := handler.NewTypeTestHandler(typeTestService)
 	medicineHandler := handler.NewMedicineHandler(medicineService)
+	medicineTypeHandler := handler.NewMedicineTypeHandler(medicineTypeService)
 
 	return &Dependencies{
 		UserRepository: userRepo,
@@ -294,6 +305,10 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 		MedicineRepository: medicineRepo,
 		MedicineService:    medicineService,
 		MedicineHandler:    medicineHandler,
+
+		MedicineTypeRepository: medicineTypeRepo,
+		MedicineTypeService:    medicineTypeService,
+		MedicineTypeHandler:    medicineTypeHandler,
 	}
 }
 

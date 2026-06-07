@@ -145,7 +145,7 @@ func (h *DoctorSpecializationHandler) Update(ctx *gin.Context) {
 			return
 		}
 
-		utils.ErrorResponse(ctx, http.StatusBadRequest, "Failed to create doctor specialization", err.Error())
+		utils.ErrorResponse(ctx, http.StatusBadRequest, "Failed to update doctor specialization", err.Error())
 		return
 	}
 

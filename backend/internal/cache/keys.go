@@ -422,6 +422,56 @@ func TypeTestInactiveListQuery(page, size int, search, sortBy, sortDir string) s
 	)
 }
 
+// ─── Medicine Type ──────────────────────────────────────────────────────────────
+
+func MedicineTypeKey(id uint) string {
+	return fmt.Sprintf("medicine_type:id:%d", id)
+}
+
+func MedicineTypeListQuery(page, size int, search, sortBy, sortDir string) string {
+	return fmt.Sprintf(
+		"medicine_type:list:p%d:s%d:q%s:sb%s:sd%s",
+		page,
+		size,
+		search,
+		sortBy,
+		sortDir,
+	)
+}
+
+func MedicineTypeDeletedListQuery(page, size int, search, sortBy, sortDir string) string {
+	return fmt.Sprintf(
+		"medicine_type:deleted:p%d:s%d:q%s:sb%s:sd%s",
+		page,
+		size,
+		search,
+		sortBy,
+		sortDir,
+	)
+}
+
+func MedicineTypeActiveListQuery(page, size int, search, sortBy, sortDir string) string {
+	return fmt.Sprintf(
+		"medicine_type:active:p%d:s%d:q%s:sb%s:sd%s",
+		page,
+		size,
+		search,
+		sortBy,
+		sortDir,
+	)
+}
+
+func MedicineTypeInactiveListQuery(page, size int, search, sortBy, sortDir string) string {
+	return fmt.Sprintf(
+		"medicine_type:inactive:p%d:s%d:q%s:sb%s:sd%s",
+		page,
+		size,
+		search,
+		sortBy,
+		sortDir,
+	)
+}
+
 // ─── Medicine ──────────────────────────────────────────────────────────────
 
 func MedicineKey(id uint) string            { return fmt.Sprintf("medicine:id:%d", id) }
@@ -445,10 +495,6 @@ func MedicineInactiveKey(page, size int) string {
 	return fmt.Sprintf("medicine:inactive:p%d:s%d", page, size)
 }
 
-func MedicineTypeKey(page, size int) string {
-	return fmt.Sprintf("medicine:type:p%d:s%d", page, size)
-}
-
 // ─── Invalidation patterns ─────────────────────────────────────────────────
 
 const (
@@ -461,5 +507,6 @@ const (
 	PatternRoomAll                 = "room:*"
 	PatternTypeTestCategoryAll     = "type_test_category:*"
 	PatternTypeTestAll             = "type_test:*"
+	PatternMedicineTypeAll         = "medicine_type:*"
 	PatternMedicineAll             = "medicine:*"
 )

@@ -20,6 +20,7 @@ func RunMigration(db *gorm.DB) error {
 		&models.TypeTestCategory{},
 		&models.TypeTest{},
 		&models.Medicine{},
+		&models.MedicineType{},
 		&models.RoomType{},
 	); err != nil {
 		return err

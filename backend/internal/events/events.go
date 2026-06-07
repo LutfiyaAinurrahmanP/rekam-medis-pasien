@@ -817,6 +817,92 @@ func NewTypeTestRestoredEvent(id uint, code, name string) TypeTestRestoredEvent 
 	}
 }
 
+// ─── Medicine Types Events ─────────────────────────────────────────────
+
+type MedicineTypePayload struct {
+	ID          uint   `json:"id"`
+	Name        string `json:"name"`
+	Code        string `json:"code"`
+	Description string `json:"description"`
+	IsActive    bool   `json:"is_active"`
+	CreatedAt   string `json:"created_at,omitempty"`
+	UpdatedAt   string `json:"updated_at,omitempty"`
+	DeletedAt   string `json:"deleted_at,omitempty"`
+	Action      string `json:"action,omitempty"`
+}
+
+type MedicineTypeCreatedEvent struct {
+	BaseEvent
+	Payload MedicineTypePayload `json:"payload"`
+}
+
+type MedicineTypeUpdatedEvent struct {
+	BaseEvent
+	Payload MedicineTypePayload `json:"payload"`
+}
+
+type MedicineTypeDeletedEvent struct {
+	BaseEvent
+	Payload MedicineTypePayload `json:"payload"`
+}
+
+type MedicineTypeRestoredEvent struct {
+	BaseEvent
+	Payload MedicineTypePayload `json:"payload"`
+}
+
+// Constructors ─────────────────────────────────────────────────────────────────
+
+func NewMedicineTypeCreatedEvent(id uint, name, code, desc string, isActive bool) MedicineTypeCreatedEvent {
+	return MedicineTypeCreatedEvent{
+		BaseEvent: newBase("medicine_type.created"),
+		Payload: MedicineTypePayload{
+			ID:          id,
+			Name:        name,
+			Code:        code,
+			Description: desc,
+			IsActive:    isActive,
+		},
+	}
+}
+
+func NewMedicineTypeUpdatedEvent(id uint, name, code, desc string, isActive bool, action string) MedicineTypeUpdatedEvent {
+	return MedicineTypeUpdatedEvent{
+		BaseEvent: newBase("medicine_type.updated"),
+		Payload: MedicineTypePayload{
+			ID:          id,
+			Name:        name,
+			Code:        code,
+			Description: desc,
+			IsActive:    isActive,
+			Action:      action,
+		},
+	}
+}
+
+func NewMedicineTypeDeletedEvent(id uint, name, code, action string) MedicineTypeDeletedEvent {
+	return MedicineTypeDeletedEvent{
+		BaseEvent: newBase("medicine_type.deleted"),
+		Payload: MedicineTypePayload{
+			ID:     id,
+			Name:   name,
+			Code:   code,
+			Action: action,
+		},
+	}
+}
+
+func NewMedicineTypeRestoredEvent(id uint, name, code string) MedicineTypeRestoredEvent {
+	return MedicineTypeRestoredEvent{
+		BaseEvent: newBase("medicine_type.restored"),
+		Payload: MedicineTypePayload{
+			ID:   id,
+			Name: name,
+			Code: code,
+		},
+	}
+}
+
 // Medicine Events
 type MedicinePayload struct {
 	ID            uint    `json:"id"`

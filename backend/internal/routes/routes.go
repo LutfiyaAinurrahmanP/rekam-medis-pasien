@@ -22,6 +22,7 @@ type RouteConfig struct {
 	TypeTestCategoryHandler     *handler.TypeTestCategoryHandler
 	TypeTestHandler             *handler.TypeTestHandler
 	MedicineHandler             *handler.MedicineHandler
+	MedicineTypeHandler         *handler.MedicineTypeHandler
 }
 
 func SetupRouter(cfg *RouteConfig) *gin.Engine {

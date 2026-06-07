@@ -398,6 +398,39 @@ func (h *NotificationEventHandler) handle(ctx context.Context, topic string, key
 		}
 		log.Printf("[NOTIFICATION] ♻️ Test type restored: %s (code=%s)", e.Payload.Name, e.Payload.Code)
 
+	// ── MedicineType Events ──────────────────────────────────────────────────────
+
+	case kafka.TopicMedicineTypeCreated:
+		var e events.MedicineTypeCreatedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 💊 New medicine type added: %s (code=%s)",
+			e.Payload.Name, e.Payload.Code)
+
+	case kafka.TopicMedicineTypeUpdated:
+		var e events.MedicineTypeUpdatedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 💊 Medicine type updated: %s (code=%s, action=%s)",
+			e.Payload.Name, e.Payload.Code, e.Payload.Action)
+
+	case kafka.TopicMedicineTypeDeleted:
+		var e events.MedicineTypeDeletedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🗑️ Medicine type deleted: %s (code=%s, action=%s)",
+			e.Payload.Name, e.Payload.Code, e.Payload.Action)
+
+	case kafka.TopicMedicineTypeRestored:
+		var e events.MedicineTypeRestoredEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] ♻️ Medicine type restored: %s (code=%s)", e.Payload.Name, e.Payload.Code)
+
 	default:
 		log.Printf("[NOTIFICATION] ⚠️  Received unsupported topic: %s", topic)
 	}

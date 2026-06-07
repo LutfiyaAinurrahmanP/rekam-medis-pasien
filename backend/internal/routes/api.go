@@ -54,4 +54,8 @@ func SetupAPIRouter(rg *gin.RouterGroup, cfg *RouteConfig) {
 	if cfg.MedicineHandler != nil {
 		SetupMedicineRouter(rg, cfg, cfg.MedicineHandler)
 	}
+
+	if cfg.MedicineTypeHandler != nil {
+		SetupMedicineTypeRouter(rg, cfg, cfg.MedicineTypeHandler)
+	}
 }
