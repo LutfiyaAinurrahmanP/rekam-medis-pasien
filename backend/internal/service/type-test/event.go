@@ -17,7 +17,10 @@ func NewEventTypeTestService(inner TypeTestService, publisher kafka.EventPublish
 	if publisher == nil {
 		return inner
 	}
-	return &eventTypeTestService{inner: inner, publisher: publisher}
+	return &eventTypeTestService{
+		inner:     inner,
+		publisher: publisher,
+	}
 }
 
 // ─── Read operations ──────────────────────────────────────────────────────────
@@ -26,28 +29,20 @@ func (s *eventTypeTestService) List(query *dto.TypeTestPaginationQuery) (*dto.Ty
 	return s.inner.List(query)
 }
 
-func (s *eventTypeTestService) ListActive(query *dto.TypeTestPaginationQuery) (*dto.ActiveTypeTestListResponse, error) {
-	return s.inner.ListActive(query)
+func (s *eventTypeTestService) ActiveList(query *dto.TypeTestPaginationQuery) (*dto.TypeTestListResponse, error) {
+	return s.inner.ActiveList(query)
 }
 
-func (s *eventTypeTestService) ListInactive(query *dto.TypeTestPaginationQuery) (*dto.TypeTestListResponse, error) {
-	return s.inner.ListInactive(query)
+func (s *eventTypeTestService) InactiveList(query *dto.TypeTestPaginationQuery) (*dto.TypeTestListResponse, error) {
+	return s.inner.InactiveList(query)
 }
 
-func (s *eventTypeTestService) DeleteList(query *dto.TypeTestPaginationQuery) (*dto.TypeTestDeletedListResponse, error) {
-	return s.inner.DeleteList(query)
-}
-
-func (s *eventTypeTestService) Search(query *dto.TypeTestSearchQuery) (*dto.TypeTestSearchResponse, error) {
-	return s.inner.Search(query)
+func (s *eventTypeTestService) DeletedList(query *dto.TypeTestPaginationQuery) (*dto.TypeTestDeletedListResponse, error) {
+	return s.inner.DeletedList(query)
 }
 
 func (s *eventTypeTestService) FindByID(id uint) (*dto.TypeTestResponse, error) {
 	return s.inner.FindByID(id)
-}
-
-func (s *eventTypeTestService) FindByCode(code string) (*dto.TypeTestResponse, error) {
-	return s.inner.FindByCode(code)
 }
 
 // ─── Write operations ─────────────────────────────────────────────────────────
@@ -58,7 +53,7 @@ func (s *eventTypeTestService) Create(req *dto.CreateTypeTestRequest) (*dto.Type
 		return nil, err
 	}
 	s.publisher.PublishAsync(kafka.TopicTypeTestCreated,
-		events.NewTypeTestCreatedEvent(result.ID, result.Code, result.Name, result.Category, result.Price, result.IsActive))
+		events.NewTypeTestCreatedEvent(result.ID, result.Code, result.Name, result.TypeTestCategoryID, result.Description, result.Price, result.IsActive))
 	return result, nil
 }
 
@@ -68,7 +63,7 @@ func (s *eventTypeTestService) Update(id uint, req *dto.UpdateTypeTestRequest) (
 		return nil, err
 	}
 	s.publisher.PublishAsync(kafka.TopicTypeTestUpdated,
-		events.NewTypeTestUpdatedEvent(result.ID, result.Code, result.Name, result.Category, result.Price, result.IsActive, "update"))
+		events.NewTypeTestUpdatedEvent(result.ID, result.Code, result.Name, result.TypeTestCategoryID, result.Description, result.Price, result.IsActive, "update"))
 	return result, nil
 }
 
@@ -78,7 +73,7 @@ func (s *eventTypeTestService) Activate(id uint) error {
 	}
 	if t, err := s.inner.FindByID(id); err == nil {
 		s.publisher.PublishAsync(kafka.TopicTypeTestUpdated,
-			events.NewTypeTestUpdatedEvent(t.ID, t.Code, t.Name, t.Category, t.Price, true, "activate"))
+			events.NewTypeTestUpdatedEvent(t.ID, t.Code, t.Name, t.TypeTestCategoryID, t.Description, t.Price, true, "activate"))
 	}
 	return nil
 }
@@ -89,7 +84,7 @@ func (s *eventTypeTestService) Deactivate(id uint) error {
 	}
 	if t, err := s.inner.FindByID(id); err == nil {
 		s.publisher.PublishAsync(kafka.TopicTypeTestUpdated,
-			events.NewTypeTestUpdatedEvent(t.ID, t.Code, t.Name, t.Category, t.Price, false, "deactivate"))
+			events.NewTypeTestUpdatedEvent(t.ID, t.Code, t.Name, t.TypeTestCategoryID, t.Description, t.Price, false, "deactivate"))
 	}
 	return nil
 }

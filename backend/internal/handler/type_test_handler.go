@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/dto"
-	typetestservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/typetest"
+	typetestservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/type-test"
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/utils"
 	"github.com/gin-gonic/gin"
 )
@@ -18,7 +18,7 @@ func NewTypeTestHandler(s typetestservice.TypeTestService) *TypeTestHandler {
 	return &TypeTestHandler{service: s}
 }
 
-func (h *TypeTestHandler) ListTypeTests(ctx *gin.Context) {
+func (h *TypeTestHandler) List(ctx *gin.Context) {
 	var q dto.TypeTestPaginationQuery
 	if err := ctx.ShouldBindQuery(&q); err != nil {
 		utils.ValidationErrorResponse(ctx, err)
@@ -26,69 +26,55 @@ func (h *TypeTestHandler) ListTypeTests(ctx *gin.Context) {
 	}
 	res, err := h.service.List(&q)
 	if err != nil {
-		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to retrieve test types", err.Error())
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to retrieve type tests", err.Error())
 		return
 	}
-	utils.SuccessResponse(ctx, http.StatusOK, "Test types retrieved successfully", res)
+	utils.SuccessResponse(ctx, http.StatusOK, "Type tests retrieved successfully", res)
 }
 
-func (h *TypeTestHandler) ListActiveTypeTests(ctx *gin.Context) {
+func (h *TypeTestHandler) ActiveList(ctx *gin.Context) {
 	var q dto.TypeTestPaginationQuery
 	if err := ctx.ShouldBindQuery(&q); err != nil {
 		utils.ValidationErrorResponse(ctx, err)
 		return
 	}
-	res, err := h.service.ListActive(&q)
+	res, err := h.service.ActiveList(&q)
 	if err != nil {
-		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to retrieve active test types", err.Error())
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to retrieve active type tests", err.Error())
 		return
 	}
-	utils.SuccessResponse(ctx, http.StatusOK, "Active test types retrieved successfully", res)
+	utils.SuccessResponse(ctx, http.StatusOK, "Active type tests retrieved successfully", res)
 }
 
-func (h *TypeTestHandler) ListInactiveTypeTests(ctx *gin.Context) {
+func (h *TypeTestHandler) InactiveList(ctx *gin.Context) {
 	var q dto.TypeTestPaginationQuery
 	if err := ctx.ShouldBindQuery(&q); err != nil {
 		utils.ValidationErrorResponse(ctx, err)
 		return
 	}
-	res, err := h.service.ListInactive(&q)
+	res, err := h.service.InactiveList(&q)
 	if err != nil {
-		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to retrieve inactive test types", err.Error())
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to retrieve inactive type tests", err.Error())
 		return
 	}
-	utils.SuccessResponse(ctx, http.StatusOK, "Inactive test types retrieved successfully", res)
+	utils.SuccessResponse(ctx, http.StatusOK, "Inactive type tests retrieved successfully", res)
 }
 
-func (h *TypeTestHandler) DeletedListTypeTests(ctx *gin.Context) {
+func (h *TypeTestHandler) DeletedList(ctx *gin.Context) {
 	var q dto.TypeTestPaginationQuery
 	if err := ctx.ShouldBindQuery(&q); err != nil {
 		utils.ValidationErrorResponse(ctx, err)
 		return
 	}
-	res, err := h.service.DeleteList(&q)
+	res, err := h.service.DeletedList(&q)
 	if err != nil {
-		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to retrieve deleted test types", err.Error())
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to retrieve deleted type tests", err.Error())
 		return
 	}
-	utils.SuccessResponse(ctx, http.StatusOK, "Deleted test types retrieved successfully", res)
+	utils.SuccessResponse(ctx, http.StatusOK, "Deleted type tests retrieved successfully", res)
 }
 
-func (h *TypeTestHandler) SearchTypeTests(ctx *gin.Context) {
-	var q dto.TypeTestSearchQuery
-	if err := ctx.ShouldBindQuery(&q); err != nil {
-		utils.ValidationErrorResponse(ctx, err)
-		return
-	}
-	res, err := h.service.Search(&q)
-	if err != nil {
-		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to search test types", err.Error())
-		return
-	}
-	utils.SuccessResponse(ctx, http.StatusOK, "Search results retrieved successfully", res)
-}
-
-func (h *TypeTestHandler) GetTypeTestByID(ctx *gin.Context) {
+func (h *TypeTestHandler) FindByID(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
 		utils.ErrorResponse(ctx, http.StatusBadRequest, "Invalid id", err.Error())
@@ -96,23 +82,13 @@ func (h *TypeTestHandler) GetTypeTestByID(ctx *gin.Context) {
 	}
 	res, err := h.service.FindByID(uint(id))
 	if err != nil {
-		utils.ErrorResponse(ctx, http.StatusNotFound, "Test type not found", err.Error())
+		utils.ErrorResponse(ctx, http.StatusNotFound, "Type test not found", err.Error())
 		return
 	}
-	utils.SuccessResponse(ctx, http.StatusOK, "Test type retrieved successfully", res)
+	utils.SuccessResponse(ctx, http.StatusOK, "Type test retrieved successfully", res)
 }
 
-func (h *TypeTestHandler) GetTypeTestByCode(ctx *gin.Context) {
-	code := ctx.Param("code")
-	res, err := h.service.FindByCode(code)
-	if err != nil {
-		utils.ErrorResponse(ctx, http.StatusNotFound, "Test type not found", err.Error())
-		return
-	}
-	utils.SuccessResponse(ctx, http.StatusOK, "Test type retrieved successfully", res)
-}
-
-func (h *TypeTestHandler) CreateTypeTest(ctx *gin.Context) {
+func (h *TypeTestHandler) Create(ctx *gin.Context) {
 	var req dto.CreateTypeTestRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		utils.ValidationErrorResponse(ctx, err)
@@ -124,13 +100,13 @@ func (h *TypeTestHandler) CreateTypeTest(ctx *gin.Context) {
 			utils.ErrorResponse(ctx, http.StatusConflict, "Duplicate data", err.Error())
 			return
 		}
-		utils.ErrorResponse(ctx, http.StatusBadRequest, "Failed to create test type", err.Error())
+		utils.ErrorResponse(ctx, http.StatusBadRequest, "Failed to create type test", err.Error())
 		return
 	}
-	utils.SuccessResponse(ctx, http.StatusCreated, "Test type created successfully", res)
+	utils.SuccessResponse(ctx, http.StatusCreated, "Type test created successfully", res)
 }
 
-func (h *TypeTestHandler) UpdateTypeTest(ctx *gin.Context) {
+func (h *TypeTestHandler) Update(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
 		utils.ErrorResponse(ctx, http.StatusBadRequest, "Invalid id", err.Error())
@@ -147,89 +123,89 @@ func (h *TypeTestHandler) UpdateTypeTest(ctx *gin.Context) {
 			utils.ErrorResponse(ctx, http.StatusConflict, "Duplicate data", err.Error())
 			return
 		}
-		if err.Error() == "test type not found" {
-			utils.ErrorResponse(ctx, http.StatusNotFound, "Test type not found", err.Error())
+		if err.Error() == "type test not found" {
+			utils.ErrorResponse(ctx, http.StatusNotFound, "Type test not found", err.Error())
 			return
 		}
-		utils.ErrorResponse(ctx, http.StatusBadRequest, "Failed to update test type", err.Error())
+		utils.ErrorResponse(ctx, http.StatusBadRequest, "Failed to update type test", err.Error())
 		return
 	}
-	utils.SuccessResponse(ctx, http.StatusOK, "Test type updated successfully", res)
+	utils.SuccessResponse(ctx, http.StatusOK, "Type test updated successfully", res)
 }
 
-func (h *TypeTestHandler) ActivateTypeTest(ctx *gin.Context) {
-	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
-	if err != nil {
-		utils.ErrorResponse(ctx, http.StatusBadRequest, "Invalid id", err.Error())
-		return
-	}
-	if err := h.service.Activate(uint(id)); err != nil {
-		if err.Error() == "test type not found" {
-			utils.ErrorResponse(ctx, http.StatusNotFound, "Test type not found", err.Error())
-			return
-		}
-		utils.ErrorResponse(ctx, http.StatusBadRequest, "Failed to activate test type", err.Error())
-		return
-	}
-	utils.SuccessResponse(ctx, http.StatusOK, "Test type activated successfully", nil)
-}
-
-func (h *TypeTestHandler) DeactivateTypeTest(ctx *gin.Context) {
-	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
-	if err != nil {
-		utils.ErrorResponse(ctx, http.StatusBadRequest, "Invalid id", err.Error())
-		return
-	}
-	if err := h.service.Deactivate(uint(id)); err != nil {
-		if err.Error() == "test type not found" {
-			utils.ErrorResponse(ctx, http.StatusNotFound, "Test type not found", err.Error())
-			return
-		}
-		utils.ErrorResponse(ctx, http.StatusBadRequest, "Failed to deactivate test type", err.Error())
-		return
-	}
-	utils.SuccessResponse(ctx, http.StatusOK, "Test type deactivated successfully", nil)
-}
-
-func (h *TypeTestHandler) SoftDeleteTypeTest(ctx *gin.Context) {
+func (h *TypeTestHandler) SoftDelete(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
 		utils.ErrorResponse(ctx, http.StatusBadRequest, "Invalid id", err.Error())
 		return
 	}
 	if err := h.service.SoftDelete(uint(id)); err != nil {
-		if err.Error() == "test type not found" {
-			utils.ErrorResponse(ctx, http.StatusNotFound, "Test type not found", err.Error())
+		if err.Error() == "type test not found" {
+			utils.ErrorResponse(ctx, http.StatusNotFound, "Type test not found", err.Error())
 			return
 		}
-		utils.ErrorResponse(ctx, http.StatusBadRequest, "Failed to delete test type", err.Error())
+		utils.ErrorResponse(ctx, http.StatusBadRequest, "Failed to delete type test", err.Error())
 		return
 	}
-	utils.SuccessResponse(ctx, http.StatusOK, "Test type deleted successfully", nil)
+	utils.SuccessResponse(ctx, http.StatusOK, "Type test deleted successfully", nil)
 }
 
-func (h *TypeTestHandler) RestoreTypeTest(ctx *gin.Context) {
+func (h *TypeTestHandler) Restore(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
 		utils.ErrorResponse(ctx, http.StatusBadRequest, "Invalid id", err.Error())
 		return
 	}
 	if err := h.service.Restore(uint(id)); err != nil {
-		utils.ErrorResponse(ctx, http.StatusBadRequest, "Failed to restore test type", err.Error())
+		utils.ErrorResponse(ctx, http.StatusBadRequest, "Failed to restore type test", err.Error())
 		return
 	}
-	utils.SuccessResponse(ctx, http.StatusOK, "Test type restored successfully", nil)
+	utils.SuccessResponse(ctx, http.StatusOK, "Type test restored successfully", nil)
 }
 
-func (h *TypeTestHandler) HardDeleteTypeTest(ctx *gin.Context) {
+func (h *TypeTestHandler) HardDelete(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
 		utils.ErrorResponse(ctx, http.StatusBadRequest, "Invalid id", err.Error())
 		return
 	}
 	if err := h.service.HardDelete(uint(id)); err != nil {
-		utils.ErrorResponse(ctx, http.StatusBadRequest, "Failed to hard delete test type", err.Error())
+		utils.ErrorResponse(ctx, http.StatusBadRequest, "Failed to hard delete type test", err.Error())
 		return
 	}
-	utils.SuccessResponse(ctx, http.StatusOK, "Test type permanently deleted", nil)
+	utils.SuccessResponse(ctx, http.StatusOK, "Type test permanently deleted", nil)
+}
+
+func (h *TypeTestHandler) Activate(ctx *gin.Context) {
+	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
+	if err != nil {
+		utils.ErrorResponse(ctx, http.StatusBadRequest, "Invalid id", err.Error())
+		return
+	}
+	if err := h.service.Activate(uint(id)); err != nil {
+		if err.Error() == "type test not found" {
+			utils.ErrorResponse(ctx, http.StatusNotFound, "Type test not found", err.Error())
+			return
+		}
+		utils.ErrorResponse(ctx, http.StatusBadRequest, "Failed to activate type test", err.Error())
+		return
+	}
+	utils.SuccessResponse(ctx, http.StatusOK, "Type test activated successfully", nil)
+}
+
+func (h *TypeTestHandler) Deactivate(ctx *gin.Context) {
+	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
+	if err != nil {
+		utils.ErrorResponse(ctx, http.StatusBadRequest, "Invalid id", err.Error())
+		return
+	}
+	if err := h.service.Deactivate(uint(id)); err != nil {
+		if err.Error() == "type test not found" {
+			utils.ErrorResponse(ctx, http.StatusNotFound, "Type test not found", err.Error())
+			return
+		}
+		utils.ErrorResponse(ctx, http.StatusBadRequest, "Failed to deactivate type test", err.Error())
+		return
+	}
+	utils.SuccessResponse(ctx, http.StatusOK, "Type test deactivated successfully", nil)
 }

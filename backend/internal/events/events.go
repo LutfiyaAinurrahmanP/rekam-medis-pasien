@@ -742,17 +742,17 @@ func NewTypeTestCategoryRestoredEvent(id uint, name, code string) TypeTestCatego
 // ─── TypeTest Events ──────────────────────────────────────────────────────────
 
 type TypeTestPayload struct {
-	ID          uint    `json:"id"`
-	Code        string  `json:"code"`
-	Name        string  `json:"name"`
-	Category    string  `json:"category"`
-	Description string  `json:"description"`
-	Price       float64 `json:"price"`
-	IsActive    bool    `json:"is_active"`
-	CreatedAt   string  `json:"created_at,omitempty"`
-	UpdatedAt   string  `json:"updated_at,omitempty"`
-	DeletedAt   string  `json:"deleted_at,omitempty"`
-	Action      string  `json:"action,omitempty"`
+	ID                 uint    `json:"id"`
+	Code               string  `json:"code"`
+	Name               string  `json:"name"`
+	TypeTestCategoryID uint    `json:"type_test_category_id"`
+	Description        string  `json:"description"`
+	Price              float64 `json:"price"`
+	IsActive           bool    `json:"is_active"`
+	CreatedAt          string  `json:"created_at,omitempty"`
+	UpdatedAt          string  `json:"updated_at,omitempty"`
+	DeletedAt          string  `json:"deleted_at,omitempty"`
+	Action             string  `json:"action,omitempty"`
 }
 
 type TypeTestCreatedEvent struct {
@@ -777,18 +777,18 @@ type TypeTestRestoredEvent struct {
 
 // Constructors ────────────────────────────────────────────────────────────────
 
-func NewTypeTestCreatedEvent(id uint, code, name, category string, price float64, isActive bool) TypeTestCreatedEvent {
+func NewTypeTestCreatedEvent(id uint, code, name string, typeTestCategoryID uint, description string, price float64, isActive bool) TypeTestCreatedEvent {
 	return TypeTestCreatedEvent{
-		BaseEvent: newBase("typetest.created"),
-		Payload:   TypeTestPayload{ID: id, Code: code, Name: name, Category: category, Price: price, IsActive: isActive},
+		BaseEvent: newBase("type_test.created"),
+		Payload:   TypeTestPayload{ID: id, Code: code, Name: name, TypeTestCategoryID: typeTestCategoryID, Description: description, Price: price, IsActive: isActive},
 	}
 }
 
-func NewTypeTestUpdatedEvent(id uint, code, name, category string, price float64, isActive bool, action string) TypeTestUpdatedEvent {
+func NewTypeTestUpdatedEvent(id uint, code, name string, typeTestCategoryID uint, description string, price float64, isActive bool, action string) TypeTestUpdatedEvent {
 	return TypeTestUpdatedEvent{
-		BaseEvent: newBase("typetest.updated"),
+		BaseEvent: newBase("type_test.updated"),
 		Payload: TypeTestPayload{
-			ID: id, Code: code, Name: name, Category: category, Price: price, IsActive: isActive,
+			ID: id, Code: code, Name: name, TypeTestCategoryID: typeTestCategoryID, Description: description, Price: price, IsActive: isActive,
 			Action: action,
 		},
 	}
@@ -796,7 +796,7 @@ func NewTypeTestUpdatedEvent(id uint, code, name, category string, price float64
 
 func NewTypeTestDeletedEvent(id uint, code, name, action string) TypeTestDeletedEvent {
 	return TypeTestDeletedEvent{
-		BaseEvent: newBase("typetest.deleted"),
+		BaseEvent: newBase("type_test.deleted"),
 		Payload: TypeTestPayload{
 			ID:     id,
 			Code:   code,
@@ -808,7 +808,7 @@ func NewTypeTestDeletedEvent(id uint, code, name, action string) TypeTestDeleted
 
 func NewTypeTestRestoredEvent(id uint, code, name string) TypeTestRestoredEvent {
 	return TypeTestRestoredEvent{
-		BaseEvent: newBase("typetest.restored"),
+		BaseEvent: newBase("type_test.restored"),
 		Payload: TypeTestPayload{
 			ID:   id,
 			Code: code,

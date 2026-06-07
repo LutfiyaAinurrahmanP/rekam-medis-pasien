@@ -372,8 +372,8 @@ func (h *NotificationEventHandler) handle(ctx context.Context, topic string, key
 		if err := json.Unmarshal(value, &e); err != nil {
 			return err
 		}
-		log.Printf("[NOTIFICATION] 🧪 New test type added: %s (code=%s, category=%s)",
-			e.Payload.Name, e.Payload.Code, e.Payload.Category)
+		log.Printf("[NOTIFICATION] 🧪 New test type added: %s (code=%s, category_id=%d)",
+			e.Payload.Name, e.Payload.Code, e.Payload.TypeTestCategoryID)
 
 	case kafka.TopicTypeTestUpdated:
 		var e events.TypeTestUpdatedEvent

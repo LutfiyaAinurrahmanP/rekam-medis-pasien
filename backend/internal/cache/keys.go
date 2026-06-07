@@ -374,10 +374,52 @@ func TypeTestCategoryInactiveListQuery(page, size int, search, sortBy, sortDir s
 
 // ─── TypeTest ──────────────────────────────────────────────────────────────
 
-func TypeTestKey(id uint) string            { return fmt.Sprintf("typetest:id:%d", id) }
-func TypeTestListKey(page, size int) string { return fmt.Sprintf("typetest:list:p%d:s%d", page, size) }
-func TypeTestSearchKey(q string, page, size int) string {
-	return fmt.Sprintf("typetest:search:%s:p%d:s%d", q, page, size)
+func TypeTestKey(id uint) string {
+	return fmt.Sprintf("type_test:id:%d", id)
+}
+
+func TypeTestListQuery(page, size int, search, sortBy, sortDir string) string {
+	return fmt.Sprintf(
+		"type_test:list:p%d:s%d:q%s:sb%s:sd%s",
+		page,
+		size,
+		search,
+		sortBy,
+		sortDir,
+	)
+}
+
+func TypeTestDeletedListQuery(page, size int, search, sortBy, sortDir string) string {
+	return fmt.Sprintf(
+		"type_test:deleted:p%d:s%d:q%s:sb%s:sd%s",
+		page,
+		size,
+		search,
+		sortBy,
+		sortDir,
+	)
+}
+
+func TypeTestActiveListQuery(page, size int, search, sortBy, sortDir string) string {
+	return fmt.Sprintf(
+		"type_test:active:p%d:s%d:q%s:sb%s:sd%s",
+		page,
+		size,
+		search,
+		sortBy,
+		sortDir,
+	)
+}
+
+func TypeTestInactiveListQuery(page, size int, search, sortBy, sortDir string) string {
+	return fmt.Sprintf(
+		"type_test:inactive:p%d:s%d:q%s:sb%s:sd%s",
+		page,
+		size,
+		search,
+		sortBy,
+		sortDir,
+	)
 }
 
 // ─── Medicine ──────────────────────────────────────────────────────────────
@@ -418,6 +460,6 @@ const (
 	PatternRoomTypeAll             = "room_type:*"
 	PatternRoomAll                 = "room:*"
 	PatternTypeTestCategoryAll     = "type_test_category:*"
-	PatternTypeTestAll             = "typetest:*"
+	PatternTypeTestAll             = "type_test:*"
 	PatternMedicineAll             = "medicine:*"
 )

@@ -212,7 +212,7 @@ func (r *doctorSpecializationRepository) ActiveList(query *dto.DoctorSpecializat
 		searchPattern := "%" + escaped + "%"
 
 		db = db.Where(
-			"(name ILIKE ? ESCAPE '\\' OR code ILIKE ? ESCAPE '\\')",
+			"name ILIKE ? ESCAPE '\\' OR code ILIKE ? ESCAPE '\\'",
 			searchPattern, searchPattern,
 		)
 	}
@@ -244,7 +244,7 @@ func (r *doctorSpecializationRepository) InactiveList(query *dto.DoctorSpecializ
 		searchPattern := "%" + escaped + "%"
 
 		db = db.Where(
-			"(name ILIKE ? ESCAPE '\\' OR code ILIKE ? ESCAPE '\\')",
+			"name ILIKE ? ESCAPE '\\' OR code ILIKE ? ESCAPE '\\'",
 			searchPattern, searchPattern,
 		)
 	}

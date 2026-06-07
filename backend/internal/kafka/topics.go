@@ -49,16 +49,16 @@ const (
 	TopicRoomRestored = "room.restored"
 
 	// ── TypeTestCategory Topics ───────────────────────────────────────────────
-	TopicTypeTestCategoryCreated  = "typetestcategory.created"
-	TopicTypeTestCategoryUpdated  = "typetestcategory.updated"
-	TopicTypeTestCategoryDeleted  = "typetestcategory.deleted"
-	TopicTypeTestCategoryRestored = "typetestcategory.restored"
+	TopicTypeTestCategoryCreated  = "type_test_category.created"
+	TopicTypeTestCategoryUpdated  = "type_test_category.updated"
+	TopicTypeTestCategoryDeleted  = "type_test_category.deleted"
+	TopicTypeTestCategoryRestored = "type_test_category.restored"
 
 	// ── TypeTest Topics ───────────────────────────────────────────────────────
-	TopicTypeTestCreated  = "typetest.created"
-	TopicTypeTestUpdated  = "typetest.updated"
-	TopicTypeTestDeleted  = "typetest.deleted"
-	TopicTypeTestRestored = "typetest.restored"
+	TopicTypeTestCreated  = "type_test.created"
+	TopicTypeTestUpdated  = "type_test.updated"
+	TopicTypeTestDeleted  = "type_test.deleted"
+	TopicTypeTestRestored = "type_test.restored"
 )
 
 // AllTopics mengembalikan semua topic yang perlu dibuat/dipastikan ada di Kafka.
