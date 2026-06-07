@@ -48,6 +48,12 @@ const (
 	TopicRoomDeleted  = "room.deleted"
 	TopicRoomRestored = "room.restored"
 
+	// ── TypeTestCategory Topics ───────────────────────────────────────────────
+	TopicTypeTestCategoryCreated  = "typetestcategory.created"
+	TopicTypeTestCategoryUpdated  = "typetestcategory.updated"
+	TopicTypeTestCategoryDeleted  = "typetestcategory.deleted"
+	TopicTypeTestCategoryRestored = "typetestcategory.restored"
+
 	// ── TypeTest Topics ───────────────────────────────────────────────────────
 	TopicTypeTestCreated  = "typetest.created"
 	TopicTypeTestUpdated  = "typetest.updated"
@@ -95,6 +101,11 @@ func AllTopics() []string {
 		TopicRoomUpdated,
 		TopicRoomDeleted,
 		TopicRoomRestored,
+
+		TopicTypeTestCategoryCreated,
+		TopicTypeTestCategoryUpdated,
+		TopicTypeTestCategoryDeleted,
+		TopicTypeTestCategoryRestored,
 
 		TopicTypeTestCreated,
 		TopicTypeTestUpdated,

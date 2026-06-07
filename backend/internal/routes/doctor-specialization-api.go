@@ -17,7 +17,6 @@ func SetupDoctorSpecializationRouter(rg *gin.RouterGroup, cfg *RouteConfig, doct
 		{
 			allRoutes.GET("", doctorSpecializationHandler.List)
 			allRoutes.GET("/active", doctorSpecializationHandler.ActiveList)
-			allRoutes.GET("/inactive", doctorSpecializationHandler.InactiveList)
 			allRoutes.GET("/:id", doctorSpecializationHandler.FindByID)
 		}
 
@@ -25,6 +24,7 @@ func SetupDoctorSpecializationRouter(rg *gin.RouterGroup, cfg *RouteConfig, doct
 		adminRoutes := dsGroup.Group("")
 		adminRoutes.Use(middleware.RoleMiddleware(models.RoleAdmin, models.RoleSuperAdmin))
 		{
+			allRoutes.GET("/inactive", doctorSpecializationHandler.InactiveList)
 			adminRoutes.GET("/deleted", doctorSpecializationHandler.DeletedList)
 			adminRoutes.POST("", doctorSpecializationHandler.Create)
 			adminRoutes.PUT("/:id", doctorSpecializationHandler.Update)

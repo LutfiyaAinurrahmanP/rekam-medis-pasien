@@ -17,6 +17,7 @@ func RunMigration(db *gorm.DB) error {
 		&models.Patient{},
 		&models.DoctorSpecialization{},
 		&models.Room{},
+		&models.TypeTestCategory{},
 		&models.TypeTest{},
 		&models.Medicine{},
 		&models.RoomType{},

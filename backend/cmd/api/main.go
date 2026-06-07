@@ -25,6 +25,7 @@ import (
 	patientservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/patient"
 	roomservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/room"
 	roomtypeservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/room-type"
+	typetestcategorieservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/type-test-category"
 	typetestservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/typetest"
 	userservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/user"
 	"gorm.io/gorm"
@@ -101,6 +102,7 @@ func main() {
 		DoctorHandler:               dependencies.DoctorHandler,
 		RoomTypeHandler:             dependencies.RoomTypeHandler,
 		RoomHandler:                 dependencies.RoomHandler,
+		TypeTestCategoryHandler:     dependencies.TypeTestCategoryHandler,
 		TypeTestHandler:             dependencies.TypeTestHandler,
 		MedicineHandler:             dependencies.MedicineHandler,
 	})
@@ -144,6 +146,7 @@ type Dependencies struct {
 	DoctorRepository               repository.DoctorRepository
 	RoomTypeRepository             repository.RoomTypeRepository
 	RoomRepository                 repository.RoomRepository
+	TypeTestCategoryRepository     repository.TypeTestCategoryRepository
 	TypeTestRepository             repository.TypeTestRepository
 	MedicineRepository             repository.MedicineRepository
 
@@ -155,6 +158,7 @@ type Dependencies struct {
 	DoctorService               doctorservice.DoctorService
 	RoomTypeService             roomtypeservice.RoomTypeService
 	RoomService                 roomservice.RoomService
+	TypeTestCategoryService     typetestcategorieservice.TypeTestCategoryService
 	TypeTestService             typetestservice.TypeTestService
 	MedicineService             medicineservice.MedicineService
 
@@ -166,6 +170,7 @@ type Dependencies struct {
 	DoctorHandler               *handler.DoctorHandler
 	RoomTypeHandler             *handler.RoomTypeHandler
 	RoomHandler                 *handler.RoomHandler
+	TypeTestCategoryHandler     *handler.TypeTestCategoryHandler
 	TypeTestHandler             *handler.TypeTestHandler
 	MedicineHandler             *handler.MedicineHandler
 }
@@ -180,6 +185,7 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 	doctorRepo := repository.NewDoctorRepository(db)
 	roomTypeRepo := repository.NewRoomTypeRepository(db)
 	roomRepo := repository.NewRoomRepository(db)
+	typeTestCategoryRepo := repository.NewTypeTestCategoryRepository(db)
 	typeTestRepo := repository.NewTypeTestRepository(db)
 	medicineRepo := repository.NewMedicineRepository(db)
 
@@ -223,6 +229,10 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 		roomservice.NewCachedRoomService(roomservice.NewRoomService(roomRepo, cfg), redisClient),
 		publisher,
 	)
+	typeTestCategoryService := typetestcategorieservice.NewEventTypeTestCategoryService(
+		typetestcategorieservice.NewCachedTypeTestCategoryService(typetestcategorieservice.NewTypeTestCategoryService(typeTestCategoryRepo, cfg), redisClient),
+		publisher,
+	)
 	typeTestService := typetestservice.NewEventTypeTestService(
 		typetestservice.NewCachedTypeTestService(typetestservice.NewTypeTestService(typeTestRepo, cfg), redisClient),
 		publisher,
@@ -240,6 +250,7 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 	doctorHandler := handler.NewDoctorHandler(doctorService)
 	roomTypeHandler := handler.NewRoomTypeHandler(roomTypeService)
 	roomHandler := handler.NewRoomHandler(roomService)
+	typeTestCategoryHandler := handler.NewTypeTestCategoryHandler(typeTestCategoryService)
 	typeTestHandler := handler.NewTypeTestHandler(typeTestService)
 	medicineHandler := handler.NewMedicineHandler(medicineService)
 
@@ -271,6 +282,10 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 		RoomRepository: roomRepo,
 		RoomService:    roomService,
 		RoomHandler:    roomHandler,
+
+		TypeTestCategoryRepository: typeTestCategoryRepo,
+		TypeTestCategoryService:    typeTestCategoryService,
+		TypeTestCategoryHandler:    typeTestCategoryHandler,
 
 		TypeTestRepository: typeTestRepo,
 		TypeTestService:    typeTestService,

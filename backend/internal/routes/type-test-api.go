@@ -17,7 +17,6 @@ func SetupTypeTestRouter(rg *gin.RouterGroup, cfg *RouteConfig, th *handler.Type
 		g.GET("/active", th.ListActiveTypeTests)
 		g.GET("/search", th.SearchTypeTests)
 		g.GET("/code/:code", th.GetTypeTestByCode)
-		g.GET("/category/:category", th.GetTypeTestsByCategory)
 
 		// Doctor, Receptionist, Admin, Super Admin
 		inactiveRoutes := g.Group("")

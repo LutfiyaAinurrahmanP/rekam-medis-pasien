@@ -116,20 +116,6 @@ func (s *cachedTypeTestService) FindByCode(code string) (*dto.TypeTestResponse, 
 	return result, nil
 }
 
-func (s *cachedTypeTestService) FindByCategory(category string, query *dto.TypeTestPaginationQuery) (*dto.TypeTestCategoryListResponse, error) {
-	key := fmt.Sprintf("typetest:category:%s:p%d:s%d", category, query.Page, query.PageSize)
-	var resp dto.TypeTestCategoryListResponse
-	if err := s.redis.Get(context.Background(), key, &resp); err == nil {
-		return &resp, nil
-	}
-	result, err := s.inner.FindByCategory(category, query)
-	if err != nil {
-		return nil, err
-	}
-	s.setCache(key, result)
-	return result, nil
-}
-
 // ─── Write operations (invalidate cache) ───────────────────────────────────
 
 func (s *cachedTypeTestService) Create(req *dto.CreateTypeTestRequest) (*dto.TypeTestResponse, error) {

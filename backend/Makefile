@@ -1,4 +1,4 @@
-.PHONY: help build run seed test test-users test-departments test-patients test-reset-code test-doctors test-rooms test-type-tests test-unit test-unit-handler test-unit-service test-unit-repository test-unit-verbose test-unit-handler-verbose test-unit-service-verbose test-unit-repository-verbose test-unit-race test-unit-failfast test-unit-timeout test-unit-run test-unit-list test-unit-coverage test-unit-coverage-html test-unit-coverage-handler test-unit-coverage-service test-unit-coverage-repository test-coverage test-ci test-all-cleanup clean clean-coverage docker-build docker-up docker-up-deps docker-down docker-logs docker-clean migrate lint fmt mod-download test-all mod-tidy dev prod-build check-docker wait-db stop-app-container
+.PHONY: help build run seed test test-users test-departments test-patients test-reset-code test-doctors test-rooms test-type-tests test-unit test-unit-handler test-unit-service test-unit-repository test-unit-verbose test-unit-handler-verbose test-unit-service-verbose test-unit-repository-verbose test-unit-race test-unit-failfast test-unit-timeout test-unit-run test-unit-list test-unit-coverage test-unit-coverage-html test-unit-coverage-handler test-unit-coverage-service test-unit-coverage-repository test-coverage test-ci test-all-cleanup clean clean-coverage docker-build docker-up docker-up-deps docker-down docker-logs docker-clean migrate lint fmt mod-download test-all mod-tidy dev prod-build check-docker wait-db stop-app-container db-refresh
 
 help: ## Display this help screen
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
@@ -261,3 +261,10 @@ dev: docker-up-deps ## Start development dependencies only
 prod-build: ## Build for production
 	@echo "Building for production..."
 	@CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main cmd/api/main.go
+
+db-refresh: check-docker docker-up-deps wait-db ## Wipe database, auto-migrate, and re-seed
+	@echo "Wiping database schema..."
+	@docker compose exec postgres psql -U postgres -d sirekam_medis -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
+	@echo "Running migrations and seeder..."
+	@go run cmd/seed/main.go
+	@echo "✅ Database successfully refreshed and seeded!"

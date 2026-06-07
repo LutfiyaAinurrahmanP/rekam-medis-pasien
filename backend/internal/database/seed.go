@@ -75,6 +75,11 @@ func SeedDatabaseWithCount(db *gorm.DB, count int) error {
 		return err
 	}
 
+	if _, err := seedTypeTestCategories(tx); err != nil {
+		tx.Rollback()
+		return err
+	}
+
 	if _, err := seedTypeTests(tx, count); err != nil {
 		tx.Rollback()
 		return err
@@ -121,6 +126,11 @@ func SeedDatabaseWithCount(db *gorm.DB, count int) error {
 		return err
 	}
 
+	if err := seedDeletedTypeTestCategories(tx); err != nil {
+		tx.Rollback()
+		return err
+	}
+
 	if err := seedDeletedTypeTests(tx); err != nil {
 		tx.Rollback()
 		return err
@@ -156,6 +166,9 @@ func resetSeedData(tx *gorm.DB) error {
 	}
 	if err := session.Unscoped().Delete(&models.Patient{}).Error; err != nil {
 		return fmt.Errorf("failed to clear patients: %w", err)
+	}
+	if err := session.Unscoped().Delete(&models.TypeTestCategory{}).Error; err != nil {
+		return fmt.Errorf("failed to clear type test categories: %w", err)
 	}
 	if err := session.Unscoped().Delete(&models.TypeTest{}).Error; err != nil {
 		return fmt.Errorf("failed to clear type tests: %w", err)

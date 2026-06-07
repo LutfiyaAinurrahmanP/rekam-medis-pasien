@@ -19,6 +19,7 @@ type RouteConfig struct {
 	DoctorHandler               *handler.DoctorHandler
 	RoomTypeHandler             *handler.RoomTypeHandler
 	RoomHandler                 *handler.RoomHandler
+	TypeTestCategoryHandler     *handler.TypeTestCategoryHandler
 	TypeTestHandler             *handler.TypeTestHandler
 	MedicineHandler             *handler.MedicineHandler
 }

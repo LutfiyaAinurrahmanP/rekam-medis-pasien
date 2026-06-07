@@ -41,6 +41,11 @@ func SetupAPIRouter(rg *gin.RouterGroup, cfg *RouteConfig) {
 		SetupRoomsRouter(rg, cfg, cfg.RoomHandler)
 	}
 
+	// Setup Type Test Categories routes
+	if cfg.TypeTestCategoryHandler != nil {
+		SetupTypeTestCategoryRouter(rg, cfg, cfg.TypeTestCategoryHandler)
+	}
+
 	// Setup Type Tests routes
 	if cfg.TypeTestHandler != nil {
 		SetupTypeTestRouter(rg, cfg, cfg.TypeTestHandler)

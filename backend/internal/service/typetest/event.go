@@ -50,10 +50,6 @@ func (s *eventTypeTestService) FindByCode(code string) (*dto.TypeTestResponse, e
 	return s.inner.FindByCode(code)
 }
 
-func (s *eventTypeTestService) FindByCategory(category string, query *dto.TypeTestPaginationQuery) (*dto.TypeTestCategoryListResponse, error) {
-	return s.inner.FindByCategory(category, query)
-}
-
 // ─── Write operations ─────────────────────────────────────────────────────────
 
 func (s *eventTypeTestService) Create(req *dto.CreateTypeTestRequest) (*dto.TypeTestResponse, error) {

@@ -254,7 +254,7 @@ func RoomTypeInactiveListQuery(page, size int, search, sortBy, sortDir string) s
 
 // ─── Room ──────────────────────────────────────────────────────────────────
 
-func RoomKey(id uint) string            { return fmt.Sprintf("room:id:%d", id) }
+func RoomKey(id uint) string { return fmt.Sprintf("room:id:%d", id) }
 
 func RoomListQuery(page, size int, search, sortBy, sortDir string) string {
 	return fmt.Sprintf(
@@ -322,6 +322,55 @@ func RoomOccupiedListQuery(page, size int, search, sortBy, sortDir string) strin
 	)
 }
 
+// ─── Type Test Category ─────────────────────────────────────────────────
+
+func TypeTestCategoryKey(id uint) string {
+	return fmt.Sprintf("type_test_category:id:%d", id)
+}
+
+func TypeTestCategoryListQuery(page, size int, search, sortBy, sortDir string) string {
+	return fmt.Sprintf(
+		"type_test_category:list:p%d:s%d:q%s:sb%s:sd%s",
+		page,
+		size,
+		search,
+		sortBy,
+		sortDir,
+	)
+}
+
+func TypeTestCategoryDeletedListQuery(page, size int, search, sortBy, sortDir string) string {
+	return fmt.Sprintf(
+		"type_test_category:deleted:p%d:s%d:q%s:sb%s:sd%s",
+		page,
+		size,
+		search,
+		sortBy,
+		sortDir,
+	)
+}
+
+func TypeTestCategoryActiveListQuery(page, size int, search, sortBy, sortDir string) string {
+	return fmt.Sprintf(
+		"type_test_category:active:p%d:s%d:q%s:sb%s:sd%s",
+		page,
+		size,
+		search,
+		sortBy,
+		sortDir,
+	)
+}
+
+func TypeTestCategoryInactiveListQuery(page, size int, search, sortBy, sortDir string) string {
+	return fmt.Sprintf(
+		"type_test_category:inactive:p%d:s%d:q%s:sb%s:sd%s",
+		page,
+		size,
+		search,
+		sortBy,
+		sortDir,
+	)
+}
 
 // ─── TypeTest ──────────────────────────────────────────────────────────────
 
@@ -368,6 +417,7 @@ const (
 	PatternDoctorAll               = "doctor:*"
 	PatternRoomTypeAll             = "room_type:*"
 	PatternRoomAll                 = "room:*"
+	PatternTypeTestCategoryAll     = "type_test_category:*"
 	PatternTypeTestAll             = "typetest:*"
 	PatternMedicineAll             = "medicine:*"
 )

@@ -17,7 +17,6 @@ func SetupRoomTypeRouter(rg *gin.RouterGroup, cfg *RouteConfig, roomTypeHandler 
 		{
 			allRoutes.GET("", roomTypeHandler.List)
 			allRoutes.GET("/active", roomTypeHandler.ActiveList)
-			allRoutes.GET("/inactive", roomTypeHandler.InactiveList)
 			allRoutes.GET("/:id", roomTypeHandler.FindByID)
 		}
 
@@ -25,6 +24,7 @@ func SetupRoomTypeRouter(rg *gin.RouterGroup, cfg *RouteConfig, roomTypeHandler 
 		adminRoutes := dsGroup.Group("")
 		adminRoutes.Use(middleware.RoleMiddleware(models.RoleAdmin, models.RoleSuperAdmin))
 		{
+			allRoutes.GET("/inactive", roomTypeHandler.InactiveList)
 			adminRoutes.GET("/deleted", roomTypeHandler.DeletedList)
 			adminRoutes.POST("", roomTypeHandler.Create)
 			adminRoutes.PUT("/:id", roomTypeHandler.Update)

@@ -40,33 +40,33 @@ type ReleaseRoomRequest struct {
 }
 
 type RoomResponse struct {
-	ID            uint            `json:"id"`
-	RoomNumber    string          `json:"room_number"`
-	RoomTypeID    *uint           `json:"room_type_id,omitempty"`
-	DepartmentID  *uint           `json:"department_id,omitempty"`
-	BedCapacity   int             `json:"bed_capacity"`
-	AvailableBeds int             `json:"available_beds"`
-	PricePerDay   float64         `json:"price_per_day"`
-	IsActive      bool            `json:"is_active"`
-	OccupancyRate float64         `json:"occupancy_rate"`
-	IsAvailable   bool            `json:"is_available,omitempty"`
-	IsFull        bool            `json:"is_full,omitempty"`
-	CreatedAt     time.Time       `json:"created_at"`
-	UpdatedAt     time.Time       `json:"updated_at,omitempty"`
+	ID            uint      `json:"id"`
+	RoomNumber    string    `json:"room_number"`
+	RoomTypeID    *uint     `json:"room_type_id,omitempty"`
+	DepartmentID  *uint     `json:"department_id,omitempty"`
+	BedCapacity   int       `json:"bed_capacity"`
+	AvailableBeds int       `json:"available_beds"`
+	PricePerDay   float64   `json:"price_per_day"`
+	IsActive      bool      `json:"is_active"`
+	OccupancyRate float64   `json:"occupancy_rate"`
+	IsAvailable   bool      `json:"is_available,omitempty"`
+	IsFull        bool      `json:"is_full,omitempty"`
+	CreatedAt     time.Time `json:"created_at"`
+	UpdatedAt     time.Time `json:"updated_at,omitempty"`
 }
 
 type DeletedRoomResponse struct {
-	ID            uint            `json:"id"`
-	RoomNumber    string          `json:"room_number"`
-	RoomTypeID    *uint           `json:"room_type_id,omitempty"`
-	DepartmentID  *uint           `json:"department_id,omitempty"`
-	BedCapacity   int             `json:"bed_capacity"`
-	AvailableBeds int             `json:"available_beds"`
-	PricePerDay   float64         `json:"price_per_day"`
-	IsActive      bool            `json:"is_active"`
-	CreatedAt     time.Time       `json:"created_at"`
-	UpdatedAt     time.Time       `json:"updated_at,omitempty"`
-	DeletedAt     *time.Time      `json:"deleted_at"`
+	ID            uint       `json:"id"`
+	RoomNumber    string     `json:"room_number"`
+	RoomTypeID    *uint      `json:"room_type_id,omitempty"`
+	DepartmentID  *uint      `json:"department_id,omitempty"`
+	BedCapacity   int        `json:"bed_capacity"`
+	AvailableBeds int        `json:"available_beds"`
+	PricePerDay   float64    `json:"price_per_day"`
+	IsActive      bool       `json:"is_active"`
+	CreatedAt     time.Time  `json:"created_at"`
+	UpdatedAt     time.Time  `json:"updated_at,omitempty"`
+	DeletedAt     *time.Time `json:"deleted_at"`
 }
 
 type RoomPaginationQuery struct {

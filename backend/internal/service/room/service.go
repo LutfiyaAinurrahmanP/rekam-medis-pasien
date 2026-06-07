@@ -486,26 +486,10 @@ func (s roomService) SoftDeleteRoom(id uint) error {
 }
 
 func (s roomService) RestoreRoom(id uint) error {
-	// Use FindByIDIncludingDeleted to find soft-deleted records
-	_, err := s.repo.(interface {
-		FindByIDIncludingDeleted(uint) (*models.Room, error)
-	}).FindByIDIncludingDeleted(id)
-	if err != nil {
-		return err
-	}
-
 	return s.repo.Restore(id)
 }
 
 func (s roomService) HardDeleteRoom(id uint) error {
-	// Use FindByIDIncludingDeleted to find soft-deleted records
-	_, err := s.repo.(interface {
-		FindByIDIncludingDeleted(uint) (*models.Room, error)
-	}).FindByIDIncludingDeleted(id)
-	if err != nil {
-		return err
-	}
-
 	return s.repo.HardDelete(id)
 }
 
@@ -514,7 +498,7 @@ func (s *roomService) toRoomResponse(room *models.Room) *dto.RoomResponse {
 		ID:            room.ID,
 		RoomNumber:    room.RoomNumber,
 		RoomTypeID:    room.RoomTypeID,
-		DepartmentID:  room.DepartmentID,	
+		DepartmentID:  room.DepartmentID,
 		BedCapacity:   room.BedCapacity,
 		AvailableBeds: room.AvailableBeds,
 		PricePerDay:   room.PricePerDay,

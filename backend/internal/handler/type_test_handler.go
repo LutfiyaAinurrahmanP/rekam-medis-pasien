@@ -112,21 +112,6 @@ func (h *TypeTestHandler) GetTypeTestByCode(ctx *gin.Context) {
 	utils.SuccessResponse(ctx, http.StatusOK, "Test type retrieved successfully", res)
 }
 
-func (h *TypeTestHandler) GetTypeTestsByCategory(ctx *gin.Context) {
-	category := ctx.Param("category")
-	var q dto.TypeTestPaginationQuery
-	if err := ctx.ShouldBindQuery(&q); err != nil {
-		utils.ValidationErrorResponse(ctx, err)
-		return
-	}
-	res, err := h.service.FindByCategory(category, &q)
-	if err != nil {
-		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to retrieve test types by category", err.Error())
-		return
-	}
-	utils.SuccessResponse(ctx, http.StatusOK, "Test types by category retrieved successfully", res)
-}
-
 func (h *TypeTestHandler) CreateTypeTest(ctx *gin.Context) {
 	var req dto.CreateTypeTestRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {

@@ -653,6 +653,92 @@ func NewRoomRestoredEvent(id uint, roomNumber string) RoomRestoredEvent {
 	}
 }
 
+// ─── Type Test Category Events ─────────────────────────────────────────────
+
+type TypeTestCategoryPayload struct {
+	ID          uint   `json:"id"`
+	Name        string `json:"name"`
+	Code        string `json:"code"`
+	Description string `json:"description"`
+	IsActive    bool   `json:"is_active"`
+	CreatedAt   string `json:"created_at,omitempty"`
+	UpdatedAt   string `json:"updated_at,omitempty"`
+	DeletedAt   string `json:"deleted_at,omitempty"`
+	Action      string `json:"action,omitempty"`
+}
+
+type TypeTestCategoryCreatedEvent struct {
+	BaseEvent
+	Payload TypeTestCategoryPayload `json:"payload"`
+}
+
+type TypeTestCategoryUpdatedEvent struct {
+	BaseEvent
+	Payload TypeTestCategoryPayload `json:"payload"`
+}
+
+type TypeTestCategoryDeletedEvent struct {
+	BaseEvent
+	Payload TypeTestCategoryPayload `json:"payload"`
+}
+
+type TypeTestCategoryRestoredEvent struct {
+	BaseEvent
+	Payload TypeTestCategoryPayload `json:"payload"`
+}
+
+// Constructors ─────────────────────────────────────────────────────────────────
+
+func NewTypeTestCategoryCreatedEvent(id uint, name, code, desc string, isActive bool) TypeTestCategoryCreatedEvent {
+	return TypeTestCategoryCreatedEvent{
+		BaseEvent: newBase("type_test_category.created"),
+		Payload: TypeTestCategoryPayload{
+			ID:          id,
+			Name:        name,
+			Code:        code,
+			Description: desc,
+			IsActive:    isActive,
+		},
+	}
+}
+
+func NewTypeTestCategoryUpdatedEvent(id uint, name, code, desc string, isActive bool, action string) TypeTestCategoryUpdatedEvent {
+	return TypeTestCategoryUpdatedEvent{
+		BaseEvent: newBase("type_test_category.updated"),
+		Payload: TypeTestCategoryPayload{
+			ID:          id,
+			Name:        name,
+			Code:        code,
+			Description: desc,
+			IsActive:    isActive,
+			Action:      action,
+		},
+	}
+}
+
+func NewTypeTestCategoryDeletedEvent(id uint, name, code, action string) TypeTestCategoryDeletedEvent {
+	return TypeTestCategoryDeletedEvent{
+		BaseEvent: newBase("type_test_category.deleted"),
+		Payload: TypeTestCategoryPayload{
+			ID:     id,
+			Name:   name,
+			Code:   code,
+			Action: action,
+		},
+	}
+}
+
+func NewTypeTestCategoryRestoredEvent(id uint, name, code string) TypeTestCategoryRestoredEvent {
+	return TypeTestCategoryRestoredEvent{
+		BaseEvent: newBase("type_test_category.restored"),
+		Payload: TypeTestCategoryPayload{
+			ID:   id,
+			Name: name,
+			Code: code,
+		},
+	}
+}
+
 // ─── TypeTest Events ──────────────────────────────────────────────────────────
 
 type TypeTestPayload struct {

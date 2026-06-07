@@ -18,7 +18,6 @@ type TypeTestService interface {
 	Search(query *dto.TypeTestSearchQuery) (*dto.TypeTestSearchResponse, error)
 	FindByID(id uint) (*dto.TypeTestResponse, error)
 	FindByCode(code string) (*dto.TypeTestResponse, error)
-	FindByCategory(category string, query *dto.TypeTestPaginationQuery) (*dto.TypeTestCategoryListResponse, error)
 	Create(req *dto.CreateTypeTestRequest) (*dto.TypeTestResponse, error)
 	Update(id uint, req *dto.UpdateTypeTestRequest) (*dto.TypeTestResponse, error)
 	Activate(id uint) error
@@ -228,33 +227,6 @@ func (s *typeTestService) FindByCode(code string) (*dto.TypeTestResponse, error)
 		return nil, err
 	}
 	return s.toResponse(t), nil
-}
-
-func (s *typeTestService) FindByCategory(category string, query *dto.TypeTestPaginationQuery) (*dto.TypeTestCategoryListResponse, error) {
-	s.normalizeQuery(query, "name", "asc")
-
-	typeTests, total, err := s.repo.FindByCategory(category, query)
-	if err != nil {
-		return nil, err
-	}
-
-	responses := make([]dto.TypeTestResponse, len(typeTests))
-	for i, t := range typeTests {
-		responses[i] = *s.toResponse(&t)
-	}
-
-	totalPages := int(math.Ceil(float64(total) / float64(query.PageSize)))
-	return &dto.TypeTestCategoryListResponse{
-		Category:   category,
-		TotalTests: total,
-		Data:       responses,
-		Meta: dto.TypeTestPaginationMeta{
-			Page:       query.Page,
-			PageSize:   query.PageSize,
-			TotalItems: total,
-			TotalPages: totalPages,
-		},
-	}, nil
 }
 
 func (s *typeTestService) Create(req *dto.CreateTypeTestRequest) (*dto.TypeTestResponse, error) {

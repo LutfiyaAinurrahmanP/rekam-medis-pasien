@@ -52,6 +52,10 @@ var notificationTopics = []string{
 	kafka.TopicRoomUpdated,
 	kafka.TopicRoomDeleted,
 	kafka.TopicRoomRestored,
+	kafka.TopicTypeTestCategoryCreated,
+	kafka.TopicTypeTestCategoryUpdated,
+	kafka.TopicTypeTestCategoryDeleted,
+	kafka.TopicTypeTestCategoryRestored,
 	kafka.TopicTypeTestCreated,
 	kafka.TopicTypeTestUpdated,
 	kafka.TopicTypeTestDeleted,
@@ -332,6 +336,35 @@ func (h *NotificationEventHandler) handle(ctx context.Context, topic string, key
 		}
 		log.Printf("[NOTIFICATION] ♻️  Room type restored: %s", e.Payload.Name)
 
+	// ── Type Test Category Events ─────────────────────────────────────────
+	case kafka.TopicTypeTestCategoryCreated:
+		var e events.TypeTestCategoryCreatedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🧪 New type test category created: %s (code=%s)", e.Payload.Name, e.Payload.Code)
+
+	case kafka.TopicTypeTestCategoryUpdated:
+		var e events.TypeTestCategoryUpdatedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🧪 Type test category updated: %s (code=%s, action=%s)", e.Payload.Name, e.Payload.Code, e.Payload.Action)
+
+	case kafka.TopicTypeTestCategoryRestored:
+		var e events.TypeTestCategoryRestoredEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] ♻️ Type test category restored: %s (code=%s)", e.Payload.Name, e.Payload.Code)
+
+	case kafka.TopicTypeTestCategoryDeleted:
+		var e events.TypeTestCategoryDeletedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🗑️ Type test category deleted: %s (code=%s, action=%s)", e.Payload.Name, e.Payload.Code, e.Payload.Action)
+
 	// ── TypeTest Events ──────────────────────────────────────────────────────
 
 	case kafka.TopicTypeTestCreated:
@@ -355,7 +388,7 @@ func (h *NotificationEventHandler) handle(ctx context.Context, topic string, key
 		if err := json.Unmarshal(value, &e); err != nil {
 			return err
 		}
-		log.Printf("[NOTIFICATION] 🗑️  Test type deleted: %s (code=%s, action=%s)",
+		log.Printf("[NOTIFICATION] 🗑️ Type test deleted: %s (code=%s, action=%s)",
 			e.Payload.Name, e.Payload.Code, e.Payload.Action)
 
 	case kafka.TopicTypeTestRestored:
@@ -363,7 +396,7 @@ func (h *NotificationEventHandler) handle(ctx context.Context, topic string, key
 		if err := json.Unmarshal(value, &e); err != nil {
 			return err
 		}
-		log.Printf("[NOTIFICATION] ♻️  Test type restored: %s (code=%s)", e.Payload.Name, e.Payload.Code)
+		log.Printf("[NOTIFICATION] ♻️ Test type restored: %s (code=%s)", e.Payload.Name, e.Payload.Code)
 
 	default:
 		log.Printf("[NOTIFICATION] ⚠️  Received unsupported topic: %s", topic)

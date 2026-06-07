@@ -112,13 +112,6 @@ type ActiveTypeTestListResponse struct {
 	Meta             TypeTestPaginationMeta          `json:"meta"`
 }
 
-type TypeTestCategoryListResponse struct {
-	Category   string                 `json:"category"`
-	TotalTests int64                  `json:"total_tests"`
-	Data       []TypeTestResponse     `json:"data"`
-	Meta       TypeTestPaginationMeta `json:"meta"`
-}
-
 type TypeTestSearchResponse struct {
 	SearchCriteria map[string]interface{} `json:"search_criteria"`
 	ResultsFound   int64                  `json:"results_found"`
