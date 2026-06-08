@@ -39,8 +39,13 @@ func (s *eventedMedicalRecordService) FindByIDUnscoped(id uint) (*dto.MedicalRec
 
 func (s *eventedMedicalRecordService) Create(req *dto.CreateMedicalRecordRequest) (*dto.MedicalRecordResponse, error) {
 	resp, err := s.inner.Create(req)
-	if err == nil && resp != nil {
-		event := events.NewMedicalRecordCreatedEvent(
+	if err != nil {
+		return nil, err
+	}
+
+	s.publisher.PublishAsync(
+		kafka.TopicMedicalRecordCreated,
+		events.NewMedicalRecordCreatedEvent(
 			resp.ID,
 			resp.PatientID,
 			resp.DoctorID,
@@ -48,16 +53,20 @@ func (s *eventedMedicalRecordService) Create(req *dto.CreateMedicalRecordRequest
 			resp.ChiefComplaint,
 			resp.Diagnosis,
 			resp.Status,
-		)
-		s.publish(kafka.TopicMedicalRecordCreated, event)
-	}
-	return resp, err
+		),
+	)
+	return resp, nil
 }
 
 func (s *eventedMedicalRecordService) Update(id uint, req *dto.UpdateMedicalRecordRequest) (*dto.MedicalRecordResponse, error) {
 	resp, err := s.inner.Update(id, req)
-	if err == nil && resp != nil {
-		event := events.NewMedicalRecordUpdatedEvent(
+	if err != nil {
+		return nil, err
+	}
+
+	s.publisher.PublishAsync(
+		kafka.TopicMedicalRecordUpdated,
+		events.NewMedicalRecordUpdatedEvent(
 			resp.ID,
 			resp.PatientID,
 			resp.DoctorID,
@@ -66,48 +75,55 @@ func (s *eventedMedicalRecordService) Update(id uint, req *dto.UpdateMedicalReco
 			resp.Diagnosis,
 			resp.Status,
 			"update",
-		)
-		s.publish(kafka.TopicMedicalRecordUpdated, event)
-	}
-	return resp, err
+		),
+	)
+	return resp, nil
 }
 
 func (s *eventedMedicalRecordService) Finalize(id uint) error {
-	err := s.inner.Finalize(id)
-	if err == nil {
-		event := events.NewMedicalRecordFinalizedEvent(id)
-		s.publish(kafka.TopicMedicalRecordFinalized, event)
+	if err := s.inner.Finalize(id); err != nil {
+		return err
 	}
-	return err
+
+	s.publisher.PublishAsync(
+		kafka.TopicMedicalRecordFinalized,
+		events.NewMedicalRecordFinalizedEvent(id),
+	)
+	return nil
 }
 
 func (s *eventedMedicalRecordService) SoftDelete(id uint) error {
-	err := s.inner.SoftDelete(id)
-	if err == nil {
-		event := events.NewMedicalRecordDeletedEvent(id, "soft_delete")
-		s.publish(kafka.TopicMedicalRecordDeleted, event)
+	if err := s.inner.SoftDelete(id); err != nil {
+		return err
 	}
-	return err
+
+	s.publisher.PublishAsync(
+		kafka.TopicMedicalRecordDeleted,
+		events.NewMedicalRecordDeletedEvent(id, "soft_delete"),
+	)
+	return nil
 }
 
 func (s *eventedMedicalRecordService) Restore(id uint) error {
-	err := s.inner.Restore(id)
-	if err == nil {
-		event := events.NewMedicalRecordRestoredEvent(id)
-		s.publish(kafka.TopicMedicalRecordRestored, event)
+	if err := s.inner.Restore(id); err != nil {
+		return err
 	}
-	return err
+
+	s.publisher.PublishAsync(
+		kafka.TopicMedicalRecordRestored,
+		events.NewMedicalRecordRestoredEvent(id),
+	)
+	return nil
 }
 
 func (s *eventedMedicalRecordService) HardDelete(id uint) error {
-	err := s.inner.HardDelete(id)
-	if err == nil {
-		event := events.NewMedicalRecordDeletedEvent(id, "hard_delete")
-		s.publish(kafka.TopicMedicalRecordDeleted, event)
+	if err := s.inner.HardDelete(id); err != nil {
+		return err
 	}
-	return err
-}
 
-func (s *eventedMedicalRecordService) publish(topic string, event interface{}) {
-	s.publisher.PublishAsync(topic, event)
+	s.publisher.PublishAsync(
+		kafka.TopicMedicalRecordDeleted,
+		events.NewMedicalRecordDeletedEvent(id, "hard_delete"),
+	)
+	return nil
 }
