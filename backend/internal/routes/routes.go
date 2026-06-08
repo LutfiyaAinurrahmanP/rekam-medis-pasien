@@ -23,6 +23,7 @@ type RouteConfig struct {
 	TypeTestHandler             *handler.TypeTestHandler
 	MedicineHandler             *handler.MedicineHandler
 	MedicineTypeHandler         *handler.MedicineTypeHandler
+	AppointmentHandler          *handler.AppointmentHandler
 }
 
 func SetupRouter(cfg *RouteConfig) *gin.Engine {

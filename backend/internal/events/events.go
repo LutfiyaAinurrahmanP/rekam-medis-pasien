@@ -1052,3 +1052,177 @@ func NewMedicineStockReducedEvent(id uint, name string, newStock, reducedQuantit
 		},
 	}
 }
+
+// ─── Appointment Events ────────────────────────────────────────────────────────
+
+type AppointmentPayload struct {
+	ID              uint   `json:"id"`
+	PatientID       uint   `json:"patient_id,omitempty"`
+	DoctorID        uint   `json:"doctor_id,omitempty"`
+	AppointmentDate string `json:"appointment_date,omitempty"`
+	AppointmentTime string `json:"appointment_time,omitempty"`
+	DurationMinutes int    `json:"duration_minutes,omitempty"`
+	Status          string `json:"status,omitempty"`
+	Reason          string `json:"reason,omitempty"`
+	Notes           string `json:"notes,omitempty"`
+	Action          string `json:"action,omitempty"`
+}
+
+type AppointmentCreatedEvent struct {
+	BaseEvent
+	Payload AppointmentPayload `json:"payload"`
+}
+
+type AppointmentUpdatedEvent struct {
+	BaseEvent
+	Payload AppointmentPayload `json:"payload"`
+}
+
+type AppointmentDeletedEvent struct {
+	BaseEvent
+	Payload AppointmentPayload `json:"payload"`
+}
+
+type AppointmentRestoredEvent struct {
+	BaseEvent
+	Payload AppointmentPayload `json:"payload"`
+}
+
+type AppointmentConfirmedEvent struct {
+	BaseEvent
+	Payload AppointmentPayload `json:"payload"`
+}
+
+type AppointmentStartedEvent struct {
+	BaseEvent
+	Payload AppointmentPayload `json:"payload"`
+}
+
+type AppointmentCompletedEvent struct {
+	BaseEvent
+	Payload AppointmentPayload `json:"payload"`
+}
+
+type AppointmentCancelledEvent struct {
+	BaseEvent
+	Payload AppointmentPayload `json:"payload"`
+}
+
+type AppointmentRescheduledEvent struct {
+	BaseEvent
+	Payload AppointmentPayload `json:"payload"`
+}
+
+type AppointmentNoShowEvent struct {
+	BaseEvent
+	Payload AppointmentPayload `json:"payload"`
+}
+
+// Constructors
+
+func NewAppointmentCreatedEvent(id, patientID, doctorID uint, date, timeStr string, duration int, status string) AppointmentCreatedEvent {
+	return AppointmentCreatedEvent{
+		BaseEvent: newBase("appointment.created"),
+		Payload: AppointmentPayload{
+			ID:              id,
+			PatientID:       patientID,
+			DoctorID:        doctorID,
+			AppointmentDate: date,
+			AppointmentTime: timeStr,
+			DurationMinutes: duration,
+			Status:          status,
+		},
+	}
+}
+
+func NewAppointmentUpdatedEvent(id, patientID, doctorID uint, date, timeStr string, duration int, status, action string) AppointmentUpdatedEvent {
+	return AppointmentUpdatedEvent{
+		BaseEvent: newBase("appointment.updated"),
+		Payload: AppointmentPayload{
+			ID:              id,
+			PatientID:       patientID,
+			DoctorID:        doctorID,
+			AppointmentDate: date,
+			AppointmentTime: timeStr,
+			DurationMinutes: duration,
+			Status:          status,
+			Action:          action,
+		},
+	}
+}
+
+func NewAppointmentDeletedEvent(id uint, action string) AppointmentDeletedEvent {
+	return AppointmentDeletedEvent{
+		BaseEvent: newBase("appointment.deleted"),
+		Payload: AppointmentPayload{
+			ID:     id,
+			Action: action,
+		},
+	}
+}
+
+func NewAppointmentRestoredEvent(id uint) AppointmentRestoredEvent {
+	return AppointmentRestoredEvent{
+		BaseEvent: newBase("appointment.restored"),
+		Payload: AppointmentPayload{
+			ID: id,
+		},
+	}
+}
+
+func NewAppointmentConfirmedEvent(id uint) AppointmentConfirmedEvent {
+	return AppointmentConfirmedEvent{
+		BaseEvent: newBase("appointment.confirmed"),
+		Payload: AppointmentPayload{
+			ID: id,
+		},
+	}
+}
+
+func NewAppointmentStartedEvent(id uint) AppointmentStartedEvent {
+	return AppointmentStartedEvent{
+		BaseEvent: newBase("appointment.started"),
+		Payload: AppointmentPayload{
+			ID: id,
+		},
+	}
+}
+
+func NewAppointmentCompletedEvent(id uint) AppointmentCompletedEvent {
+	return AppointmentCompletedEvent{
+		BaseEvent: newBase("appointment.completed"),
+		Payload: AppointmentPayload{
+			ID: id,
+		},
+	}
+}
+
+func NewAppointmentCancelledEvent(id uint, reason string) AppointmentCancelledEvent {
+	return AppointmentCancelledEvent{
+		BaseEvent: newBase("appointment.cancelled"),
+		Payload: AppointmentPayload{
+			ID:     id,
+			Reason: reason,
+		},
+	}
+}
+
+func NewAppointmentRescheduledEvent(id uint, date, timeStr string) AppointmentRescheduledEvent {
+	return AppointmentRescheduledEvent{
+		BaseEvent: newBase("appointment.rescheduled"),
+		Payload: AppointmentPayload{
+			ID:              id,
+			AppointmentDate: date,
+			AppointmentTime: timeStr,
+		},
+	}
+}
+
+func NewAppointmentNoShowEvent(id uint) AppointmentNoShowEvent {
+	return AppointmentNoShowEvent{
+		BaseEvent: newBase("appointment.no_show"),
+		Payload: AppointmentPayload{
+			ID: id,
+		},
+	}
+}

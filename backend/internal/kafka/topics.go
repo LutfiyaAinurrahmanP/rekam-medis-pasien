@@ -75,6 +75,18 @@ const (
 	TopicMedicineDeactivated  = "medicine.deactivated"
 	TopicMedicineStockAdded   = "medicine.stock_added"
 	TopicMedicineStockReduced = "medicine.stock_reduced"
+
+	// ── Appointment Topics ─────────────────────────────────────────────────────────
+	TopicAppointmentCreated     = "appointment.created"
+	TopicAppointmentUpdated     = "appointment.updated"
+	TopicAppointmentDeleted     = "appointment.deleted"
+	TopicAppointmentRestored    = "appointment.restored"
+	TopicAppointmentConfirmed   = "appointment.confirmed"
+	TopicAppointmentStarted     = "appointment.started"
+	TopicAppointmentCompleted   = "appointment.completed"
+	TopicAppointmentCancelled   = "appointment.cancelled"
+	TopicAppointmentRescheduled = "appointment.rescheduled"
+	TopicAppointmentNoShow      = "appointment.no_show"
 )
 
 // AllTopics mengembalikan semua topic yang perlu dibuat/dipastikan ada di Kafka.
@@ -141,5 +153,16 @@ func AllTopics() []string {
 		TopicMedicineDeactivated,
 		TopicMedicineStockAdded,
 		TopicMedicineStockReduced,
+
+		TopicAppointmentCreated,
+		TopicAppointmentUpdated,
+		TopicAppointmentDeleted,
+		TopicAppointmentRestored,
+		TopicAppointmentConfirmed,
+		TopicAppointmentStarted,
+		TopicAppointmentCompleted,
+		TopicAppointmentCancelled,
+		TopicAppointmentRescheduled,
+		TopicAppointmentNoShow,
 	}
 }

@@ -18,6 +18,7 @@ import (
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/kafka"
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/repository"
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/routes"
+	appointmentservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/appointment"
 	departmentservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/department"
 	doctorservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/doctor"
 	doctorspecializationservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/doctor-specialization"
@@ -107,6 +108,7 @@ func main() {
 		TypeTestHandler:             dependencies.TypeTestHandler,
 		MedicineHandler:             dependencies.MedicineHandler,
 		MedicineTypeHandler:         dependencies.MedicineTypeHandler,
+		AppointmentHandler:          dependencies.AppointmentHandler,
 	})
 
 	// Setup HTTP server
@@ -152,6 +154,7 @@ type Dependencies struct {
 	TypeTestRepository             repository.TypeTestRepository
 	MedicineRepository             repository.MedicineRepository
 	MedicineTypeRepository         repository.MedicineTypeRepository
+	AppointmentRepository          repository.AppointmentRepository
 
 	// Services
 	UserService                 userservice.UserService
@@ -165,6 +168,7 @@ type Dependencies struct {
 	TypeTestService             typetestservice.TypeTestService
 	MedicineService             medicineservice.MedicineService
 	MedicineTypeService         medicinetypeservice.MedicineTypeService
+	AppointmentService          appointmentservice.AppointmentService
 
 	// Handlers
 	UserHandler                 *handler.UserHandler
@@ -178,6 +182,7 @@ type Dependencies struct {
 	TypeTestHandler             *handler.TypeTestHandler
 	MedicineHandler             *handler.MedicineHandler
 	MedicineTypeHandler         *handler.MedicineTypeHandler
+	AppointmentHandler          *handler.AppointmentHandler
 }
 
 // initDependencies initializes all application dependencies
@@ -194,6 +199,7 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 	typeTestRepo := repository.NewTypeTestRepository(db)
 	medicineRepo := repository.NewMedicineRepository(db)
 	medicineTypeRepo := repository.NewMedicineTypeRepository(db)
+	appointmentRepo := repository.NewAppointmentRepository(db)
 
 	// Konversi *RedisClient ke interface RedisStore hanya jika non-nil.
 	// Tanpa ini, passing typed-nil ke parameter interface menghasilkan non-nil
@@ -251,6 +257,10 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 		medicinetypeservice.NewCachedMedicineTypeService(medicinetypeservice.NewMedicineTypeService(medicineTypeRepo, cfg), redisClient),
 		publisher,
 	)
+	appointmentService := appointmentservice.NewEventAppointmentService(
+		appointmentservice.NewCachedAppointmentService(appointmentservice.NewAppointmentService(appointmentRepo, cfg), redisClient),
+		publisher,
+	)
 
 	// Initialize Handlers
 	userHandler := handler.NewUserHandler(userService)
@@ -264,6 +274,7 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 	typeTestHandler := handler.NewTypeTestHandler(typeTestService)
 	medicineHandler := handler.NewMedicineHandler(medicineService)
 	medicineTypeHandler := handler.NewMedicineTypeHandler(medicineTypeService)
+	appointmentHandler := handler.NewAppointmentHandler(appointmentService, doctorRepo, patientRepo)
 
 	return &Dependencies{
 		UserRepository: userRepo,
@@ -309,6 +320,10 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 		MedicineTypeRepository: medicineTypeRepo,
 		MedicineTypeService:    medicineTypeService,
 		MedicineTypeHandler:    medicineTypeHandler,
+
+		AppointmentRepository: appointmentRepo,
+		AppointmentService:    appointmentService,
+		AppointmentHandler:    appointmentHandler,
 	}
 }
 

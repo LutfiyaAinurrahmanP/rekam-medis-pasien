@@ -541,6 +541,53 @@ func MedicineInactiveListQuery(page, size int, search, sortBy, sortDir string) s
 	)
 }
 
+
+// ─── Appointment ──────────────────────────────────────────────────────────
+
+func AppointmentKey(id uint) string {
+	return fmt.Sprintf("appointment:id:%d", id)
+}
+
+func AppointmentListQueryKey(page, size int, patientID, doctorID, departmentID *uint, status, date, dateFrom, dateTo string, daysAhead, daysBack int, sortBy, sortDir string) string {
+	pID, dID, depID := "all", "all", "all"
+	if patientID != nil {
+		pID = fmt.Sprintf("%d", *patientID)
+	}
+	if doctorID != nil {
+		dID = fmt.Sprintf("%d", *doctorID)
+	}
+	if departmentID != nil {
+		depID = fmt.Sprintf("%d", *departmentID)
+	}
+	if status == "" {
+		status = "all"
+	}
+	return fmt.Sprintf(
+		"appointment:list:p%d:s%d:pat%s:doc%s:dep%s:st%s:d%s:df%s:dt%s:da%d:db%d:sb%s:sd%s",
+		page, size, pID, dID, depID, status, date, dateFrom, dateTo, daysAhead, daysBack, sortBy, sortDir,
+	)
+}
+
+func AppointmentDeletedListQueryKey(page, size int, patientID, doctorID, departmentID *uint, status, date, dateFrom, dateTo string, daysAhead, daysBack int, sortBy, sortDir string) string {
+	pID, dID, depID := "all", "all", "all"
+	if patientID != nil {
+		pID = fmt.Sprintf("%d", *patientID)
+	}
+	if doctorID != nil {
+		dID = fmt.Sprintf("%d", *doctorID)
+	}
+	if departmentID != nil {
+		depID = fmt.Sprintf("%d", *departmentID)
+	}
+	if status == "" {
+		status = "all"
+	}
+	return fmt.Sprintf(
+		"appointment:deleted:p%d:s%d:pat%s:doc%s:dep%s:st%s:d%s:df%s:dt%s:da%d:db%d:sb%s:sd%s",
+		page, size, pID, dID, depID, status, date, dateFrom, dateTo, daysAhead, daysBack, sortBy, sortDir,
+	)
+}
+
 // ─── Invalidation patterns ─────────────────────────────────────────────────
 
 const (
@@ -555,4 +602,5 @@ const (
 	PatternTypeTestAll             = "type_test:*"
 	PatternMedicineTypeAll         = "medicine_type:*"
 	PatternMedicineAll             = "medicine:*"
+	PatternAppointmentAll          = "appointment:*"
 )

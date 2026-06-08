@@ -64,6 +64,16 @@ var notificationTopics = []string{
 	kafka.TopicRoomTypeUpdated,
 	kafka.TopicRoomTypeDeleted,
 	kafka.TopicRoomTypeRestored,
+	kafka.TopicAppointmentCreated,
+	kafka.TopicAppointmentUpdated,
+	kafka.TopicAppointmentDeleted,
+	kafka.TopicAppointmentRestored,
+	kafka.TopicAppointmentConfirmed,
+	kafka.TopicAppointmentStarted,
+	kafka.TopicAppointmentCompleted,
+	kafka.TopicAppointmentCancelled,
+	kafka.TopicAppointmentRescheduled,
+	kafka.TopicAppointmentNoShow,
 }
 
 // NewNotificationEventHandler membuat notification handler baru.
@@ -491,6 +501,81 @@ func (h *NotificationEventHandler) handle(ctx context.Context, topic string, key
 			return err
 		}
 		log.Printf("[NOTIFICATION] 📦 Medicine stock reduced: %s (-%d, total: %d)", e.Payload.Name, e.Payload.DeltaQuantity, e.Payload.StockQuantity)
+
+	// ── Appointment Events ──────────────────────────────────────────────────────
+
+	case kafka.TopicAppointmentCreated:
+		var e events.AppointmentCreatedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 📅 New appointment booked: ID=%d, Date=%s %s, Status=%s",
+			e.Payload.ID, e.Payload.AppointmentDate, e.Payload.AppointmentTime, e.Payload.Status)
+
+	case kafka.TopicAppointmentUpdated:
+		var e events.AppointmentUpdatedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 📅 Appointment updated: ID=%d, Status=%s", e.Payload.ID, e.Payload.Status)
+
+	case kafka.TopicAppointmentDeleted:
+		var e events.AppointmentDeletedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🗑️ Appointment deleted: ID=%d, Action=%s", e.Payload.ID, e.Payload.Action)
+
+	case kafka.TopicAppointmentRestored:
+		var e events.AppointmentRestoredEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] ♻️ Appointment restored: ID=%d", e.Payload.ID)
+
+	case kafka.TopicAppointmentConfirmed:
+		var e events.AppointmentConfirmedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] ✅ Appointment confirmed: ID=%d", e.Payload.ID)
+
+	case kafka.TopicAppointmentStarted:
+		var e events.AppointmentStartedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🩺 Appointment started (in progress): ID=%d", e.Payload.ID)
+
+	case kafka.TopicAppointmentCompleted:
+		var e events.AppointmentCompletedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🏁 Appointment completed: ID=%d", e.Payload.ID)
+
+	case kafka.TopicAppointmentCancelled:
+		var e events.AppointmentCancelledEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] ❌ Appointment cancelled: ID=%d, Reason=%s", e.Payload.ID, e.Payload.Reason)
+
+	case kafka.TopicAppointmentRescheduled:
+		var e events.AppointmentRescheduledEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🔄 Appointment rescheduled: ID=%d, New Date=%s %s",
+			e.Payload.ID, e.Payload.AppointmentDate, e.Payload.AppointmentTime)
+
+	case kafka.TopicAppointmentNoShow:
+		var e events.AppointmentNoShowEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🚫 Appointment marked as no-show: ID=%d", e.Payload.ID)
+
 	default:
 		log.Printf("[NOTIFICATION] ⚠️  Received unsupported topic: %s", topic)
 	}
