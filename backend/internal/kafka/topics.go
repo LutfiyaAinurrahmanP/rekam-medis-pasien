@@ -65,6 +65,16 @@ const (
 	TopicMedicineTypeUpdated  = "medicine_type.updated"
 	TopicMedicineTypeDeleted  = "medicine_type.deleted"
 	TopicMedicineTypeRestored = "medicine_type.restored"
+
+	// ── Medicine Topics ────────────────────────────────────────────────────────────
+	TopicMedicineCreated      = "medicine.created"
+	TopicMedicineUpdated      = "medicine.updated"
+	TopicMedicineDeleted      = "medicine.deleted"
+	TopicMedicineRestored     = "medicine.restored"
+	TopicMedicineActivated    = "medicine.activated"
+	TopicMedicineDeactivated  = "medicine.deactivated"
+	TopicMedicineStockAdded   = "medicine.stock_added"
+	TopicMedicineStockReduced = "medicine.stock_reduced"
 )
 
 // AllTopics mengembalikan semua topic yang perlu dibuat/dipastikan ada di Kafka.
@@ -122,5 +132,14 @@ func AllTopics() []string {
 		TopicMedicineTypeUpdated,
 		TopicMedicineTypeDeleted,
 		TopicMedicineTypeRestored,
+
+		TopicMedicineCreated,
+		TopicMedicineUpdated,
+		TopicMedicineDeleted,
+		TopicMedicineRestored,
+		TopicMedicineActivated,
+		TopicMedicineDeactivated,
+		TopicMedicineStockAdded,
+		TopicMedicineStockReduced,
 	}
 }

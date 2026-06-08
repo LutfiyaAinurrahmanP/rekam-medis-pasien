@@ -431,6 +431,66 @@ func (h *NotificationEventHandler) handle(ctx context.Context, topic string, key
 		}
 		log.Printf("[NOTIFICATION] ♻️ Medicine type restored: %s (code=%s)", e.Payload.Name, e.Payload.Code)
 
+	// ── Medicine Events ──────────────────────────────────────────────────────────
+
+	case kafka.TopicMedicineCreated:
+		var e events.MedicineCreatedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 💊 New medicine added: %s (generic: %s, brand: %s, type_id=%d)",
+			e.Payload.Name, e.Payload.GenericName, e.Payload.BrandName, e.Payload.MedicineTypeID)
+
+	case kafka.TopicMedicineUpdated:
+		var e events.MedicineUpdatedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 💊 Medicine updated: %s (type_id=%d, action=%s)",
+			e.Payload.Name, e.Payload.MedicineTypeID, e.Payload.Action)
+
+	case kafka.TopicMedicineDeleted:
+		var e events.MedicineDeletedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🗑️ Medicine deleted: %s (action=%s)",
+			e.Payload.Name, e.Payload.Action)
+
+	case kafka.TopicMedicineRestored:
+		var e events.MedicineRestoredEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] ♻️ Medicine restored: %s", e.Payload.Name)
+
+	case kafka.TopicMedicineActivated:
+		var e events.MedicineActivatedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] ✅ Medicine activated: %s", e.Payload.Name)
+
+	case kafka.TopicMedicineDeactivated:
+		var e events.MedicineDeactivatedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] ❌ Medicine deactivated: %s", e.Payload.Name)
+
+	case kafka.TopicMedicineStockAdded:
+		var e events.MedicineStockAddedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 📦 Medicine stock added: %s (+%d, total: %d)", e.Payload.Name, e.Payload.DeltaQuantity, e.Payload.StockQuantity)
+
+	case kafka.TopicMedicineStockReduced:
+		var e events.MedicineStockReducedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 📦 Medicine stock reduced: %s (-%d, total: %d)", e.Payload.Name, e.Payload.DeltaQuantity, e.Payload.StockQuantity)
 	default:
 		log.Printf("[NOTIFICATION] ⚠️  Received unsupported topic: %s", topic)
 	}

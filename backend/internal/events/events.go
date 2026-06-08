@@ -903,19 +903,152 @@ func NewMedicineTypeRestoredEvent(id uint, name, code string) MedicineTypeRestor
 	}
 }
 
-// Medicine Events
+// ─── Medicine Events ────────────────────────────────────────────────────────────
+
 type MedicinePayload struct {
-	ID            uint    `json:"id"`
-	Name          string  `json:"name"`
-	GenericName   string  `json:"generic_name"`
-	BrandName     string  `json:"brand_name"`
-	Type          string  `json:"type"`
-	Strength      string  `json:"strength"`
-	Manufacturer  string  `json:"manufacturer"`
-	Unit          string  `json:"unit"`
-	StockQuantity int     `json:"stock_quantity"`
-	Price         float64 `json:"price"`
-	IsActive      bool    `json:"is_active"`
-	IsLowStock    bool    `json:"is_low_stock"`
-	IsOutOfStock  bool    `json:"is_out_of_stock"`
+	ID             uint    `json:"id"`
+	Name           string  `json:"name,omitempty"`
+	GenericName    string  `json:"generic_name,omitempty"`
+	BrandName      string  `json:"brand_name,omitempty"`
+	MedicineTypeID uint    `json:"medicine_type_id,omitempty"`
+	Strength       string  `json:"strength,omitempty"`
+	Manufacturer   string  `json:"manufacturer,omitempty"`
+	Unit           string  `json:"unit,omitempty"`
+	StockQuantity  int     `json:"stock_quantity,omitempty"`
+	Price          float64 `json:"price,omitempty"`
+	IsActive       bool    `json:"is_active,omitempty"`
+	CreatedAt      string  `json:"created_at,omitempty"`
+	UpdatedAt      string  `json:"updated_at,omitempty"`
+	DeletedAt      string  `json:"deleted_at,omitempty"`
+	Action         string  `json:"action,omitempty"`
+	DeltaQuantity  int     `json:"delta_quantity,omitempty"` // For add/reduce stock
+}
+
+type MedicineCreatedEvent struct {
+	BaseEvent
+	Payload MedicinePayload `json:"payload"`
+}
+
+type MedicineUpdatedEvent struct {
+	BaseEvent
+	Payload MedicinePayload `json:"payload"`
+}
+
+type MedicineDeletedEvent struct {
+	BaseEvent
+	Payload MedicinePayload `json:"payload"`
+}
+
+type MedicineRestoredEvent struct {
+	BaseEvent
+	Payload MedicinePayload `json:"payload"`
+}
+
+type MedicineActivatedEvent struct {
+	BaseEvent
+	Payload MedicinePayload `json:"payload"`
+}
+
+type MedicineDeactivatedEvent struct {
+	BaseEvent
+	Payload MedicinePayload `json:"payload"`
+}
+
+type MedicineStockAddedEvent struct {
+	BaseEvent
+	Payload MedicinePayload `json:"payload"`
+}
+
+type MedicineStockReducedEvent struct {
+	BaseEvent
+	Payload MedicinePayload `json:"payload"`
+}
+
+// Constructors ─────────────────────────────────────────────────────────────────
+
+func NewMedicineCreatedEvent(id uint, name, genericName, brandName string, medicineTypeID uint, strength, manufacturer, unit string, stock int, price float64, isActive bool) MedicineCreatedEvent {
+	return MedicineCreatedEvent{
+		BaseEvent: newBase("medicine.created"),
+		Payload: MedicinePayload{
+			ID: id, Name: name, GenericName: genericName, BrandName: brandName,
+			MedicineTypeID: medicineTypeID, Strength: strength, Manufacturer: manufacturer,
+			Unit: unit, StockQuantity: stock, Price: price, IsActive: isActive,
+		},
+	}
+}
+
+func NewMedicineUpdatedEvent(id uint, name, genericName, brandName string, medicineTypeID uint, strength, manufacturer, unit string, stock int, price float64, isActive bool, action string) MedicineUpdatedEvent {
+	return MedicineUpdatedEvent{
+		BaseEvent: newBase("medicine.updated"),
+		Payload: MedicinePayload{
+			ID: id, Name: name, GenericName: genericName, BrandName: brandName,
+			MedicineTypeID: medicineTypeID, Strength: strength, Manufacturer: manufacturer,
+			Unit: unit, StockQuantity: stock, Price: price, IsActive: isActive, Action: action,
+		},
+	}
+}
+
+func NewMedicineDeletedEvent(id uint, name, action string) MedicineDeletedEvent {
+	return MedicineDeletedEvent{
+		BaseEvent: newBase("medicine.deleted"),
+		Payload: MedicinePayload{
+			ID:     id,
+			Name:   name,
+			Action: action,
+		},
+	}
+}
+
+func NewMedicineRestoredEvent(id uint, name string) MedicineRestoredEvent {
+	return MedicineRestoredEvent{
+		BaseEvent: newBase("medicine.restored"),
+		Payload: MedicinePayload{
+			ID:   id,
+			Name: name,
+		},
+	}
+}
+
+func NewMedicineActivatedEvent(id uint, name string) MedicineActivatedEvent {
+	return MedicineActivatedEvent{
+		BaseEvent: newBase("medicine.activated"),
+		Payload: MedicinePayload{
+			ID:   id,
+			Name: name,
+		},
+	}
+}
+
+func NewMedicineDeactivatedEvent(id uint, name string) MedicineDeactivatedEvent {
+	return MedicineDeactivatedEvent{
+		BaseEvent: newBase("medicine.deactivated"),
+		Payload: MedicinePayload{
+			ID:     id,
+			Name:   name,
+		},
+	}
+}
+
+func NewMedicineStockAddedEvent(id uint, name string, newStock, addedQuantity int) MedicineStockAddedEvent {
+	return MedicineStockAddedEvent{
+		BaseEvent: newBase("medicine.stock_added"),
+		Payload: MedicinePayload{
+			ID:            id,
+			Name:          name,
+			StockQuantity: newStock,
+			DeltaQuantity: addedQuantity,
+		},
+	}
+}
+
+func NewMedicineStockReducedEvent(id uint, name string, newStock, reducedQuantity int) MedicineStockReducedEvent {
+	return MedicineStockReducedEvent{
+		BaseEvent: newBase("medicine.stock_reduced"),
+		Payload: MedicinePayload{
+			ID:            id,
+			Name:          name,
+			StockQuantity: newStock,
+			DeltaQuantity: reducedQuantity,
+		},
+	}
 }

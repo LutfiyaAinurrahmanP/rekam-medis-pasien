@@ -8,8 +8,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func seedMedicines(tx *gorm.DB, count int) ([]models.Medicine, error) {
-	medicineTypes := []string{"tablet", "capsule", "syrup", "injection", "ointment", "other"}
+func seedMedicines(tx *gorm.DB, count int, medicineTypes []models.MedicineType) ([]models.Medicine, error) {
 	manufacturers := []string{"Kimia Farma", "Kalbe Farma", "Dexa Medica", "Sanbe", "Novell", "Tempo Scan"}
 	units := []string{"strip", "bottle", "vial", "tube", "box"}
 
@@ -20,7 +19,7 @@ func seedMedicines(tx *gorm.DB, count int) ([]models.Medicine, error) {
 			Name:          fmt.Sprintf("Medicine Sample %02d", i),
 			GenericName:   fmt.Sprintf("Generic Compound %02d", i),
 			BrandName:     fmt.Sprintf("Brand %02d", i),
-			Type:          medicineType,
+			MedicineTypeID: medicineType.ID,
 			Strength:      fmt.Sprintf("%d mg", 50+((i-1)%10)*50),
 			Manufacturer:  manufacturers[(i-1)%len(manufacturers)],
 			Unit:          units[(i-1)%len(units)],
@@ -38,8 +37,7 @@ func seedMedicines(tx *gorm.DB, count int) ([]models.Medicine, error) {
 	return medicines, nil
 }
 
-func seedDeletedMedicines(tx *gorm.DB) error {
-	medicineTypes := []string{"tablet", "capsule", "syrup", "injection", "ointment", "other"}
+func seedDeletedMedicines(tx *gorm.DB, medicineTypes []models.MedicineType) error {
 	manufacturers := []string{"Kimia Farma", "Kalbe Farma", "Dexa Medica", "Sanbe", "Novell", "Tempo Scan"}
 	units := []string{"strip", "bottle", "vial", "tube", "box"}
 
@@ -53,7 +51,7 @@ func seedDeletedMedicines(tx *gorm.DB) error {
 			Name:          fmt.Sprintf("(Deleted) Medicine Sample %02d", i-6000),
 			GenericName:   fmt.Sprintf("Generic Compound DEL-%02d", i-6000),
 			BrandName:     fmt.Sprintf("Brand DEL-%02d", i-6000),
-			Type:          medicineType,
+			MedicineTypeID: medicineType.ID,
 			Strength:      fmt.Sprintf("%d mg", 50+((i-1)%10)*50),
 			Manufacturer:  manufacturers[(i-1)%len(manufacturers)],
 			Unit:          units[(i-1)%len(units)],

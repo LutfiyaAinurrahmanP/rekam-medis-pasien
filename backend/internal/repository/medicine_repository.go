@@ -3,6 +3,7 @@ package repository
 import (
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/dto"
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/models"
@@ -12,20 +13,19 @@ import (
 type MedicineRepository interface {
 	List(query *dto.MedicinePaginationQuery) ([]models.Medicine, int64, error)
 	DeletedList(query *dto.MedicinePaginationQuery) ([]models.Medicine, int64, error)
-	ListByAvailable(query *dto.MedicinePaginationQuery) ([]models.Medicine, int64, error)
-	ListByLowStock(query *dto.MedicinePaginationQuery) ([]models.Medicine, int64, error)
-	ListByOutStock(query *dto.MedicinePaginationQuery) ([]models.Medicine, int64, error)
-	ListByInactive(query *dto.MedicinePaginationQuery) ([]models.Medicine, int64, error)
+	AvailableList(query *dto.MedicinePaginationQuery) ([]models.Medicine, int64, error)
+	LowStockList(query *dto.MedicinePaginationQuery) ([]models.Medicine, int64, error)
+	OutStockList(query *dto.MedicinePaginationQuery) ([]models.Medicine, int64, error)
+	ActiveList(query *dto.MedicinePaginationQuery) ([]models.Medicine, int64, error)
+	InactiveList(query *dto.MedicinePaginationQuery) ([]models.Medicine, int64, error)
 	FindByID(id uint) (*models.Medicine, error)
-	FindByName(name string) (*models.Medicine, error)
-	ListByType(query *dto.MedicinePaginationQuery) ([]models.Medicine, int64, error)
-	Search(criteria *dto.MedicineSearchCriteria, item *dto.MedicineSearchItem, response *dto.MedicineSearchResponse) ([]models.Medicine, int64, error)
+	FindByIDUnscoped(id uint) (*models.Medicine, error)
 	Create(medicine *models.Medicine) error
 	Update(medicine *models.Medicine) error
-	UpdateStock(id uint) error
-	UpdateReduceStock(id uint) error
-	UpdateActivate(id uint) error
-	UpdateDeactivate(id uint) error
+	AddStock(id uint, quantity int) error
+	ReduceStock(id uint, quantity int) error
+	Activate(id uint) error
+	Deactivate(id uint) error
 	SoftDelete(id uint) error
 	Restore(id uint) error
 	HardDelete(id uint) error
@@ -41,111 +41,86 @@ func NewMedicineRepository(db *gorm.DB) MedicineRepository {
 	}
 }
 
-func (r *medicineRepository) buildBaseQuery(query *dto.MedicinePaginationQuery) *gorm.DB {
-	db := r.db.Model(&models.Medicine{})
+// --- Helper Functions ---
 
-	if query.Search != "" {
-		pattern := fmt.Sprintf("%%%s%%", query.Search)
+func escapeSearchMedicinePattern(s string) string {
+	s = strings.ReplaceAll(s, `\`, `\\`)
+	s = strings.ReplaceAll(s, `%`, `\%`)
+	s = strings.ReplaceAll(s, `_`, `\_`)
+	return s
+}
+
+func applyMedicineListOrder(db *gorm.DB, sortBy, sortDir string) *gorm.DB {
+	column := "created_at"
+	switch sortBy {
+	case "name", "generic_name", "brand_name", "manufacturer", "stock_quantity", "price", "created_at", "updated_at":
+		column = sortBy
+	}
+
+	direction := "DESC"
+	if strings.EqualFold(sortDir, "asc") {
+		direction = "ASC"
+	}
+
+	return db.Order(fmt.Sprintf("%s %s", column, direction))
+}
+
+func (r *medicineRepository) buildBaseQuery(query *dto.MedicinePaginationQuery, isDeleted bool) *gorm.DB {
+	var db *gorm.DB
+	if isDeleted {
+		db = r.db.Unscoped().Model(&models.Medicine{}).Where("deleted_at IS NOT NULL")
+	} else {
+		db = r.db.Model(&models.Medicine{})
+	}
+
+	// 1. Search
+	if searchTerm := strings.TrimSpace(query.Search); searchTerm != "" {
+		escaped := escapeSearchMedicinePattern(searchTerm)
+		searchPattern := "%" + escaped + "%"
+
 		db = db.Where(
-			"name ILIKE ? OR generic_name ILIKE ? OR brand_name ILIKE ? OR type ILIKE ?",
-			pattern, pattern, pattern, pattern)
+			"name ILIKE ? OR generic_name ILIKE ? OR brand_name ILIKE ? OR manufacturer ILIKE ?",
+			searchPattern, searchPattern, searchPattern, searchPattern)
 	}
 
-	if query.HasStock != nil {
-		if *query.HasStock {
-			db = db.Where("stock_quantity > ?", 0)
-		} else {
-			db = db.Where("stock_quantity = ?", 0)
-		}
-	}
-
+	// 2. Filters
 	if query.IsActive != nil {
 		db = db.Where("is_active = ?", *query.IsActive)
 	}
 
-	if query.Manufacturer != "" {
-		db = db.Where("manufacturer = ?", query.Manufacturer)
+	if query.MedicineTypeID != nil {
+		db = db.Where("medicine_type_id = ?", *query.MedicineTypeID)
 	}
 
-	if query.Type != "" {
-		db = db.Where("type = ?", query.Type)
-	}
 
-	if query.MinStock > 0 {
-		db = db.Where("stock_quantity >= ?", query.MinStock)
-	}
-
-	if query.MaxStock > 0 {
-		db = db.Where("stock_quantity <= ?", query.MaxStock)
+	if query.StockStatus != "" {
+		switch query.StockStatus {
+		case "available":
+			db = db.Where("stock_quantity > ?", 0)
+		case "low_stock":
+			// Misalnya low stock itu > 0 dan <= 5
+			db = db.Where("stock_quantity > ? AND stock_quantity <= ?", 0, 5)
+		case "out_of_stock":
+			db = db.Where("stock_quantity = ?", 0)
+		}
 	}
 
 	return db
 }
 
-func (r *medicineRepository) buildDeletedBaseQuery(query *dto.MedicinePaginationQuery) *gorm.DB {
-	db := r.db.Unscoped().Model(&models.Medicine{}).Where("deleted_at IS NOT NULL")
-
-	if query.Search != "" {
-		pattern := fmt.Sprintf("%%%s%%", query.Search)
-		db = db.Where(
-			"name ILIKE ? OR generic_name ILIKE ? OR brand_name ILIKE ? OR type ILIKE ?",
-			pattern, pattern, pattern, pattern)
-	}
-
-	if query.HasStock != nil {
-		if *query.HasStock {
-			db = db.Where("stock_quantity > ?", 0)
-		} else {
-			db = db.Where("stock_quantity = ?", 0)
-		}
-	}
-
-	if query.IsActive != nil {
-		db = db.Where("is_active = ?", *query.IsActive)
-	}
-
-	if query.Manufacturer != "" {
-		db = db.Where("manufacturer = ?", query.Manufacturer)
-	}
-
-	if query.Type != "" {
-		db = db.Where("type = ?", query.Type)
-	}
-
-	if query.MinStock > 0 {
-		db = db.Where("stock_quantity >= ?", query.MinStock)
-	}
-
-	if query.MaxStock > 0 {
-		db = db.Where("stock_quantity <= ?", query.MaxStock)
-	}
-
-	return db
-}
+// --- Interface Implementations ---
 
 func (r *medicineRepository) List(query *dto.MedicinePaginationQuery) ([]models.Medicine, int64, error) {
-	var (
-		medicines []models.Medicine
-		total     int64
-	)
+	var medicines []models.Medicine
+	var total int64
 
-	db := r.buildBaseQuery(query)
+	db := r.buildBaseQuery(query, false)
 
 	if err := db.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 
-	sortBy := "name"
-	if query.SortBy != "" {
-		sortBy = query.SortBy
-	}
-
-	sortDir := "asc"
-	if query.SortDir == "desc" {
-		sortDir = "desc"
-	}
-
-	db = db.Order(fmt.Sprintf("%s %s", sortBy, sortDir))
+	db = applyMedicineListOrder(db, query.SortBy, query.SortDir)
 
 	offset := (query.Page - 1) * query.PageSize
 	if err := db.Offset(offset).Limit(query.PageSize).Find(&medicines).Error; err != nil {
@@ -156,28 +131,16 @@ func (r *medicineRepository) List(query *dto.MedicinePaginationQuery) ([]models.
 }
 
 func (r *medicineRepository) DeletedList(query *dto.MedicinePaginationQuery) ([]models.Medicine, int64, error) {
-	var (
-		medicines []models.Medicine
-		total     int64
-	)
+	var medicines []models.Medicine
+	var total int64
 
-	db := r.buildDeletedBaseQuery(query)
+	db := r.buildBaseQuery(query, true)
 
 	if err := db.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 
-	sortBy := "name"
-	if query.SortBy != "" {
-		sortBy = query.SortBy
-	}
-
-	sortDir := "asc"
-	if query.SortDir == "desc" {
-		sortDir = "desc"
-	}
-
-	db = db.Order(fmt.Sprintf("%s %s", sortBy, sortDir))
+	db = applyMedicineListOrder(db, query.SortBy, query.SortDir)
 
 	offset := (query.Page - 1) * query.PageSize
 	if err := db.Offset(offset).Limit(query.PageSize).Find(&medicines).Error; err != nil {
@@ -187,36 +150,37 @@ func (r *medicineRepository) DeletedList(query *dto.MedicinePaginationQuery) ([]
 	return medicines, total, nil
 }
 
-func (r *medicineRepository) ListByAvailable(query *dto.MedicinePaginationQuery) ([]models.Medicine, int64, error) {
-	queryForFilter := *query
-	available := true
-	queryForFilter.HasStock = &available
-	return r.List(&queryForFilter)
+// Convenience methods that use List() under the hood
+func (r *medicineRepository) AvailableList(query *dto.MedicinePaginationQuery) ([]models.Medicine, int64, error) {
+	q := *query
+	q.StockStatus = "available"
+	return r.List(&q)
 }
 
-func (r *medicineRepository) ListByLowStock(query *dto.MedicinePaginationQuery) ([]models.Medicine, int64, error) {
-	queryForFilter := *query
-
-	// Set low stock threshold
-	lowStockThreshold := 10
-	queryForFilter.MaxStock = lowStockThreshold
-	queryForFilter.MinStock = 0
-
-	return r.List(&queryForFilter)
+func (r *medicineRepository) LowStockList(query *dto.MedicinePaginationQuery) ([]models.Medicine, int64, error) {
+	q := *query
+	q.StockStatus = "low_stock"
+	return r.List(&q)
 }
 
-func (r *medicineRepository) ListByOutStock(query *dto.MedicinePaginationQuery) ([]models.Medicine, int64, error) {
-	queryForFilter := *query
-	available := false
-	queryForFilter.HasStock = &available
-	return r.List(&queryForFilter)
+func (r *medicineRepository) OutStockList(query *dto.MedicinePaginationQuery) ([]models.Medicine, int64, error) {
+	q := *query
+	q.StockStatus = "out_of_stock"
+	return r.List(&q)
 }
 
-func (r *medicineRepository) ListByInactive(query *dto.MedicinePaginationQuery) ([]models.Medicine, int64, error) {
-	queryForFilter := *query
-	isActive := false
-	queryForFilter.IsActive = &isActive
-	return r.List(&queryForFilter)
+func (r *medicineRepository) ActiveList(query *dto.MedicinePaginationQuery) ([]models.Medicine, int64, error) {
+	q := *query
+	active := true
+	q.IsActive = &active
+	return r.List(&q)
+}
+
+func (r *medicineRepository) InactiveList(query *dto.MedicinePaginationQuery) ([]models.Medicine, int64, error) {
+	q := *query
+	active := false
+	q.IsActive = &active
+	return r.List(&q)
 }
 
 func (r *medicineRepository) FindByID(id uint) (*models.Medicine, error) {
@@ -231,9 +195,9 @@ func (r *medicineRepository) FindByID(id uint) (*models.Medicine, error) {
 	return &m, nil
 }
 
-func (r *medicineRepository) FindByName(name string) (*models.Medicine, error) {
+func (r *medicineRepository) FindByIDUnscoped(id uint) (*models.Medicine, error) {
 	var m models.Medicine
-	err := r.db.Where("name = ?", name).First(&m).Error
+	err := r.db.Unscoped().First(&m, id).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New("medicine not found")
@@ -243,48 +207,110 @@ func (r *medicineRepository) FindByName(name string) (*models.Medicine, error) {
 	return &m, nil
 }
 
-func (r *medicineRepository) ListByType(query *dto.MedicinePaginationQuery) ([]models.Medicine, int64, error) {
-	queryForFilter := *query
-	queryForFilter.Type = query.Type
-	return r.List(&queryForFilter)
-}
-
-func (r *medicineRepository) Search(criteria *dto.MedicineSearchCriteria, item *dto.MedicineSearchItem, response *dto.MedicineSearchResponse) ([]models.Medicine, int64, error) {
-	panic("not implemented") // TODO: Implement
-}
-
 func (r *medicineRepository) Create(medicine *models.Medicine) error {
-	panic("not implemented") // TODO: Implement
+	return r.db.Create(medicine).Error
 }
 
 func (r *medicineRepository) Update(medicine *models.Medicine) error {
-	panic("not implemented") // TODO: Implement
+	return r.db.Save(medicine).Error
 }
 
-func (r *medicineRepository) UpdateStock(id uint) error {
-	panic("not implemented") // TODO: Implement
+func (r *medicineRepository) AddStock(id uint, quantity int) error {
+	result := r.db.Model(&models.Medicine{}).Where("id = ?", id).
+		UpdateColumn("stock_quantity", gorm.Expr("stock_quantity + ?", quantity))
+
+	if result.Error != nil {
+		return result.Error
+	}	
+
+	if result.RowsAffected == 0 {
+		return errors.New("medicine not found")
+	}
+
+	return nil
 }
 
-func (r *medicineRepository) UpdateReduceStock(id uint) error {
-	panic("not implemented") // TODO: Implement
+func (r *medicineRepository) ReduceStock(id uint, quantity int) error {
+	result := r.db.Model(&models.Medicine{}).Where("id = ?", id).
+		UpdateColumn("stock_quantity", gorm.Expr("stock_quantity - ?", quantity))
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return errors.New("medicine not found")
+	}
+
+	return nil
 }
 
-func (r *medicineRepository) UpdateActivate(id uint) error {
-	panic("not implemented") // TODO: Implement
+func (r *medicineRepository) Activate(id uint) error {
+	result := r.db.Model(&models.Medicine{}).Where("id = ?", id).Update("is_active", true)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return errors.New("medicine not found")
+	}
+
+	return nil
 }
 
-func (r *medicineRepository) UpdateDeactivate(id uint) error {
-	panic("not implemented") // TODO: Implement
+func (r *medicineRepository) Deactivate(id uint) error {
+	result := r.db.Model(&models.Medicine{}).Where("id = ?", id).Update("is_active", false)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return errors.New("medicine not found")
+	}
+
+	return nil
 }
 
 func (r *medicineRepository) SoftDelete(id uint) error {
-	panic("not implemented") // TODO: Implement
+	result := r.db.Delete(&models.Medicine{}, id)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return errors.New("medicine not found")
+	}
+
+	return nil
 }
 
 func (r *medicineRepository) Restore(id uint) error {
-	panic("not implemented") // TODO: Implement
+	result := r.db.Unscoped().Model(&models.Medicine{}).Where("id = ?", id).Update("deleted_at", nil)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return errors.New("medicine not found")
+	}
+
+	return nil
 }
 
 func (r *medicineRepository) HardDelete(id uint) error {
-	panic("not implemented") // TODO: Implement
+	result := r.db.Unscoped().Delete(&models.Medicine{}, id)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return errors.New("medicine not found")
+	}
+
+	return nil
 }

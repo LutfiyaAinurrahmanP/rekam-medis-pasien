@@ -243,7 +243,7 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 		typetestservice.NewCachedTypeTestService(typetestservice.NewTypeTestService(typeTestRepo, cfg), redisClient),
 		publisher,
 	)
-	medicineService := medicineservice.NewMedicineEventService(
+	medicineService := medicineservice.NewEventMedicineService(
 		medicineservice.NewCachedMedicineService(medicineservice.NewMedicineService(medicineRepo, cfg), redisClient),
 		publisher,
 	)

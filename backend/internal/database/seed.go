@@ -85,12 +85,13 @@ func SeedDatabaseWithCount(db *gorm.DB, count int) error {
 		return err
 	}
 
-	if _, err := seedMedicineTypes(tx); err != nil {
+	medicineTypes, err := seedMedicineTypes(tx)
+	if err != nil {
 		tx.Rollback()
 		return err
 	}
 
-	if _, err := seedMedicines(tx, count); err != nil {
+	if _, err := seedMedicines(tx, count, medicineTypes); err != nil {
 		tx.Rollback()
 		return err
 	}
@@ -146,7 +147,7 @@ func SeedDatabaseWithCount(db *gorm.DB, count int) error {
 		return err
 	}
 
-	if err := seedDeletedMedicines(tx); err != nil {
+	if err := seedDeletedMedicines(tx, medicineTypes); err != nil {
 		tx.Rollback()
 		return err
 	}

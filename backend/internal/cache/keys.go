@@ -474,25 +474,71 @@ func MedicineTypeInactiveListQuery(page, size int, search, sortBy, sortDir strin
 
 // ─── Medicine ──────────────────────────────────────────────────────────────
 
-func MedicineKey(id uint) string            { return fmt.Sprintf("medicine:id:%d", id) }
-func MedicineNameKey(name string) string    { return fmt.Sprintf("medicine:name:%s", name) }
-func MedicineListKey(page, size int) string { return fmt.Sprintf("medicine:list:p%d:s%d", page, size) }
-func MedicineDeletedListKey(page, size int) string {
-	return fmt.Sprintf("medicine:list:p%d:s%d", page, size)
-}
-func MedicineAvailableKey(page, size int) string {
-	return fmt.Sprintf("medicine:available:p%d:s%d", page, size)
-}
-func MedicineLowStockKey(page, size int) string {
-	return fmt.Sprintf("medicine:lowstock:p%d:s%d", page, size)
+func MedicineKey(id uint) string {
+	return fmt.Sprintf("medicine:id:%d", id)
 }
 
-func MedicineOutOfStockKey(page, size int) string {
-	return fmt.Sprintf("medicine:outofstock:p%d:s%d", page, size)
+
+func MedicineListQuery(page, size int, search string, isActive *bool, typeId *uint, stockStatus, sortBy, sortDir string) string {
+	// Konversi pointer ke string agar aman digabungkan
+	activeStr := "all"
+	if isActive != nil {
+		activeStr = fmt.Sprintf("%t", *isActive)
+	}
+
+	typeStr := "all"
+	if typeId != nil {
+		typeStr = fmt.Sprintf("%d", *typeId)
+	}
+
+	if stockStatus == "" {
+		stockStatus = "all"
+	}
+	if search == "" {
+		search = "none"
+	}
+
+	return fmt.Sprintf(
+		"medicine:list:p%d:s%d:q%s:act%s:type%s:stk%s:sb%s:sd%s",
+		page, size, search, activeStr, typeStr, stockStatus, sortBy, sortDir,
+	)
 }
 
-func MedicineInactiveKey(page, size int) string {
-	return fmt.Sprintf("medicine:inactive:p%d:s%d", page, size)
+
+func MedicineDeletedListQuery(page, size int, search, sortBy, sortDir string) string {
+	if search == "" {
+		search = "none"
+	}
+	return fmt.Sprintf(
+		"medicine:deleted:p%d:s%d:q%s:sb%s:sd%s",
+		page,
+		size,
+		search,
+		sortBy,
+		sortDir,
+	)
+}
+
+func MedicineActiveListQuery(page, size int, search, sortBy, sortDir string) string {
+	return fmt.Sprintf(
+		"medicine:active:p%d:s%d:q%s:sb%s:sd%s",
+		page,
+		size,
+		search,
+		sortBy,
+		sortDir,
+	)
+}
+
+func MedicineInactiveListQuery(page, size int, search, sortBy, sortDir string) string {
+	return fmt.Sprintf(
+		"medicine:inactive:p%d:s%d:q%s:sb%s:sd%s",
+		page,
+		size,
+		search,
+		sortBy,
+		sortDir,
+	)
 }
 
 // ─── Invalidation patterns ─────────────────────────────────────────────────
