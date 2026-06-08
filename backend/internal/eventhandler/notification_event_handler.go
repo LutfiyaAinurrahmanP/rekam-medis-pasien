@@ -79,6 +79,12 @@ var notificationTopics = []string{
 	kafka.TopicMedicalRecordDeleted,
 	kafka.TopicMedicalRecordRestored,
 	kafka.TopicMedicalRecordFinalized,
+	kafka.TopicHospitalizationCreated,
+	kafka.TopicHospitalizationUpdated,
+	kafka.TopicHospitalizationDeleted,
+	kafka.TopicHospitalizationRestored,
+	kafka.TopicHospitalizationDischarged,
+	kafka.TopicHospitalizationTransferred,
 }
 
 // NewNotificationEventHandler membuat notification handler baru.

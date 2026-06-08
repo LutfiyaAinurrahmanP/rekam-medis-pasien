@@ -601,6 +601,7 @@ const (
 	PatternMedicineAll             = "medicine:*"
 	PatternAppointmentAll          = "appointment:*"
 	PatternMedicalRecordAll        = "medical_record:*"
+	PatternHospitalizationAll      = "hospitalization:*"
 )
 
 // ─── Medical Record ────────────────────────────────────────────────────────
@@ -648,3 +649,41 @@ func MedicalRecordDeletedListQueryKey(page, size int, patientID, doctorID, depar
 		page, size, pID, dID, depID, status, dateFrom, dateTo, sortBy, sortDir,
 	)
 }
+
+// ─── Hospitalization ────────────────────────────────────────────────────────
+
+func HospitalizationKey(id uint) string {
+	return fmt.Sprintf("hospitalization:id:%d", id)
+}
+
+func HospitalizationListQueryKey(page, size int, patientID, doctorID, roomID *uint, search, status, notStatus, sortBy, sortDir string) string {
+	pID, dID, rID := "all", "all", "all"
+	if patientID != nil {
+		pID = fmt.Sprintf("%d", *patientID)
+	}
+	if doctorID != nil {
+		dID = fmt.Sprintf("%d", *doctorID)
+	}
+	if roomID != nil {
+		rID = fmt.Sprintf("%d", *roomID)
+	}
+	if status == "" {
+		status = "all"
+	}
+	if notStatus == "" {
+		notStatus = "all"
+	}
+	if search == "" {
+		search = "none"
+	}
+	return fmt.Sprintf(
+		"hospitalization:list:p%d:s%d:pat%s:doc%s:rm%s:q%s:st%s:nst%s:sb%s:sd%s",
+		page, size, pID, dID, rID, search, status, notStatus, sortBy, sortDir,
+	)
+}
+
+func HospitalizationDeletedListQueryKey(page, size int, patientID, doctorID, roomID *uint, search, status, notStatus, sortBy, sortDir string) string {
+	return fmt.Sprintf("hospitalization:deleted:%s", HospitalizationListQueryKey(page, size, patientID, doctorID, roomID, search, status, notStatus, sortBy, sortDir))
+}
+
+

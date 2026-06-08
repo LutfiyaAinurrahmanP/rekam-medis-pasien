@@ -22,6 +22,7 @@ import (
 	departmentservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/department"
 	doctorservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/doctor"
 	doctorspecializationservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/doctor-specialization"
+	hospitalizationservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/hospitalization"
 	medicalrecordservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/medical-record"
 	medicineservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/medicine"
 	medicinetypeservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/medicine-type"
@@ -111,6 +112,7 @@ func main() {
 		MedicineTypeHandler:         dependencies.MedicineTypeHandler,
 		AppointmentHandler:          dependencies.AppointmentHandler,
 		MedicalRecordHandler:        dependencies.MedicalRecordHandler,
+		HospitalizationHandler:      dependencies.HospitalizationHandler,
 	})
 
 	// Setup HTTP server
@@ -158,6 +160,7 @@ type Dependencies struct {
 	MedicineTypeRepository         repository.MedicineTypeRepository
 	AppointmentRepository          repository.AppointmentRepository
 	MedicalRecordRepository        repository.MedicalRecordRepository
+	HospitalizationRepository      repository.HospitalizationRepository
 
 	// Services
 	UserService                 userservice.UserService
@@ -173,6 +176,7 @@ type Dependencies struct {
 	MedicineTypeService         medicinetypeservice.MedicineTypeService
 	AppointmentService          appointmentservice.AppointmentService
 	MedicalRecordService        medicalrecordservice.MedicalRecordService
+	HospitalizationService      hospitalizationservice.HospitalizationService
 
 	// Handlers
 	UserHandler                 *handler.UserHandler
@@ -188,6 +192,7 @@ type Dependencies struct {
 	MedicineTypeHandler         *handler.MedicineTypeHandler
 	AppointmentHandler          *handler.AppointmentHandler
 	MedicalRecordHandler        *handler.MedicalRecordHandler
+	HospitalizationHandler      *handler.HospitalizationHandler
 }
 
 // initDependencies initializes all application dependencies
@@ -206,6 +211,7 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 	medicineTypeRepo := repository.NewMedicineTypeRepository(db)
 	appointmentRepo := repository.NewAppointmentRepository(db)
 	medicalRecordRepo := repository.NewMedicalRecordRepository(db)
+	hospitalizationRepo := repository.NewHospitalizationRepository(db)
 
 	// Konversi *RedisClient ke interface RedisStore hanya jika non-nil.
 	// Tanpa ini, passing typed-nil ke parameter interface menghasilkan non-nil
@@ -271,6 +277,10 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 		medicalrecordservice.NewCachedMedicalRecordService(medicalrecordservice.NewMedicalRecordService(medicalRecordRepo, cfg), redisClient),
 		publisher,
 	)
+	hospitalizationService := hospitalizationservice.NewEventedHospitalizationService(
+		hospitalizationservice.NewCachedHospitalizationService(hospitalizationservice.NewHospitalizationService(hospitalizationRepo, cfg), redisClient),
+		publisher,
+	)
 
 	// Initialize Handlers
 	userHandler := handler.NewUserHandler(userService)
@@ -286,6 +296,7 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 	medicineTypeHandler := handler.NewMedicineTypeHandler(medicineTypeService)
 	appointmentHandler := handler.NewAppointmentHandler(appointmentService, doctorRepo, patientRepo)
 	medicalRecordHandler := handler.NewMedicalRecordHandler(medicalRecordService, doctorRepo, patientRepo)
+	hospitalizationHandler := handler.NewHospitalizationHandler(hospitalizationService)
 
 	return &Dependencies{
 		UserRepository: userRepo,
@@ -339,6 +350,10 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 		MedicalRecordRepository: medicalRecordRepo,
 		MedicalRecordService:    medicalRecordService,
 		MedicalRecordHandler:    medicalRecordHandler,
+
+		HospitalizationRepository: hospitalizationRepo,
+		HospitalizationService:    hospitalizationService,
+		HospitalizationHandler:    hospitalizationHandler,
 	}
 }
 

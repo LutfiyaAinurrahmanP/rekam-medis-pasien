@@ -94,6 +94,14 @@ const (
 	TopicMedicalRecordDeleted   = "medical_record.deleted"
 	TopicMedicalRecordRestored  = "medical_record.restored"
 	TopicMedicalRecordFinalized = "medical_record.finalized"
+
+	// ── Hospitalization Topics ─────────────────────────────────────────────────
+	TopicHospitalizationCreated     = "hospitalization.created"
+	TopicHospitalizationUpdated     = "hospitalization.updated"
+	TopicHospitalizationDeleted     = "hospitalization.deleted"
+	TopicHospitalizationRestored    = "hospitalization.restored"
+	TopicHospitalizationDischarged  = "hospitalization.discharged"
+	TopicHospitalizationTransferred = "hospitalization.transferred"
 )
 
 // AllTopics mengembalikan semua topic yang perlu dibuat/dipastikan ada di Kafka.
@@ -177,5 +185,12 @@ func AllTopics() []string {
 		TopicMedicalRecordDeleted,
 		TopicMedicalRecordRestored,
 		TopicMedicalRecordFinalized,
+
+		TopicHospitalizationCreated,
+		TopicHospitalizationUpdated,
+		TopicHospitalizationDeleted,
+		TopicHospitalizationRestored,
+		TopicHospitalizationDischarged,
+		TopicHospitalizationTransferred,
 	}
 }

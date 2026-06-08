@@ -1325,3 +1325,138 @@ func NewMedicalRecordFinalizedEvent(id uint) MedicalRecordFinalizedEvent {
 		},
 	}
 }
+
+// ─── Hospitalization Events ────────────────────────────────────────────────────────
+
+type HospitalizationPayload struct {
+	ID                uint   `json:"id"`
+	PatientID         uint   `json:"patient_id"`
+	DoctorID          uint   `json:"doctor_id"`
+	RoomID            uint   `json:"room_id"`
+	AdmissionDate     string `json:"admission_date"`
+	ReasonForAdmission string `json:"reason_for_admission"`
+	Status            string `json:"status"`
+	Action            string `json:"action,omitempty"`
+}
+
+type HospitalizationCreatedEvent struct {
+	BaseEvent
+	Payload HospitalizationPayload `json:"payload"`
+}
+
+type HospitalizationUpdatedEvent struct {
+	BaseEvent
+	Payload HospitalizationPayload `json:"payload"`
+}
+
+type HospitalizationDeletedEvent struct {
+	BaseEvent
+	Payload struct {
+		ID     uint   `json:"id"`
+		Action string `json:"action"` // "soft_delete" atau "hard_delete"
+	} `json:"payload"`
+}
+
+type HospitalizationRestoredEvent struct {
+	BaseEvent
+	Payload struct {
+		ID uint `json:"id"`
+	} `json:"payload"`
+}
+
+type HospitalizationDischargedEvent struct {
+	BaseEvent
+	Payload struct {
+		ID               uint   `json:"id"`
+		DischargeSummary string `json:"discharge_summary"`
+	} `json:"payload"`
+}
+
+type HospitalizationTransferredEvent struct {
+	BaseEvent
+	Payload struct {
+		ID    uint   `json:"id"`
+		Notes string `json:"notes"`
+	} `json:"payload"`
+}
+
+func NewHospitalizationCreatedEvent(id, patientID, doctorID, roomID uint, admissionDate, reasonForAdmission, status string) HospitalizationCreatedEvent {
+	return HospitalizationCreatedEvent{
+		BaseEvent: newBase("hospitalization.created"),
+		Payload: HospitalizationPayload{
+			ID:                 id,
+			PatientID:          patientID,
+			DoctorID:           doctorID,
+			RoomID:             roomID,
+			AdmissionDate:      admissionDate,
+			ReasonForAdmission: reasonForAdmission,
+			Status:             status,
+		},
+	}
+}
+
+func NewHospitalizationUpdatedEvent(id, patientID, doctorID, roomID uint, admissionDate, reasonForAdmission, status, action string) HospitalizationUpdatedEvent {
+	return HospitalizationUpdatedEvent{
+		BaseEvent: newBase("hospitalization.updated"),
+		Payload: HospitalizationPayload{
+			ID:                 id,
+			PatientID:          patientID,
+			DoctorID:           doctorID,
+			RoomID:             roomID,
+			AdmissionDate:      admissionDate,
+			ReasonForAdmission: reasonForAdmission,
+			Status:             status,
+			Action:             action,
+		},
+	}
+}
+
+func NewHospitalizationDeletedEvent(id uint, action string) HospitalizationDeletedEvent {
+	return HospitalizationDeletedEvent{
+		BaseEvent: newBase("hospitalization.deleted"),
+		Payload: struct {
+			ID     uint   `json:"id"`
+			Action string `json:"action"`
+		}{
+			ID:     id,
+			Action: action,
+		},
+	}
+}
+
+func NewHospitalizationRestoredEvent(id uint) HospitalizationRestoredEvent {
+	return HospitalizationRestoredEvent{
+		BaseEvent: newBase("hospitalization.restored"),
+		Payload: struct {
+			ID uint `json:"id"`
+		}{
+			ID: id,
+		},
+	}
+}
+
+func NewHospitalizationDischargedEvent(id uint, dischargeSummary string) HospitalizationDischargedEvent {
+	return HospitalizationDischargedEvent{
+		BaseEvent: newBase("hospitalization.discharged"),
+		Payload: struct {
+			ID               uint   `json:"id"`
+			DischargeSummary string `json:"discharge_summary"`
+		}{
+			ID:               id,
+			DischargeSummary: dischargeSummary,
+		},
+	}
+}
+
+func NewHospitalizationTransferredEvent(id uint, notes string) HospitalizationTransferredEvent {
+	return HospitalizationTransferredEvent{
+		BaseEvent: newBase("hospitalization.transferred"),
+		Payload: struct {
+			ID    uint   `json:"id"`
+			Notes string `json:"notes"`
+		}{
+			ID:    id,
+			Notes: notes,
+		},
+	}
+}
