@@ -63,19 +63,19 @@ func (s *hospitalizationService) normalizeQuery(query *dto.HospitalizationPagina
 
 func (s *hospitalizationService) toResponse(m *models.Hospitalization) *dto.HospitalizationResponse {
 	resp := &dto.HospitalizationResponse{
-		ID:                 m.ID,
-		PatientID:          m.PatientID,
-		DoctorID:           m.DoctorID,
-		RoomID:             m.RoomID,
-		AdmissionDate:      m.AdmissionDate,
-		AdmissionTime:      m.AdmissionTime,
-		DischargeDate:      m.DischargeDate,
-		DischargeTime:      m.DischargeTime,
-		AdmissionReason:    m.ReasonForAdmission,
-		Status:             m.Status,
-		Notes:              m.Notes,
-		CreatedAt:          m.CreatedAt,
-		UpdatedAt:          m.UpdatedAt,
+		ID:              m.ID,
+		PatientID:       m.PatientID,
+		DoctorID:        m.DoctorID,
+		RoomID:          m.RoomID,
+		AdmissionDate:   m.AdmissionDate,
+		AdmissionTime:   m.AdmissionTime,
+		DischargeDate:   m.DischargeDate,
+		DischargeTime:   m.DischargeTime,
+		AdmissionReason: m.ReasonForAdmission,
+		Status:          m.Status,
+		Notes:           m.Notes,
+		CreatedAt:       m.CreatedAt,
+		UpdatedAt:       m.UpdatedAt,
 	}
 
 	if m.Patient != nil {

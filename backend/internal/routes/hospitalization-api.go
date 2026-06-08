@@ -9,7 +9,7 @@ import (
 
 func SetupHospitalizationRouter(router *gin.RouterGroup, cfg *RouteConfig, h *handler.HospitalizationHandler) {
 	api := router.Group("")
-	
+
 	api.Use(middleware.AuthMiddleware(cfg.Config))
 
 	hospGroup := api.Group("/hospitalizations")

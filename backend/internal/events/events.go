@@ -1329,14 +1329,14 @@ func NewMedicalRecordFinalizedEvent(id uint) MedicalRecordFinalizedEvent {
 // ─── Hospitalization Events ────────────────────────────────────────────────────────
 
 type HospitalizationPayload struct {
-	ID                uint   `json:"id"`
-	PatientID         uint   `json:"patient_id"`
-	DoctorID          uint   `json:"doctor_id"`
-	RoomID            uint   `json:"room_id"`
-	AdmissionDate     string `json:"admission_date"`
+	ID                 uint   `json:"id"`
+	PatientID          uint   `json:"patient_id"`
+	DoctorID           uint   `json:"doctor_id"`
+	RoomID             uint   `json:"room_id"`
+	AdmissionDate      string `json:"admission_date"`
 	ReasonForAdmission string `json:"reason_for_admission"`
-	Status            string `json:"status"`
-	Action            string `json:"action,omitempty"`
+	Status             string `json:"status"`
+	Action             string `json:"action,omitempty"`
 }
 
 type HospitalizationCreatedEvent struct {

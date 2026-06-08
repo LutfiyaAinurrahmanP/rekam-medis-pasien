@@ -55,11 +55,11 @@ func SeedMedicalRecords(db *gorm.DB) error {
 	for i := 23; i <= 25; i++ {
 		patientID := uint((i % 5) + 1)
 		doctorID := uint((i % 5) + 1)
-		
+
 		records = append(records, models.MedicalRecord{
-			PatientID:               patientID,
-			DoctorID:                doctorID,
-			VisitDate:               now.AddDate(0, 0, -(i % 10)).Format("2006-01-02"),
+			PatientID:      patientID,
+			DoctorID:       doctorID,
+			VisitDate:      now.AddDate(0, 0, -(i % 10)).Format("2006-01-02"),
 			ChiefComplaint: "Data Salah Input",
 			Diagnosis:      "Salah Diagnosis",
 			TreatmentPlan:  "Salah Obat",

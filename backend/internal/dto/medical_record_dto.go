@@ -22,14 +22,14 @@ type MedicalRecordDoctorResponse struct {
 }
 
 type VitalSignsResponse struct {
-	BloodPressure      string  `json:"blood_pressure,omitempty"`
-	HeartRate          int     `json:"heart_rate,omitempty"`
-	RespiratoryRate    int     `json:"respiratory_rate,omitempty"`
-	Temperature        float64 `json:"temperature,omitempty"`
-	OxygenSaturation   int     `json:"oxygen_saturation,omitempty"`
-	Weight             float64 `json:"weight,omitempty"`
-	Height             float64 `json:"height,omitempty"`
-	BMI                float64 `json:"bmi,omitempty"`
+	BloodPressure    string  `json:"blood_pressure,omitempty"`
+	HeartRate        int     `json:"heart_rate,omitempty"`
+	RespiratoryRate  int     `json:"respiratory_rate,omitempty"`
+	Temperature      float64 `json:"temperature,omitempty"`
+	OxygenSaturation int     `json:"oxygen_saturation,omitempty"`
+	Weight           float64 `json:"weight,omitempty"`
+	Height           float64 `json:"height,omitempty"`
+	BMI              float64 `json:"bmi,omitempty"`
 }
 
 type MedicalHistorySummaryResponse struct {
@@ -40,24 +40,24 @@ type MedicalHistorySummaryResponse struct {
 }
 
 type MedicalRecordResponse struct {
-	ID                      uint                          `json:"id"`
-	PatientID               uint                          `json:"patient_id"`
-	Patient                 *MedicalRecordPatientResponse `json:"patient,omitempty"`
-	DoctorID                uint                          `json:"doctor_id"`
-	Doctor                  *MedicalRecordDoctorResponse  `json:"doctor,omitempty"`
-	AppointmentID       *uint                         `json:"appointment_id,omitempty"`
-	VisitDate           string                        `json:"visit_date"`
+	ID                  uint                           `json:"id"`
+	PatientID           uint                           `json:"patient_id"`
+	Patient             *MedicalRecordPatientResponse  `json:"patient,omitempty"`
+	DoctorID            uint                           `json:"doctor_id"`
+	Doctor              *MedicalRecordDoctorResponse   `json:"doctor,omitempty"`
+	AppointmentID       *uint                          `json:"appointment_id,omitempty"`
+	VisitDate           string                         `json:"visit_date"`
 	ChiefComplaint      string                         `json:"chief_complaint"`
 	HistoryOfIllness    string                         `json:"history_of_illness,omitempty"`
 	PhysicalExamination string                         `json:"physical_examination,omitempty"`
 	VitalSigns          *VitalSignsResponse            `json:"vital_signs,omitempty"`
 	MedicalHistory      *MedicalHistorySummaryResponse `json:"medical_history,omitempty"`
 	Diagnosis           string                         `json:"diagnosis"`
-	TreatmentPlan       string                        `json:"treatment_plan"`
-	Notes               string                        `json:"notes,omitempty"`
-	Status              string                        `json:"status"`
-	CreatedAt           time.Time                     `json:"created_at"`
-	UpdatedAt           time.Time                     `json:"updated_at"`
+	TreatmentPlan       string                         `json:"treatment_plan"`
+	Notes               string                         `json:"notes,omitempty"`
+	Status              string                         `json:"status"`
+	CreatedAt           time.Time                      `json:"created_at"`
+	UpdatedAt           time.Time                      `json:"updated_at"`
 }
 
 type DeletedMedicalRecordResponse struct {

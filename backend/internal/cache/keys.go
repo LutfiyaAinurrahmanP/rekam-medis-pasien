@@ -685,5 +685,3 @@ func HospitalizationListQueryKey(page, size int, patientID, doctorID, roomID *ui
 func HospitalizationDeletedListQueryKey(page, size int, patientID, doctorID, roomID *uint, search, status, notStatus, sortBy, sortDir string) string {
 	return fmt.Sprintf("hospitalization:deleted:%s", HospitalizationListQueryKey(page, size, patientID, doctorID, roomID, search, status, notStatus, sortBy, sortDir))
 }
-
-

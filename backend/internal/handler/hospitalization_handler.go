@@ -73,7 +73,7 @@ func (h *HospitalizationHandler) InactiveList(ctx *gin.Context) {
 		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to retrieve inactive hospitalizations", err.Error())
 		return
 	}
-	
+
 	utils.SuccessResponse(ctx, http.StatusOK, "Inactive hospitalizations retrieved successfully", res)
 }
 

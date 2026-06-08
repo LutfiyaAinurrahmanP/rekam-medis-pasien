@@ -5,15 +5,15 @@ import (
 )
 
 type Allergy struct {
-	ID           uint       `gorm:"primaryKey;autoIncrement" json:"id"`
-	PatientID    uint       `gorm:"not null;index" json:"patient_id"`
-	AllergenType string     `gorm:"type:varchar(50);not null" json:"allergen_type"`
-	AllergenName string     `gorm:"type:varchar(100);not null" json:"allergen_name"`
-	Reaction     string     `gorm:"type:text;not null" json:"reaction"`
-	Severity     string     `gorm:"type:varchar(20);not null" json:"severity"`
-	Notes        string     `gorm:"type:text" json:"notes"`
-	CreatedAt    time.Time  `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
-	UpdatedAt    time.Time  `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
+	ID           uint      `gorm:"primaryKey;autoIncrement" json:"id"`
+	PatientID    uint      `gorm:"not null;index" json:"patient_id"`
+	AllergenType string    `gorm:"type:varchar(50);not null" json:"allergen_type"`
+	AllergenName string    `gorm:"type:varchar(100);not null" json:"allergen_name"`
+	Reaction     string    `gorm:"type:text;not null" json:"reaction"`
+	Severity     string    `gorm:"type:varchar(20);not null" json:"severity"`
+	Notes        string    `gorm:"type:text" json:"notes"`
+	CreatedAt    time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
+	UpdatedAt    time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
 
 	Patient Patient `gorm:"foreignKey:PatientID;references:ID" json:"-"`
 }
@@ -41,15 +41,15 @@ func (MedicalCondition) TableName() string {
 }
 
 type SurgicalHistory struct {
-	ID            uint       `gorm:"primaryKey;autoIncrement" json:"id"`
-	PatientID     uint       `gorm:"not null;index" json:"patient_id"`
-	ProcedureName string     `gorm:"type:varchar(200);not null" json:"procedure_name"`
-	SurgeryDate   time.Time  `gorm:"type:date;not null;index" json:"surgery_date"`
-	SurgeonName   string     `gorm:"type:varchar(100)" json:"surgeon_name"`
-	Hospital      string     `gorm:"type:varchar(200)" json:"hospital"`
-	Notes         string     `gorm:"type:text" json:"notes"`
-	CreatedAt     time.Time  `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
-	UpdatedAt     time.Time  `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
+	ID            uint      `gorm:"primaryKey;autoIncrement" json:"id"`
+	PatientID     uint      `gorm:"not null;index" json:"patient_id"`
+	ProcedureName string    `gorm:"type:varchar(200);not null" json:"procedure_name"`
+	SurgeryDate   time.Time `gorm:"type:date;not null;index" json:"surgery_date"`
+	SurgeonName   string    `gorm:"type:varchar(100)" json:"surgeon_name"`
+	Hospital      string    `gorm:"type:varchar(200)" json:"hospital"`
+	Notes         string    `gorm:"type:text" json:"notes"`
+	CreatedAt     time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
+	UpdatedAt     time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
 
 	Patient Patient `gorm:"foreignKey:PatientID;references:ID" json:"-"`
 }
@@ -59,13 +59,13 @@ func (SurgicalHistory) TableName() string {
 }
 
 type FamilyHistory struct {
-	ID            uint       `gorm:"primaryKey;autoIncrement" json:"id"`
-	PatientID     uint       `gorm:"not null;index" json:"patient_id"`
-	FamilyMember  string     `gorm:"type:varchar(50);not null;index" json:"family_member"`
-	ConditionName string     `gorm:"type:varchar(200);not null" json:"condition_name"`
-	Notes         string     `gorm:"type:text" json:"notes"`
-	CreatedAt     time.Time  `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
-	UpdatedAt     time.Time  `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
+	ID            uint      `gorm:"primaryKey;autoIncrement" json:"id"`
+	PatientID     uint      `gorm:"not null;index" json:"patient_id"`
+	FamilyMember  string    `gorm:"type:varchar(50);not null;index" json:"family_member"`
+	ConditionName string    `gorm:"type:varchar(200);not null" json:"condition_name"`
+	Notes         string    `gorm:"type:text" json:"notes"`
+	CreatedAt     time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
+	UpdatedAt     time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
 
 	Patient Patient `gorm:"foreignKey:PatientID;references:ID" json:"-"`
 }

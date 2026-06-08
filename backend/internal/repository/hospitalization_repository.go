@@ -209,5 +209,3 @@ func (r *hospitalizationRepository) HardDelete(id uint) error {
 	}
 	return nil
 }
-
-

@@ -51,7 +51,7 @@ func SeedHospitalizations(db *gorm.DB) error {
 			CreatedAt:          now.AddDate(0, 0, -i),
 			UpdatedAt:          now.AddDate(0, 0, -i),
 		}
-		
+
 		// Some discharged/transferred records
 		if i%3 == 0 {
 			h.Status = "discharged"
@@ -78,14 +78,14 @@ func SeedHospitalizations(db *gorm.DB) error {
 			PatientID:          patients[patientIdx].ID,
 			DoctorID:           doctors[doctorIdx].ID,
 			RoomID:             rooms[roomIdx].ID,
-			AdmissionDate:      now.AddDate(0, 0, -(i+30)).Format("2006-01-02"),
+			AdmissionDate:      now.AddDate(0, 0, -(i + 30)).Format("2006-01-02"),
 			AdmissionTime:      "09:30:00",
 			ReasonForAdmission: fmt.Sprintf("Alasan medis untuk pasien %d (Deleted %d)", patients[patientIdx].ID, i),
 			Status:             "cancelled",
 			Notes:              "Dibatalkan karena kesalahan input",
-			CreatedAt:          now.AddDate(0, 0, -(i+30)),
-			UpdatedAt:          now.AddDate(0, 0, -(i+30)),
-			DeletedAt:          gorm.DeletedAt{Time: now.AddDate(0, 0, -(i+29)), Valid: true},
+			CreatedAt:          now.AddDate(0, 0, -(i + 30)),
+			UpdatedAt:          now.AddDate(0, 0, -(i + 30)),
+			DeletedAt:          gorm.DeletedAt{Time: now.AddDate(0, 0, -(i + 29)), Valid: true},
 		}
 
 		hospitalizations = append(hospitalizations, h)

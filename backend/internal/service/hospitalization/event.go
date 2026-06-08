@@ -185,4 +185,3 @@ func (s *eventedHospitalizationService) HardDelete(id uint) error {
 	)
 	return nil
 }
-
