@@ -87,6 +87,13 @@ const (
 	TopicAppointmentCancelled   = "appointment.cancelled"
 	TopicAppointmentRescheduled = "appointment.rescheduled"
 	TopicAppointmentNoShow      = "appointment.no_show"
+
+	// ── Medical Record Topics ──────────────────────────────────────────────────
+	TopicMedicalRecordCreated   = "medical_record.created"
+	TopicMedicalRecordUpdated   = "medical_record.updated"
+	TopicMedicalRecordDeleted   = "medical_record.deleted"
+	TopicMedicalRecordRestored  = "medical_record.restored"
+	TopicMedicalRecordFinalized = "medical_record.finalized"
 )
 
 // AllTopics mengembalikan semua topic yang perlu dibuat/dipastikan ada di Kafka.
@@ -164,5 +171,11 @@ func AllTopics() []string {
 		TopicAppointmentCancelled,
 		TopicAppointmentRescheduled,
 		TopicAppointmentNoShow,
+
+		TopicMedicalRecordCreated,
+		TopicMedicalRecordUpdated,
+		TopicMedicalRecordDeleted,
+		TopicMedicalRecordRestored,
+		TopicMedicalRecordFinalized,
 	}
 }

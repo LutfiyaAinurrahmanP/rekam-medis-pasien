@@ -1226,3 +1226,102 @@ func NewAppointmentNoShowEvent(id uint) AppointmentNoShowEvent {
 		},
 	}
 }
+
+// ─── Medical Record Events ──────────────────────────────────────────────────
+
+type MedicalRecordPayload struct {
+	ID             uint   `json:"id"`
+	PatientID      uint   `json:"patient_id,omitempty"`
+	DoctorID       uint   `json:"doctor_id,omitempty"`
+	VisitDate      string `json:"visit_date,omitempty"`
+	ChiefComplaint string `json:"chief_complaint,omitempty"`
+	Diagnosis      string `json:"diagnosis,omitempty"`
+	Status         string `json:"status,omitempty"`
+	Action         string `json:"action,omitempty"`
+}
+
+type MedicalRecordCreatedEvent struct {
+	BaseEvent
+	Payload MedicalRecordPayload `json:"payload"`
+}
+
+type MedicalRecordUpdatedEvent struct {
+	BaseEvent
+	Payload MedicalRecordPayload `json:"payload"`
+}
+
+type MedicalRecordDeletedEvent struct {
+	BaseEvent
+	Payload MedicalRecordPayload `json:"payload"`
+}
+
+type MedicalRecordRestoredEvent struct {
+	BaseEvent
+	Payload MedicalRecordPayload `json:"payload"`
+}
+
+type MedicalRecordFinalizedEvent struct {
+	BaseEvent
+	Payload MedicalRecordPayload `json:"payload"`
+}
+
+// Constructors
+
+func NewMedicalRecordCreatedEvent(id, patientID, doctorID uint, visitDate, chiefComplaint, diagnosis, status string) MedicalRecordCreatedEvent {
+	return MedicalRecordCreatedEvent{
+		BaseEvent: newBase("medical_record.created"),
+		Payload: MedicalRecordPayload{
+			ID:             id,
+			PatientID:      patientID,
+			DoctorID:       doctorID,
+			VisitDate:      visitDate,
+			ChiefComplaint: chiefComplaint,
+			Diagnosis:      diagnosis,
+			Status:         status,
+		},
+	}
+}
+
+func NewMedicalRecordUpdatedEvent(id, patientID, doctorID uint, visitDate, chiefComplaint, diagnosis, status, action string) MedicalRecordUpdatedEvent {
+	return MedicalRecordUpdatedEvent{
+		BaseEvent: newBase("medical_record.updated"),
+		Payload: MedicalRecordPayload{
+			ID:             id,
+			PatientID:      patientID,
+			DoctorID:       doctorID,
+			VisitDate:      visitDate,
+			ChiefComplaint: chiefComplaint,
+			Diagnosis:      diagnosis,
+			Status:         status,
+			Action:         action,
+		},
+	}
+}
+
+func NewMedicalRecordDeletedEvent(id uint, action string) MedicalRecordDeletedEvent {
+	return MedicalRecordDeletedEvent{
+		BaseEvent: newBase("medical_record.deleted"),
+		Payload: MedicalRecordPayload{
+			ID:     id,
+			Action: action,
+		},
+	}
+}
+
+func NewMedicalRecordRestoredEvent(id uint) MedicalRecordRestoredEvent {
+	return MedicalRecordRestoredEvent{
+		BaseEvent: newBase("medical_record.restored"),
+		Payload: MedicalRecordPayload{
+			ID: id,
+		},
+	}
+}
+
+func NewMedicalRecordFinalizedEvent(id uint) MedicalRecordFinalizedEvent {
+	return MedicalRecordFinalizedEvent{
+		BaseEvent: newBase("medical_record.finalized"),
+		Payload: MedicalRecordPayload{
+			ID: id,
+		},
+	}
+}

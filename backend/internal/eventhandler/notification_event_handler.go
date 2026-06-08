@@ -74,6 +74,11 @@ var notificationTopics = []string{
 	kafka.TopicAppointmentCancelled,
 	kafka.TopicAppointmentRescheduled,
 	kafka.TopicAppointmentNoShow,
+	kafka.TopicMedicalRecordCreated,
+	kafka.TopicMedicalRecordUpdated,
+	kafka.TopicMedicalRecordDeleted,
+	kafka.TopicMedicalRecordRestored,
+	kafka.TopicMedicalRecordFinalized,
 }
 
 // NewNotificationEventHandler membuat notification handler baru.
@@ -575,6 +580,43 @@ func (h *NotificationEventHandler) handle(ctx context.Context, topic string, key
 			return err
 		}
 		log.Printf("[NOTIFICATION] 🚫 Appointment marked as no-show: ID=%d", e.Payload.ID)
+
+	// ── Medical Record Events ──────────────────────────────────────────────────
+
+	case kafka.TopicMedicalRecordCreated:
+		var e events.MedicalRecordCreatedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 📝 New medical record created: ID=%d, PatientID=%d, DoctorID=%d", e.Payload.ID, e.Payload.PatientID, e.Payload.DoctorID)
+
+	case kafka.TopicMedicalRecordUpdated:
+		var e events.MedicalRecordUpdatedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 📝 Medical record updated: ID=%d, Action=%s", e.Payload.ID, e.Payload.Action)
+
+	case kafka.TopicMedicalRecordDeleted:
+		var e events.MedicalRecordDeletedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🗑️  Medical record deleted: ID=%d, Action=%s", e.Payload.ID, e.Payload.Action)
+
+	case kafka.TopicMedicalRecordRestored:
+		var e events.MedicalRecordRestoredEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] ♻️  Medical record restored: ID=%d", e.Payload.ID)
+
+	case kafka.TopicMedicalRecordFinalized:
+		var e events.MedicalRecordFinalizedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🔒 Medical record finalized: ID=%d", e.Payload.ID)
 
 	default:
 		log.Printf("[NOTIFICATION] ⚠️  Received unsupported topic: %s", topic)

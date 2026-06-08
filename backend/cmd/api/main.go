@@ -22,6 +22,7 @@ import (
 	departmentservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/department"
 	doctorservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/doctor"
 	doctorspecializationservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/doctor-specialization"
+	medicalrecordservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/medical-record"
 	medicineservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/medicine"
 	medicinetypeservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/medicine-type"
 	patientservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/patient"
@@ -109,6 +110,7 @@ func main() {
 		MedicineHandler:             dependencies.MedicineHandler,
 		MedicineTypeHandler:         dependencies.MedicineTypeHandler,
 		AppointmentHandler:          dependencies.AppointmentHandler,
+		MedicalRecordHandler:        dependencies.MedicalRecordHandler,
 	})
 
 	// Setup HTTP server
@@ -155,6 +157,7 @@ type Dependencies struct {
 	MedicineRepository             repository.MedicineRepository
 	MedicineTypeRepository         repository.MedicineTypeRepository
 	AppointmentRepository          repository.AppointmentRepository
+	MedicalRecordRepository        repository.MedicalRecordRepository
 
 	// Services
 	UserService                 userservice.UserService
@@ -169,6 +172,7 @@ type Dependencies struct {
 	MedicineService             medicineservice.MedicineService
 	MedicineTypeService         medicinetypeservice.MedicineTypeService
 	AppointmentService          appointmentservice.AppointmentService
+	MedicalRecordService        medicalrecordservice.MedicalRecordService
 
 	// Handlers
 	UserHandler                 *handler.UserHandler
@@ -183,6 +187,7 @@ type Dependencies struct {
 	MedicineHandler             *handler.MedicineHandler
 	MedicineTypeHandler         *handler.MedicineTypeHandler
 	AppointmentHandler          *handler.AppointmentHandler
+	MedicalRecordHandler        *handler.MedicalRecordHandler
 }
 
 // initDependencies initializes all application dependencies
@@ -200,6 +205,7 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 	medicineRepo := repository.NewMedicineRepository(db)
 	medicineTypeRepo := repository.NewMedicineTypeRepository(db)
 	appointmentRepo := repository.NewAppointmentRepository(db)
+	medicalRecordRepo := repository.NewMedicalRecordRepository(db)
 
 	// Konversi *RedisClient ke interface RedisStore hanya jika non-nil.
 	// Tanpa ini, passing typed-nil ke parameter interface menghasilkan non-nil
@@ -261,6 +267,10 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 		appointmentservice.NewCachedAppointmentService(appointmentservice.NewAppointmentService(appointmentRepo, cfg), redisClient),
 		publisher,
 	)
+	medicalRecordService := medicalrecordservice.NewEventedMedicalRecordService(
+		medicalrecordservice.NewCachedMedicalRecordService(medicalrecordservice.NewMedicalRecordService(medicalRecordRepo, cfg), redisClient),
+		publisher,
+	)
 
 	// Initialize Handlers
 	userHandler := handler.NewUserHandler(userService)
@@ -275,6 +285,7 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 	medicineHandler := handler.NewMedicineHandler(medicineService)
 	medicineTypeHandler := handler.NewMedicineTypeHandler(medicineTypeService)
 	appointmentHandler := handler.NewAppointmentHandler(appointmentService, doctorRepo, patientRepo)
+	medicalRecordHandler := handler.NewMedicalRecordHandler(medicalRecordService, doctorRepo, patientRepo)
 
 	return &Dependencies{
 		UserRepository: userRepo,
@@ -324,6 +335,10 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 		AppointmentRepository: appointmentRepo,
 		AppointmentService:    appointmentService,
 		AppointmentHandler:    appointmentHandler,
+
+		MedicalRecordRepository: medicalRecordRepo,
+		MedicalRecordService:    medicalRecordService,
+		MedicalRecordHandler:    medicalRecordHandler,
 	}
 }
 

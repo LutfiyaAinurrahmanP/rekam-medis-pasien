@@ -23,6 +23,12 @@ func RunMigration(db *gorm.DB) error {
 		&models.Appointment{},
 		&models.MedicineType{},
 		&models.RoomType{},
+		&models.MedicalRecord{},
+		&models.VitalSign{},
+		&models.Allergy{},
+		&models.MedicalCondition{},
+		&models.SurgicalHistory{},
+		&models.FamilyHistory{},
 	); err != nil {
 		return err
 	}

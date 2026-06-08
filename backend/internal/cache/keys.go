@@ -600,4 +600,51 @@ const (
 	PatternMedicineTypeAll         = "medicine_type:*"
 	PatternMedicineAll             = "medicine:*"
 	PatternAppointmentAll          = "appointment:*"
+	PatternMedicalRecordAll        = "medical_record:*"
 )
+
+// ─── Medical Record ────────────────────────────────────────────────────────
+
+func MedicalRecordKey(id uint) string {
+	return fmt.Sprintf("medical_record:id:%d", id)
+}
+
+func MedicalRecordListQueryKey(page, size int, patientID, doctorID, departmentID *uint, status, dateFrom, dateTo string, sortBy, sortDir string) string {
+	pID, dID, depID := "all", "all", "all"
+	if patientID != nil {
+		pID = fmt.Sprintf("%d", *patientID)
+	}
+	if doctorID != nil {
+		dID = fmt.Sprintf("%d", *doctorID)
+	}
+	if departmentID != nil {
+		depID = fmt.Sprintf("%d", *departmentID)
+	}
+	if status == "" {
+		status = "all"
+	}
+	return fmt.Sprintf(
+		"medical_record:list:p%d:s%d:pat%s:doc%s:dep%s:st%s:df%s:dt%s:sb%s:sd%s",
+		page, size, pID, dID, depID, status, dateFrom, dateTo, sortBy, sortDir,
+	)
+}
+
+func MedicalRecordDeletedListQueryKey(page, size int, patientID, doctorID, departmentID *uint, status, dateFrom, dateTo string, sortBy, sortDir string) string {
+	pID, dID, depID := "all", "all", "all"
+	if patientID != nil {
+		pID = fmt.Sprintf("%d", *patientID)
+	}
+	if doctorID != nil {
+		dID = fmt.Sprintf("%d", *doctorID)
+	}
+	if departmentID != nil {
+		depID = fmt.Sprintf("%d", *departmentID)
+	}
+	if status == "" {
+		status = "all"
+	}
+	return fmt.Sprintf(
+		"medical_record:deleted:p%d:s%d:pat%s:doc%s:dep%s:st%s:df%s:dt%s:sb%s:sd%s",
+		page, size, pID, dID, depID, status, dateFrom, dateTo, sortBy, sortDir,
+	)
+}

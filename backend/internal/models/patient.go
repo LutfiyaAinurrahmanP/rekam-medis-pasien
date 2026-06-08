@@ -27,7 +27,11 @@ type Patient struct {
 	Allergies             string         `gorm:"type:text" json:"allergies"`
 	CreatedAt             time.Time      `gorm:"autoCreateTime" json:"created_at"`
 	UpdatedAt             time.Time      `gorm:"autoUpdateTime" json:"updated_at"`
-	DeletedAt             gorm.DeletedAt `gorm:"index" json:"deleted_at,omitempty"`
+	DeletedAt             gorm.DeletedAt     `gorm:"index" json:"deleted_at,omitempty"`
+	MedicalAllergies      []Allergy          `gorm:"foreignKey:PatientID" json:"medical_allergies,omitempty"`
+	MedicalConditions     []MedicalCondition `gorm:"foreignKey:PatientID" json:"medical_conditions,omitempty"`
+	SurgicalHistories     []SurgicalHistory  `gorm:"foreignKey:PatientID" json:"surgical_histories,omitempty"`
+	FamilyHistories       []FamilyHistory    `gorm:"foreignKey:PatientID" json:"family_histories,omitempty"`
 }
 
 func (Patient) TableName() string {

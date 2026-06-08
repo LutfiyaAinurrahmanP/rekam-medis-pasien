@@ -157,6 +157,21 @@ func SeedDatabaseWithCount(db *gorm.DB, count int) error {
 		return err
 	}
 
+	if err := SeedMedicalRecords(tx); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := SeedVitalSigns(tx); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := SeedMedicalHistory(tx); err != nil {
+		tx.Rollback()
+		return err
+	}
+
 	if err := tx.Commit().Error; err != nil {
 		return fmt.Errorf("failed to commit seed transaction: %w", err)
 	}
@@ -168,6 +183,27 @@ func SeedDatabaseWithCount(db *gorm.DB, count int) error {
 func resetSeedData(tx *gorm.DB) error {
 	session := tx.Session(&gorm.Session{AllowGlobalUpdate: true})
 
+	if err := session.Unscoped().Delete(&models.VitalSign{}).Error; err != nil {
+		return fmt.Errorf("failed to clear vital signs: %w", err)
+	}
+	if err := session.Unscoped().Delete(&models.Allergy{}).Error; err != nil {
+		return fmt.Errorf("failed to clear allergies: %w", err)
+	}
+	if err := session.Unscoped().Delete(&models.MedicalCondition{}).Error; err != nil {
+		return fmt.Errorf("failed to clear medical conditions: %w", err)
+	}
+	if err := session.Unscoped().Delete(&models.SurgicalHistory{}).Error; err != nil {
+		return fmt.Errorf("failed to clear surgical history: %w", err)
+	}
+	if err := session.Unscoped().Delete(&models.FamilyHistory{}).Error; err != nil {
+		return fmt.Errorf("failed to clear family history: %w", err)
+	}
+	if err := session.Unscoped().Delete(&models.MedicalRecord{}).Error; err != nil {
+		return fmt.Errorf("failed to clear medical records: %w", err)
+	}
+	if err := session.Unscoped().Delete(&models.Appointment{}).Error; err != nil {
+		return fmt.Errorf("failed to clear appointments: %w", err)
+	}
 	if err := session.Unscoped().Delete(&models.Room{}).Error; err != nil {
 		return fmt.Errorf("failed to clear rooms: %w", err)
 	}
