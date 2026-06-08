@@ -29,7 +29,7 @@ func SeedAppointments(db *gorm.DB) error {
 		patientID := uint((i % 5) + 1)
 		doctorID := uint((i % 5) + 1)
 		status := statuses[i%len(statuses)]
-		
+
 		// Spread dates across a few days
 		appDate := now.AddDate(0, 0, i%10).Format("2006-01-02")
 		appTime := fmt.Sprintf("%02d:00:00", 8+(i%8))
@@ -53,7 +53,7 @@ func SeedAppointments(db *gorm.DB) error {
 		patientID := uint((i % 5) + 1)
 		doctorID := uint((i % 5) + 1)
 		status := statuses[i%len(statuses)]
-		
+
 		appDate := now.AddDate(0, -1, i%10).Format("2006-01-02") // in the past
 		appTime := fmt.Sprintf("%02d:00:00", 8+(i%8))
 

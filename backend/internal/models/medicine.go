@@ -17,10 +17,10 @@ type Medicine struct {
 	Unit           string         `gorm:"size:20" json:"unit"`
 	StockQuantity  int            `gorm:"not null;default:0" json:"stock_quantity"`
 	Price          float64        `gorm:"type:decimal(10,2)" json:"price"`
-	IsActive      bool           `gorm:"default:true" json:"is_active"`
-	CreatedAt     time.Time      `gorm:"autoCreateTime" json:"created_at"`
-	UpdatedAt     time.Time      `gorm:"autoUpdateTime" json:"updated_at"`
-	DeletedAt     gorm.DeletedAt `gorm:"index" json:"deleted_at,omitempty"`
+	IsActive       bool           `gorm:"default:true" json:"is_active"`
+	CreatedAt      time.Time      `gorm:"autoCreateTime" json:"created_at"`
+	UpdatedAt      time.Time      `gorm:"autoUpdateTime" json:"updated_at"`
+	DeletedAt      gorm.DeletedAt `gorm:"index" json:"deleted_at,omitempty"`
 }
 
 func (Medicine) TableName() string {

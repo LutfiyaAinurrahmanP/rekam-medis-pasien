@@ -15,7 +15,7 @@ func SetupAppointmentRouter(rg *gin.RouterGroup, cfg *RouteConfig, m *handler.Ap
 		g.GET("/upcoming", m.UpcomingList)
 		g.GET("/past", m.PastList)
 		g.GET("/:id", m.FindByID)
-		
+
 		// Any staff + patient can cancel (ownership checked in service or handler)
 		g.PATCH("/:id/cancel", m.Cancel)
 

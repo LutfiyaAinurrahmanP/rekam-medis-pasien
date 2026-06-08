@@ -19,36 +19,36 @@ type AppointmentDoctorResponse struct {
 }
 
 type AppointmentResponse struct {
-	ID              uint                       `json:"id"`
-	PatientID       uint                       `json:"patient_id"`
+	ID              uint                        `json:"id"`
+	PatientID       uint                        `json:"patient_id"`
 	Patient         *AppointmentPatientResponse `json:"patient,omitempty"`
-	DoctorID        uint                       `json:"doctor_id"`
+	DoctorID        uint                        `json:"doctor_id"`
 	Doctor          *AppointmentDoctorResponse  `json:"doctor,omitempty"`
-	AppointmentDate string                     `json:"appointment_date"`
-	AppointmentTime string                     `json:"appointment_time"`
-	DurationMinutes int                        `json:"duration_minutes"`
-	Status          string                     `json:"status"`
-	Reason          string                     `json:"reason"`
-	Notes           string                     `json:"notes"`
-	CreatedAt       time.Time                  `json:"created_at"`
-	UpdatedAt       time.Time                  `json:"updated_at"`
+	AppointmentDate string                      `json:"appointment_date"`
+	AppointmentTime string                      `json:"appointment_time"`
+	DurationMinutes int                         `json:"duration_minutes"`
+	Status          string                      `json:"status"`
+	Reason          string                      `json:"reason"`
+	Notes           string                      `json:"notes"`
+	CreatedAt       time.Time                   `json:"created_at"`
+	UpdatedAt       time.Time                   `json:"updated_at"`
 }
 
 type DeletedAppointmentResponse struct {
-	ID              uint                       `json:"id"`
-	PatientID       uint                       `json:"patient_id"`
+	ID              uint                        `json:"id"`
+	PatientID       uint                        `json:"patient_id"`
 	Patient         *AppointmentPatientResponse `json:"patient,omitempty"`
-	DoctorID        uint                       `json:"doctor_id"`
+	DoctorID        uint                        `json:"doctor_id"`
 	Doctor          *AppointmentDoctorResponse  `json:"doctor,omitempty"`
-	AppointmentDate string                     `json:"appointment_date"`
-	AppointmentTime string                     `json:"appointment_time"`
-	DurationMinutes int                        `json:"duration_minutes"`
-	Status          string                     `json:"status"`
-	Reason          string                     `json:"reason"`
-	Notes           string                     `json:"notes"`
-	CreatedAt       time.Time                  `json:"created_at"`
-	UpdatedAt       time.Time                  `json:"updated_at"`
-	DeletedAt       *time.Time                 `json:"deleted_at"`
+	AppointmentDate string                      `json:"appointment_date"`
+	AppointmentTime string                      `json:"appointment_time"`
+	DurationMinutes int                         `json:"duration_minutes"`
+	Status          string                      `json:"status"`
+	Reason          string                      `json:"reason"`
+	Notes           string                      `json:"notes"`
+	CreatedAt       time.Time                   `json:"created_at"`
+	UpdatedAt       time.Time                   `json:"updated_at"`
+	DeletedAt       *time.Time                  `json:"deleted_at"`
 }
 
 type AppointmentListResponse struct {

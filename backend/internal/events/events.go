@@ -1023,8 +1023,8 @@ func NewMedicineDeactivatedEvent(id uint, name string) MedicineDeactivatedEvent 
 	return MedicineDeactivatedEvent{
 		BaseEvent: newBase("medicine.deactivated"),
 		Payload: MedicinePayload{
-			ID:     id,
-			Name:   name,
+			ID:   id,
+			Name: name,
 		},
 	}
 }

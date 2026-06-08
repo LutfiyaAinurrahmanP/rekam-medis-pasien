@@ -92,7 +92,6 @@ func (r *medicineRepository) buildBaseQuery(query *dto.MedicinePaginationQuery, 
 		db = db.Where("medicine_type_id = ?", *query.MedicineTypeID)
 	}
 
-
 	if query.StockStatus != "" {
 		switch query.StockStatus {
 		case "available":
@@ -221,7 +220,7 @@ func (r *medicineRepository) AddStock(id uint, quantity int) error {
 
 	if result.Error != nil {
 		return result.Error
-	}	
+	}
 
 	if result.RowsAffected == 0 {
 		return errors.New("medicine not found")

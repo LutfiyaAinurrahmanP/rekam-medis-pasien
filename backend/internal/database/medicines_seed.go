@@ -16,16 +16,16 @@ func seedMedicines(tx *gorm.DB, count int, medicineTypes []models.MedicineType) 
 	for i := 1; i <= count; i++ {
 		medicineType := medicineTypes[(i-1)%len(medicineTypes)]
 		medicine := models.Medicine{
-			Name:          fmt.Sprintf("Medicine Sample %02d", i),
-			GenericName:   fmt.Sprintf("Generic Compound %02d", i),
-			BrandName:     fmt.Sprintf("Brand %02d", i),
+			Name:           fmt.Sprintf("Medicine Sample %02d", i),
+			GenericName:    fmt.Sprintf("Generic Compound %02d", i),
+			BrandName:      fmt.Sprintf("Brand %02d", i),
 			MedicineTypeID: medicineType.ID,
-			Strength:      fmt.Sprintf("%d mg", 50+((i-1)%10)*50),
-			Manufacturer:  manufacturers[(i-1)%len(manufacturers)],
-			Unit:          units[(i-1)%len(units)],
-			StockQuantity: 5 + (i * 2),
-			Price:         float64(5000 + (i * 750)),
-			IsActive:      i%10 != 0,
+			Strength:       fmt.Sprintf("%d mg", 50+((i-1)%10)*50),
+			Manufacturer:   manufacturers[(i-1)%len(manufacturers)],
+			Unit:           units[(i-1)%len(units)],
+			StockQuantity:  5 + (i * 2),
+			Price:          float64(5000 + (i * 750)),
+			IsActive:       i%10 != 0,
 		}
 		medicines = append(medicines, medicine)
 	}
@@ -48,17 +48,17 @@ func seedDeletedMedicines(tx *gorm.DB, medicineTypes []models.MedicineType) erro
 	for i := 6001; i <= 6012; i++ {
 		medicineType := medicineTypes[(i-1)%len(medicineTypes)]
 		medicine := models.Medicine{
-			Name:          fmt.Sprintf("(Deleted) Medicine Sample %02d", i-6000),
-			GenericName:   fmt.Sprintf("Generic Compound DEL-%02d", i-6000),
-			BrandName:     fmt.Sprintf("Brand DEL-%02d", i-6000),
+			Name:           fmt.Sprintf("(Deleted) Medicine Sample %02d", i-6000),
+			GenericName:    fmt.Sprintf("Generic Compound DEL-%02d", i-6000),
+			BrandName:      fmt.Sprintf("Brand DEL-%02d", i-6000),
 			MedicineTypeID: medicineType.ID,
-			Strength:      fmt.Sprintf("%d mg", 50+((i-1)%10)*50),
-			Manufacturer:  manufacturers[(i-1)%len(manufacturers)],
-			Unit:          units[(i-1)%len(units)],
-			StockQuantity: 0,
-			Price:         float64(5000 + ((i - 6000) * 750)),
-			IsActive:      false,
-			DeletedAt:     deletedAt,
+			Strength:       fmt.Sprintf("%d mg", 50+((i-1)%10)*50),
+			Manufacturer:   manufacturers[(i-1)%len(manufacturers)],
+			Unit:           units[(i-1)%len(units)],
+			StockQuantity:  0,
+			Price:          float64(5000 + ((i - 6000) * 750)),
+			IsActive:       false,
+			DeletedAt:      deletedAt,
 		}
 		medicines = append(medicines, medicine)
 	}

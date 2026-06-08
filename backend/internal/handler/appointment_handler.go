@@ -158,7 +158,7 @@ func (h *AppointmentHandler) CancelledList(ctx *gin.Context) {
 		utils.ValidationErrorResponse(ctx, err)
 		return
 	}
-	
+
 	query.Status = "cancelled"
 
 	res, err := h.service.List(&query)
@@ -196,12 +196,12 @@ func (h *AppointmentHandler) FindByID(ctx *gin.Context) {
 		utils.ErrorResponse(ctx, http.StatusNotFound, "Appointment not found", err.Error())
 		return
 	}
-	
+
 	// Ownership check
 	role, _ := ctx.Get("role")
 	userID, _ := ctx.Get("user_id")
 	uid := userID.(uint)
-	
+
 	if role == "doctor" {
 		doctor, err := h.doctorRepo.FindByUserID(uid)
 		if err == nil && doctor != nil && res.DoctorID != doctor.ID {

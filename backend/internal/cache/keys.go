@@ -478,7 +478,6 @@ func MedicineKey(id uint) string {
 	return fmt.Sprintf("medicine:id:%d", id)
 }
 
-
 func MedicineListQuery(page, size int, search string, isActive *bool, typeId *uint, stockStatus, sortBy, sortDir string) string {
 	// Konversi pointer ke string agar aman digabungkan
 	activeStr := "all"
@@ -503,7 +502,6 @@ func MedicineListQuery(page, size int, search string, isActive *bool, typeId *ui
 		page, size, search, activeStr, typeStr, stockStatus, sortBy, sortDir,
 	)
 }
-
 
 func MedicineDeletedListQuery(page, size int, search, sortBy, sortDir string) string {
 	if search == "" {
@@ -540,7 +538,6 @@ func MedicineInactiveListQuery(page, size int, search, sortBy, sortDir string) s
 		sortDir,
 	)
 }
-
 
 // ─── Appointment ──────────────────────────────────────────────────────────
 
