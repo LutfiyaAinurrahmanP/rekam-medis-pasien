@@ -582,3 +582,286 @@ curl -X DELETE "http://localhost:8080/api/v1/prescriptions/1/hard-delete" \
 
 ---
 
+## Prescription Item Endpoints
+
+### 1. List All Prescription Items
+
+**Endpoint:** `GET /api/v1/prescriptions/:id/items`
+
+**Description:** Mendapatkan daftar semua item obat dalam sebuah resep.
+
+**Authentication:** Required (All Authenticated Users)
+
+**Path Parameters:**
+
+| Parameter | Type    | Required | Description |
+| --------- | ------- | -------- | ----------- |
+| id        | integer | Yes      | ID resep    |
+
+**Response Success (200):**
+
+```json
+{
+  "status": "success",
+  "message": "Prescription items retrieved successfully",
+  "data": [
+    {
+      "id": 1,
+      "prescription_id": 1,
+      "medicine_id": 3,
+      "dosage": "500mg",
+      "frequency": "3x sehari",
+      "duration_days": 7,
+      "quantity": 21,
+      "instructions": "Diminum setelah makan",
+      "medicine": {
+        "id": 3,
+        "name": "Amoxicillin",
+        "unit": "tablet"
+      }
+    }
+  ]
+}
+```
+
+**cURL Example:**
+
+```bash
+curl -X GET "http://localhost:8080/api/v1/prescriptions/1/items" \
+  -H "Authorization: Bearer <token>"
+```
+
+---
+
+### 2. Get Prescription Item by ID
+
+**Endpoint:** `GET /api/v1/prescriptions/:id/items/:item_id`
+
+**Description:** Mendapatkan detail data sebuah item resep.
+
+**Authentication:** Required (All Authenticated Users)
+
+**Path Parameters:**
+
+| Parameter | Type    | Required | Description     |
+| --------- | ------- | -------- | --------------- |
+| id        | integer | Yes      | ID resep        |
+| item_id   | integer | Yes      | ID item resep   |
+
+**Response Success (200):**
+
+```json
+{
+  "status": "success",
+  "message": "Prescription item retrieved successfully",
+  "data": {
+    "id": 1,
+    "prescription_id": 1,
+    "medicine_id": 3,
+    "dosage": "500mg",
+    "frequency": "3x sehari",
+    "duration_days": 7,
+    "quantity": 21,
+    "instructions": "Diminum setelah makan",
+    "medicine": {
+      "id": 3,
+      "name": "Amoxicillin",
+      "unit": "tablet"
+    }
+  }
+}
+```
+
+**cURL Example:**
+
+```bash
+curl -X GET "http://localhost:8080/api/v1/prescriptions/1/items/1" \
+  -H "Authorization: Bearer <token>"
+```
+
+---
+
+### 3. Add Item to Prescription
+
+**Endpoint:** `POST /api/v1/prescriptions/:id/items`
+
+**Description:** Menambahkan item obat ke dalam resep.
+
+**Authentication:** Required (Doctor, Admin, Super Admin)
+
+**Path Parameters:**
+
+| Parameter | Type    | Required | Description |
+| --------- | ------- | -------- | ----------- |
+| id        | integer | Yes      | ID resep    |
+
+**Request Headers:**
+
+| Header        | Type   | Required | Description        |
+| ------------- | ------ | -------- | ------------------ |
+| Authorization | string | Yes      | `Bearer <token>`   |
+| Content-Type  | string | Yes      | `application/json` |
+
+**Request Body:**
+
+| Field         | Type    | Required | Description                      |
+| ------------- | ------- | -------- | -------------------------------- |
+| medicine_id   | integer | Yes      | ID obat                          |
+| dosage        | string  | Yes      | Dosis obat (misal: 500mg)        |
+| frequency     | string  | Yes      | Frekuensi (misal: 3x sehari)     |
+| duration_days | integer | Yes      | Durasi penggunaan dalam hari     |
+| quantity      | integer | Yes      | Jumlah obat yang diberikan       |
+| instructions  | string  | No       | Instruksi tambahan               |
+
+**Example Request Body:**
+
+```json
+{
+  "medicine_id": 3,
+  "dosage": "500mg",
+  "frequency": "3x sehari",
+  "duration_days": 7,
+  "quantity": 21,
+  "instructions": "Diminum setelah makan"
+}
+```
+
+**Response Success (201):**
+
+```json
+{
+  "status": "success",
+  "message": "Prescription item added successfully",
+  "data": {
+    "id": 1,
+    "prescription_id": 1,
+    "medicine_id": 3,
+    "dosage": "500mg",
+    "frequency": "3x sehari",
+    "duration_days": 7,
+    "quantity": 21,
+    "instructions": "Diminum setelah makan"
+  }
+}
+```
+
+**cURL Example:**
+
+```bash
+curl -X POST "http://localhost:8080/api/v1/prescriptions/1/items" \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "medicine_id": 3,
+    "dosage": "500mg",
+    "frequency": "3x sehari",
+    "duration_days": 7,
+    "quantity": 21,
+    "instructions": "Diminum setelah makan"
+  }'
+```
+
+---
+
+### 4. Update Prescription Item
+
+**Endpoint:** `PUT /api/v1/prescriptions/:id/items/:item_id`
+
+**Description:** Memperbarui data item resep.
+
+**Authentication:** Required (Doctor, Admin, Super Admin)
+
+**Path Parameters:**
+
+| Parameter | Type    | Required | Description     |
+| --------- | ------- | -------- | --------------- |
+| id        | integer | Yes      | ID resep        |
+| item_id   | integer | Yes      | ID item resep   |
+
+**Request Body:** (Semua field optional untuk update, `medicine_id` tidak dapat diubah)
+
+| Field         | Type    | Required | Description                      |
+| ------------- | ------- | -------- | -------------------------------- |
+| dosage        | string  | No       | Dosis obat (misal: 500mg)        |
+| frequency     | string  | No       | Frekuensi (misal: 3x sehari)     |
+| duration_days | integer | No       | Durasi penggunaan dalam hari     |
+| quantity      | integer | No       | Jumlah obat yang diberikan       |
+| instructions  | string  | No       | Instruksi tambahan               |
+
+**Example Request Body:**
+
+```json
+{
+  "dosage": "500mg",
+  "frequency": "3x sehari",
+  "duration_days": 7,
+  "quantity": 21,
+  "instructions": "Diminum setelah makan"
+}
+```
+
+**Response Success (200):**
+
+```json
+{
+  "status": "success",
+  "message": "Prescription item updated successfully",
+  "data": {
+    "id": 1,
+    "prescription_id": 1,
+    "medicine_id": 3,
+    "dosage": "250mg",
+    "frequency": "3x sehari",
+    "duration_days": 7,
+    "quantity": 14,
+    "instructions": "Diminum setelah makan"
+  }
+}
+```
+
+**cURL Example:**
+
+```bash
+curl -X PUT "http://localhost:8080/api/v1/prescriptions/1/items/1" \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "dosage": "250mg",
+    "quantity": 14
+  }'
+```
+
+---
+
+### 5. Delete Prescription Item
+
+**Endpoint:** `DELETE /api/v1/prescriptions/:id/items/:item_id`
+
+**Description:** Menghapus item dari resep.
+
+**Authentication:** Required (Doctor, Admin, Super Admin)
+
+**Path Parameters:**
+
+| Parameter | Type    | Required | Description     |
+| --------- | ------- | -------- | --------------- |
+| id        | integer | Yes      | ID resep        |
+| item_id   | integer | Yes      | ID item resep   |
+
+**Response Success (200):**
+
+```json
+{
+  "status": "success",
+  "message": "Prescription item deleted successfully"
+}
+```
+
+**cURL Example:**
+
+```bash
+curl -X DELETE "http://localhost:8080/api/v1/prescriptions/1/items/1" \
+  -H "Authorization: Bearer <token>"
+```
+
+---
