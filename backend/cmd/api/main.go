@@ -28,6 +28,7 @@ import (
 	medicineservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/medicine"
 	medicinetypeservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/medicine-type"
 	patientservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/patient"
+	prescriptionservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/prescription"
 	roomservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/room"
 	roomtypeservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/room-type"
 	typetestservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/type-test"
@@ -115,6 +116,7 @@ func main() {
 		MedicalRecordHandler:        dependencies.MedicalRecordHandler,
 		HospitalizationHandler:      dependencies.HospitalizationHandler,
 		LabTestHandler:              dependencies.LabTestHandler,
+		PrescriptionHandler:         dependencies.PrescriptionHandler,
 	})
 
 	// Setup HTTP server
@@ -164,6 +166,7 @@ type Dependencies struct {
 	MedicalRecordRepository        repository.MedicalRecordRepository
 	HospitalizationRepository      repository.HospitalizationRepository
 	LabTestRepository              repository.LabTestRepository
+	PrescriptionRepository         repository.PrescriptionRepository
 
 	// Services
 	UserService                 userservice.UserService
@@ -181,6 +184,7 @@ type Dependencies struct {
 	MedicalRecordService        medicalrecordservice.MedicalRecordService
 	HospitalizationService      hospitalizationservice.HospitalizationService
 	LabTestService              labtestservice.LabTestService
+	PrescriptionService         prescriptionservice.PrescriptionService
 
 	// Handlers
 	UserHandler                 *handler.UserHandler
@@ -198,6 +202,7 @@ type Dependencies struct {
 	MedicalRecordHandler        *handler.MedicalRecordHandler
 	HospitalizationHandler      *handler.HospitalizationHandler
 	LabTestHandler              *handler.LabTestHandler
+	PrescriptionHandler         *handler.PrescriptionHandler
 }
 
 // initDependencies initializes all application dependencies
@@ -218,6 +223,7 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 	medicalRecordRepo := repository.NewMedicalRecordRepository(db)
 	hospitalizationRepo := repository.NewHospitalizationRepository(db)
 	labTestRepo := repository.NewLabTestRepository(db)
+	prescriptionRepo := repository.NewPrescriptionRepository(db)
 
 	// Konversi *RedisClient ke interface RedisStore hanya jika non-nil.
 	// Tanpa ini, passing typed-nil ke parameter interface menghasilkan non-nil
@@ -291,6 +297,10 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 		labtestservice.NewCachedLabTestService(labtestservice.NewLabTestService(labTestRepo, cfg), redisClient),
 		publisher,
 	)
+	prescriptionService := prescriptionservice.NewEventPrescriptionService(
+		prescriptionservice.NewCachedPrescriptionService(prescriptionservice.NewPrescriptionService(prescriptionRepo, cfg), redisClient),
+		publisher,
+	)
 
 	// Initialize Handlers
 	userHandler := handler.NewUserHandler(userService)
@@ -308,6 +318,7 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 	medicalRecordHandler := handler.NewMedicalRecordHandler(medicalRecordService, doctorRepo, patientRepo)
 	hospitalizationHandler := handler.NewHospitalizationHandler(hospitalizationService)
 	labTestHandler := handler.NewLabTestHandler(labTestService, doctorRepo)
+	prescriptionHandler := handler.NewPrescriptionHandler(prescriptionService, doctorRepo, patientRepo)
 
 	return &Dependencies{
 		UserRepository: userRepo,
@@ -369,6 +380,10 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 		LabTestRepository: labTestRepo,
 		LabTestService:    labTestService,
 		LabTestHandler:    labTestHandler,
+
+		PrescriptionRepository: prescriptionRepo,
+		PrescriptionService:    prescriptionService,
+		PrescriptionHandler:    prescriptionHandler,
 	}
 }
 

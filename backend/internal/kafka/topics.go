@@ -112,6 +112,19 @@ const (
 	TopicLabTestCancelled       = "lab_test.cancelled"
 	TopicLabTestDeleted         = "lab_test.deleted"
 	TopicLabTestRestored        = "lab_test.restored"
+
+	// ── Prescription Topics ────────────────────────────────────────────────────
+	TopicPrescriptionCreated   = "prescription.created"
+	TopicPrescriptionUpdated   = "prescription.updated"
+	TopicPrescriptionDispensed = "prescription.dispensed"
+	TopicPrescriptionCancelled = "prescription.cancelled"
+	TopicPrescriptionDeleted   = "prescription.deleted"
+	TopicPrescriptionRestored  = "prescription.restored"
+
+	// ── Prescription Item Topics ────────────────────────────────────────────────
+	TopicPrescriptionItemCreated = "prescription_item.created"
+	TopicPrescriptionItemUpdated = "prescription_item.updated"
+	TopicPrescriptionItemDeleted = "prescription_item.deleted"
 )
 
 // AllTopics mengembalikan semua topic yang perlu dibuat/dipastikan ada di Kafka.
@@ -211,5 +224,16 @@ func AllTopics() []string {
 		TopicLabTestCancelled,
 		TopicLabTestDeleted,
 		TopicLabTestRestored,
+
+		TopicPrescriptionCreated,
+		TopicPrescriptionUpdated,
+		TopicPrescriptionDispensed,
+		TopicPrescriptionCancelled,
+		TopicPrescriptionDeleted,
+		TopicPrescriptionRestored,
+
+		TopicPrescriptionItemCreated,
+		TopicPrescriptionItemUpdated,
+		TopicPrescriptionItemDeleted,
 	}
 }

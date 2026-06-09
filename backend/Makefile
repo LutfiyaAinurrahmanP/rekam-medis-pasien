@@ -265,6 +265,8 @@ prod-build: ## Build for production
 db-refresh: check-docker docker-up-deps wait-db ## Wipe database, auto-migrate, and re-seed
 	@echo "Wiping database schema..."
 	@docker compose exec postgres psql -U postgres -d sirekam_medis -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
+	@echo "Flushing Redis cache..."
+	@docker compose exec redis redis-cli FLUSHALL || true
 	@echo "Running migrations and seeder..."
 	@go run cmd/seed/main.go
 	@echo "✅ Database successfully refreshed and seeded!"

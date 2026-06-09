@@ -31,6 +31,8 @@ func RunMigration(db *gorm.DB) error {
 		&models.FamilyHistory{},
 		&models.Hospitalization{},
 		&models.LabTest{},
+		&models.Prescription{},
+		&models.PrescriptionItem{},
 	); err != nil {
 		return err
 	}

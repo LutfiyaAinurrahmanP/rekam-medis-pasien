@@ -74,4 +74,8 @@ func SetupAPIRouter(rg *gin.RouterGroup, cfg *RouteConfig) {
 	if cfg.LabTestHandler != nil {
 		SetupLabTestRouter(rg, cfg, cfg.LabTestHandler)
 	}
+
+	if cfg.PrescriptionHandler != nil {
+		SetupPrescriptionRoutes(rg, cfg, cfg.PrescriptionHandler)
+	}
 }
