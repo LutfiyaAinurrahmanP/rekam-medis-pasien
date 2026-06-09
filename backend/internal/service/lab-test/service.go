@@ -78,9 +78,9 @@ func (s *labTestService) toResponse(m *models.LabTest) *dto.LabTestResponse {
 	var ttResp *dto.LabTestTypeResponse
 	if m.TestType != nil {
 		ttResp = &dto.LabTestTypeResponse{
-			ID:       m.TestType.ID,
-			Name:     m.TestType.Name,
-			Code:     m.TestType.Code,
+			ID:   m.TestType.ID,
+			Name: m.TestType.Name,
+			Code: m.TestType.Code,
 		}
 	}
 

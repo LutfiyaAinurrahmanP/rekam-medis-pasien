@@ -251,7 +251,7 @@ func (h *LabTestHandler) Restore(ctx *gin.Context) {
 		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to restore lab test", err.Error())
 		return
 	}
-	
+
 	utils.SuccessResponse(ctx, http.StatusOK, "Lab test restored successfully", nil)
 }
 

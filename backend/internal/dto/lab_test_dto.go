@@ -50,13 +50,13 @@ type DeletedLabTestResponse struct {
 }
 
 type LabTestListResponse struct {
-	Data []LabTestResponse         `json:"data"`
-	Meta LabTestPaginationMeta     `json:"meta"`
+	Data []LabTestResponse     `json:"data"`
+	Meta LabTestPaginationMeta `json:"meta"`
 }
 
 type LabTestDeletedListResponse struct {
-	Data []DeletedLabTestResponse  `json:"data"`
-	Meta LabTestPaginationMeta     `json:"meta"`
+	Data []DeletedLabTestResponse `json:"data"`
+	Meta LabTestPaginationMeta    `json:"meta"`
 }
 
 type LabTestPaginationMeta struct {
