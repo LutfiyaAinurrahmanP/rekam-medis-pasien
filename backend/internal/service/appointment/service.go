@@ -310,37 +310,73 @@ func (s *appointmentService) Update(id uint, req *dto.UpdateAppointmentRequest) 
 }
 
 func (s *appointmentService) Confirm(id uint) error {
+	_, err := s.repo.FindByID(id)
+	if err != nil {
+		return err
+	}
 	return s.repo.Confirm(id)
 }
 
 func (s *appointmentService) Start(id uint) error {
+	_, err := s.repo.FindByID(id)
+	if err != nil {
+		return err
+	}
 	return s.repo.Start(id)
 }
 
 func (s *appointmentService) Complete(id uint) error {
+	_, err := s.repo.FindByID(id)
+	if err != nil {
+		return err
+	}
 	return s.repo.Complete(id)
 }
 
 func (s *appointmentService) Cancel(id uint, req *dto.CancelAppointmentRequest) error {
+	_, err := s.repo.FindByID(id)
+	if err != nil {
+		return err
+	}
 	return s.repo.Cancel(id, req.Reason)
 }
 
 func (s *appointmentService) Reschedule(id uint, req *dto.RescheduleAppointmentRequest) error {
+	_, err := s.repo.FindByID(id)
+	if err != nil {
+		return err
+	}
 	return s.repo.Reschedule(id, req.AppointmentDate, req.AppointmentTime)
 }
 
 func (s *appointmentService) NoShow(id uint) error {
+	_, err := s.repo.FindByID(id)
+	if err != nil {
+		return err
+	}
 	return s.repo.NoShow(id)
 }
 
 func (s *appointmentService) SoftDelete(id uint) error {
+	_, err := s.repo.FindByID(id)
+	if err != nil {
+		return err
+	}
 	return s.repo.SoftDelete(id)
 }
 
 func (s *appointmentService) Restore(id uint) error {
+	_, err := s.repo.FindByIDUnscoped(id)
+	if err != nil {
+		return err
+	}
 	return s.repo.Restore(id)
 }
 
 func (s *appointmentService) HardDelete(id uint) error {
+	_, err := s.repo.FindByIDUnscoped(id)
+	if err != nil {
+		return err
+	}
 	return s.repo.HardDelete(id)
 }
