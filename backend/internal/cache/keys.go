@@ -602,6 +602,7 @@ const (
 	PatternAppointmentAll          = "appointment:*"
 	PatternMedicalRecordAll        = "medical_record:*"
 	PatternHospitalizationAll      = "hospitalization:*"
+	PatternLabTestAll              = "lab_test:*"
 )
 
 // ─── Medical Record ────────────────────────────────────────────────────────
@@ -684,4 +685,40 @@ func HospitalizationListQueryKey(page, size int, patientID, doctorID, roomID *ui
 
 func HospitalizationDeletedListQueryKey(page, size int, patientID, doctorID, roomID *uint, search, status, notStatus, sortBy, sortDir string) string {
 	return fmt.Sprintf("hospitalization:deleted:%s", HospitalizationListQueryKey(page, size, patientID, doctorID, roomID, search, status, notStatus, sortBy, sortDir))
+}
+
+// ─── LabTest ────────────────────────────────────────────────────────────────
+
+func LabTestKey(id uint) string {
+	return fmt.Sprintf("lab_test:id:%d", id)
+}
+
+func LabTestListQueryKey(page, size int, medicalRecordID, testTypeID, doctorID *uint, search, status, notStatus, sortBy, sortDir string) string {
+	mrID, ttID, dID := "all", "all", "all"
+	if medicalRecordID != nil {
+		mrID = fmt.Sprintf("%d", *medicalRecordID)
+	}
+	if testTypeID != nil {
+		ttID = fmt.Sprintf("%d", *testTypeID)
+	}
+	if doctorID != nil {
+		dID = fmt.Sprintf("%d", *doctorID)
+	}
+	if status == "" {
+		status = "all"
+	}
+	if notStatus == "" {
+		notStatus = "all"
+	}
+	if search == "" {
+		search = "none"
+	}
+	return fmt.Sprintf(
+		"lab_test:list:p%d:s%d:mr%s:tt%s:dr%s:q%s:st%s:nst%s:sb%s:sd%s",
+		page, size, mrID, ttID, dID, search, status, notStatus, sortBy, sortDir,
+	)
+}
+
+func LabTestDeletedListQueryKey(page, size int, medicalRecordID, testTypeID, doctorID *uint, search, status, notStatus, sortBy, sortDir string) string {
+	return fmt.Sprintf("lab_test:deleted:%s", LabTestListQueryKey(page, size, medicalRecordID, testTypeID, doctorID, search, status, notStatus, sortBy, sortDir))
 }

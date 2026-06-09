@@ -85,6 +85,14 @@ var notificationTopics = []string{
 	kafka.TopicHospitalizationRestored,
 	kafka.TopicHospitalizationDischarged,
 	kafka.TopicHospitalizationTransferred,
+	kafka.TopicLabTestCreated,
+	kafka.TopicLabTestUpdated,
+	kafka.TopicLabTestSampleCollected,
+	kafka.TopicLabTestStarted,
+	kafka.TopicLabTestCompleted,
+	kafka.TopicLabTestCancelled,
+	kafka.TopicLabTestDeleted,
+	kafka.TopicLabTestRestored,
 }
 
 // NewNotificationEventHandler membuat notification handler baru.
@@ -623,6 +631,62 @@ func (h *NotificationEventHandler) handle(ctx context.Context, topic string, key
 			return err
 		}
 		log.Printf("[NOTIFICATION] 🔒 Medical record finalized: ID=%d", e.Payload.ID)
+
+	case kafka.TopicLabTestCreated:
+		var e events.LabTestCreatedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🧪 Lab test ordered: ID=%d, RecordID=%d", e.Payload.ID, e.Payload.MedicalRecordID)
+
+	case kafka.TopicLabTestUpdated:
+		var e events.LabTestUpdatedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🧪 Lab test updated: ID=%d, Action=%s", e.Payload.ID, e.Payload.Action)
+
+	case kafka.TopicLabTestSampleCollected:
+		var e events.LabTestSampleCollectedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🩸 Lab test sample collected: ID=%d", e.Payload.ID)
+
+	case kafka.TopicLabTestStarted:
+		var e events.LabTestStartedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🔬 Lab test started: ID=%d", e.Payload.ID)
+
+	case kafka.TopicLabTestCompleted:
+		var e events.LabTestCompletedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] ✅ Lab test completed: ID=%d", e.Payload.ID)
+
+	case kafka.TopicLabTestCancelled:
+		var e events.LabTestCancelledEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] ❌ Lab test cancelled: ID=%d", e.Payload.ID)
+
+	case kafka.TopicLabTestDeleted:
+		var e events.LabTestDeletedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🗑️  Lab test deleted: ID=%d, Action=%s", e.Payload.ID, e.Payload.Action)
+
+	case kafka.TopicLabTestRestored:
+		var e events.LabTestRestoredEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] ♻️  Lab test restored: ID=%d", e.Payload.ID)
 
 	default:
 		log.Printf("[NOTIFICATION] ⚠️  Received unsupported topic: %s", topic)

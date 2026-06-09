@@ -70,4 +70,8 @@ func SetupAPIRouter(rg *gin.RouterGroup, cfg *RouteConfig) {
 	if cfg.HospitalizationHandler != nil {
 		SetupHospitalizationRouter(rg, cfg, cfg.HospitalizationHandler)
 	}
+
+	if cfg.LabTestHandler != nil {
+		SetupLabTestRouter(rg, cfg, cfg.LabTestHandler)
+	}
 }

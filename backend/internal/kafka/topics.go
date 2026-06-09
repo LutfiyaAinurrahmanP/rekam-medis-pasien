@@ -102,6 +102,16 @@ const (
 	TopicHospitalizationRestored    = "hospitalization.restored"
 	TopicHospitalizationDischarged  = "hospitalization.discharged"
 	TopicHospitalizationTransferred = "hospitalization.transferred"
+
+	// ── Lab Test Topics ────────────────────────────────────────────────────────
+	TopicLabTestCreated         = "lab_test.created"
+	TopicLabTestUpdated         = "lab_test.updated"
+	TopicLabTestSampleCollected = "lab_test.sample_collected"
+	TopicLabTestStarted         = "lab_test.started"
+	TopicLabTestCompleted       = "lab_test.completed"
+	TopicLabTestCancelled       = "lab_test.cancelled"
+	TopicLabTestDeleted         = "lab_test.deleted"
+	TopicLabTestRestored        = "lab_test.restored"
 )
 
 // AllTopics mengembalikan semua topic yang perlu dibuat/dipastikan ada di Kafka.
@@ -192,5 +202,14 @@ func AllTopics() []string {
 		TopicHospitalizationRestored,
 		TopicHospitalizationDischarged,
 		TopicHospitalizationTransferred,
+
+		TopicLabTestCreated,
+		TopicLabTestUpdated,
+		TopicLabTestSampleCollected,
+		TopicLabTestStarted,
+		TopicLabTestCompleted,
+		TopicLabTestCancelled,
+		TopicLabTestDeleted,
+		TopicLabTestRestored,
 	}
 }

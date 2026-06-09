@@ -23,6 +23,7 @@ import (
 	doctorservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/doctor"
 	doctorspecializationservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/doctor-specialization"
 	hospitalizationservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/hospitalization"
+	labtestservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/lab-test"
 	medicalrecordservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/medical-record"
 	medicineservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/medicine"
 	medicinetypeservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/medicine-type"
@@ -113,6 +114,7 @@ func main() {
 		AppointmentHandler:          dependencies.AppointmentHandler,
 		MedicalRecordHandler:        dependencies.MedicalRecordHandler,
 		HospitalizationHandler:      dependencies.HospitalizationHandler,
+		LabTestHandler:              dependencies.LabTestHandler,
 	})
 
 	// Setup HTTP server
@@ -161,6 +163,7 @@ type Dependencies struct {
 	AppointmentRepository          repository.AppointmentRepository
 	MedicalRecordRepository        repository.MedicalRecordRepository
 	HospitalizationRepository      repository.HospitalizationRepository
+	LabTestRepository              repository.LabTestRepository
 
 	// Services
 	UserService                 userservice.UserService
@@ -177,6 +180,7 @@ type Dependencies struct {
 	AppointmentService          appointmentservice.AppointmentService
 	MedicalRecordService        medicalrecordservice.MedicalRecordService
 	HospitalizationService      hospitalizationservice.HospitalizationService
+	LabTestService              labtestservice.LabTestService
 
 	// Handlers
 	UserHandler                 *handler.UserHandler
@@ -193,6 +197,7 @@ type Dependencies struct {
 	AppointmentHandler          *handler.AppointmentHandler
 	MedicalRecordHandler        *handler.MedicalRecordHandler
 	HospitalizationHandler      *handler.HospitalizationHandler
+	LabTestHandler              *handler.LabTestHandler
 }
 
 // initDependencies initializes all application dependencies
@@ -212,6 +217,7 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 	appointmentRepo := repository.NewAppointmentRepository(db)
 	medicalRecordRepo := repository.NewMedicalRecordRepository(db)
 	hospitalizationRepo := repository.NewHospitalizationRepository(db)
+	labTestRepo := repository.NewLabTestRepository(db)
 
 	// Konversi *RedisClient ke interface RedisStore hanya jika non-nil.
 	// Tanpa ini, passing typed-nil ke parameter interface menghasilkan non-nil
@@ -281,6 +287,10 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 		hospitalizationservice.NewCachedHospitalizationService(hospitalizationservice.NewHospitalizationService(hospitalizationRepo, cfg), redisClient),
 		publisher,
 	)
+	labTestService := labtestservice.NewEventedLabTestService(
+		labtestservice.NewCachedLabTestService(labtestservice.NewLabTestService(labTestRepo, cfg), redisClient),
+		publisher,
+	)
 
 	// Initialize Handlers
 	userHandler := handler.NewUserHandler(userService)
@@ -297,6 +307,7 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 	appointmentHandler := handler.NewAppointmentHandler(appointmentService, doctorRepo, patientRepo)
 	medicalRecordHandler := handler.NewMedicalRecordHandler(medicalRecordService, doctorRepo, patientRepo)
 	hospitalizationHandler := handler.NewHospitalizationHandler(hospitalizationService)
+	labTestHandler := handler.NewLabTestHandler(labTestService, doctorRepo)
 
 	return &Dependencies{
 		UserRepository: userRepo,
@@ -354,6 +365,10 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 		HospitalizationRepository: hospitalizationRepo,
 		HospitalizationService:    hospitalizationService,
 		HospitalizationHandler:    hospitalizationHandler,
+
+		LabTestRepository: labTestRepo,
+		LabTestService:    labTestService,
+		LabTestHandler:    labTestHandler,
 	}
 }
 

@@ -1460,3 +1460,179 @@ func NewHospitalizationTransferredEvent(id uint, notes string) HospitalizationTr
 		},
 	}
 }
+
+// ─── LabTest Events ─────────────────────────────────────────────────────────
+
+type LabTestCreatedEvent struct {
+	BaseEvent
+	Payload struct {
+		ID                uint   `json:"id"`
+		MedicalRecordID   uint   `json:"medical_record_id"`
+		TestTypeID        uint   `json:"test_type_id"`
+		OrderedByDoctorID uint   `json:"ordered_by_doctor_id"`
+		OrderDate         string `json:"order_date"`
+		Status            string `json:"status"`
+	} `json:"payload"`
+}
+
+func NewLabTestCreatedEvent(id, medicalRecordID, testTypeID, orderedByDoctorID uint, orderDate, status string) LabTestCreatedEvent {
+	return LabTestCreatedEvent{
+		BaseEvent: newBase("lab_test.created"),
+		Payload: struct {
+			ID                uint   `json:"id"`
+			MedicalRecordID   uint   `json:"medical_record_id"`
+			TestTypeID        uint   `json:"test_type_id"`
+			OrderedByDoctorID uint   `json:"ordered_by_doctor_id"`
+			OrderDate         string `json:"order_date"`
+			Status            string `json:"status"`
+		}{
+			ID:                id,
+			MedicalRecordID:   medicalRecordID,
+			TestTypeID:        testTypeID,
+			OrderedByDoctorID: orderedByDoctorID,
+			OrderDate:         orderDate,
+			Status:            status,
+		},
+	}
+}
+
+type LabTestUpdatedEvent struct {
+	BaseEvent
+	Payload struct {
+		ID     uint   `json:"id"`
+		Action string `json:"action"`
+	} `json:"payload"`
+}
+
+func NewLabTestUpdatedEvent(id uint, action string) LabTestUpdatedEvent {
+	return LabTestUpdatedEvent{
+		BaseEvent: newBase("lab_test.updated"),
+		Payload: struct {
+			ID     uint   `json:"id"`
+			Action string `json:"action"`
+		}{
+			ID:     id,
+			Action: action,
+		},
+	}
+}
+
+type LabTestSampleCollectedEvent struct {
+	BaseEvent
+	Payload struct {
+		ID                   uint   `json:"id"`
+		SampleCollectionDate string `json:"sample_collection_date"`
+	} `json:"payload"`
+}
+
+func NewLabTestSampleCollectedEvent(id uint, sampleCollectionDate string) LabTestSampleCollectedEvent {
+	return LabTestSampleCollectedEvent{
+		BaseEvent: newBase("lab_test.sample_collected"),
+		Payload: struct {
+			ID                   uint   `json:"id"`
+			SampleCollectionDate string `json:"sample_collection_date"`
+		}{
+			ID:                   id,
+			SampleCollectionDate: sampleCollectionDate,
+		},
+	}
+}
+
+type LabTestStartedEvent struct {
+	BaseEvent
+	Payload struct {
+		ID            uint   `json:"id"`
+		TestStartDate string `json:"test_start_date"`
+	} `json:"payload"`
+}
+
+func NewLabTestStartedEvent(id uint, testStartDate string) LabTestStartedEvent {
+	return LabTestStartedEvent{
+		BaseEvent: newBase("lab_test.started"),
+		Payload: struct {
+			ID            uint   `json:"id"`
+			TestStartDate string `json:"test_start_date"`
+		}{
+			ID:            id,
+			TestStartDate: testStartDate,
+		},
+	}
+}
+
+type LabTestCompletedEvent struct {
+	BaseEvent
+	Payload struct {
+		ID         uint   `json:"id"`
+		ResultDate string `json:"result_date"`
+	} `json:"payload"`
+}
+
+func NewLabTestCompletedEvent(id uint, resultDate string) LabTestCompletedEvent {
+	return LabTestCompletedEvent{
+		BaseEvent: newBase("lab_test.completed"),
+		Payload: struct {
+			ID         uint   `json:"id"`
+			ResultDate string `json:"result_date"`
+		}{
+			ID:         id,
+			ResultDate: resultDate,
+		},
+	}
+}
+
+type LabTestCancelledEvent struct {
+	BaseEvent
+	Payload struct {
+		ID uint `json:"id"`
+	} `json:"payload"`
+}
+
+func NewLabTestCancelledEvent(id uint) LabTestCancelledEvent {
+	return LabTestCancelledEvent{
+		BaseEvent: newBase("lab_test.cancelled"),
+		Payload: struct {
+			ID uint `json:"id"`
+		}{
+			ID: id,
+		},
+	}
+}
+
+type LabTestDeletedEvent struct {
+	BaseEvent
+	Payload struct {
+		ID     uint   `json:"id"`
+		Action string `json:"action"` // "soft_delete" | "hard_delete"
+	} `json:"payload"`
+}
+
+func NewLabTestDeletedEvent(id uint, action string) LabTestDeletedEvent {
+	return LabTestDeletedEvent{
+		BaseEvent: newBase("lab_test.deleted"),
+		Payload: struct {
+			ID     uint   `json:"id"`
+			Action string `json:"action"`
+		}{
+			ID:     id,
+			Action: action,
+		},
+	}
+}
+
+type LabTestRestoredEvent struct {
+	BaseEvent
+	Payload struct {
+		ID uint `json:"id"`
+	} `json:"payload"`
+}
+
+func NewLabTestRestoredEvent(id uint) LabTestRestoredEvent {
+	return LabTestRestoredEvent{
+		BaseEvent: newBase("lab_test.restored"),
+		Payload: struct {
+			ID uint `json:"id"`
+		}{
+			ID: id,
+		},
+	}
+}
