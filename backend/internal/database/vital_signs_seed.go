@@ -1,7 +1,9 @@
 package database
 
 import (
+	"fmt"
 	"log"
+	"math/rand"
 	"time"
 
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/models"
@@ -10,64 +12,109 @@ import (
 
 func SeedVitalSigns(db *gorm.DB) error {
 	var medicalRecords []models.MedicalRecord
-	if err := db.Find(&medicalRecords).Error; err != nil {
-		return err
+	if err := db.Unscoped().Find(&medicalRecords).Error; err != nil {
+		return fmt.Errorf("failed to fetch medical records for vital signs seed: %w", err)
 	}
 
 	if len(medicalRecords) == 0 {
-		log.Println("⚠️  No medical records found, skipping vital signs seeding")
+		log.Println("⚠️  No medical records found, skipping vital signs seed")
 		return nil
 	}
 
-	log.Println("🌱 Seeding vital signs...")
+	var activeMRs []models.MedicalRecord
+	var deletedMRs []models.MedicalRecord
 
-	vitalSigns := make([]models.VitalSign, 0)
-	now := time.Now()
-
-	for i, record := range medicalRecords {
-		// Create vital signs for every other medical record
-		if i%2 == 0 {
-			sys := 110 + (i % 30)
-			dias := 70 + (i % 20)
-			hr := 60 + (i % 40)
-			temp := 36.5 + float64(i%10)/10.0
-			rr := 16 + (i % 8)
-			o2 := 95.0 + float64(i%6)
-			weight := 60.0 + float64(i%30)
-			height := 160 + (i % 30)
-			bmi := weight / ((float64(height) / 100) * (float64(height) / 100))
-
-			visitDate, err := time.Parse("2006-01-02", record.VisitDate)
-			if err != nil {
-				visitDate = now
-			}
-
-			vitalSigns = append(vitalSigns, models.VitalSign{
-				MedicalRecordID:  record.ID,
-				MeasurementDate:  visitDate,
-				MeasurementTime:  "08:30:00",
-				SystolicBP:       &sys,
-				DiastolicBP:      &dias,
-				HeartRate:        &hr,
-				BodyTemperature:  &temp,
-				RespiratoryRate:  &rr,
-				OxygenSaturation: &o2,
-				WeightKg:         &weight,
-				HeightCm:         &height,
-				BMI:              &bmi,
-				Notes:            "Normal measurement",
-				CreatedAt:        now,
-				UpdatedAt:        now,
-			})
+	for _, mr := range medicalRecords {
+		if mr.DeletedAt.Valid {
+			deletedMRs = append(deletedMRs, mr)
+		} else {
+			activeMRs = append(activeMRs, mr)
 		}
 	}
 
-	if len(vitalSigns) > 0 {
-		if err := db.Create(&vitalSigns).Error; err != nil {
-			log.Printf("❌ Failed to seed vital signs: %v", err)
-			return err
+	var activeVitalSigns []models.VitalSign
+	var deletedVitalSigns []models.VitalSign
+
+	rng := rand.New(rand.NewSource(42))
+	now := time.Now()
+
+	// target = len - 10
+	targetActive := len(activeMRs) - 10
+	if targetActive < 0 {
+		targetActive = 0
+	}
+	targetDeleted := len(deletedMRs) - 10
+	if targetDeleted < 0 {
+		targetDeleted = 0
+	}
+
+	// Create Active Vital Signs
+	for i, mr := range activeMRs {
+		if i >= targetActive {
+			break
 		}
+		activeVitalSigns = append(activeVitalSigns, generateVitalSign(rng, mr, now, false))
+	}
+
+	// Create Deleted Vital Signs
+	for i, mr := range deletedMRs {
+		if i >= targetDeleted {
+			break
+		}
+		deletedVitalSigns = append(deletedVitalSigns, generateVitalSign(rng, mr, now, true))
+	}
+
+	if len(activeVitalSigns) > 0 {
+		if err := db.Create(&activeVitalSigns).Error; err != nil {
+			return fmt.Errorf("failed to seed active vital signs: %w", err)
+		}
+		log.Printf("✅ Seeded %d active vital signs", len(activeVitalSigns))
+	}
+
+	if len(deletedVitalSigns) > 0 {
+		if err := db.Create(&deletedVitalSigns).Error; err != nil {
+			return fmt.Errorf("failed to seed deleted vital signs: %w", err)
+		}
+		log.Printf("✅ Seeded %d deleted vital signs", len(deletedVitalSigns))
 	}
 
 	return nil
+}
+
+func generateVitalSign(rng *rand.Rand, mr models.MedicalRecord, now time.Time, isDeleted bool) models.VitalSign {
+	weight := 45.0 + rng.Float64()*50.0     // 45kg - 95kg
+	height := 150 + rng.Intn(40)            // 150cm - 190cm
+	systolic := 90 + rng.Intn(50)           // 90 - 140
+	diastolic := 60 + rng.Intn(30)          // 60 - 90
+	heartRate := 60 + rng.Intn(40)          // 60 - 100
+	temperature := 36.0 + rng.Float64()*3.0 // 36.0 - 39.0
+
+	heightM := float64(height) / 100.0
+	bmi := weight / (heightM * heightM)
+
+	visitDate, err := time.Parse("2006-01-02", mr.VisitDate)
+	if err != nil {
+		visitDate = now
+	}
+
+	vitalSign := models.VitalSign{
+		MedicalRecordID: mr.ID,
+		MeasurementDate: visitDate,
+		MeasurementTime: "08:30:00",
+		SystolicBP:      &systolic,
+		DiastolicBP:     &diastolic,
+		HeartRate:       &heartRate,
+		BodyTemperature: &temperature,
+		WeightKg:        &weight,
+		HeightCm:        &height,
+		BMI:             &bmi,
+		Notes:           fmt.Sprintf("Vital signs note for medical record %d", mr.ID),
+	}
+
+	if isDeleted {
+		deletedTime := now.Add(-24 * time.Hour)
+		vitalSign.DeletedAt = gorm.DeletedAt{Time: deletedTime, Valid: true}
+	}
+
+	return vitalSign
 }

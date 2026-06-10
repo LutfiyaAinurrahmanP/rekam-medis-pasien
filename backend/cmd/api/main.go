@@ -34,6 +34,7 @@ import (
 	typetestservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/type-test"
 	typetestcategorieservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/type-test-category"
 	userservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/user"
+	vitalsignservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/vital-sign"
 	"gorm.io/gorm"
 )
 
@@ -117,6 +118,7 @@ func main() {
 		HospitalizationHandler:      dependencies.HospitalizationHandler,
 		LabTestHandler:              dependencies.LabTestHandler,
 		PrescriptionHandler:         dependencies.PrescriptionHandler,
+		VitalSignHandler:            dependencies.VitalSignHandler,
 	})
 
 	// Setup HTTP server
@@ -167,6 +169,7 @@ type Dependencies struct {
 	HospitalizationRepository      repository.HospitalizationRepository
 	LabTestRepository              repository.LabTestRepository
 	PrescriptionRepository         repository.PrescriptionRepository
+	VitalSignRepository            repository.VitalSignRepository
 
 	// Services
 	UserService                 userservice.UserService
@@ -185,6 +188,7 @@ type Dependencies struct {
 	HospitalizationService      hospitalizationservice.HospitalizationService
 	LabTestService              labtestservice.LabTestService
 	PrescriptionService         prescriptionservice.PrescriptionService
+	VitalSignService            vitalsignservice.VitalSignService
 
 	// Handlers
 	UserHandler                 *handler.UserHandler
@@ -203,6 +207,7 @@ type Dependencies struct {
 	HospitalizationHandler      *handler.HospitalizationHandler
 	LabTestHandler              *handler.LabTestHandler
 	PrescriptionHandler         *handler.PrescriptionHandler
+	VitalSignHandler            *handler.VitalSignHandler
 }
 
 // initDependencies initializes all application dependencies
@@ -224,6 +229,7 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 	hospitalizationRepo := repository.NewHospitalizationRepository(db)
 	labTestRepo := repository.NewLabTestRepository(db)
 	prescriptionRepo := repository.NewPrescriptionRepository(db)
+	vitalSignRepo := repository.NewVitalSignRepository(db)
 
 	// Konversi *RedisClient ke interface RedisStore hanya jika non-nil.
 	// Tanpa ini, passing typed-nil ke parameter interface menghasilkan non-nil
@@ -301,6 +307,10 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 		prescriptionservice.NewCachedPrescriptionService(prescriptionservice.NewPrescriptionService(prescriptionRepo, cfg), redisClient),
 		publisher,
 	)
+	vitalSignService := vitalsignservice.NewEventedVitalSignService(
+		vitalsignservice.NewCachedVitalSignService(vitalsignservice.NewVitalSignService(vitalSignRepo, cfg, medicalRecordRepo), redisClient),
+		publisher,
+	)
 
 	// Initialize Handlers
 	userHandler := handler.NewUserHandler(userService)
@@ -319,6 +329,7 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 	hospitalizationHandler := handler.NewHospitalizationHandler(hospitalizationService)
 	labTestHandler := handler.NewLabTestHandler(labTestService, doctorRepo)
 	prescriptionHandler := handler.NewPrescriptionHandler(prescriptionService, doctorRepo, patientRepo)
+	vitalSignHandler := handler.NewVitalSignHandler(vitalSignService)
 
 	return &Dependencies{
 		UserRepository: userRepo,
@@ -384,6 +395,10 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 		PrescriptionRepository: prescriptionRepo,
 		PrescriptionService:    prescriptionService,
 		PrescriptionHandler:    prescriptionHandler,
+
+		VitalSignRepository: vitalSignRepo,
+		VitalSignService:    vitalSignService,
+		VitalSignHandler:    vitalSignHandler,
 	}
 }
 

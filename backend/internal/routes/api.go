@@ -78,4 +78,8 @@ func SetupAPIRouter(rg *gin.RouterGroup, cfg *RouteConfig) {
 	if cfg.PrescriptionHandler != nil {
 		SetupPrescriptionRoutes(rg, cfg, cfg.PrescriptionHandler)
 	}
+
+	if cfg.VitalSignHandler != nil {
+		SetupVitalSignRoutes(rg, cfg, cfg.VitalSignHandler)
+	}
 }

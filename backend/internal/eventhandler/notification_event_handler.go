@@ -102,6 +102,10 @@ var notificationTopics = []string{
 	kafka.TopicPrescriptionItemCreated,
 	kafka.TopicPrescriptionItemUpdated,
 	kafka.TopicPrescriptionItemDeleted,
+	kafka.TopicVitalSignCreated,
+	kafka.TopicVitalSignUpdated,
+	kafka.TopicVitalSignDeleted,
+	kafka.TopicVitalSignRestored,
 }
 
 // NewNotificationEventHandler membuat notification handler baru.
@@ -759,6 +763,34 @@ func (h *NotificationEventHandler) handle(ctx context.Context, topic string, key
 			return err
 		}
 		log.Printf("[NOTIFICATION] 🗑️  Prescription item deleted: ID=%d", e.Payload.ID)
+
+	case kafka.TopicVitalSignCreated:
+		var e events.VitalSignPayload
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 📊 Vital sign recorded: ID=%d, RecordID=%d", e.ID, e.MedicalRecordID)
+
+	case kafka.TopicVitalSignUpdated:
+		var e events.VitalSignPayload
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 📊 Vital sign updated: ID=%d", e.ID)
+
+	case kafka.TopicVitalSignDeleted:
+		var e events.VitalSignPayload
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🗑️  Vital sign deleted: ID=%d, Action=%s", e.ID, e.Action)
+
+	case kafka.TopicVitalSignRestored:
+		var e events.VitalSignPayload
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] ♻️  Vital sign restored: ID=%d", e.ID)
 
 	default:
 		log.Printf("[NOTIFICATION] ⚠️  Received unsupported topic: %s", topic)

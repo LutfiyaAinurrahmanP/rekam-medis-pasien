@@ -604,6 +604,7 @@ const (
 	PatternHospitalizationAll      = "hospitalization:*"
 	PatternLabTestAll              = "lab_test:*"
 	PatternPrescriptionAll         = "prescription:*"
+	PatternVitalSignAll            = "vital_sign:*"
 )
 
 // ─── Medical Record ────────────────────────────────────────────────────────
@@ -752,4 +753,29 @@ func PrescriptionListQueryKey(page, size int, doctorID, medicalRecordID *uint, s
 
 func PrescriptionDeletedListQueryKey(page, size int, doctorID, medicalRecordID *uint, status, search, sortBy, sortDir string) string {
 	return fmt.Sprintf("prescription:deleted:%s", PrescriptionListQueryKey(page, size, doctorID, medicalRecordID, status, search, sortBy, sortDir))
+}
+
+// ─── Vital Sign ────────────────────────────────────────────────────────────
+
+func VitalSignKey(id uint) string {
+	return fmt.Sprintf("vital_sign:id:%d", id)
+}
+
+func VitalSignByMedicalRecordKey(recordID uint) string {
+	return fmt.Sprintf("vital_sign:medical_record:%d", recordID)
+}
+
+func VitalSignListQueryKey(page, size int, medicalRecordID *uint, sortBy, sortDir string) string {
+	mrID := "all"
+	if medicalRecordID != nil {
+		mrID = fmt.Sprintf("%d", *medicalRecordID)
+	}
+	return fmt.Sprintf(
+		"vital_sign:list:p%d:s%d:mr%s:sb%s:sd%s",
+		page, size, mrID, sortBy, sortDir,
+	)
+}
+
+func VitalSignDeletedListQueryKey(page, size int, medicalRecordID *uint, sortBy, sortDir string) string {
+	return fmt.Sprintf("vital_sign:deleted:%s", VitalSignListQueryKey(page, size, medicalRecordID, sortBy, sortDir))
 }

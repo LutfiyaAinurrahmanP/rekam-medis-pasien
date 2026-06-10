@@ -2,6 +2,8 @@ package models
 
 import (
 	"time"
+
+	"gorm.io/gorm"
 )
 
 type VitalSign struct {
@@ -21,7 +23,7 @@ type VitalSign struct {
 	Notes            string     `gorm:"type:text" json:"notes"`
 	CreatedAt        time.Time  `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
 	UpdatedAt        time.Time  `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
-	DeletedAt        *time.Time `gorm:"index" json:"deleted_at"`
+	DeletedAt        gorm.DeletedAt `gorm:"index" json:"deleted_at,omitempty"`
 
 	MedicalRecord MedicalRecord `gorm:"foreignKey:MedicalRecordID;references:ID" json:"-"`
 }

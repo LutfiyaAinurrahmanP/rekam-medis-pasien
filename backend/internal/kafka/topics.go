@@ -125,6 +125,12 @@ const (
 	TopicPrescriptionItemCreated = "prescription_item.created"
 	TopicPrescriptionItemUpdated = "prescription_item.updated"
 	TopicPrescriptionItemDeleted = "prescription_item.deleted"
+
+	// ── Vital Sign Topics ──────────────────────────────────────────────────────
+	TopicVitalSignCreated  = "vital_sign.created"
+	TopicVitalSignUpdated  = "vital_sign.updated"
+	TopicVitalSignDeleted  = "vital_sign.deleted"
+	TopicVitalSignRestored = "vital_sign.restored"
 )
 
 // AllTopics mengembalikan semua topic yang perlu dibuat/dipastikan ada di Kafka.
@@ -235,5 +241,10 @@ func AllTopics() []string {
 		TopicPrescriptionItemCreated,
 		TopicPrescriptionItemUpdated,
 		TopicPrescriptionItemDeleted,
+
+		TopicVitalSignCreated,
+		TopicVitalSignUpdated,
+		TopicVitalSignDeleted,
+		TopicVitalSignRestored,
 	}
 }

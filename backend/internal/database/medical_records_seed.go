@@ -23,7 +23,7 @@ func SeedMedicalRecords(db *gorm.DB) error {
 	now := time.Now()
 
 	// 1. Generate active medical records
-	for i := 1; i <= 22; i++ {
+	for i := 1; i <= 32; i++ {
 		patientID := uint((i % 5) + 1)
 		doctorID := uint((i % 5) + 1)
 		appID := uint(i)
@@ -52,7 +52,7 @@ func SeedMedicalRecords(db *gorm.DB) error {
 	}
 
 	// 2. Generate deleted medical records
-	for i := 23; i <= 25; i++ {
+	for i := 33; i <= 64; i++ {
 		patientID := uint((i % 5) + 1)
 		doctorID := uint((i % 5) + 1)
 
