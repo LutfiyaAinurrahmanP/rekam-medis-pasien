@@ -765,32 +765,32 @@ func (h *NotificationEventHandler) handle(ctx context.Context, topic string, key
 		log.Printf("[NOTIFICATION] 🗑️  Prescription item deleted: ID=%d", e.Payload.ID)
 
 	case kafka.TopicVitalSignCreated:
-		var e events.VitalSignPayload
+		var e events.VitalSignCreatedEvent
 		if err := json.Unmarshal(value, &e); err != nil {
 			return err
 		}
-		log.Printf("[NOTIFICATION] 📊 Vital sign recorded: ID=%d, RecordID=%d", e.ID, e.MedicalRecordID)
+		log.Printf("[NOTIFICATION] 📊 Vital sign recorded: ID=%d, RecordID=%d", e.Payload.ID, e.Payload.MedicalRecordID)
 
 	case kafka.TopicVitalSignUpdated:
-		var e events.VitalSignPayload
+		var e events.VitalSignUpdatedEvent
 		if err := json.Unmarshal(value, &e); err != nil {
 			return err
 		}
-		log.Printf("[NOTIFICATION] 📊 Vital sign updated: ID=%d", e.ID)
+		log.Printf("[NOTIFICATION] 📊 Vital sign updated: ID=%d", e.Payload.ID)
 
 	case kafka.TopicVitalSignDeleted:
-		var e events.VitalSignPayload
+		var e events.VitalSignDeletedEvent
 		if err := json.Unmarshal(value, &e); err != nil {
 			return err
 		}
-		log.Printf("[NOTIFICATION] 🗑️  Vital sign deleted: ID=%d, Action=%s", e.ID, e.Action)
+		log.Printf("[NOTIFICATION] 🗑️  Vital sign deleted: ID=%d, Action=%s", e.Payload.ID, e.Payload.Action)
 
 	case kafka.TopicVitalSignRestored:
-		var e events.VitalSignPayload
+		var e events.VitalSignRestoredEvent
 		if err := json.Unmarshal(value, &e); err != nil {
 			return err
 		}
-		log.Printf("[NOTIFICATION] ♻️  Vital sign restored: ID=%d", e.ID)
+		log.Printf("[NOTIFICATION] ♻️  Vital sign restored: ID=%d", e.Payload.ID)
 
 	default:
 		log.Printf("[NOTIFICATION] ⚠️  Received unsupported topic: %s", topic)
