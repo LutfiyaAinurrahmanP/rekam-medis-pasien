@@ -822,6 +822,51 @@ func FamilyHistoryListQueryKey(page, size int, patientID *uint, sortBy, sortDir 
 	)
 }
 
+
+// ─── Dashboard ─────────────────────────────────────────────────────────────
+
+func DashboardOverviewKey(date string) string {
+	return fmt.Sprintf("dashboard:overview:d%s", date)
+}
+
+func DashboardAdminKey(period, startDate, endDate string) string {
+	return fmt.Sprintf("dashboard:admin:p%s:s%s:e%s", period, startDate, endDate)
+}
+
+func DashboardDoctorKey(doctorID uint, date string) string {
+	return fmt.Sprintf("dashboard:doctor:%d:d%s", doctorID, date)
+}
+
+func DashboardReceptionistKey(date string) string {
+	return fmt.Sprintf("dashboard:receptionist:d%s", date)
+}
+
+func DashboardPatientKey(patientID uint) string {
+	return fmt.Sprintf("dashboard:patient:%d", patientID)
+}
+
+func DashboardAppointmentReportKey(period, startDate, endDate string, doctorID, departmentID *uint, groupBy string) string {
+	dID, depID := "all", "all"
+	if doctorID != nil {
+		dID = fmt.Sprintf("%d", *doctorID)
+	}
+	if departmentID != nil {
+		depID = fmt.Sprintf("%d", *departmentID)
+	}
+	return fmt.Sprintf(
+		"dashboard:report:appointments:p%s:s%s:e%s:doc%s:dep%s:g%s",
+		period, startDate, endDate, dID, depID, groupBy,
+	)
+}
+
+func DashboardRevenueReportKey(period, startDate, endDate, groupBy string) string {
+	return fmt.Sprintf("dashboard:report:revenue:p%s:s%s:e%s:g%s", period, startDate, endDate, groupBy)
+}
+
+func DashboardPatientReportKey(period, startDate, endDate string) string {
+	return fmt.Sprintf("dashboard:report:patients:p%s:s%s:e%s", period, startDate, endDate)
+}
+
 // ─── Medical Histories ─────────────────────────────────────────────────────
 
 func MedicalHistoriesKey(id uint) string {
@@ -868,4 +913,5 @@ const (
 	PatternSurgicalHistoryAll      = "surgical_history:*"
 	PatternAllergyAll              = "allergy:*"
 	PatternMedicalHistoryAll       = "medical_histories:*"
+	PatternDashboardAll            = "dashboard:*"
 )

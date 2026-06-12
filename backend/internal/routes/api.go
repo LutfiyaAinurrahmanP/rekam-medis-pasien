@@ -102,4 +102,8 @@ func SetupAPIRouter(rg *gin.RouterGroup, cfg *RouteConfig) {
 	if cfg.MedicalHistoryHandler != nil {
 		SetupMedicalHistoryRoutes(rg, cfg, cfg.MedicalHistoryHandler)
 	}
+
+	if cfg.DashboardHandler != nil {
+		SetupDashboardRouter(rg, cfg, cfg.DashboardHandler)
+	}
 }

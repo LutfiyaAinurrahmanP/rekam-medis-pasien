@@ -41,6 +41,7 @@ import (
 	medicalCondition "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/medical-history/medicalCondition"
 	surgicalHistory "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/medical-history/surgicalHistory"
 	medicalhistory "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/medical-history"
+	dashboard "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/dashboard"
 	"gorm.io/gorm"
 )
 
@@ -130,6 +131,7 @@ func main() {
 		SurgicalHistoryHandler:      dependencies.SurgicalHistoryHandler,
 		FamilyHistoryHandler:        dependencies.FamilyHistoryHandler,
 		MedicalHistoryHandler:       dependencies.MedicalHistoryHandler,
+		DashboardHandler:            dependencies.DashboardHandler,
 	})
 
 	// Setup HTTP server
@@ -242,6 +244,11 @@ type Dependencies struct {
 	MedicalHistoryRepository repository.MedicalHistoryRepository
 	MedicalHistoryService    medicalhistory.MedicalHistoryService
 	MedicalHistoryHandler    *handler.MedicalHistoryHandler
+
+	// Dashboard Aggregate Service
+	DashboardRepository repository.DashboardRepository
+	DashboardService    dashboard.DashboardService
+	DashboardHandler    *handler.DashboardHandler
 }
 
 // initDependencies initializes all application dependencies
@@ -271,6 +278,7 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 	familyHistoryRepo := repository.NewFamilyHistoryRepository(db)
 	
 	medicalHistoryRepo := repository.NewMedicalHistoryRepository(db)
+	dashboardRepo := repository.NewDashboardRepository(db)
 
 	// Konversi *RedisClient ke interface RedisStore hanya jika non-nil.
 	// Tanpa ini, passing typed-nil ke parameter interface menghasilkan non-nil
@@ -371,6 +379,7 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 	)
 
 	medicalHistoryService := medicalhistory.NewCachedMedicalHistoryService(medicalhistory.NewMedicalHistoryService(medicalHistoryRepo, cfg), redisClient)
+	dashboardService := dashboard.NewCachedDashboardService(dashboard.NewDashboardService(dashboardRepo), redisClient)
 
 	// Initialize Handlers
 	userHandler := handler.NewUserHandler(userService)
@@ -396,6 +405,7 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 	surgicalHistoryHandler := handler.NewSurgicalHistoryHandler(surgicalHistoryService)
 	familyHistoryHandler := handler.NewFamilyHistoryHandler(familyHistoryService)
 	medicalHistoryHandler := handler.NewMedicalHistoryHandler(medicalHistoryService)
+	dashboardHandler := handler.NewDashboardHandler(dashboardService, doctorRepo, patientRepo)
 
 	return &Dependencies{
 		UserRepository: userRepo,
@@ -485,6 +495,10 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 		MedicalHistoryRepository: medicalHistoryRepo,
 		MedicalHistoryService:    medicalHistoryService,
 		MedicalHistoryHandler:    medicalHistoryHandler,
+
+		DashboardRepository: dashboardRepo,
+		DashboardService:    dashboardService,
+		DashboardHandler:    dashboardHandler,
 	}
 }
 
