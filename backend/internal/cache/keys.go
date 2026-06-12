@@ -585,27 +585,6 @@ func AppointmentDeletedListQueryKey(page, size int, patientID, doctorID, departm
 	)
 }
 
-// ─── Invalidation patterns ─────────────────────────────────────────────────
-
-const (
-	PatternUserAll                 = "user:*"
-	PatternDepartmentAll           = "department:*"
-	PatternPatientAll              = "patient:*"
-	PatternDoctorSpecializationAll = "doctor_specialization:*"
-	PatternDoctorAll               = "doctor:*"
-	PatternRoomTypeAll             = "room_type:*"
-	PatternRoomAll                 = "room:*"
-	PatternTypeTestCategoryAll     = "type_test_category:*"
-	PatternTypeTestAll             = "type_test:*"
-	PatternMedicineTypeAll         = "medicine_type:*"
-	PatternMedicineAll             = "medicine:*"
-	PatternAppointmentAll          = "appointment:*"
-	PatternMedicalRecordAll        = "medical_record:*"
-	PatternHospitalizationAll      = "hospitalization:*"
-	PatternLabTestAll              = "lab_test:*"
-	PatternPrescriptionAll         = "prescription:*"
-	PatternVitalSignAll            = "vital_sign:*"
-)
 
 // ─── Medical Record ────────────────────────────────────────────────────────
 
@@ -782,8 +761,6 @@ func VitalSignDeletedListQueryKey(page, size int, medicalRecordID *uint, sortBy,
 
 // ─── Allergy ───────────────────────────────────────────────────────────────
 
-const PatternAllergyAll = "allergy:*"
-
 func AllergyKey(id uint) string { return fmt.Sprintf("allergy:id:%d", id) }
 
 func AllergyListQueryKey(page, size int, patientID *uint, sortBy, sortDir string) string {
@@ -798,8 +775,6 @@ func AllergyListQueryKey(page, size int, patientID *uint, sortBy, sortDir string
 }
 
 // ─── Medical Condition ─────────────────────────────────────────────────────
-
-const PatternMedicalConditionAll = "medical_condition:*"
 
 func MedicalConditionKey(id uint) string { return fmt.Sprintf("medical_condition:id:%d", id) }
 
@@ -819,8 +794,6 @@ func MedicalConditionListQueryKey(page, size int, patientID *uint, status, sortB
 
 // ─── Surgical History ──────────────────────────────────────────────────────
 
-const PatternSurgicalHistoryAll = "surgical_history:*"
-
 func SurgicalHistoryKey(id uint) string { return fmt.Sprintf("surgical_history:id:%d", id) }
 
 func SurgicalHistoryListQueryKey(page, size int, patientID *uint, sortBy, sortDir string) string {
@@ -836,8 +809,6 @@ func SurgicalHistoryListQueryKey(page, size int, patientID *uint, sortBy, sortDi
 
 // ─── Family History ────────────────────────────────────────────────────────
 
-const PatternFamilyHistoryAll = "family_history:*"
-
 func FamilyHistoryKey(id uint) string { return fmt.Sprintf("family_history:id:%d", id) }
 
 func FamilyHistoryListQueryKey(page, size int, patientID *uint, sortBy, sortDir string) string {
@@ -850,3 +821,51 @@ func FamilyHistoryListQueryKey(page, size int, patientID *uint, sortBy, sortDir 
 		page, size, pid, sortBy, sortDir,
 	)
 }
+
+// ─── Medical Histories ─────────────────────────────────────────────────────
+
+func MedicalHistoriesKey(id uint) string {
+	return fmt.Sprintf("medical_histories:id:%d", id)
+}
+
+func MedicalHistoriesByPatientKey(patientID uint) string {
+	return fmt.Sprintf("medical_histories:patient:%d", patientID)
+}
+
+func MedicalHistoriesListQueryKey(page, size int, patientID *uint, sortBy, sortDir string) string {
+	pID := "all"
+	if patientID != nil {
+		pID = fmt.Sprintf("%d", *patientID)
+	}
+	return fmt.Sprintf(
+		"medical_histories:list:p%d:s%d:pat%s:sb%s:sd%s",
+		page, size, pID, sortBy, sortDir,
+	)
+}
+
+// ─── Invalidation patterns ─────────────────────────────────────────────────
+
+const (
+	PatternUserAll                 = "user:*"
+	PatternDepartmentAll           = "department:*"
+	PatternPatientAll              = "patient:*"
+	PatternDoctorSpecializationAll = "doctor_specialization:*"
+	PatternDoctorAll               = "doctor:*"
+	PatternRoomTypeAll             = "room_type:*"
+	PatternRoomAll                 = "room:*"
+	PatternTypeTestCategoryAll     = "type_test_category:*"
+	PatternTypeTestAll             = "type_test:*"
+	PatternMedicineTypeAll         = "medicine_type:*"
+	PatternMedicineAll             = "medicine:*"
+	PatternAppointmentAll          = "appointment:*"
+	PatternMedicalRecordAll        = "medical_record:*"
+	PatternHospitalizationAll      = "hospitalization:*"
+	PatternLabTestAll              = "lab_test:*"
+	PatternPrescriptionAll         = "prescription:*"
+	PatternVitalSignAll            = "vital_sign:*"
+	PatternFamilyHistoryAll        = "family_history:*"
+	PatternMedicalConditionAll     = "medical_condition:*"
+	PatternSurgicalHistoryAll      = "surgical_history:*"
+	PatternAllergyAll              = "allergy:*"
+	PatternMedicalHistoryAll       = "medical_histories:*"
+)

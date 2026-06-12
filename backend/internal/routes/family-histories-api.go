@@ -8,7 +8,7 @@ import (
 )
 
 func SetupFamilyHistoryRoutes(router *gin.RouterGroup, cfg *RouteConfig, h *handler.FamilyHistoryHandler) {
-	fhGroup := router.Group("/family-histories")
+	fhGroup := router.Group("/medical-history/family-histories")
 	fhGroup.Use(middleware.AuthMiddleware(cfg.Config))
 	{
 		// 1. All Authenticated Routes

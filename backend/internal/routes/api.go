@@ -98,4 +98,8 @@ func SetupAPIRouter(rg *gin.RouterGroup, cfg *RouteConfig) {
 	if cfg.FamilyHistoryHandler != nil {
 		SetupFamilyHistoryRoutes(rg, cfg, cfg.FamilyHistoryHandler)
 	}
+
+	if cfg.MedicalHistoryHandler != nil {
+		SetupMedicalHistoryRoutes(rg, cfg, cfg.MedicalHistoryHandler)
+	}
 }

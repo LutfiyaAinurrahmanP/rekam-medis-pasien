@@ -40,6 +40,7 @@ import (
 	familyHistory "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/medical-history/familyHistory"
 	medicalCondition "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/medical-history/medicalCondition"
 	surgicalHistory "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/medical-history/surgicalHistory"
+	medicalhistory "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/medical-history"
 	"gorm.io/gorm"
 )
 
@@ -128,6 +129,7 @@ func main() {
 		MedicalConditionHandler:     dependencies.MedicalConditionHandler,
 		SurgicalHistoryHandler:      dependencies.SurgicalHistoryHandler,
 		FamilyHistoryHandler:        dependencies.FamilyHistoryHandler,
+		MedicalHistoryHandler:       dependencies.MedicalHistoryHandler,
 	})
 
 	// Setup HTTP server
@@ -235,6 +237,11 @@ type Dependencies struct {
 	MedicalConditionHandler *handler.MedicalConditionHandler
 	SurgicalHistoryHandler  *handler.SurgicalHistoryHandler
 	FamilyHistoryHandler    *handler.FamilyHistoryHandler
+	
+	// Medical History Aggregate Service
+	MedicalHistoryRepository repository.MedicalHistoryRepository
+	MedicalHistoryService    medicalhistory.MedicalHistoryService
+	MedicalHistoryHandler    *handler.MedicalHistoryHandler
 }
 
 // initDependencies initializes all application dependencies
@@ -262,6 +269,8 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 	medicalConditionRepo := repository.NewMedicalConditionRepository(db)
 	surgicalHistoryRepo := repository.NewSurgicalHistoryRepository(db)
 	familyHistoryRepo := repository.NewFamilyHistoryRepository(db)
+	
+	medicalHistoryRepo := repository.NewMedicalHistoryRepository(db)
 
 	// Konversi *RedisClient ke interface RedisStore hanya jika non-nil.
 	// Tanpa ini, passing typed-nil ke parameter interface menghasilkan non-nil
@@ -361,6 +370,8 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 		publisher,
 	)
 
+	medicalHistoryService := medicalhistory.NewCachedMedicalHistoryService(medicalhistory.NewMedicalHistoryService(medicalHistoryRepo, cfg), redisClient)
+
 	// Initialize Handlers
 	userHandler := handler.NewUserHandler(userService)
 	departmentHandler := handler.NewDepartmentHandler(departmentService)
@@ -384,6 +395,7 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 	medicalConditionHandler := handler.NewMedicalConditionHandler(medicalConditionService)
 	surgicalHistoryHandler := handler.NewSurgicalHistoryHandler(surgicalHistoryService)
 	familyHistoryHandler := handler.NewFamilyHistoryHandler(familyHistoryService)
+	medicalHistoryHandler := handler.NewMedicalHistoryHandler(medicalHistoryService)
 
 	return &Dependencies{
 		UserRepository: userRepo,
@@ -469,6 +481,10 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 		FamilyHistoryRepository: familyHistoryRepo,
 		FamilyHistoryService:    familyHistoryService,
 		FamilyHistoryHandler:    familyHistoryHandler,
+
+		MedicalHistoryRepository: medicalHistoryRepo,
+		MedicalHistoryService:    medicalHistoryService,
+		MedicalHistoryHandler:    medicalHistoryHandler,
 	}
 }
 

@@ -8,7 +8,7 @@ import (
 )
 
 func SetupSurgicalHistoryRoutes(router *gin.RouterGroup, cfg *RouteConfig, h *handler.SurgicalHistoryHandler) {
-	shGroup := router.Group("/surgical-histories")
+	shGroup := router.Group("/medical-history/surgeries")
 	shGroup.Use(middleware.AuthMiddleware(cfg.Config))
 	{
 		// 1. All Authenticated Routes

@@ -12,8 +12,8 @@ type Allergy struct {
 	Reaction     string    `gorm:"type:text;not null" json:"reaction"`
 	Severity     string    `gorm:"type:varchar(20);not null" json:"severity"`
 	Notes        string    `gorm:"type:text" json:"notes"`
-	CreatedAt    time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
-	UpdatedAt    time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
+	CreatedAt    time.Time `gorm:"autoCreateTime" json:"created_at"`
+	UpdatedAt    time.Time `gorm:"autoUpdateTime" json:"updated_at"`
 
 	Patient Patient `gorm:"foreignKey:PatientID;references:ID" json:"-"`
 }
@@ -30,8 +30,8 @@ type MedicalCondition struct {
 	DiagnosedDate *time.Time `gorm:"type:date" json:"diagnosed_date"`
 	Status        string     `gorm:"type:varchar(20);default:'ongoing';index" json:"status"`
 	Notes         string     `gorm:"type:text" json:"notes"`
-	CreatedAt     time.Time  `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
-	UpdatedAt     time.Time  `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
+	CreatedAt     time.Time  `gorm:"autoCreateTime" json:"created_at"`
+	UpdatedAt     time.Time  `gorm:"autoUpdateTime" json:"updated_at"`
 
 	Patient Patient `gorm:"foreignKey:PatientID;references:ID" json:"-"`
 }
@@ -49,8 +49,8 @@ type SurgicalHistory struct {
 	Hospital      string    `gorm:"type:varchar(200)" json:"hospital"`
 	Complication  string    `gorm:"type:text" json:"complication"`
 	Notes         string    `gorm:"type:text" json:"notes"`
-	CreatedAt     time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
-	UpdatedAt     time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
+	CreatedAt     time.Time `gorm:"autoCreateTime" json:"created_at"`
+	UpdatedAt     time.Time `gorm:"autoUpdateTime" json:"updated_at"`
 
 	Patient Patient `gorm:"foreignKey:PatientID;references:ID" json:"-"`
 }
@@ -66,8 +66,8 @@ type FamilyHistory struct {
 	ConditionName string    `gorm:"type:varchar(200);not null" json:"condition_name"`
 	Relation      string    `gorm:"type:varchar(100)" json:"relation"`
 	Notes         string    `gorm:"type:text" json:"notes"`
-	CreatedAt     time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
-	UpdatedAt     time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
+	CreatedAt     time.Time `gorm:"autoCreateTime" json:"created_at"`
+	UpdatedAt     time.Time `gorm:"autoUpdateTime" json:"updated_at"`
 
 	Patient Patient `gorm:"foreignKey:PatientID;references:ID" json:"-"`
 }

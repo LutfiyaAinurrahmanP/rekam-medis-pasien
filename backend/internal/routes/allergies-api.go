@@ -8,7 +8,7 @@ import (
 )
 
 func SetupAllergyRoutes(router *gin.RouterGroup, cfg *RouteConfig, h *handler.AllergyHandler) {
-	allergyGroup := router.Group("/allergies")
+	allergyGroup := router.Group("/medical-history/allergies")
 	allergyGroup.Use(middleware.AuthMiddleware(cfg.Config))
 	{
 		// 1. All Authenticated Routes

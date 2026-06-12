@@ -3,7 +3,6 @@ package allergy
 import (
 	"errors"
 	"math"
-	"strings"
 
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/config"
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/dto"
@@ -184,9 +183,4 @@ func (s *allergyService) Delete(id uint) error {
 	return s.repo.Delete(id)
 }
 
-func normalizeCachePart(s string) string {
-	if s == "" {
-		return "all"
-	}
-	return strings.ToLower(s)
-}
+

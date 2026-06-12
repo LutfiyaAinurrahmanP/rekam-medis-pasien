@@ -8,7 +8,7 @@ import (
 )
 
 func SetupMedicalConditionRoutes(router *gin.RouterGroup, cfg *RouteConfig, h *handler.MedicalConditionHandler) {
-	mcGroup := router.Group("/medical-conditions")
+	mcGroup := router.Group("medical-history/conditions")
 	mcGroup.Use(middleware.AuthMiddleware(cfg.Config))
 	{
 		// 1. All Authenticated Routes

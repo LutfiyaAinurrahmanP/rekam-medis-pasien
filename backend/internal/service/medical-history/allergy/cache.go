@@ -3,6 +3,7 @@ package allergy
 import (
 	"context"
 	"log"
+	"strings"
 
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/cache"
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/dto"
@@ -83,9 +84,16 @@ func (s *cachedAllergyService) Delete(id uint) error {
 	return nil
 }
 
-func (s *cachedAllergyService) setCache(key string, value interface{}) {
+func normalizeCachePart(value string) string {
+	if value == "" {
+		return "all"
+	}
+	return strings.ToLower(strings.TrimSpace(value))
+}
+
+func (s *cachedAllergyService) setCache(key string, value any) {
 	if err := s.redis.Set(context.Background(), key, value, 0); err != nil {
-		log.Printf("Failed to set cache for %s: %v", key, err)
+		log.Printf("⚠️  Redis set failed for key %q: %v", key, err)
 	}
 }
 
