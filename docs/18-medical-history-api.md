@@ -38,7 +38,7 @@ Authorization: Bearer <your-jwt-token>
 
 | Endpoint                                    | Patient (Own) | Doctor | Receptionist | Admin | Super Admin |
 | ------------------------------------------- | ------------- | ------ | ------------ | ----- | ----------- |
-| GET /medical-history/allergies/patient/:pid | ✅ (Own)      | ✅     | ✅           | ✅    | ✅          |
+| GET /medical-history/allergies              | ❌            | ✅     | ✅           | ✅    | ✅          |
 | GET /medical-history/allergies/:id          | ✅ (Own)      | ✅     | ✅           | ✅    | ✅          |
 | POST /medical-history/allergies             | ❌            | ✅     | ❌           | ✅    | ✅          |
 | PUT /medical-history/allergies/:id          | ❌            | ✅     | ❌           | ✅    | ✅          |
@@ -48,7 +48,7 @@ Authorization: Bearer <your-jwt-token>
 
 | Endpoint                                     | Patient (Own) | Doctor | Receptionist | Admin | Super Admin |
 | -------------------------------------------- | ------------- | ------ | ------------ | ----- | ----------- |
-| GET /medical-history/conditions/patient/:pid | ✅ (Own)      | ✅     | ✅           | ✅    | ✅          |
+| GET /medical-history/conditions              | ❌            | ✅     | ✅           | ✅    | ✅          |
 | GET /medical-history/conditions/:id          | ✅ (Own)      | ✅     | ✅           | ✅    | ✅          |
 | POST /medical-history/conditions             | ❌            | ✅     | ❌           | ✅    | ✅          |
 | PUT /medical-history/conditions/:id          | ❌            | ✅     | ❌           | ✅    | ✅          |
@@ -58,7 +58,7 @@ Authorization: Bearer <your-jwt-token>
 
 | Endpoint                                    | Patient (Own) | Doctor | Receptionist | Admin | Super Admin |
 | ------------------------------------------- | ------------- | ------ | ------------ | ----- | ----------- |
-| GET /medical-history/surgeries/patient/:pid | ✅ (Own)      | ✅     | ✅           | ✅    | ✅          |
+| GET /medical-history/surgeries              | ❌            | ✅     | ✅           | ✅    | ✅          |
 | GET /medical-history/surgeries/:id          | ✅ (Own)      | ✅     | ✅           | ✅    | ✅          |
 | POST /medical-history/surgeries             | ❌            | ✅     | ❌           | ✅    | ✅          |
 | PUT /medical-history/surgeries/:id          | ❌            | ✅     | ❌           | ✅    | ✅          |
@@ -68,17 +68,19 @@ Authorization: Bearer <your-jwt-token>
 
 | Endpoint                                         | Patient (Own) | Doctor | Receptionist | Admin | Super Admin |
 | ------------------------------------------------ | ------------- | ------ | ------------ | ----- | ----------- |
-| GET /medical-history/family-history/patient/:pid | ✅ (Own)      | ✅     | ✅           | ✅    | ✅          |
-| GET /medical-history/family-history/:id          | ✅ (Own)      | ✅     | ✅           | ✅    | ✅          |
-| POST /medical-history/family-history             | ❌            | ✅     | ✅           | ✅    | ✅          |
-| PUT /medical-history/family-history/:id          | ❌            | ✅     | ✅           | ✅    | ✅          |
-| DELETE /medical-history/family-history/:id       | ❌            | ❌     | ❌           | ✅    | ✅          |
+| GET /medical-history/family-histories              | ❌            | ✅     | ✅           | ✅    | ✅          |
+| GET /medical-history/family-histories/:id          | ✅ (Own)      | ✅     | ✅           | ✅    | ✅          |
+| POST /medical-history/family-histories             | ❌            | ✅     | ✅           | ✅    | ✅          |
+| PUT /medical-history/family-histories/:id          | ❌            | ✅     | ✅           | ✅    | ✅          |
+| DELETE /medical-history/family-histories/:id       | ❌            | ❌     | ❌           | ✅    | ✅          |
 
-### Summary
+### General Medical History
 
 | Endpoint                                         | Patient (Own) | Doctor | Receptionist | Admin | Super Admin |
 | ------------------------------------------------ | ------------- | ------ | ------------ | ----- | ----------- |
-| GET /medical-history/patient/:patient_id/summary | ✅ (Own)      | ✅     | ✅           | ✅    | ✅          |
+| GET /medical-history                             | ❌            | ✅     | ✅           | ✅    | ✅          |
+| GET /medical-history/:id                         | ✅ (Own)      | ✅     | ✅           | ✅    | ✅          |
+| GET /medical-history/patient/:pid                | ✅ (Own)      | ✅     | ✅           | ✅    | ✅          |
 
 ---
 
@@ -86,41 +88,104 @@ Authorization: Bearer <your-jwt-token>
 
 | Method                 | Endpoint                                          | Description                      | Role Required                            |
 | ---------------------- | ------------------------------------------------- | -------------------------------- | ---------------------------------------- |
-| GET                    | `/medical-history/patient/:patient_id/summary`    | Get full medical history summary | All Authenticated (own for patient)      |
-| **Allergies**          |
-| GET                    | `/medical-history/allergies/patient/:patient_id`  | List patient allergies           | All Authenticated (own for patient)      |
+| **Medical History**    |                                                   |                                  |                                          |
+| GET                    | `/medical-history`                                | List all medical histories       | Doctor, Receptionist, Admin, Super Admin |
+| GET                    | `/medical-history/:id`                            | Get medical history by ID        | All Authenticated (own for patient)      |
+| GET                    | `/medical-history/patient/:patient_id`            | Get medical history by patient   | All Authenticated (own for patient)      |
+| **Allergies**          |                                                   |                                  |                                          |
+| GET                    | `/medical-history/allergies`                      | List all allergies               | Doctor, Receptionist, Admin, Super Admin |
 | GET                    | `/medical-history/allergies/:id`                  | Get allergy detail by ID         | All Authenticated (own for patient)      |
 | POST                   | `/medical-history/allergies`                      | Add allergy                      | Doctor, Admin, Super Admin               |
 | PUT                    | `/medical-history/allergies/:id`                  | Update allergy                   | Doctor, Admin, Super Admin               |
 | DELETE                 | `/medical-history/allergies/:id`                  | Delete allergy                   | Admin, Super Admin                       |
-| **Medical Conditions** |
-| GET                    | `/medical-history/conditions/patient/:patient_id` | List patient medical conditions  | All Authenticated (own for patient)      |
+| **Medical Conditions** |                                                   |                                  |                                          |
+| GET                    | `/medical-history/conditions`                     | List all medical conditions      | Doctor, Receptionist, Admin, Super Admin |
 | GET                    | `/medical-history/conditions/:id`                 | Get condition detail by ID       | All Authenticated (own for patient)      |
 | POST                   | `/medical-history/conditions`                     | Add medical condition            | Doctor, Admin, Super Admin               |
 | PUT                    | `/medical-history/conditions/:id`                 | Update medical condition         | Doctor, Admin, Super Admin               |
 | DELETE                 | `/medical-history/conditions/:id`                 | Delete medical condition         | Admin, Super Admin                       |
-| **Surgical History**   |
-| GET                    | `/medical-history/surgeries/patient/:patient_id`  | List patient surgical history    | All Authenticated (own for patient)      |
+| **Surgical History**   |                                                   |                                  |                                          |
+| GET                    | `/medical-history/surgeries`                      | List all surgical histories      | Doctor, Receptionist, Admin, Super Admin |
 | GET                    | `/medical-history/surgeries/:id`                  | Get surgery record by ID         | All Authenticated (own for patient)      |
 | POST                   | `/medical-history/surgeries`                      | Add surgery record               | Doctor, Admin, Super Admin               |
 | PUT                    | `/medical-history/surgeries/:id`                  | Update surgery record            | Doctor, Admin, Super Admin               |
 | DELETE                 | `/medical-history/surgeries/:id`                  | Delete surgery record            | Admin, Super Admin                       |
-| **Family History**     |
-| GET                    | `/medical-history/family-history/patient/:pid`    | List patient family history      | All Authenticated (own for patient)      |
-| GET                    | `/medical-history/family-history/:id`             | Get family history entry by ID   | All Authenticated (own for patient)      |
-| POST                   | `/medical-history/family-history`                 | Add family history entry         | Doctor, Receptionist, Admin, Super Admin |
-| PUT                    | `/medical-history/family-history/:id`             | Update family history entry      | Doctor, Receptionist, Admin, Super Admin |
-| DELETE                 | `/medical-history/family-history/:id`             | Delete family history entry      | Admin, Super Admin                       |
+| **Family History**     |                                                   |                                  |                                          |
+| GET                    | `/medical-history/family-histories`                 | List all family histories        | Doctor, Receptionist, Admin, Super Admin |
+| GET                    | `/medical-history/family-histories/:id`             | Get family history entry by ID   | All Authenticated (own for patient)      |
+| POST                   | `/medical-history/family-histories`                 | Add family history entry         | Doctor, Receptionist, Admin, Super Admin |
+| PUT                    | `/medical-history/family-histories/:id`             | Update family history entry      | Doctor, Receptionist, Admin, Super Admin |
+| DELETE                 | `/medical-history/family-histories/:id`             | Delete family history entry      | Admin, Super Admin                       |
 
 ---
 
-## Summary Endpoint
+## General Medical History Endpoints
 
-### Get Full Medical History Summary
+### 1. List Medical Histories
 
-**Endpoint:** `GET /api/v1/medical-history/patient/:patient_id/summary`
+**Endpoint:** `GET /api/v1/medical-history`
 
-**Description:** Mendapatkan ringkasan lengkap riwayat medis pasien dalam satu respons, mencakup alergi, kondisi kronis, riwayat operasi, dan riwayat penyakit keluarga.
+**Description:** Mendapatkan daftar seluruh riwayat medis (semua pasien, untuk keperluan admin/dokter).
+
+**Authentication:** Required (Doctor, Receptionist, Admin, Super Admin)
+
+**Response Success (200):**
+
+```json
+{
+  "status": "success",
+  "message": "Medical histories retrieved successfully",
+  "data": [
+    {
+      "id": 1,
+      "patient_id": 10,
+      "patient_name": "Budi Santoso",
+      "allergies_count": 1,
+      "conditions_count": 1,
+      "surgeries_count": 1,
+      "family_history_count": 1,
+      "last_updated": "2024-01-15T09:00:00Z"
+    }
+  ]
+}
+```
+
+### 2. Get Medical History by ID
+
+**Endpoint:** `GET /api/v1/medical-history/:id`
+
+**Description:** Mendapatkan detail riwayat medis berdasarkan ID agregat.
+
+**Authentication:** Required (All Authenticated — Patient hanya bisa melihat miliknya sendiri)
+
+**Path Parameters:**
+
+| Parameter | Type    | Required | Description |
+| --------- | ------- | -------- | ----------- |
+| id        | integer | Yes      | ID Medical History |
+
+**Response Success (200):**
+
+```json
+{
+  "status": "success",
+  "message": "Medical history retrieved successfully",
+  "data": {
+    "id": 1,
+    "patient_id": 10,
+    "allergies": [],
+    "medical_conditions": [],
+    "surgical_history": [],
+    "family_history": []
+  }
+}
+```
+
+### 3. Get Medical History by Patient
+
+**Endpoint:** `GET /api/v1/medical-history/patient/:patient_id`
+
+**Description:** Mendapatkan ringkasan riwayat medis untuk satu pasien (menggabungkan data alergi, kondisi medis, operasi, dan riwayat keluarga).
 
 **Authentication:** Required (All Authenticated — Patient hanya bisa melihat miliknya sendiri)
 
@@ -135,14 +200,14 @@ Authorization: Bearer <your-jwt-token>
 ```json
 {
   "status": "success",
-  "message": "Medical history summary retrieved successfully",
+  "message": "Patient medical history retrieved successfully",
   "data": {
     "patient_id": 10,
     "patient_name": "Budi Santoso",
     "allergies": [
       {
         "id": 1,
-        "allergen": "Penisilin",
+        "allergen_name": "Penisilin",
         "allergen_type": "drug",
         "reaction": "Ruam kulit dan sesak napas",
         "severity": "severe",
@@ -164,7 +229,7 @@ Authorization: Bearer <your-jwt-token>
         "id": 1,
         "procedure_name": "Appendektomi",
         "surgery_date": "2015-07-20",
-        "hospital_name": "RS Dr. Soetomo",
+        "hospital": "RS Dr. Soetomo",
         "surgeon_name": "dr. Bima Sutaryo, SpB",
         "notes": "Tanpa komplikasi"
       }
@@ -172,9 +237,8 @@ Authorization: Bearer <your-jwt-token>
     "family_history": [
       {
         "id": 1,
-        "relation": "father",
+        "family_member": "father",
         "condition_name": "Hipertensi",
-        "age_at_diagnosis": 52,
         "notes": "Meninggal karena stroke di usia 68 tahun"
       }
     ]
@@ -185,7 +249,7 @@ Authorization: Bearer <your-jwt-token>
 **cURL Example:**
 
 ```bash
-curl -X GET "http://localhost:8080/api/v1/medical-history/patient/10/summary" \
+curl -X GET "http://localhost:8080/api/v1/medical-history/patient/10" \
   -H "Authorization: Bearer <token>"
 ```
 
@@ -193,26 +257,21 @@ curl -X GET "http://localhost:8080/api/v1/medical-history/patient/10/summary" \
 
 ## Allergy Endpoints
 
-### 1. List Patient Allergies
+### 1. List Allergies
 
-**Endpoint:** `GET /api/v1/medical-history/allergies/patient/:patient_id`
+**Endpoint:** `GET /api/v1/medical-history/allergies`
 
-**Description:** Mendapatkan daftar semua alergi yang dimiliki pasien.
+**Description:** Mendapatkan daftar semua alergi yang tercatat di sistem.
 
-**Authentication:** Required (All Authenticated — Patient hanya bisa melihat miliknya sendiri)
-
-**Path Parameters:**
-
-| Parameter  | Type    | Required | Description |
-| ---------- | ------- | -------- | ----------- |
-| patient_id | integer | Yes      | ID pasien   |
+**Authentication:** Required (Doctor, Receptionist, Admin, Super Admin)
 
 **Query Parameters:**
 
-| Parameter     | Type   | Required | Default | Description                                           |
-| ------------- | ------ | -------- | ------- | ----------------------------------------------------- |
-| allergen_type | string | No       | -       | Filter tipe: `drug`, `food`, `environmental`, `other` |
-| severity      | string | No       | -       | Filter keparahan: `mild`, `moderate`, `severe`        |
+| Parameter | Type | Required | Default | Description |
+| --- | --- | --- | --- | --- |
+| page | integer | No | 1 | Halaman yang ingin diambil |
+| limit | integer | No | 10 | Jumlah data per halaman |
+| patient_id | integer | No | - | Filter berdasarkan ID pasien |
 
 **Response Success (200):**
 
@@ -224,34 +283,22 @@ curl -X GET "http://localhost:8080/api/v1/medical-history/patient/10/summary" \
     {
       "id": 1,
       "patient_id": 10,
-      "allergen": "Penisilin",
+      "allergen_name": "Penisilin",
       "allergen_type": "drug",
       "reaction": "Ruam kulit dan sesak napas",
       "severity": "severe",
       "notes": "Hindari semua golongan Beta-laktam",
       "created_at": "2024-01-15T09:00:00Z",
       "updated_at": "2024-01-15T09:00:00Z"
-    },
-    {
-      "id": 2,
-      "patient_id": 10,
-      "allergen": "Udang",
-      "allergen_type": "food",
-      "reaction": "Gatal-gatal dan biduran",
-      "severity": "moderate",
-      "notes": null,
-      "created_at": "2024-01-15T09:05:00Z",
-      "updated_at": "2024-01-15T09:05:00Z"
     }
-  ]
+  ],
+  "meta": {
+    "page": 1,
+    "limit": 10,
+    "total": 1,
+    "total_pages": 1
+  }
 }
-```
-
-**cURL Example:**
-
-```bash
-curl -X GET "http://localhost:8080/api/v1/medical-history/allergies/patient/10?allergen_type=drug" \
-  -H "Authorization: Bearer <token>"
 ```
 
 ---
@@ -279,7 +326,7 @@ curl -X GET "http://localhost:8080/api/v1/medical-history/allergies/patient/10?a
   "data": {
     "id": 1,
     "patient_id": 10,
-    "allergen": "Penisilin",
+    "allergen_name": "Penisilin",
     "allergen_type": "drug",
     "reaction": "Ruam kulit dan sesak napas",
     "severity": "severe",
@@ -319,7 +366,7 @@ curl -X GET "http://localhost:8080/api/v1/medical-history/allergies/1" \
 | Field         | Type    | Required | Description                                                    |
 | ------------- | ------- | -------- | -------------------------------------------------------------- |
 | patient_id    | integer | Yes      | ID pasien                                                      |
-| allergen      | string  | Yes      | Nama zat/bahan yang menjadi alergen (max 255 karakter)         |
+| allergen_name | string  | Yes      | Nama zat/bahan yang menjadi alergen (max 255 karakter)         |
 | allergen_type | string  | Yes      | Tipe alergen: `drug`, `food`, `environmental`, `other`         |
 | reaction      | string  | Yes      | Deskripsi reaksi alergi yang timbul                            |
 | severity      | string  | Yes      | Tingkat keparahan: `mild`, `moderate`, `severe`                |
@@ -330,7 +377,7 @@ curl -X GET "http://localhost:8080/api/v1/medical-history/allergies/1" \
 ```json
 {
   "patient_id": 10,
-  "allergen": "Penisilin",
+  "allergen_name": "Penisilin",
   "allergen_type": "drug",
   "reaction": "Ruam kulit, biduran, dan sesak napas dalam 30 menit",
   "severity": "severe",
@@ -347,7 +394,7 @@ curl -X GET "http://localhost:8080/api/v1/medical-history/allergies/1" \
   "data": {
     "id": 1,
     "patient_id": 10,
-    "allergen": "Penisilin",
+    "allergen_name": "Penisilin",
     "allergen_type": "drug",
     "reaction": "Ruam kulit, biduran, dan sesak napas dalam 30 menit",
     "severity": "severe",
@@ -366,7 +413,7 @@ curl -X POST "http://localhost:8080/api/v1/medical-history/allergies" \
   -H "Content-Type: application/json" \
   -d '{
     "patient_id": 10,
-    "allergen": "Penisilin",
+    "allergen_name": "Penisilin",
     "allergen_type": "drug",
     "reaction": "Ruam kulit, biduran, dan sesak napas dalam 30 menit",
     "severity": "severe",
@@ -410,7 +457,7 @@ curl -X POST "http://localhost:8080/api/v1/medical-history/allergies" \
   "data": {
     "id": 1,
     "patient_id": 10,
-    "allergen": "Penisilin",
+    "allergen_name": "Penisilin",
     "severity": "severe",
     "notes": "Diperbarui: Hindari semua Beta-laktam dan Karbapenem.",
     "updated_at": "2024-01-20T10:00:00Z"
@@ -466,25 +513,21 @@ curl -X DELETE "http://localhost:8080/api/v1/medical-history/allergies/1" \
 
 ## Medical Condition Endpoints
 
-### 1. List Patient Medical Conditions
+### 1. List Medical Conditions
 
-**Endpoint:** `GET /api/v1/medical-history/conditions/patient/:patient_id`
+**Endpoint:** `GET /api/v1/medical-history/conditions`
 
-**Description:** Mendapatkan daftar kondisi medis/penyakit kronis yang dimiliki pasien.
+**Description:** Mendapatkan daftar semua kondisi medis yang tercatat di sistem.
 
-**Authentication:** Required (All Authenticated — Patient hanya bisa melihat miliknya sendiri)
-
-**Path Parameters:**
-
-| Parameter  | Type    | Required | Description |
-| ---------- | ------- | -------- | ----------- |
-| patient_id | integer | Yes      | ID pasien   |
+**Authentication:** Required (Doctor, Receptionist, Admin, Super Admin)
 
 **Query Parameters:**
 
-| Parameter | Type   | Required | Default | Description                                     |
-| --------- | ------ | -------- | ------- | ----------------------------------------------- |
-| status    | string | No       | -       | Filter status: `ongoing`, `resolved`, `managed` |
+| Parameter | Type | Required | Default | Description |
+| --- | --- | --- | --- | --- |
+| page | integer | No | 1 | Halaman yang ingin diambil |
+| limit | integer | No | 10 | Jumlah data per halaman |
+| patient_id | integer | No | - | Filter berdasarkan ID pasien |
 
 **Response Success (200):**
 
@@ -503,27 +546,15 @@ curl -X DELETE "http://localhost:8080/api/v1/medical-history/allergies/1" \
       "notes": "Terkontrol dengan Metformin 500mg",
       "created_at": "2024-01-15T09:00:00Z",
       "updated_at": "2024-01-15T09:00:00Z"
-    },
-    {
-      "id": 2,
-      "patient_id": 10,
-      "condition_name": "Hipertensi",
-      "icd_code": "I10",
-      "diagnosed_date": "2020-06-01",
-      "status": "managed",
-      "notes": "Terkontrol dengan Amlodipine 5mg",
-      "created_at": "2024-01-15T09:10:00Z",
-      "updated_at": "2024-01-15T09:10:00Z"
     }
-  ]
+  ],
+  "meta": {
+    "page": 1,
+    "limit": 10,
+    "total": 1,
+    "total_pages": 1
+  }
 }
-```
-
-**cURL Example:**
-
-```bash
-curl -X GET "http://localhost:8080/api/v1/medical-history/conditions/patient/10?status=ongoing" \
-  -H "Authorization: Bearer <token>"
 ```
 
 ---
@@ -676,48 +707,48 @@ curl -X PUT "http://localhost:8080/api/v1/medical-history/conditions/1" \
 
 ## Surgical History Endpoints
 
-### 1. List Patient Surgical History
+### 1. List Surgical Histories
 
-**Endpoint:** `GET /api/v1/medical-history/surgeries/patient/:patient_id`
+**Endpoint:** `GET /api/v1/medical-history/surgeries`
 
-**Description:** Mendapatkan daftar riwayat operasi/tindakan medis besar yang pernah dijalani pasien.
+**Description:** Mendapatkan daftar semua riwayat operasi yang tercatat di sistem.
 
-**Authentication:** Required (All Authenticated — Patient hanya bisa melihat miliknya sendiri)
+**Authentication:** Required (Doctor, Receptionist, Admin, Super Admin)
 
-**Path Parameters:**
+**Query Parameters:**
 
-| Parameter  | Type    | Required | Description |
-| ---------- | ------- | -------- | ----------- |
-| patient_id | integer | Yes      | ID pasien   |
+| Parameter | Type | Required | Default | Description |
+| --- | --- | --- | --- | --- |
+| page | integer | No | 1 | Halaman yang ingin diambil |
+| limit | integer | No | 10 | Jumlah data per halaman |
+| patient_id | integer | No | - | Filter berdasarkan ID pasien |
 
 **Response Success (200):**
 
 ```json
 {
   "status": "success",
-  "message": "Surgical history retrieved successfully",
+  "message": "Surgical histories retrieved successfully",
   "data": [
     {
       "id": 1,
       "patient_id": 10,
       "procedure_name": "Appendektomi",
       "surgery_date": "2015-07-20",
-      "hospital_name": "RS Dr. Soetomo Surabaya",
+      "hospital": "RS Dr. Soetomo Surabaya",
       "surgeon_name": "dr. Bima Sutaryo, SpB",
-      "complications": null,
       "notes": "Operasi berjalan lancar, tanpa komplikasi",
       "created_at": "2024-01-15T09:00:00Z",
       "updated_at": "2024-01-15T09:00:00Z"
     }
-  ]
+  ],
+  "meta": {
+    "page": 1,
+    "limit": 10,
+    "total": 1,
+    "total_pages": 1
+  }
 }
-```
-
-**cURL Example:**
-
-```bash
-curl -X GET "http://localhost:8080/api/v1/medical-history/surgeries/patient/10" \
-  -H "Authorization: Bearer <token>"
 ```
 
 ---
@@ -737,9 +768,8 @@ curl -X GET "http://localhost:8080/api/v1/medical-history/surgeries/patient/10" 
 | patient_id     | integer | Yes      | ID pasien                                   |
 | procedure_name | string  | Yes      | Nama prosedur/operasi (max 255 karakter)    |
 | surgery_date   | string  | No       | Tanggal operasi (format: `YYYY-MM-DD`)      |
-| hospital_name  | string  | No       | Nama fasilitas kesehatan tempat operasi     |
+| hospital       | string  | No       | Nama fasilitas kesehatan tempat operasi     |
 | surgeon_name   | string  | No       | Nama dokter/operator yang melakukan operasi |
-| complications  | string  | No       | Komplikasi yang dialami (jika ada)          |
 | notes          | string  | No       | Catatan tambahan                            |
 
 **Example Request Body:**
@@ -749,9 +779,8 @@ curl -X GET "http://localhost:8080/api/v1/medical-history/surgeries/patient/10" 
   "patient_id": 10,
   "procedure_name": "Appendektomi Laparoskopi",
   "surgery_date": "2015-07-20",
-  "hospital_name": "RS Dr. Soetomo Surabaya",
+  "hospital": "RS Dr. Soetomo Surabaya",
   "surgeon_name": "dr. Bima Sutaryo, SpB",
-  "complications": null,
   "notes": "Operasi laparoskopi berjalan lancar, tanpa komplikasi"
 }
 ```
@@ -767,9 +796,8 @@ curl -X GET "http://localhost:8080/api/v1/medical-history/surgeries/patient/10" 
     "patient_id": 10,
     "procedure_name": "Appendektomi Laparoskopi",
     "surgery_date": "2015-07-20",
-    "hospital_name": "RS Dr. Soetomo Surabaya",
+    "hospital": "RS Dr. Soetomo Surabaya",
     "surgeon_name": "dr. Bima Sutaryo, SpB",
-    "complications": null,
     "notes": "Operasi laparoskopi berjalan lancar, tanpa komplikasi",
     "created_at": "2024-01-15T09:00:00Z",
     "updated_at": "2024-01-15T09:00:00Z"
@@ -787,7 +815,7 @@ curl -X POST "http://localhost:8080/api/v1/medical-history/surgeries" \
     "patient_id": 10,
     "procedure_name": "Appendektomi Laparoskopi",
     "surgery_date": "2015-07-20",
-    "hospital_name": "RS Dr. Soetomo Surabaya",
+    "hospital": "RS Dr. Soetomo Surabaya",
     "surgeon_name": "dr. Bima Sutaryo, SpB",
     "notes": "Operasi berjalan lancar"
   }'
@@ -811,7 +839,7 @@ curl -X POST "http://localhost:8080/api/v1/medical-history/surgeries" \
 
 ```json
 {
-  "complications": "Infeksi luka pasca operasi, dirawat selama 3 hari tambahan"
+  "notes": "Infeksi luka pasca operasi, dirawat selama 3 hari tambahan"
 }
 ```
 
@@ -823,7 +851,7 @@ curl -X POST "http://localhost:8080/api/v1/medical-history/surgeries" \
   "message": "Surgical history updated successfully",
   "data": {
     "id": 1,
-    "complications": "Infeksi luka pasca operasi, dirawat selama 3 hari tambahan",
+    "notes": "Infeksi luka pasca operasi, dirawat selama 3 hari tambahan",
     "updated_at": "2024-01-20T10:00:00Z"
   }
 }
@@ -835,7 +863,7 @@ curl -X POST "http://localhost:8080/api/v1/medical-history/surgeries" \
 curl -X PUT "http://localhost:8080/api/v1/medical-history/surgeries/1" \
   -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" \
-  -d '{"complications": "Infeksi luka pasca operasi"}'
+  -d '{"notes": "Infeksi luka pasca operasi"}'
 ```
 
 ---
@@ -865,63 +893,53 @@ curl -X PUT "http://localhost:8080/api/v1/medical-history/surgeries/1" \
 
 ## Family History Endpoints
 
-### 1. List Patient Family History
+### 1. List Family Histories
 
-**Endpoint:** `GET /api/v1/medical-history/family-history/patient/:patient_id`
+**Endpoint:** `GET /api/v1/medical-history/family-histories`
 
-**Description:** Mendapatkan daftar riwayat penyakit keluarga pasien yang berpotensi bersifat herediter.
+**Description:** Mendapatkan daftar semua riwayat penyakit keluarga yang tercatat di sistem.
 
-**Authentication:** Required (All Authenticated — Patient hanya bisa melihat miliknya sendiri)
+**Authentication:** Required (Doctor, Receptionist, Admin, Super Admin)
 
-**Path Parameters:**
+**Query Parameters:**
 
-| Parameter  | Type    | Required | Description |
-| ---------- | ------- | -------- | ----------- |
-| patient_id | integer | Yes      | ID pasien   |
+| Parameter | Type | Required | Default | Description |
+| --- | --- | --- | --- | --- |
+| page | integer | No | 1 | Halaman yang ingin diambil |
+| limit | integer | No | 10 | Jumlah data per halaman |
+| patient_id | integer | No | - | Filter berdasarkan ID pasien |
 
 **Response Success (200):**
 
 ```json
 {
   "status": "success",
-  "message": "Family history retrieved successfully",
+  "message": "Family histories retrieved successfully",
   "data": [
     {
       "id": 1,
       "patient_id": 10,
-      "relation": "father",
+      "family_member": "father",
       "condition_name": "Hipertensi",
-      "age_at_diagnosis": 52,
       "notes": "Meninggal karena stroke di usia 68 tahun",
       "created_at": "2024-01-15T09:00:00Z",
       "updated_at": "2024-01-15T09:00:00Z"
-    },
-    {
-      "id": 2,
-      "patient_id": 10,
-      "relation": "mother",
-      "condition_name": "Diabetes Mellitus",
-      "age_at_diagnosis": 48,
-      "notes": "Masih hidup, terkontrol dengan insulin",
-      "created_at": "2024-01-15T09:05:00Z",
-      "updated_at": "2024-01-15T09:05:00Z"
     }
-  ]
+  ],
+  "meta": {
+    "page": 1,
+    "limit": 10,
+    "total": 1,
+    "total_pages": 1
+  }
 }
-```
-
-**cURL Example:**
-
-```bash
-curl -X GET "http://localhost:8080/api/v1/medical-history/family-history/patient/10" \
-  -H "Authorization: Bearer <token>"
 ```
 
 ---
 
 ### 2. Add Family History Entry
 
-**Endpoint:** `POST /api/v1/medical-history/family-history`
+**Endpoint:** `POST /api/v1/medical-history/family-histories`
 
 **Description:** Menambahkan riwayat penyakit pada anggota keluarga pasien.
 
@@ -932,9 +950,8 @@ curl -X GET "http://localhost:8080/api/v1/medical-history/family-history/patient
 | Field            | Type    | Required | Description                                                                       |
 | ---------------- | ------- | -------- | --------------------------------------------------------------------------------- |
 | patient_id       | integer | Yes      | ID pasien                                                                         |
-| relation         | string  | Yes      | Hubungan keluarga: `father`, `mother`, `sibling`, `grandparent`, `child`, `other` |
+| family_member    | string  | Yes      | Hubungan keluarga: `father`, `mother`, `sibling`, `grandparent`, `child`, `other` |
 | condition_name   | string  | Yes      | Nama penyakit anggota keluarga (max 255 karakter)                                 |
-| age_at_diagnosis | integer | No       | Usia anggota keluarga saat didiagnosis (tahun)                                    |
 | notes            | string  | No       | Catatan tambahan (kondisi saat ini, meninggal, dll.)                              |
 
 **Example Request Body:**
@@ -942,9 +959,8 @@ curl -X GET "http://localhost:8080/api/v1/medical-history/family-history/patient
 ```json
 {
   "patient_id": 10,
-  "relation": "father",
+  "family_member": "father",
   "condition_name": "Hipertensi",
-  "age_at_diagnosis": 52,
   "notes": "Meninggal karena komplikasi stroke di usia 68 tahun"
 }
 ```
@@ -958,9 +974,8 @@ curl -X GET "http://localhost:8080/api/v1/medical-history/family-history/patient
   "data": {
     "id": 1,
     "patient_id": 10,
-    "relation": "father",
+    "family_member": "father",
     "condition_name": "Hipertensi",
-    "age_at_diagnosis": 52,
     "notes": "Meninggal karena komplikasi stroke di usia 68 tahun",
     "created_at": "2024-01-15T09:00:00Z",
     "updated_at": "2024-01-15T09:00:00Z"
@@ -971,14 +986,13 @@ curl -X GET "http://localhost:8080/api/v1/medical-history/family-history/patient
 **cURL Example:**
 
 ```bash
-curl -X POST "http://localhost:8080/api/v1/medical-history/family-history" \
+curl -X POST "http://localhost:8080/api/v1/medical-history/family-histories" \
   -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" \
   -d '{
     "patient_id": 10,
-    "relation": "father",
+    "family_member": "father",
     "condition_name": "Hipertensi",
-    "age_at_diagnosis": 52,
     "notes": "Meninggal karena komplikasi stroke di usia 68 tahun"
   }'
 ```
@@ -987,7 +1001,7 @@ curl -X POST "http://localhost:8080/api/v1/medical-history/family-history" \
 
 ### 3. Update Family History Entry
 
-**Endpoint:** `PUT /api/v1/medical-history/family-history/:id`
+**Endpoint:** `PUT /api/v1/medical-history/family-histories/:id`
 
 **Authentication:** Required (Doctor, Receptionist, Admin, Super Admin)
 
@@ -1022,7 +1036,7 @@ curl -X POST "http://localhost:8080/api/v1/medical-history/family-history" \
 **cURL Example:**
 
 ```bash
-curl -X PUT "http://localhost:8080/api/v1/medical-history/family-history/1" \
+curl -X PUT "http://localhost:8080/api/v1/medical-history/family-histories/1" \
   -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" \
   -d '{"notes": "Meninggal karena stroke usia 68 tahun."}'
@@ -1032,7 +1046,7 @@ curl -X PUT "http://localhost:8080/api/v1/medical-history/family-history/1" \
 
 ### 4. Delete Family History Entry
 
-**Endpoint:** `DELETE /api/v1/medical-history/family-history/:id`
+**Endpoint:** `DELETE /api/v1/medical-history/family-histories/:id`
 
 **Authentication:** Required (Admin, Super Admin)
 
@@ -1063,7 +1077,7 @@ curl -X PUT "http://localhost:8080/api/v1/medical-history/family-history/1" \
   "message": "Validation error",
   "errors": {
     "patient_id": "patient_id is required",
-    "allergen": "allergen is required",
+    "allergen_name": "allergen is required",
     "allergen_type": "allergen_type must be one of: drug, food, environmental, other",
     "severity": "severity must be one of: mild, moderate, severe"
   }
@@ -1201,7 +1215,7 @@ curl -X PUT "http://localhost:8080/api/v1/medical-history/family-history/1" \
 - `managed` — Terkontrol dengan pengobatan
 - `resolved` — Sudah sembuh/tidak aktif
 
-### Family Relation Values
+### Family Member Values
 
 - `father` — Ayah
 - `mother` — Ibu
