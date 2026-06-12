@@ -82,4 +82,20 @@ func SetupAPIRouter(rg *gin.RouterGroup, cfg *RouteConfig) {
 	if cfg.VitalSignHandler != nil {
 		SetupVitalSignRoutes(rg, cfg, cfg.VitalSignHandler)
 	}
+
+	if cfg.AllergyHandler != nil {
+		SetupAllergyRoutes(rg, cfg, cfg.AllergyHandler)
+	}
+
+	if cfg.MedicalConditionHandler != nil {
+		SetupMedicalConditionRoutes(rg, cfg, cfg.MedicalConditionHandler)
+	}
+
+	if cfg.SurgicalHistoryHandler != nil {
+		SetupSurgicalHistoryRoutes(rg, cfg, cfg.SurgicalHistoryHandler)
+	}
+
+	if cfg.FamilyHistoryHandler != nil {
+		SetupFamilyHistoryRoutes(rg, cfg, cfg.FamilyHistoryHandler)
+	}
 }

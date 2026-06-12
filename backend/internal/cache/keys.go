@@ -779,3 +779,74 @@ func VitalSignListQueryKey(page, size int, medicalRecordID *uint, sortBy, sortDi
 func VitalSignDeletedListQueryKey(page, size int, medicalRecordID *uint, sortBy, sortDir string) string {
 	return fmt.Sprintf("vital_sign:deleted:%s", VitalSignListQueryKey(page, size, medicalRecordID, sortBy, sortDir))
 }
+
+// ─── Allergy ───────────────────────────────────────────────────────────────
+
+const PatternAllergyAll = "allergy:*"
+
+func AllergyKey(id uint) string { return fmt.Sprintf("allergy:id:%d", id) }
+
+func AllergyListQueryKey(page, size int, patientID *uint, sortBy, sortDir string) string {
+	pid := "all"
+	if patientID != nil {
+		pid = fmt.Sprintf("%d", *patientID)
+	}
+	return fmt.Sprintf(
+		"allergy:list:p%d:s%d:pid%s:sb%s:sd%s",
+		page, size, pid, sortBy, sortDir,
+	)
+}
+
+// ─── Medical Condition ─────────────────────────────────────────────────────
+
+const PatternMedicalConditionAll = "medical_condition:*"
+
+func MedicalConditionKey(id uint) string { return fmt.Sprintf("medical_condition:id:%d", id) }
+
+func MedicalConditionListQueryKey(page, size int, patientID *uint, status, sortBy, sortDir string) string {
+	pid := "all"
+	if patientID != nil {
+		pid = fmt.Sprintf("%d", *patientID)
+	}
+	if status == "" {
+		status = "all"
+	}
+	return fmt.Sprintf(
+		"medical_condition:list:p%d:s%d:pid%s:st%s:sb%s:sd%s",
+		page, size, pid, status, sortBy, sortDir,
+	)
+}
+
+// ─── Surgical History ──────────────────────────────────────────────────────
+
+const PatternSurgicalHistoryAll = "surgical_history:*"
+
+func SurgicalHistoryKey(id uint) string { return fmt.Sprintf("surgical_history:id:%d", id) }
+
+func SurgicalHistoryListQueryKey(page, size int, patientID *uint, sortBy, sortDir string) string {
+	pid := "all"
+	if patientID != nil {
+		pid = fmt.Sprintf("%d", *patientID)
+	}
+	return fmt.Sprintf(
+		"surgical_history:list:p%d:s%d:pid%s:sb%s:sd%s",
+		page, size, pid, sortBy, sortDir,
+	)
+}
+
+// ─── Family History ────────────────────────────────────────────────────────
+
+const PatternFamilyHistoryAll = "family_history:*"
+
+func FamilyHistoryKey(id uint) string { return fmt.Sprintf("family_history:id:%d", id) }
+
+func FamilyHistoryListQueryKey(page, size int, patientID *uint, sortBy, sortDir string) string {
+	pid := "all"
+	if patientID != nil {
+		pid = fmt.Sprintf("%d", *patientID)
+	}
+	return fmt.Sprintf(
+		"family_history:list:p%d:s%d:pid%s:sb%s:sd%s",
+		page, size, pid, sortBy, sortDir,
+	)
+}

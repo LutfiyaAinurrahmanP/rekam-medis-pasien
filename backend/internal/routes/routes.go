@@ -29,6 +29,10 @@ type RouteConfig struct {
 	LabTestHandler              *handler.LabTestHandler
 	PrescriptionHandler         *handler.PrescriptionHandler
 	VitalSignHandler            *handler.VitalSignHandler
+	AllergyHandler              *handler.AllergyHandler
+	MedicalConditionHandler     *handler.MedicalConditionHandler
+	SurgicalHistoryHandler      *handler.SurgicalHistoryHandler
+	FamilyHistoryHandler        *handler.FamilyHistoryHandler
 }
 
 func SetupRouter(cfg *RouteConfig) *gin.Engine {

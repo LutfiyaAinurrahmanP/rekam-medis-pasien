@@ -1857,3 +1857,184 @@ func NewPrescriptionItemDeletedEvent(id uint, action string) PrescriptionItemDel
 		},
 	}
 }
+
+// ─── Allergy Events ────────────────────────────────────────────────────────
+
+type AllergyPayload struct {
+	ID           uint   `json:"id"`
+	PatientID    uint   `json:"patient_id"`
+	AllergenType string `json:"allergen_type,omitempty"`
+	AllergenName string `json:"allergen_name,omitempty"`
+	Severity     string `json:"severity,omitempty"`
+}
+
+type AllergyCreatedEvent struct {
+	BaseEvent
+	Payload AllergyPayload `json:"payload"`
+}
+
+type AllergyUpdatedEvent struct {
+	BaseEvent
+	Payload AllergyPayload `json:"payload"`
+}
+
+type AllergyDeletedEvent struct {
+	BaseEvent
+	Payload AllergyPayload `json:"payload"`
+}
+
+func NewAllergyCreatedEvent(id, patientID uint, allergenType, allergenName, severity string) AllergyCreatedEvent {
+	return AllergyCreatedEvent{
+		BaseEvent: newBase("allergy.created"),
+		Payload:   AllergyPayload{ID: id, PatientID: patientID, AllergenType: allergenType, AllergenName: allergenName, Severity: severity},
+	}
+}
+
+func NewAllergyUpdatedEvent(id, patientID uint) AllergyUpdatedEvent {
+	return AllergyUpdatedEvent{
+		BaseEvent: newBase("allergy.updated"),
+		Payload:   AllergyPayload{ID: id, PatientID: patientID},
+	}
+}
+
+func NewAllergyDeletedEvent(id uint) AllergyDeletedEvent {
+	return AllergyDeletedEvent{
+		BaseEvent: newBase("allergy.deleted"),
+		Payload:   AllergyPayload{ID: id},
+	}
+}
+
+// ─── Medical Condition Events ──────────────────────────────────────────────
+
+type MedicalConditionPayload struct {
+	ID            uint   `json:"id"`
+	PatientID     uint   `json:"patient_id"`
+	ConditionName string `json:"condition_name,omitempty"`
+	Status        string `json:"status,omitempty"`
+}
+
+type MedicalConditionCreatedEvent struct {
+	BaseEvent
+	Payload MedicalConditionPayload `json:"payload"`
+}
+
+type MedicalConditionUpdatedEvent struct {
+	BaseEvent
+	Payload MedicalConditionPayload `json:"payload"`
+}
+
+type MedicalConditionDeletedEvent struct {
+	BaseEvent
+	Payload MedicalConditionPayload `json:"payload"`
+}
+
+func NewMedicalConditionCreatedEvent(id, patientID uint, conditionName, status string) MedicalConditionCreatedEvent {
+	return MedicalConditionCreatedEvent{
+		BaseEvent: newBase("medical_condition.created"),
+		Payload:   MedicalConditionPayload{ID: id, PatientID: patientID, ConditionName: conditionName, Status: status},
+	}
+}
+
+func NewMedicalConditionUpdatedEvent(id, patientID uint, status string) MedicalConditionUpdatedEvent {
+	return MedicalConditionUpdatedEvent{
+		BaseEvent: newBase("medical_condition.updated"),
+		Payload:   MedicalConditionPayload{ID: id, PatientID: patientID, Status: status},
+	}
+}
+
+func NewMedicalConditionDeletedEvent(id uint) MedicalConditionDeletedEvent {
+	return MedicalConditionDeletedEvent{
+		BaseEvent: newBase("medical_condition.deleted"),
+		Payload:   MedicalConditionPayload{ID: id},
+	}
+}
+
+// ─── Surgical History Events ───────────────────────────────────────────────
+
+type SurgicalHistoryPayload struct {
+	ID            uint   `json:"id"`
+	PatientID     uint   `json:"patient_id"`
+	ProcedureName string `json:"procedure_name,omitempty"`
+	SurgeryDate   string `json:"surgery_date,omitempty"`
+}
+
+type SurgicalHistoryCreatedEvent struct {
+	BaseEvent
+	Payload SurgicalHistoryPayload `json:"payload"`
+}
+
+type SurgicalHistoryUpdatedEvent struct {
+	BaseEvent
+	Payload SurgicalHistoryPayload `json:"payload"`
+}
+
+type SurgicalHistoryDeletedEvent struct {
+	BaseEvent
+	Payload SurgicalHistoryPayload `json:"payload"`
+}
+
+func NewSurgicalHistoryCreatedEvent(id, patientID uint, procedureName, surgeryDate string) SurgicalHistoryCreatedEvent {
+	return SurgicalHistoryCreatedEvent{
+		BaseEvent: newBase("surgical_history.created"),
+		Payload:   SurgicalHistoryPayload{ID: id, PatientID: patientID, ProcedureName: procedureName, SurgeryDate: surgeryDate},
+	}
+}
+
+func NewSurgicalHistoryUpdatedEvent(id, patientID uint) SurgicalHistoryUpdatedEvent {
+	return SurgicalHistoryUpdatedEvent{
+		BaseEvent: newBase("surgical_history.updated"),
+		Payload:   SurgicalHistoryPayload{ID: id, PatientID: patientID},
+	}
+}
+
+func NewSurgicalHistoryDeletedEvent(id uint) SurgicalHistoryDeletedEvent {
+	return SurgicalHistoryDeletedEvent{
+		BaseEvent: newBase("surgical_history.deleted"),
+		Payload:   SurgicalHistoryPayload{ID: id},
+	}
+}
+
+// ─── Family History Events ─────────────────────────────────────────────────
+
+type FamilyHistoryPayload struct {
+	ID            uint   `json:"id"`
+	PatientID     uint   `json:"patient_id"`
+	FamilyMember  string `json:"family_member,omitempty"`
+	ConditionName string `json:"condition_name,omitempty"`
+}
+
+type FamilyHistoryCreatedEvent struct {
+	BaseEvent
+	Payload FamilyHistoryPayload `json:"payload"`
+}
+
+type FamilyHistoryUpdatedEvent struct {
+	BaseEvent
+	Payload FamilyHistoryPayload `json:"payload"`
+}
+
+type FamilyHistoryDeletedEvent struct {
+	BaseEvent
+	Payload FamilyHistoryPayload `json:"payload"`
+}
+
+func NewFamilyHistoryCreatedEvent(id, patientID uint, familyMember, conditionName string) FamilyHistoryCreatedEvent {
+	return FamilyHistoryCreatedEvent{
+		BaseEvent: newBase("family_history.created"),
+		Payload:   FamilyHistoryPayload{ID: id, PatientID: patientID, FamilyMember: familyMember, ConditionName: conditionName},
+	}
+}
+
+func NewFamilyHistoryUpdatedEvent(id, patientID uint) FamilyHistoryUpdatedEvent {
+	return FamilyHistoryUpdatedEvent{
+		BaseEvent: newBase("family_history.updated"),
+		Payload:   FamilyHistoryPayload{ID: id, PatientID: patientID},
+	}
+}
+
+func NewFamilyHistoryDeletedEvent(id uint) FamilyHistoryDeletedEvent {
+	return FamilyHistoryDeletedEvent{
+		BaseEvent: newBase("family_history.deleted"),
+		Payload:   FamilyHistoryPayload{ID: id},
+	}
+}

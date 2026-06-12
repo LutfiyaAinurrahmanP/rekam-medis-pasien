@@ -35,6 +35,11 @@ import (
 	typetestcategorieservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/type-test-category"
 	userservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/user"
 	vitalsignservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/vital-sign"
+
+	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/medical-history/allergy"
+	familyHistory "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/medical-history/familyHistory"
+	medicalCondition "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/medical-history/medicalCondition"
+	surgicalHistory "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/medical-history/surgicalHistory"
 	"gorm.io/gorm"
 )
 
@@ -119,6 +124,10 @@ func main() {
 		LabTestHandler:              dependencies.LabTestHandler,
 		PrescriptionHandler:         dependencies.PrescriptionHandler,
 		VitalSignHandler:            dependencies.VitalSignHandler,
+		AllergyHandler:              dependencies.AllergyHandler,
+		MedicalConditionHandler:     dependencies.MedicalConditionHandler,
+		SurgicalHistoryHandler:      dependencies.SurgicalHistoryHandler,
+		FamilyHistoryHandler:        dependencies.FamilyHistoryHandler,
 	})
 
 	// Setup HTTP server
@@ -208,6 +217,24 @@ type Dependencies struct {
 	LabTestHandler              *handler.LabTestHandler
 	PrescriptionHandler         *handler.PrescriptionHandler
 	VitalSignHandler            *handler.VitalSignHandler
+
+	// Medical History Repositories
+	AllergyRepository          repository.AllergyRepository
+	MedicalConditionRepository repository.MedicalConditionRepository
+	SurgicalHistoryRepository  repository.SurgicalHistoryRepository
+	FamilyHistoryRepository    repository.FamilyHistoryRepository
+
+	// Medical History Services
+	AllergyService          allergy.AllergyService
+	MedicalConditionService medicalCondition.MedicalConditionService
+	SurgicalHistoryService  surgicalHistory.SurgicalHistoryService
+	FamilyHistoryService    familyHistory.FamilyHistoryService
+
+	// Medical History Handlers
+	AllergyHandler          *handler.AllergyHandler
+	MedicalConditionHandler *handler.MedicalConditionHandler
+	SurgicalHistoryHandler  *handler.SurgicalHistoryHandler
+	FamilyHistoryHandler    *handler.FamilyHistoryHandler
 }
 
 // initDependencies initializes all application dependencies
@@ -230,6 +257,11 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 	labTestRepo := repository.NewLabTestRepository(db)
 	prescriptionRepo := repository.NewPrescriptionRepository(db)
 	vitalSignRepo := repository.NewVitalSignRepository(db)
+
+	allergyRepo := repository.NewAllergyRepository(db)
+	medicalConditionRepo := repository.NewMedicalConditionRepository(db)
+	surgicalHistoryRepo := repository.NewSurgicalHistoryRepository(db)
+	familyHistoryRepo := repository.NewFamilyHistoryRepository(db)
 
 	// Konversi *RedisClient ke interface RedisStore hanya jika non-nil.
 	// Tanpa ini, passing typed-nil ke parameter interface menghasilkan non-nil
@@ -312,6 +344,23 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 		publisher,
 	)
 
+	allergyService := allergy.NewEventedAllergyService(
+		allergy.NewCachedAllergyService(allergy.NewAllergyService(allergyRepo, cfg), redisClient),
+		publisher,
+	)
+	medicalConditionService := medicalCondition.NewEventedMedicalConditionService(
+		medicalCondition.NewCachedMedicalConditionService(medicalCondition.NewMedicalConditionService(medicalConditionRepo, cfg), redisClient),
+		publisher,
+	)
+	surgicalHistoryService := surgicalHistory.NewEventedSurgicalHistoryService(
+		surgicalHistory.NewCachedSurgicalHistoryService(surgicalHistory.NewSurgicalHistoryService(surgicalHistoryRepo, cfg), redisClient),
+		publisher,
+	)
+	familyHistoryService := familyHistory.NewEventedFamilyHistoryService(
+		familyHistory.NewCachedFamilyHistoryService(familyHistory.NewFamilyHistoryService(familyHistoryRepo, cfg), redisClient),
+		publisher,
+	)
+
 	// Initialize Handlers
 	userHandler := handler.NewUserHandler(userService)
 	departmentHandler := handler.NewDepartmentHandler(departmentService)
@@ -330,6 +379,11 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 	labTestHandler := handler.NewLabTestHandler(labTestService, doctorRepo)
 	prescriptionHandler := handler.NewPrescriptionHandler(prescriptionService, doctorRepo, patientRepo)
 	vitalSignHandler := handler.NewVitalSignHandler(vitalSignService)
+
+	allergyHandler := handler.NewAllergyHandler(allergyService)
+	medicalConditionHandler := handler.NewMedicalConditionHandler(medicalConditionService)
+	surgicalHistoryHandler := handler.NewSurgicalHistoryHandler(surgicalHistoryService)
+	familyHistoryHandler := handler.NewFamilyHistoryHandler(familyHistoryService)
 
 	return &Dependencies{
 		UserRepository: userRepo,
@@ -399,6 +453,22 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 		VitalSignRepository: vitalSignRepo,
 		VitalSignService:    vitalSignService,
 		VitalSignHandler:    vitalSignHandler,
+
+		AllergyRepository: allergyRepo,
+		AllergyService:    allergyService,
+		AllergyHandler:    allergyHandler,
+
+		MedicalConditionRepository: medicalConditionRepo,
+		MedicalConditionService:    medicalConditionService,
+		MedicalConditionHandler:    medicalConditionHandler,
+
+		SurgicalHistoryRepository: surgicalHistoryRepo,
+		SurgicalHistoryService:    surgicalHistoryService,
+		SurgicalHistoryHandler:    surgicalHistoryHandler,
+
+		FamilyHistoryRepository: familyHistoryRepo,
+		FamilyHistoryService:    familyHistoryService,
+		FamilyHistoryHandler:    familyHistoryHandler,
 	}
 }
 

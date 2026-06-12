@@ -131,6 +131,26 @@ const (
 	TopicVitalSignUpdated  = "vital_sign.updated"
 	TopicVitalSignDeleted  = "vital_sign.deleted"
 	TopicVitalSignRestored = "vital_sign.restored"
+
+	// ── Allergy Topics ─────────────────────────────────────────────────────────
+	TopicAllergyCreated = "allergy.created"
+	TopicAllergyUpdated = "allergy.updated"
+	TopicAllergyDeleted = "allergy.deleted"
+
+	// ── Medical Condition Topics ───────────────────────────────────────────────
+	TopicMedicalConditionCreated = "medical_condition.created"
+	TopicMedicalConditionUpdated = "medical_condition.updated"
+	TopicMedicalConditionDeleted = "medical_condition.deleted"
+
+	// ── Surgical History Topics ────────────────────────────────────────────────
+	TopicSurgicalHistoryCreated = "surgical_history.created"
+	TopicSurgicalHistoryUpdated = "surgical_history.updated"
+	TopicSurgicalHistoryDeleted = "surgical_history.deleted"
+
+	// ── Family History Topics ──────────────────────────────────────────────────
+	TopicFamilyHistoryCreated = "family_history.created"
+	TopicFamilyHistoryUpdated = "family_history.updated"
+	TopicFamilyHistoryDeleted = "family_history.deleted"
 )
 
 // AllTopics mengembalikan semua topic yang perlu dibuat/dipastikan ada di Kafka.
@@ -246,5 +266,21 @@ func AllTopics() []string {
 		TopicVitalSignUpdated,
 		TopicVitalSignDeleted,
 		TopicVitalSignRestored,
+
+		TopicAllergyCreated,
+		TopicAllergyUpdated,
+		TopicAllergyDeleted,
+
+		TopicMedicalConditionCreated,
+		TopicMedicalConditionUpdated,
+		TopicMedicalConditionDeleted,
+
+		TopicSurgicalHistoryCreated,
+		TopicSurgicalHistoryUpdated,
+		TopicSurgicalHistoryDeleted,
+
+		TopicFamilyHistoryCreated,
+		TopicFamilyHistoryUpdated,
+		TopicFamilyHistoryDeleted,
 	}
 }

@@ -47,6 +47,7 @@ type SurgicalHistory struct {
 	SurgeryDate   time.Time `gorm:"type:date;not null;index" json:"surgery_date"`
 	SurgeonName   string    `gorm:"type:varchar(100)" json:"surgeon_name"`
 	Hospital      string    `gorm:"type:varchar(200)" json:"hospital"`
+	Complication  string    `gorm:"type:text" json:"complication"`
 	Notes         string    `gorm:"type:text" json:"notes"`
 	CreatedAt     time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
 	UpdatedAt     time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
@@ -63,6 +64,7 @@ type FamilyHistory struct {
 	PatientID     uint      `gorm:"not null;index" json:"patient_id"`
 	FamilyMember  string    `gorm:"type:varchar(50);not null;index" json:"family_member"`
 	ConditionName string    `gorm:"type:varchar(200);not null" json:"condition_name"`
+	Relation      string    `gorm:"type:varchar(100)" json:"relation"`
 	Notes         string    `gorm:"type:text" json:"notes"`
 	CreatedAt     time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
 	UpdatedAt     time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
