@@ -867,6 +867,45 @@ func DashboardPatientReportKey(period, startDate, endDate string) string {
 	return fmt.Sprintf("dashboard:report:patients:p%s:s%s:e%s", period, startDate, endDate)
 }
 
+// ─── Referral ──────────────────────────────────────────────────────────────
+
+func ReferralKey(id uint) string {
+	return fmt.Sprintf("referral:id:%d", id)
+}
+
+func ReferralListQueryKey(page, size int, patientID, referringDoctorID, referredToDoctorID *uint, referralType, status, priority, search, sortBy, sortDir string) string {
+	pID, rDocID, toDocID := "all", "all", "all"
+	if patientID != nil {
+		pID = fmt.Sprintf("%d", *patientID)
+	}
+	if referringDoctorID != nil {
+		rDocID = fmt.Sprintf("%d", *referringDoctorID)
+	}
+	if referredToDoctorID != nil {
+		toDocID = fmt.Sprintf("%d", *referredToDoctorID)
+	}
+	if status == "" {
+		status = "all"
+	}
+	if priority == "" {
+		priority = "all"
+	}
+	if referralType == "" {
+		referralType = "all"
+	}
+	if search == "" {
+		search = "none"
+	}
+	return fmt.Sprintf(
+		"referral:list:p%d:s%d:pat%s:rdoc%s:todoc%s:type%s:st%s:pri%s:q%s:sb%s:sd%s",
+		page, size, pID, rDocID, toDocID, referralType, status, priority, search, sortBy, sortDir,
+	)
+}
+
+func ReferralDeletedListQueryKey(page, size int, patientID, referringDoctorID, referredToDoctorID *uint, referralType, status, priority, search, sortBy, sortDir string) string {
+	return fmt.Sprintf("referral:deleted:%s", ReferralListQueryKey(page, size, patientID, referringDoctorID, referredToDoctorID, referralType, status, priority, search, sortBy, sortDir))
+}
+
 // ─── Medical Histories ─────────────────────────────────────────────────────
 
 func MedicalHistoriesKey(id uint) string {
@@ -912,6 +951,7 @@ const (
 	PatternMedicalConditionAll     = "medical_condition:*"
 	PatternSurgicalHistoryAll      = "surgical_history:*"
 	PatternAllergyAll              = "allergy:*"
+	PatternReferralAll             = "referral:*"
 	PatternMedicalHistoryAll       = "medical_histories:*"
 	PatternDashboardAll            = "dashboard:*"
 )

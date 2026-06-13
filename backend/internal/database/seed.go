@@ -172,6 +172,11 @@ func SeedDatabaseWithCount(db *gorm.DB, count int) error {
 		return err
 	}
 
+	if err := SeedReferrals(tx); err != nil {
+		tx.Rollback()
+		return err
+	}
+
 	if err := SeedHospitalizations(tx); err != nil {
 		tx.Rollback()
 		return err

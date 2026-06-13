@@ -34,6 +34,7 @@ type RouteConfig struct {
 	SurgicalHistoryHandler      *handler.SurgicalHistoryHandler
 	FamilyHistoryHandler        *handler.FamilyHistoryHandler
 	MedicalHistoryHandler       *handler.MedicalHistoryHandler
+	ReferralHandler             *handler.ReferralHandler
 	DashboardHandler            *handler.DashboardHandler
 }
 

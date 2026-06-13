@@ -151,6 +151,16 @@ const (
 	TopicFamilyHistoryCreated = "family_history.created"
 	TopicFamilyHistoryUpdated = "family_history.updated"
 	TopicFamilyHistoryDeleted = "family_history.deleted"
+
+	// ── Referral Topics ────────────────────────────────────────────────────────
+	TopicReferralCreated   = "referral.created"
+	TopicReferralUpdated   = "referral.updated"
+	TopicReferralDeleted   = "referral.deleted"
+	TopicReferralRestored  = "referral.restored"
+	TopicReferralAccepted  = "referral.accepted"
+	TopicReferralRejected  = "referral.rejected"
+	TopicReferralCompleted = "referral.completed"
+	TopicReferralCancelled = "referral.cancelled"
 )
 
 // AllTopics mengembalikan semua topic yang perlu dibuat/dipastikan ada di Kafka.
@@ -282,5 +292,14 @@ func AllTopics() []string {
 		TopicFamilyHistoryCreated,
 		TopicFamilyHistoryUpdated,
 		TopicFamilyHistoryDeleted,
+
+		TopicReferralCreated,
+		TopicReferralUpdated,
+		TopicReferralDeleted,
+		TopicReferralRestored,
+		TopicReferralAccepted,
+		TopicReferralRejected,
+		TopicReferralCompleted,
+		TopicReferralCancelled,
 	}
 }

@@ -106,6 +106,14 @@ var notificationTopics = []string{
 	kafka.TopicVitalSignUpdated,
 	kafka.TopicVitalSignDeleted,
 	kafka.TopicVitalSignRestored,
+	kafka.TopicReferralCreated,
+	kafka.TopicReferralUpdated,
+	kafka.TopicReferralDeleted,
+	kafka.TopicReferralRestored,
+	kafka.TopicReferralAccepted,
+	kafka.TopicReferralRejected,
+	kafka.TopicReferralCompleted,
+	kafka.TopicReferralCancelled,
 }
 
 // NewNotificationEventHandler membuat notification handler baru.
@@ -791,6 +799,64 @@ func (h *NotificationEventHandler) handle(ctx context.Context, topic string, key
 			return err
 		}
 		log.Printf("[NOTIFICATION] ♻️  Vital sign restored: ID=%d", e.Payload.ID)
+
+	// ── Referral Events ────────────────────────────────────────────────────────
+
+	case kafka.TopicReferralCreated:
+		var e events.ReferralCreatedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 📨 New referral created: ID=%d, Number=%s, PatientID=%d", e.Payload.ID, e.Payload.ReferralNumber, e.Payload.PatientID)
+
+	case kafka.TopicReferralUpdated:
+		var e events.ReferralUpdatedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 📨 Referral updated: ID=%d, Number=%s", e.Payload.ID, e.Payload.ReferralNumber)
+
+	case kafka.TopicReferralDeleted:
+		var e events.ReferralDeletedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🗑️  Referral deleted: ID=%d, Action=%s", e.Payload.ID, e.Payload.Action)
+
+	case kafka.TopicReferralRestored:
+		var e events.ReferralRestoredEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] ♻️  Referral restored: ID=%d", e.Payload.ID)
+
+	case kafka.TopicReferralAccepted:
+		var e events.ReferralStatusChangedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] ✅ Referral accepted: ID=%d", e.Payload.ID)
+
+	case kafka.TopicReferralRejected:
+		var e events.ReferralStatusChangedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] ❌ Referral rejected: ID=%d", e.Payload.ID)
+
+	case kafka.TopicReferralCompleted:
+		var e events.ReferralStatusChangedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🏁 Referral completed: ID=%d", e.Payload.ID)
+
+	case kafka.TopicReferralCancelled:
+		var e events.ReferralStatusChangedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🚫 Referral cancelled: ID=%d", e.Payload.ID)
 
 	default:
 		log.Printf("[NOTIFICATION] ⚠️  Received unsupported topic: %s", topic)

@@ -2038,3 +2038,102 @@ func NewFamilyHistoryDeletedEvent(id uint) FamilyHistoryDeletedEvent {
 		Payload:   FamilyHistoryPayload{ID: id},
 	}
 }
+
+// ─── Referral Events ───────────────────────────────────────────────────────
+
+type ReferralPayload struct {
+	ID                 uint   `json:"id"`
+	PatientID          uint   `json:"patient_id,omitempty"`
+	ReferringDoctorID  uint   `json:"referring_doctor_id,omitempty"`
+	ReferredToDoctorID *uint  `json:"referred_to_doctor_id,omitempty"`
+	ReferralNumber     string `json:"referral_number,omitempty"`
+	Status             string `json:"status,omitempty"`
+	Action             string `json:"action,omitempty"`
+}
+
+type ReferralCreatedEvent struct {
+	BaseEvent
+	Payload ReferralPayload `json:"payload"`
+}
+
+type ReferralUpdatedEvent struct {
+	BaseEvent
+	Payload ReferralPayload `json:"payload"`
+}
+
+type ReferralDeletedEvent struct {
+	BaseEvent
+	Payload ReferralPayload `json:"payload"`
+}
+
+type ReferralRestoredEvent struct {
+	BaseEvent
+	Payload ReferralPayload `json:"payload"`
+}
+
+type ReferralStatusChangedEvent struct {
+	BaseEvent
+	Payload ReferralPayload `json:"payload"`
+}
+
+func NewReferralCreatedEvent(id, patientID, referringDoctorID uint, refToDocID *uint, referralNumber, status string) ReferralCreatedEvent {
+	return ReferralCreatedEvent{
+		BaseEvent: newBase("referral.created"),
+		Payload: ReferralPayload{
+			ID:                 id,
+			PatientID:          patientID,
+			ReferringDoctorID:  referringDoctorID,
+			ReferredToDoctorID: refToDocID,
+			ReferralNumber:     referralNumber,
+			Status:             status,
+			Action:             "create",
+		},
+	}
+}
+
+func NewReferralUpdatedEvent(id, patientID, referringDoctorID uint, refToDocID *uint, referralNumber, status string) ReferralUpdatedEvent {
+	return ReferralUpdatedEvent{
+		BaseEvent: newBase("referral.updated"),
+		Payload: ReferralPayload{
+			ID:                 id,
+			PatientID:          patientID,
+			ReferringDoctorID:  referringDoctorID,
+			ReferredToDoctorID: refToDocID,
+			ReferralNumber:     referralNumber,
+			Status:             status,
+			Action:             "update",
+		},
+	}
+}
+
+func NewReferralDeletedEvent(id uint, action string) ReferralDeletedEvent {
+	return ReferralDeletedEvent{
+		BaseEvent: newBase("referral.deleted"),
+		Payload: ReferralPayload{
+			ID:     id,
+			Action: action,
+		},
+	}
+}
+
+func NewReferralRestoredEvent(id uint) ReferralRestoredEvent {
+	return ReferralRestoredEvent{
+		BaseEvent: newBase("referral.restored"),
+		Payload: ReferralPayload{
+			ID:     id,
+			Action: "restore",
+		},
+	}
+}
+
+func NewReferralStatusChangedEvent(eventName, status string, id, patientID uint) ReferralStatusChangedEvent {
+	return ReferralStatusChangedEvent{
+		BaseEvent: newBase(eventName),
+		Payload: ReferralPayload{
+			ID:        id,
+			PatientID: patientID,
+			Status:    status,
+			Action:    status,
+		},
+	}
+}
