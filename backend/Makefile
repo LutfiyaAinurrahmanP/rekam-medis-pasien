@@ -155,6 +155,9 @@ test-billing: ## Run billing API tests with Jest-like output
 		bash ./scripts/test-runner.sh -Path "./tests/..." -Filter "^(Test.*Billing.*)"; \
 	fi
 
+test-integration: ## Run all integration tests
+	go test -v ./tests/integration/...
+
 # ============================================================================
 # UNIT TEST COMMANDS (NEW - Comprehensive Unit Testing)
 # ============================================================================
