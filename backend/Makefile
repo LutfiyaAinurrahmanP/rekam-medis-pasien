@@ -120,6 +120,13 @@ test-prescriptions: ## Run prescription API tests with Jest-like output
 		bash ./scripts/test-runner.sh -Path "./tests/..." -Filter "^(Test.*Prescription.*)"; \
 	fi
 
+test-vital-signs: ## Run vital signs API tests with Jest-like output
+	@if command -v powershell >/dev/null 2>&1; then \
+		powershell -File scripts/test-runner.ps1 -Path "./tests/..." -Filter "^(Test.*VitalSign.*)"; \
+	else \
+		bash ./scripts/test-runner.sh -Path "./tests/..." -Filter "^(Test.*VitalSign.*)"; \
+	fi
+
 # ============================================================================
 # UNIT TEST COMMANDS (NEW - Comprehensive Unit Testing)
 # ============================================================================
