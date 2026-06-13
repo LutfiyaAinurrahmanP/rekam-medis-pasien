@@ -858,6 +858,50 @@ func (h *NotificationEventHandler) handle(ctx context.Context, topic string, key
 		}
 		log.Printf("[NOTIFICATION] 🚫 Referral cancelled: ID=%d", e.Payload.ID)
 
+	// ── Billing Events ─────────────────────────────────────────────────────────
+
+	case kafka.TopicBillingCreated:
+		var e events.BillingCreatedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 💵 New billing created: ID=%d, Invoice=%s", e.Payload.ID, e.Payload.InvoiceNumber)
+
+	case kafka.TopicBillingUpdated:
+		var e events.BillingUpdatedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 💵 Billing updated: ID=%d, Invoice=%s", e.Payload.ID, e.Payload.InvoiceNumber)
+
+	case kafka.TopicBillingDeleted:
+		var e events.BillingDeletedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🗑️  Billing deleted: ID=%d, Action=%s", e.Payload.ID, e.Payload.Action)
+
+	case kafka.TopicBillingRestored:
+		var e events.BillingRestoredEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] ♻️  Billing restored: ID=%d", e.Payload.ID)
+
+	case kafka.TopicBillingPaid:
+		var e events.BillingStatusChangedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] ✅ Billing paid: ID=%d, Invoice=%s, AmountPaid=%.2f", e.Payload.ID, e.Payload.InvoiceNumber, e.Payload.PaidAmount)
+
+	case kafka.TopicBillingCancelled:
+		var e events.BillingStatusChangedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🚫 Billing cancelled: ID=%d, Invoice=%s", e.Payload.ID, e.Payload.InvoiceNumber)
+
 	default:
 		log.Printf("[NOTIFICATION] ⚠️  Received unsupported topic: %s", topic)
 	}

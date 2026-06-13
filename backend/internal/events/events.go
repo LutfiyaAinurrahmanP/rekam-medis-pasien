@@ -2137,3 +2137,103 @@ func NewReferralStatusChangedEvent(eventName, status string, id, patientID uint)
 		},
 	}
 }
+
+// ─── Billing Events ────────────────────────────────────────────────────────
+
+type BillingPayload struct {
+	ID             uint    `json:"id"`
+	PatientID      uint    `json:"patient_id"`
+	InvoiceNumber  string  `json:"invoice_number"`
+	TotalAmount    float64 `json:"total_amount"`
+	PaidAmount     float64 `json:"paid_amount"`
+	PaymentStatus  string  `json:"payment_status"`
+	Action         string  `json:"action,omitempty"`
+}
+
+type BillingCreatedEvent struct {
+	BaseEvent
+	Payload BillingPayload `json:"payload"`
+}
+
+type BillingUpdatedEvent struct {
+	BaseEvent
+	Payload BillingPayload `json:"payload"`
+}
+
+type BillingDeletedEvent struct {
+	BaseEvent
+	Payload BillingPayload `json:"payload"`
+}
+
+type BillingRestoredEvent struct {
+	BaseEvent
+	Payload BillingPayload `json:"payload"`
+}
+
+type BillingStatusChangedEvent struct {
+	BaseEvent
+	Payload BillingPayload `json:"payload"`
+}
+
+func NewBillingCreatedEvent(id, patientID uint, invoiceNumber string, totalAmount float64) BillingCreatedEvent {
+	return BillingCreatedEvent{
+		BaseEvent: newBase("billing.created"),
+		Payload: BillingPayload{
+			ID:            id,
+			PatientID:     patientID,
+			InvoiceNumber: invoiceNumber,
+			TotalAmount:   totalAmount,
+			PaymentStatus: "unpaid",
+			Action:        "create",
+		},
+	}
+}
+
+func NewBillingUpdatedEvent(id, patientID uint, invoiceNumber, status string, totalAmount, paidAmount float64) BillingUpdatedEvent {
+	return BillingUpdatedEvent{
+		BaseEvent: newBase("billing.updated"),
+		Payload: BillingPayload{
+			ID:            id,
+			PatientID:     patientID,
+			InvoiceNumber: invoiceNumber,
+			TotalAmount:   totalAmount,
+			PaidAmount:    paidAmount,
+			PaymentStatus: status,
+			Action:        "update",
+		},
+	}
+}
+
+func NewBillingDeletedEvent(id uint, action string) BillingDeletedEvent {
+	return BillingDeletedEvent{
+		BaseEvent: newBase("billing.deleted"),
+		Payload: BillingPayload{
+			ID:     id,
+			Action: action,
+		},
+	}
+}
+
+func NewBillingRestoredEvent(id uint) BillingRestoredEvent {
+	return BillingRestoredEvent{
+		BaseEvent: newBase("billing.restored"),
+		Payload: BillingPayload{
+			ID:     id,
+			Action: "restore",
+		},
+	}
+}
+
+func NewBillingStatusChangedEvent(eventName, status string, id, patientID uint, invoiceNumber string, paidAmount float64) BillingStatusChangedEvent {
+	return BillingStatusChangedEvent{
+		BaseEvent: newBase(eventName),
+		Payload: BillingPayload{
+			ID:            id,
+			PatientID:     patientID,
+			InvoiceNumber: invoiceNumber,
+			PaidAmount:    paidAmount,
+			PaymentStatus: status,
+			Action:        status,
+		},
+	}
+}

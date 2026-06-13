@@ -161,6 +161,15 @@ const (
 	TopicReferralRejected  = "referral.rejected"
 	TopicReferralCompleted = "referral.completed"
 	TopicReferralCancelled = "referral.cancelled"
+
+	// ── Billing Topics ─────────────────────────────────────────────────────────
+	TopicBillingCreated   = "billing.created"
+	TopicBillingUpdated   = "billing.updated"
+	TopicBillingDeleted   = "billing.deleted"
+	TopicBillingRestored  = "billing.restored"
+	TopicBillingPaid      = "billing.paid"
+	TopicBillingCancelled = "billing.cancelled"
+
 )
 
 // AllTopics mengembalikan semua topic yang perlu dibuat/dipastikan ada di Kafka.

@@ -43,6 +43,7 @@ import (
 	surgicalHistory "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/medical-history/surgicalHistory"
 	medicalhistory "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/medical-history"
 	dashboard "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/dashboard"
+	billing "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/billing"
 	"gorm.io/gorm"
 )
 
@@ -133,6 +134,7 @@ func main() {
 		FamilyHistoryHandler:        dependencies.FamilyHistoryHandler,
 		MedicalHistoryHandler:       dependencies.MedicalHistoryHandler,
 		DashboardHandler:            dependencies.DashboardHandler,
+		BillingHandler:              dependencies.BillingHandler,
 	})
 
 	// Setup HTTP server
@@ -254,6 +256,10 @@ type Dependencies struct {
 	ReferralRepository repository.ReferralRepository
 	ReferralService    referral.ReferralService
 	ReferralHandler    *handler.ReferralHandler
+
+	BillingRepository repository.BillingRepository
+	BillingService    billing.BillingService
+	BillingHandler    *handler.BillingHandler
 }
 
 // initDependencies initializes all application dependencies
@@ -285,6 +291,7 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 	medicalHistoryRepo := repository.NewMedicalHistoryRepository(db)
 	dashboardRepo := repository.NewDashboardRepository(db)
 	referralRepo := repository.NewReferralRepository(db)
+	billingRepo := repository.NewBillingRepository(db)
 
 	// Konversi *RedisClient ke interface RedisStore hanya jika non-nil.
 	// Tanpa ini, passing typed-nil ke parameter interface menghasilkan non-nil
@@ -390,6 +397,10 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 		referral.NewCachedReferralService(referral.NewReferralService(referralRepo), redisClient),
 		publisher,
 	)
+	billingService := billing.NewEventBillingService(
+		billing.NewCachedBillingService(billing.NewBillingService(billingRepo), redisClient),
+		publisher,
+	)
 
 	// Initialize Handlers
 	userHandler := handler.NewUserHandler(userService)
@@ -417,6 +428,7 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 	medicalHistoryHandler := handler.NewMedicalHistoryHandler(medicalHistoryService)
 	dashboardHandler := handler.NewDashboardHandler(dashboardService, doctorRepo, patientRepo)
 	referralHandler := handler.NewReferralHandler(referralService)
+	billingHandler := handler.NewBillingHandler(billingService)
 
 	return &Dependencies{
 		UserRepository: userRepo,
@@ -514,6 +526,10 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 		ReferralRepository: referralRepo,
 		ReferralService:    referralService,
 		ReferralHandler:    referralHandler,
+
+		BillingRepository: billingRepo,
+		BillingService:    billingService,
+		BillingHandler:    billingHandler,
 	}
 }
 

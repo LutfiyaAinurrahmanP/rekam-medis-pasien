@@ -192,6 +192,11 @@ func SeedDatabaseWithCount(db *gorm.DB, count int) error {
 		return err
 	}
 
+	if err := SeedBilling(tx); err != nil {
+		tx.Rollback()
+		return err
+	}
+
 	if err := tx.Commit().Error; err != nil {
 		return fmt.Errorf("failed to commit seed transaction: %w", err)
 	}
@@ -203,6 +208,12 @@ func SeedDatabaseWithCount(db *gorm.DB, count int) error {
 func resetSeedData(tx *gorm.DB) error {
 	session := tx.Session(&gorm.Session{AllowGlobalUpdate: true})
 
+	if err := session.Unscoped().Delete(&models.BillingItem{}).Error; err != nil {
+		return fmt.Errorf("failed to clear billing items: %w", err)
+	}
+	if err := session.Unscoped().Delete(&models.Billing{}).Error; err != nil {
+		return fmt.Errorf("failed to clear billings: %w", err)
+	}
 	if err := session.Unscoped().Delete(&models.PrescriptionItem{}).Error; err != nil {
 		return fmt.Errorf("failed to clear prescription items: %w", err)
 	}

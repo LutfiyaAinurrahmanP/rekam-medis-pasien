@@ -36,6 +36,7 @@ type RouteConfig struct {
 	MedicalHistoryHandler       *handler.MedicalHistoryHandler
 	ReferralHandler             *handler.ReferralHandler
 	DashboardHandler            *handler.DashboardHandler
+	BillingHandler              *handler.BillingHandler
 }
 
 func SetupRouter(cfg *RouteConfig) *gin.Engine {

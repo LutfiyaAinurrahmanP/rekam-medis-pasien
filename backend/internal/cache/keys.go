@@ -927,6 +927,30 @@ func MedicalHistoriesListQueryKey(page, size int, patientID *uint, sortBy, sortD
 	)
 }
 
+// ─── Billing ───────────────────────────────────────────────────────────────
+
+func BillingKey(id uint) string { return fmt.Sprintf("billing:id:%d", id) }
+func BillingListQueryKey(page, size int, patientID *uint, payStatus, payMethod, search, sortBy, sortDir string) string {
+	var pid string
+	if patientID != nil {
+		pid = fmt.Sprintf("%d", *patientID)
+	}
+	return fmt.Sprintf(
+		"billing:list:query:p%d:s%d:pid%s:ps%s:pm%s:sch%s:sb%s:sd%s",
+		page, size, pid, payStatus, payMethod, search, sortBy, sortDir,
+	)
+}
+func BillingDeletedListQueryKey(page, size int, patientID *uint, payStatus, payMethod, search, sortBy, sortDir string) string {
+	var pid string
+	if patientID != nil {
+		pid = fmt.Sprintf("%d", *patientID)
+	}
+	return fmt.Sprintf(
+		"billing:deleted:list:query:p%d:s%d:pid%s:ps%s:pm%s:sch%s:sb%s:sd%s",
+		page, size, pid, payStatus, payMethod, search, sortBy, sortDir,
+	)
+}
+
 // ─── Invalidation patterns ─────────────────────────────────────────────────
 
 const (
@@ -952,6 +976,7 @@ const (
 	PatternSurgicalHistoryAll      = "surgical_history:*"
 	PatternAllergyAll              = "allergy:*"
 	PatternReferralAll             = "referral:*"
+	PatternBillingAll              = "billing:*"
 	PatternMedicalHistoryAll       = "medical_histories:*"
 	PatternDashboardAll            = "dashboard:*"
 )

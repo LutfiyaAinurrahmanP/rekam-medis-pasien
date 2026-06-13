@@ -110,4 +110,8 @@ func SetupAPIRouter(rg *gin.RouterGroup, cfg *RouteConfig) {
 	if cfg.DashboardHandler != nil {
 		SetupDashboardRouter(rg, cfg, cfg.DashboardHandler)
 	}
+
+	if cfg.BillingHandler != nil {
+		SetupBillingRoutes(rg, cfg, cfg.BillingHandler)
+	}
 }
