@@ -28,6 +28,7 @@ func SetupTestDatabase() *gorm.DB {
 		&models.Billing{},
 		&models.BillingItem{},
 		&models.Department{},
+		&models.DoctorSpecialization{},
 	)
 	if err != nil {
 		panic("Failed to migrate test database: " + err.Error())
