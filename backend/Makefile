@@ -73,9 +73,9 @@ test-rooms: ## Run room API tests with Jest-like output
 
 test-type-tests: ## Run type test API tests with Jest-like output
 	@if command -v powershell >/dev/null 2>&1; then \
-		powershell -File scripts/test-runner.ps1 -Path "./tests" -Filter "^Test.*TypeTest"; \
+		powershell -File scripts/test-runner.ps1 -Path "./tests/..." -Filter "^(Test.*TypeTest.*|Test.*TypeTestCategory.*)"; \
 	else \
-		bash ./scripts/test-runner.sh -Path "./tests" -Filter "^Test.*TypeTest"; \
+		bash ./scripts/test-runner.sh -Path "./tests/..." -Filter "^(Test.*TypeTest.*|Test.*TypeTestCategory.*)"; \
 	fi
 
 # ============================================================================
