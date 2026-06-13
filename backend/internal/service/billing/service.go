@@ -44,7 +44,8 @@ func NewBillingService(repo repository.BillingRepository) BillingService {
 }
 
 func mapToResponse(billing *models.Billing) *dto.BillingResponse {
-	if billing == nullOrEmpty(billing) {
+	billing = nullOrEmpty(billing)
+	if billing == nil {
 		return nil
 	}
 	resp := &dto.BillingResponse{
