@@ -21,7 +21,12 @@ func SetupTestDatabase() *gorm.DB {
 	// Migrate schemas
 	err = db.AutoMigrate(
 		&models.User{},
-		// Add other models here if needed by other integration tests
+		&models.Patient{},
+		&models.Doctor{},
+		&models.MedicalRecord{},
+		&models.Hospitalization{},
+		&models.Billing{},
+		&models.BillingItem{},
 	)
 	if err != nil {
 		panic("Failed to migrate test database: " + err.Error())
