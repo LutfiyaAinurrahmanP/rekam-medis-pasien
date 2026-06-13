@@ -156,7 +156,11 @@ test-billing: ## Run billing API tests with Jest-like output
 	fi
 
 test-integration: ## Run all integration tests
-	go test -v ./tests/integration/...
+	@if command -v powershell >/dev/null 2>&1; then \
+		powershell -File scripts/test-runner.ps1 -Path "./tests/integration/..." -Filter ""; \
+	else \
+		bash ./scripts/test-runner.sh -Path "./tests/integration/..." -Filter ""; \
+	fi
 
 # ============================================================================
 # UNIT TEST COMMANDS (NEW - Comprehensive Unit Testing)
@@ -164,7 +168,11 @@ test-integration: ## Run all integration tests
 
 test-unit: ## Run all unit tests (handler, service, repository)
 	@echo "Running all unit tests..."
-	@go test ./tests/unit/... --count=1
+	@if command -v powershell >/dev/null 2>&1; then \
+		powershell -File scripts/test-runner.ps1 -Path "./tests/unit/..." -Filter ""; \
+	else \
+		bash ./scripts/test-runner.sh -Path "./tests/unit/..." -Filter ""; \
+	fi
 
 test-unit-handler: ## Run only handler layer unit tests
 	@echo "Running handler unit tests..."
