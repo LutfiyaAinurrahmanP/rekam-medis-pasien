@@ -92,6 +92,13 @@ test-appointments: ## Run appointment API tests with Jest-like output
 		bash ./scripts/test-runner.sh -Path "./tests/..." -Filter "^(Test.*Appointment.*)"; \
 	fi
 
+test-medical-records: ## Run medical record API tests with Jest-like output
+	@if command -v powershell >/dev/null 2>&1; then \
+		powershell -File scripts/test-runner.ps1 -Path "./tests/..." -Filter "^(Test.*MedicalRecord.*)"; \
+	else \
+		bash ./scripts/test-runner.sh -Path "./tests/..." -Filter "^(Test.*MedicalRecord.*)"; \
+	fi
+
 # ============================================================================
 # UNIT TEST COMMANDS (NEW - Comprehensive Unit Testing)
 # ============================================================================
