@@ -66,9 +66,9 @@ test-doctors: ## Run doctor API tests with Jest-like output
 
 test-rooms: ## Run room API tests with Jest-like output
 	@if command -v powershell >/dev/null 2>&1; then \
-		powershell -File scripts/test-runner.ps1 -Path "./tests" -Filter "^Test.*Room"; \
+		powershell -File scripts/test-runner.ps1 -Path "./tests/..." -Filter "^(Test.*Room|Test.*RoomType)"; \
 	else \
-		bash ./scripts/test-runner.sh -Path "./tests" -Filter "^Test.*Room"; \
+		bash ./scripts/test-runner.sh -Path "./tests/..." -Filter "^(Test.*Room|Test.*RoomType)"; \
 	fi
 
 test-type-tests: ## Run type test API tests with Jest-like output
