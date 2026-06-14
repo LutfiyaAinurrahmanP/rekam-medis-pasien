@@ -51,8 +51,8 @@ func (r *dashboardRepository) GetOverview(date string) (*dto.DashboardOverviewRe
 
 	// Room stats
 	var availableRooms, occupiedRooms int64
-	r.db.Model(&models.Room{}).Where("status = ?", "available").Count(&availableRooms)
-	r.db.Model(&models.Room{}).Where("status = ?", "occupied").Count(&occupiedRooms)
+	r.db.Model(&models.Room{}).Where("available_beds > 0 AND is_active = ?", true).Count(&availableRooms)
+	r.db.Model(&models.Room{}).Where("available_beds = 0 AND is_active = ?", true).Count(&occupiedRooms)
 	occupancyRate := 0.0
 	if totalRooms > 0 {
 		occupancyRate = float64(occupiedRooms) / float64(totalRooms) * 100
@@ -109,7 +109,7 @@ func (r *dashboardRepository) GetAdminDashboard(query *dto.DashboardPeriodQuery,
 	r.db.Model(&models.Hospitalization{}).Where("admission_date BETWEEN ? AND ?", startDate, endDate).Count(&totalAdmissions)
 	r.db.Model(&models.Hospitalization{}).Where("status = ?", "admitted").Count(&currentlyHosp)
 	r.db.Model(&models.Hospitalization{}).Where("status = ? AND admission_date BETWEEN ? AND ?", "discharged", startDate, endDate).Count(&totalDischarged)
-	r.db.Model(&models.Room{}).Where("status = ?", "available").Count(&availableBeds)
+	r.db.Model(&models.Room{}).Where("available_beds > 0 AND is_active = ?", true).Count(&availableBeds)
 
 	// Top departments
 	type deptCount struct {
@@ -285,7 +285,7 @@ func (r *dashboardRepository) GetReceptionistDashboard(date string) (*dto.Dashbo
 
 	var currentHosp, availBeds, newAdmissions, discharged int64
 	r.db.Model(&models.Hospitalization{}).Where("status = ?", "admitted").Count(&currentHosp)
-	r.db.Model(&models.Room{}).Where("status = ?", "available").Count(&availBeds)
+	r.db.Model(&models.Room{}).Where("available_beds > 0 AND is_active = ?", true).Count(&availBeds)
 	r.db.Model(&models.Hospitalization{}).Where("admission_date = ?", date).Count(&newAdmissions)
 	r.db.Model(&models.Hospitalization{}).Where("discharge_date = ? AND status = ?", date, "discharged").Count(&discharged)
 
@@ -333,8 +333,10 @@ func (r *dashboardRepository) GetPatientDashboard(patientID uint) (*dto.Dashboar
 
 	// Active prescriptions
 	var prescriptions []models.Prescription
-	r.db.Preload("Doctor").Where("patient_id = ? AND status IN (?)", patientID, []string{"active", "pending"}).
-		Order("created_at DESC").Limit(5).Find(&prescriptions)
+	r.db.Preload("Doctor").
+		Joins("JOIN medical_records ON prescriptions.medical_record_id = medical_records.id").
+		Where("medical_records.patient_id = ? AND prescriptions.status IN (?)", patientID, []string{"active", "pending"}).
+		Order("prescriptions.created_at DESC").Limit(5).Find(&prescriptions)
 	rxList := make([]dto.DashboardPatientPrescription, len(prescriptions))
 	for i, rx := range prescriptions {
 		item := dto.DashboardPatientPrescription{ID: rx.ID, Status: rx.Status, PrescribedDate: rx.CreatedAt.Format("2006-01-02")}
