@@ -164,6 +164,20 @@ func TestIntegration_Billing_FindByInvoiceNumber(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 }
 
+func TestIntegration_Billing_FindByPatientID(t *testing.T) {
+	r, cfg, repo := setupBillingRouter()
+	createBillingAndGetID(r, cfg, repo, "INV-250")
+	token := GenerateTestToken(1, models.RolePatient, cfg.Config)
+
+	req, _ := http.NewRequest(http.MethodGet, "/api/v1/billing/patient/1", nil)
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+}
+
 func TestIntegration_Billing_List(t *testing.T) {
 	r, cfg, repo := setupBillingRouter()
 	createBillingAndGetID(r, cfg, repo, "INV-300")
@@ -295,6 +309,21 @@ func TestIntegration_Billing_ListItems(t *testing.T) {
 	token := GenerateTestToken(1, models.RolePatient, cfg.Config)
 
 	req, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/billing/%d/items", billingID), nil)
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+}
+
+func TestIntegration_Billing_FindItemByID(t *testing.T) {
+	r, cfg, repo := setupBillingRouter()
+	billingID := createBillingAndGetID(r, cfg, repo, "INV-850")
+	itemID := createBillingItemAndGetID(r, cfg, billingID)
+	token := GenerateTestToken(1, models.RolePatient, cfg.Config)
+
+	req, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/billing/%d/items/%d", billingID, itemID), nil)
 	req.Header.Set("Authorization", "Bearer "+token)
 
 	w := httptest.NewRecorder()
