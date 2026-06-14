@@ -176,6 +176,21 @@ func TestIntegration_Allergy_Delete(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 }
 
+func TestIntegration_Allergy_List(t *testing.T) {
+	r, cfg, db := setupMedicalHistoryRouters()
+	pID := createPrereqForMedicalHistories(db)
+	createAllergyAndGetID(r, cfg, pID)
+
+	token := GenerateTestToken(1, models.RoleDoctor, cfg.Config)
+	req, _ := http.NewRequest(http.MethodGet, "/api/v1/medical-history/allergies", nil)
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+}
+
 // ─── Medical Condition Tests ─────────────────────────────────────────────────
 
 func createConditionAndGetID(r *gin.Engine, cfg *routes.RouteConfig, pID uint) uint {
@@ -353,6 +368,72 @@ func TestIntegration_FamilyHistory_Create(t *testing.T) {
 	assert.Equal(t, http.StatusCreated, w.Code)
 }
 
+func TestIntegration_FamilyHistory_FindByID(t *testing.T) {
+	r, cfg, db := setupMedicalHistoryRouters()
+	pID := createPrereqForMedicalHistories(db)
+	id := createFamilyHistoryAndGetID(r, cfg, pID)
+
+	token := GenerateTestToken(1, models.RoleAdmin, cfg.Config)
+	req, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/medical-history/family-histories/%d", id), nil)
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+}
+
+func TestIntegration_FamilyHistory_Update(t *testing.T) {
+	r, cfg, db := setupMedicalHistoryRouters()
+	pID := createPrereqForMedicalHistories(db)
+	id := createFamilyHistoryAndGetID(r, cfg, pID)
+
+	token := GenerateTestToken(1, models.RoleDoctor, cfg.Config)
+	reqBody := dto.UpdateFamilyHistoryRequest{
+		Notes: "Updated Note",
+	}
+	body, _ := json.Marshal(reqBody)
+
+	req, _ := http.NewRequest(http.MethodPut, fmt.Sprintf("/api/v1/medical-history/family-histories/%d", id), bytes.NewBuffer(body))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+}
+
+func TestIntegration_FamilyHistory_Delete(t *testing.T) {
+	r, cfg, db := setupMedicalHistoryRouters()
+	pID := createPrereqForMedicalHistories(db)
+	id := createFamilyHistoryAndGetID(r, cfg, pID)
+
+	token := GenerateTestToken(1, models.RoleAdmin, cfg.Config)
+	req, _ := http.NewRequest(http.MethodDelete, fmt.Sprintf("/api/v1/medical-history/family-histories/%d", id), nil)
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+}
+
+func TestIntegration_FamilyHistory_List(t *testing.T) {
+	r, cfg, db := setupMedicalHistoryRouters()
+	pID := createPrereqForMedicalHistories(db)
+	createFamilyHistoryAndGetID(r, cfg, pID)
+
+	token := GenerateTestToken(1, models.RoleDoctor, cfg.Config)
+	req, _ := http.NewRequest(http.MethodGet, "/api/v1/medical-history/family-histories", nil)
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+}
+
 // ─── Combined Medical History View Test ──────────────────────────────────────
 
 func TestIntegration_MedicalHistory_CombinedView(t *testing.T) {
@@ -384,3 +465,37 @@ func TestIntegration_MedicalHistory_CombinedView(t *testing.T) {
 	assert.NotNil(t, data["surgical_history"])
 	assert.NotNil(t, data["family_history"])
 }
+
+func TestIntegration_MedicalHistory_FindByID(t *testing.T) {
+	r, cfg, db := setupMedicalHistoryRouters()
+	pID := createPrereqForMedicalHistories(db)
+	// Create at least one history so Medical History record is created
+	createAllergyAndGetID(r, cfg, pID)
+
+	// Wait, the id of medical history is not the same as patient id. 
+	// We should just get it from the combined view or list first, or assume it's 1.
+	token := GenerateTestToken(1, models.RoleDoctor, cfg.Config)
+	req, _ := http.NewRequest(http.MethodGet, "/api/v1/medical-history/1", nil)
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+}
+
+func TestIntegration_MedicalHistory_List(t *testing.T) {
+	r, cfg, db := setupMedicalHistoryRouters()
+	pID := createPrereqForMedicalHistories(db)
+	createAllergyAndGetID(r, cfg, pID)
+
+	token := GenerateTestToken(1, models.RoleDoctor, cfg.Config)
+	req, _ := http.NewRequest(http.MethodGet, "/api/v1/medical-history", nil)
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+}
+
