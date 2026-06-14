@@ -22,7 +22,13 @@ func SetupTestDatabase() *gorm.DB {
 	err = db.AutoMigrate(
 		&models.User{},
 		&models.Patient{},
+		&models.Allergy{},
+		&models.MedicalCondition{},
+		&models.SurgicalHistory{},
+		&models.FamilyHistory{},
+		&models.VitalSign{},
 		&models.Doctor{},
+		&models.Appointment{},
 		&models.MedicalRecord{},
 		&models.Hospitalization{},
 		&models.Billing{},
