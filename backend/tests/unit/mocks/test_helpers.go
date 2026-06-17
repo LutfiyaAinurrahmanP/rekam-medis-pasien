@@ -145,6 +145,16 @@ func PtrUint(u uint) *uint {
 	return &u
 }
 
+// PtrInt returns a pointer to an int
+func PtrInt(i int) *int {
+	return &i
+}
+
+// PtrFloat64 returns a pointer to a float64
+func PtrFloat64(f float64) *float64 {
+	return &f
+}
+
 // ============= Test List Builders =============
 
 // NewTestUserList creates a list of test users

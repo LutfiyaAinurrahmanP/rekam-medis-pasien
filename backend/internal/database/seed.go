@@ -54,7 +54,18 @@ func SeedDatabaseWithCount(db *gorm.DB, count int) error {
 		return err
 	}
 
-	if _, err := seedDoctors(tx, count, users, departments); err != nil {
+	doctorSpecs, err := seedDoctorSpecializations(tx, count)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if _, err := seedDoctors(tx, count, users, departments, doctorSpecs); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if _, err := seedRoomTypes(tx, 12); err != nil {
 		tx.Rollback()
 		return err
 	}
@@ -64,12 +75,23 @@ func SeedDatabaseWithCount(db *gorm.DB, count int) error {
 		return err
 	}
 
+	if _, err := seedTypeTestCategories(tx); err != nil {
+		tx.Rollback()
+		return err
+	}
+
 	if _, err := seedTypeTests(tx, count); err != nil {
 		tx.Rollback()
 		return err
 	}
 
-	if _, err := seedMedicines(tx, count); err != nil {
+	medicineTypes, err := seedMedicineTypes(tx)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if _, err := seedMedicines(tx, count, medicineTypes); err != nil {
 		tx.Rollback()
 		return err
 	}
@@ -90,7 +112,17 @@ func SeedDatabaseWithCount(db *gorm.DB, count int) error {
 		return err
 	}
 
+	if err := seedDeletedDoctorSpecializations(tx); err != nil {
+		tx.Rollback()
+		return err
+	}
+
 	if err := seedDeletedDoctors(tx); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := seedDeletedRoomTypes(tx); err != nil {
 		tx.Rollback()
 		return err
 	}
@@ -100,12 +132,67 @@ func SeedDatabaseWithCount(db *gorm.DB, count int) error {
 		return err
 	}
 
+	if err := seedDeletedTypeTestCategories(tx); err != nil {
+		tx.Rollback()
+		return err
+	}
+
 	if err := seedDeletedTypeTests(tx); err != nil {
 		tx.Rollback()
 		return err
 	}
 
-	if err := seedDeletedMedicines(tx); err != nil {
+	if err := seedDeletedMedicineTypes(tx); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := seedDeletedMedicines(tx, medicineTypes); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := SeedAppointments(tx); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := SeedMedicalRecords(tx); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := SeedVitalSigns(tx); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := SeedMedicalHistory(tx); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := SeedReferrals(tx); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := SeedHospitalizations(tx); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := SeedLabTests(tx); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := SeedPrescriptions(tx); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := SeedBilling(tx); err != nil {
 		tx.Rollback()
 		return err
 	}
@@ -121,20 +208,71 @@ func SeedDatabaseWithCount(db *gorm.DB, count int) error {
 func resetSeedData(tx *gorm.DB) error {
 	session := tx.Session(&gorm.Session{AllowGlobalUpdate: true})
 
+	if err := session.Unscoped().Delete(&models.BillingItem{}).Error; err != nil {
+		return fmt.Errorf("failed to clear billing items: %w", err)
+	}
+	if err := session.Unscoped().Delete(&models.Billing{}).Error; err != nil {
+		return fmt.Errorf("failed to clear billings: %w", err)
+	}
+	if err := session.Unscoped().Delete(&models.PrescriptionItem{}).Error; err != nil {
+		return fmt.Errorf("failed to clear prescription items: %w", err)
+	}
+	if err := session.Unscoped().Delete(&models.Prescription{}).Error; err != nil {
+		return fmt.Errorf("failed to clear prescriptions: %w", err)
+	}
+	if err := session.Unscoped().Delete(&models.LabTest{}).Error; err != nil {
+		return fmt.Errorf("failed to clear lab tests: %w", err)
+	}
+	if err := session.Unscoped().Delete(&models.Hospitalization{}).Error; err != nil {
+		return fmt.Errorf("failed to clear hospitalizations: %w", err)
+	}
+	if err := session.Unscoped().Delete(&models.VitalSign{}).Error; err != nil {
+		return fmt.Errorf("failed to clear vital signs: %w", err)
+	}
+	if err := session.Unscoped().Delete(&models.Allergy{}).Error; err != nil {
+		return fmt.Errorf("failed to clear allergies: %w", err)
+	}
+	if err := session.Unscoped().Delete(&models.MedicalCondition{}).Error; err != nil {
+		return fmt.Errorf("failed to clear medical conditions: %w", err)
+	}
+	if err := session.Unscoped().Delete(&models.SurgicalHistory{}).Error; err != nil {
+		return fmt.Errorf("failed to clear surgical history: %w", err)
+	}
+	if err := session.Unscoped().Delete(&models.FamilyHistory{}).Error; err != nil {
+		return fmt.Errorf("failed to clear family history: %w", err)
+	}
+	if err := session.Unscoped().Delete(&models.MedicalRecord{}).Error; err != nil {
+		return fmt.Errorf("failed to clear medical records: %w", err)
+	}
+	if err := session.Unscoped().Delete(&models.Appointment{}).Error; err != nil {
+		return fmt.Errorf("failed to clear appointments: %w", err)
+	}
 	if err := session.Unscoped().Delete(&models.Room{}).Error; err != nil {
 		return fmt.Errorf("failed to clear rooms: %w", err)
+	}
+	if err := session.Unscoped().Delete(&models.RoomType{}).Error; err != nil {
+		return fmt.Errorf("failed to clear room types: %w", err)
 	}
 	if err := session.Unscoped().Delete(&models.Doctor{}).Error; err != nil {
 		return fmt.Errorf("failed to clear doctors: %w", err)
 	}
+	if err := session.Unscoped().Delete(&models.DoctorSpecialization{}).Error; err != nil {
+		return fmt.Errorf("failed to clear doctor specializations: %w", err)
+	}
 	if err := session.Unscoped().Delete(&models.Patient{}).Error; err != nil {
 		return fmt.Errorf("failed to clear patients: %w", err)
+	}
+	if err := session.Unscoped().Delete(&models.TypeTestCategory{}).Error; err != nil {
+		return fmt.Errorf("failed to clear type test categories: %w", err)
 	}
 	if err := session.Unscoped().Delete(&models.TypeTest{}).Error; err != nil {
 		return fmt.Errorf("failed to clear type tests: %w", err)
 	}
 	if err := session.Unscoped().Delete(&models.Medicine{}).Error; err != nil {
 		return fmt.Errorf("failed to clear medicines: %w", err)
+	}
+	if err := session.Unscoped().Delete(&models.MedicineType{}).Error; err != nil {
+		return fmt.Errorf("failed to clear medicine types: %w", err)
 	}
 	if err := session.Unscoped().Delete(&models.Department{}).Error; err != nil {
 		return fmt.Errorf("failed to clear departments: %w", err)

@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"testing"
+	"time"
 
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/config"
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/dto"
@@ -12,6 +13,22 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
+
+func expectedAgeFromDOB(t *testing.T, dateOfBirth string) int {
+	t.Helper()
+	parsedBirthDate, err := time.Parse("2006-01-02", dateOfBirth)
+	if err != nil {
+		t.Fatalf("failed to parse test birth date %q: %v", dateOfBirth, err)
+	}
+
+	now := time.Now()
+	age := now.Year() - parsedBirthDate.Year()
+	if now.Month() < parsedBirthDate.Month() || (now.Month() == parsedBirthDate.Month() && now.Day() < parsedBirthDate.Day()) {
+		age--
+	}
+
+	return age
+}
 
 // ============= Test Cases: GetPatientByID =============
 
@@ -31,6 +48,7 @@ func TestGetPatientByID_Success(t *testing.T) {
 	assert.Equal(t, uint(1), result.ID)
 	assert.Equal(t, "PAT001", result.PatientCode)
 	assert.Equal(t, "John Doe", result.FullName)
+	assert.Equal(t, expectedAgeFromDOB(t, "1990-01-01"), result.Age)
 	mockRepo.AssertExpectations(t)
 }
 
@@ -42,40 +60,6 @@ func TestGetPatientByID_PatientNotFound(t *testing.T) {
 	service := patientservice.NewPatientService(mockRepo, cfg)
 
 	result, err := service.GetPatientByID(999)
-
-	assert.Error(t, err)
-	assert.Nil(t, result)
-	assert.Equal(t, "patient not found", err.Error())
-	mockRepo.AssertExpectations(t)
-}
-
-// ============= Test Cases: GetPatientByCode =============
-
-func TestGetPatientByCode_Success(t *testing.T) {
-	mockRepo := new(mocks.MockPatientRepository)
-	cfg := &config.Config{}
-
-	patientModel := mocks.NewTestPatientWithData(1, "PAT001", "John Doe", "1990-01-01", "male", "O")
-
-	mockRepo.On("FindByCode", "PAT001").Return(patientModel, nil)
-	service := patientservice.NewPatientService(mockRepo, cfg)
-
-	result, err := service.GetPatientByCode("PAT001")
-
-	assert.NoError(t, err)
-	assert.NotNil(t, result)
-	assert.Equal(t, "PAT001", result.PatientCode)
-	mockRepo.AssertExpectations(t)
-}
-
-func TestGetPatientByCode_PatientNotFound(t *testing.T) {
-	mockRepo := new(mocks.MockPatientRepository)
-	cfg := &config.Config{}
-
-	mockRepo.On("FindByCode", "UNKNOWN").Return(nil, errors.New("patient not found"))
-	service := patientservice.NewPatientService(mockRepo, cfg)
-
-	result, err := service.GetPatientByCode("UNKNOWN")
 
 	assert.Error(t, err)
 	assert.Nil(t, result)
@@ -204,6 +188,7 @@ func TestDeleteListPatients_Success(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
 	assert.Equal(t, 1, len(result.Data))
+	assert.Equal(t, expectedAgeFromDOB(t, "1990-01-01"), result.Data[0].Age)
 	mockRepo.AssertExpectations(t)
 }
 

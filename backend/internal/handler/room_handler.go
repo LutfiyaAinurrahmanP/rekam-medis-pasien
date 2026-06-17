@@ -65,6 +65,21 @@ func (h *RoomHandler) GetByOccupiedRoom(ctx *gin.Context) {
 	utils.SuccessResponse(ctx, http.StatusOK, "Occupied rooms retrieved successfully", rooms)
 }
 
+func (h *RoomHandler) GetByActiveRoom(ctx *gin.Context) {
+	var query dto.RoomPaginationQuery
+	if err := ctx.ShouldBindQuery(&query); err != nil {
+		utils.ValidationErrorResponse(ctx, err)
+		return
+	}
+
+	rooms, err := h.service.GetActiveRooms(&query)
+	if err != nil {
+		utils.ErrorResponse(ctx, http.StatusBadRequest, "Failed to retrieve active rooms", err.Error())
+		return
+	}
+	utils.SuccessResponse(ctx, http.StatusOK, "Active rooms retrieved successfully", rooms)
+}
+
 func (h *RoomHandler) GetByInactiveRoom(ctx *gin.Context) {
 	var query dto.RoomPaginationQuery
 	if err := ctx.ShouldBindQuery(&query); err != nil {
@@ -103,42 +118,6 @@ func (h *RoomHandler) GetRoomByID(ctx *gin.Context) {
 	}
 
 	room, err := h.service.GetRoomByID(uint(id))
-	if err != nil {
-		utils.ErrorResponse(ctx, http.StatusNotFound, "Room not found", err.Error())
-		return
-	}
-
-	utils.SuccessResponse(ctx, http.StatusOK, "Room retrieved successfully", room)
-}
-
-func (h *RoomHandler) GetRoomByRoomNumber(ctx *gin.Context) {
-	roomNumber := ctx.Param("room_number")
-
-	room, err := h.service.GetByRoomNumber(roomNumber)
-	if err != nil {
-		utils.ErrorResponse(ctx, http.StatusNotFound, "Room not found", err.Error())
-		return
-	}
-
-	utils.SuccessResponse(ctx, http.StatusOK, "Room retrieved successfully", room)
-}
-
-func (h *RoomHandler) GetRoomByRoomType(ctx *gin.Context) {
-	roomType := ctx.Param("room_type")
-
-	room, err := h.service.GetByRoomType(roomType)
-	if err != nil {
-		utils.ErrorResponse(ctx, http.StatusNotFound, "Room not found", err.Error())
-		return
-	}
-
-	utils.SuccessResponse(ctx, http.StatusOK, "Room retrieved successfully", room)
-}
-
-func (h *RoomHandler) GetRoomByDepartmentID(ctx *gin.Context) {
-	deptID := ctx.Param("dept_id")
-
-	room, err := h.service.GetByDepatymentID(deptID)
 	if err != nil {
 		utils.ErrorResponse(ctx, http.StatusNotFound, "Room not found", err.Error())
 		return

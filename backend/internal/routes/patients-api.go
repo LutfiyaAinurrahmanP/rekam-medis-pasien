@@ -29,8 +29,6 @@ func SetupPatientsRouter(rg *gin.RouterGroup, cfg *RouteConfig, patientHandler *
 		staffRoutes.Use(middleware.RoleMiddleware(models.RoleDoctor, models.RoleReceptionist, models.RoleAdmin, models.RoleSuperAdmin))
 		{
 			staffRoutes.GET("", patientHandler.ListPatients)
-			staffRoutes.GET("/code/:code", patientHandler.GetPatientByCode)
-			staffRoutes.GET("/search", patientHandler.SearchPatients)
 		}
 
 		// Receptionist, Admin, and SuperAdmin routes

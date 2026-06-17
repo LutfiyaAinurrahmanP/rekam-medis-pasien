@@ -28,19 +28,92 @@ var notificationTopics = []string{
 	kafka.TopicUserRegistered,
 	kafka.TopicUserLogin,
 	kafka.TopicUserCreated,
+	kafka.TopicUserUpdated,
 	kafka.TopicUserDeleted,
+	kafka.TopicUserRestored,
 	kafka.TopicUserPasswordResetRequested,
 	kafka.TopicPatientCreated,
 	kafka.TopicPatientUpdated,
 	kafka.TopicPatientDeleted,
+	kafka.TopicPatientRestored,
+	kafka.TopicDoctorSpecializationCreated,
+	kafka.TopicDoctorSpecializationUpdated,
+	kafka.TopicDoctorSpecializationRestored,
+	kafka.TopicDoctorSpecializationDeleted,
 	kafka.TopicDoctorCreated,
 	kafka.TopicDoctorUpdated,
 	kafka.TopicDoctorDeleted,
+	kafka.TopicDoctorRestored,
 	kafka.TopicDepartmentCreated,
+	kafka.TopicDepartmentUpdated,
 	kafka.TopicDepartmentDeleted,
+	kafka.TopicDepartmentRestored,
 	kafka.TopicRoomCreated,
 	kafka.TopicRoomUpdated,
+	kafka.TopicRoomDeleted,
+	kafka.TopicRoomRestored,
+	kafka.TopicTypeTestCategoryCreated,
+	kafka.TopicTypeTestCategoryUpdated,
+	kafka.TopicTypeTestCategoryDeleted,
+	kafka.TopicTypeTestCategoryRestored,
 	kafka.TopicTypeTestCreated,
+	kafka.TopicTypeTestUpdated,
+	kafka.TopicTypeTestDeleted,
+	kafka.TopicTypeTestRestored,
+	kafka.TopicRoomTypeCreated,
+	kafka.TopicRoomTypeUpdated,
+	kafka.TopicRoomTypeDeleted,
+	kafka.TopicRoomTypeRestored,
+	kafka.TopicAppointmentCreated,
+	kafka.TopicAppointmentUpdated,
+	kafka.TopicAppointmentDeleted,
+	kafka.TopicAppointmentRestored,
+	kafka.TopicAppointmentConfirmed,
+	kafka.TopicAppointmentStarted,
+	kafka.TopicAppointmentCompleted,
+	kafka.TopicAppointmentCancelled,
+	kafka.TopicAppointmentRescheduled,
+	kafka.TopicAppointmentNoShow,
+	kafka.TopicMedicalRecordCreated,
+	kafka.TopicMedicalRecordUpdated,
+	kafka.TopicMedicalRecordDeleted,
+	kafka.TopicMedicalRecordRestored,
+	kafka.TopicMedicalRecordFinalized,
+	kafka.TopicHospitalizationCreated,
+	kafka.TopicHospitalizationUpdated,
+	kafka.TopicHospitalizationDeleted,
+	kafka.TopicHospitalizationRestored,
+	kafka.TopicHospitalizationDischarged,
+	kafka.TopicHospitalizationTransferred,
+	kafka.TopicLabTestCreated,
+	kafka.TopicLabTestUpdated,
+	kafka.TopicLabTestSampleCollected,
+	kafka.TopicLabTestStarted,
+	kafka.TopicLabTestCompleted,
+	kafka.TopicLabTestCancelled,
+	kafka.TopicLabTestDeleted,
+	kafka.TopicLabTestRestored,
+	kafka.TopicPrescriptionCreated,
+	kafka.TopicPrescriptionUpdated,
+	kafka.TopicPrescriptionDispensed,
+	kafka.TopicPrescriptionCancelled,
+	kafka.TopicPrescriptionDeleted,
+	kafka.TopicPrescriptionRestored,
+	kafka.TopicPrescriptionItemCreated,
+	kafka.TopicPrescriptionItemUpdated,
+	kafka.TopicPrescriptionItemDeleted,
+	kafka.TopicVitalSignCreated,
+	kafka.TopicVitalSignUpdated,
+	kafka.TopicVitalSignDeleted,
+	kafka.TopicVitalSignRestored,
+	kafka.TopicReferralCreated,
+	kafka.TopicReferralUpdated,
+	kafka.TopicReferralDeleted,
+	kafka.TopicReferralRestored,
+	kafka.TopicReferralAccepted,
+	kafka.TopicReferralRejected,
+	kafka.TopicReferralCompleted,
+	kafka.TopicReferralCancelled,
 }
 
 // NewNotificationEventHandler membuat notification handler baru.
@@ -94,12 +167,26 @@ func (h *NotificationEventHandler) handle(ctx context.Context, topic string, key
 		}
 		h.sendAccountCreatedNotification(e.Payload.Email, e.Payload.Username, e.Payload.Role)
 
+	case kafka.TopicUserUpdated:
+		var e events.UserUpdatedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 👤 User profile updated: %s (action=%s)", e.Payload.Username, e.Payload.Action)
+
 	case kafka.TopicUserDeleted:
 		var e events.UserDeletedEvent
 		if err := json.Unmarshal(value, &e); err != nil {
 			return err
 		}
 		log.Printf("[NOTIFICATION] ⚠️  User account deleted: %s (action=%s)", e.Payload.Username, e.Payload.Action)
+
+	case kafka.TopicUserRestored:
+		var e events.UserRestoredEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] ♻️  User account restored: %s", e.Payload.Username)
 
 	case kafka.TopicUserPasswordResetRequested:
 		var e events.UserPasswordResetRequestedEvent
@@ -132,6 +219,43 @@ func (h *NotificationEventHandler) handle(ctx context.Context, topic string, key
 		}
 		log.Printf("[NOTIFICATION] 🗑️  Patient record deleted: %s (action=%s)", e.Payload.FullName, e.Payload.Action)
 
+	case kafka.TopicPatientRestored:
+		var e events.PatientRestoredEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] ♻️  Patient record restored: %s (code=%s)", e.Payload.FullName, e.Payload.PatientCode)
+
+	// ── Doctor Specialization Events ─────────────────────────────────────────
+
+	case kafka.TopicDoctorSpecializationCreated:
+		var e events.DoctorSpecializationCreatedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🩺 New doctor specialization created: %s (code=%s)", e.Payload.Name, e.Payload.Code)
+
+	case kafka.TopicDoctorSpecializationUpdated:
+		var e events.DoctorSpecializationUpdatedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🩺 Doctor specialization updated: %s (code=%s, action=%s)", e.Payload.Name, e.Payload.Code, e.Payload.Action)
+
+	case kafka.TopicDoctorSpecializationRestored:
+		var e events.DoctorSpecializationRestoredEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🩺 Doctor specialization restored: %s (code=%s)", e.Payload.Name, e.Payload.Code)
+
+	case kafka.TopicDoctorSpecializationDeleted:
+		var e events.DoctorSpecializationDeletedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🩺 Doctor specialization deleted: %s (code=%s, action=%s)", e.Payload.Name, e.Payload.Code, e.Payload.Action)
+
 	// ── Doctor Events ────────────────────────────────────────────────────────
 
 	case kafka.TopicDoctorCreated:
@@ -139,7 +263,7 @@ func (h *NotificationEventHandler) handle(ctx context.Context, topic string, key
 		if err := json.Unmarshal(value, &e); err != nil {
 			return err
 		}
-		h.sendDoctorOnboardingNotification(e.Payload.Email, e.Payload.FullName, e.Payload.Specialization)
+		h.sendDoctorOnboardingNotification(e.Payload.Email, e.Payload.FullName, e.Payload.SpecializationID)
 
 	case kafka.TopicDoctorUpdated:
 		var e events.DoctorUpdatedEvent
@@ -154,7 +278,12 @@ func (h *NotificationEventHandler) handle(ctx context.Context, topic string, key
 			return err
 		}
 		log.Printf("[NOTIFICATION] 🗑️  Doctor record deleted: %s (action=%s)", e.Payload.FullName, e.Payload.Action)
-
+	case kafka.TopicDoctorRestored:
+		var e events.DoctorRestoredEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] ♻️  Doctor record restored: %s", e.Payload.FullName)
 	// ── Department Events ────────────────────────────────────────────────────
 
 	case kafka.TopicDepartmentCreated:
@@ -164,12 +293,26 @@ func (h *NotificationEventHandler) handle(ctx context.Context, topic string, key
 		}
 		log.Printf("[NOTIFICATION] 🏥 New department created: %s (code=%s)", e.Payload.Name, e.Payload.Code)
 
+	case kafka.TopicDepartmentUpdated:
+		var e events.DepartmentUpdatedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🏥 Department updated: %s (code=%s)", e.Payload.Name, e.Payload.Code)
+
 	case kafka.TopicDepartmentDeleted:
 		var e events.DepartmentDeletedEvent
 		if err := json.Unmarshal(value, &e); err != nil {
 			return err
 		}
 		log.Printf("[NOTIFICATION] 🗑️  Department deleted: %s (action=%s)", e.Payload.Name, e.Payload.Action)
+
+	case kafka.TopicDepartmentRestored:
+		var e events.DepartmentRestoredEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] ♻️  Department restored: %s", e.Payload.Name)
 
 	// ── Room Events ──────────────────────────────────────────────────────────
 
@@ -178,8 +321,14 @@ func (h *NotificationEventHandler) handle(ctx context.Context, topic string, key
 		if err := json.Unmarshal(value, &e); err != nil {
 			return err
 		}
-		log.Printf("[NOTIFICATION] 🛏️  New room created: %s (type=%s, beds=%d)",
-			e.Payload.RoomNumber, e.Payload.RoomType, e.Payload.TotalBeds)
+
+		typeIDStr := "nil"
+		if e.Payload.RoomTypeID != nil {
+			typeIDStr = fmt.Sprintf("%d", *e.Payload.RoomTypeID)
+		}
+
+		log.Printf("[NOTIFICATION] 🛏️  New room created: %s (type_id=%s, capacity=%d)",
+			e.Payload.RoomNumber, typeIDStr, e.Payload.BedCapacity)
 
 	case kafka.TopicRoomUpdated:
 		var e events.RoomUpdatedEvent
@@ -191,6 +340,81 @@ func (h *NotificationEventHandler) handle(ctx context.Context, topic string, key
 				e.Payload.RoomNumber, e.Payload.AvailableBeds, e.Payload.Action)
 		}
 
+	case kafka.TopicRoomDeleted:
+		var e events.RoomDeletedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🗑️  Room deleted: %s (action=%s)", e.Payload.RoomNumber, e.Payload.Action)
+
+	case kafka.TopicRoomRestored:
+		var e events.RoomRestoredEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] ♻️  Room restored: %s", e.Payload.RoomNumber)
+
+	// ── RoomType Events ──────────────────────────────────────────────────────────
+
+	case kafka.TopicRoomTypeCreated:
+		var e events.RoomTypeCreatedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🏢 New room type created: %s (code=%s)",
+			e.Payload.Name, e.Payload.Code)
+
+	case kafka.TopicRoomTypeUpdated:
+		var e events.RoomTypeUpdatedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🏢 Room type updated: %s (code=%s, action=%s)",
+			e.Payload.Name, e.Payload.Code, e.Payload.Action)
+
+	case kafka.TopicRoomTypeDeleted:
+		var e events.RoomTypeDeletedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🗑️  Room type deleted: %s (action=%s)", e.Payload.Name, e.Payload.Action)
+
+	case kafka.TopicRoomTypeRestored:
+		var e events.RoomTypeRestoredEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] ♻️  Room type restored: %s", e.Payload.Name)
+
+	// ── Type Test Category Events ─────────────────────────────────────────
+	case kafka.TopicTypeTestCategoryCreated:
+		var e events.TypeTestCategoryCreatedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🧪 New type test category created: %s (code=%s)", e.Payload.Name, e.Payload.Code)
+
+	case kafka.TopicTypeTestCategoryUpdated:
+		var e events.TypeTestCategoryUpdatedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🧪 Type test category updated: %s (code=%s, action=%s)", e.Payload.Name, e.Payload.Code, e.Payload.Action)
+
+	case kafka.TopicTypeTestCategoryRestored:
+		var e events.TypeTestCategoryRestoredEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] ♻️ Type test category restored: %s (code=%s)", e.Payload.Name, e.Payload.Code)
+
+	case kafka.TopicTypeTestCategoryDeleted:
+		var e events.TypeTestCategoryDeletedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🗑️ Type test category deleted: %s (code=%s, action=%s)", e.Payload.Name, e.Payload.Code, e.Payload.Action)
+
 	// ── TypeTest Events ──────────────────────────────────────────────────────
 
 	case kafka.TopicTypeTestCreated:
@@ -198,8 +422,488 @@ func (h *NotificationEventHandler) handle(ctx context.Context, topic string, key
 		if err := json.Unmarshal(value, &e); err != nil {
 			return err
 		}
-		log.Printf("[NOTIFICATION] 🧪 New test type added: %s (code=%s, category=%s)",
-			e.Payload.Name, e.Payload.Code, e.Payload.Category)
+		log.Printf("[NOTIFICATION] 🧪 New test type added: %s (code=%s, category_id=%d)",
+			e.Payload.Name, e.Payload.Code, e.Payload.TypeTestCategoryID)
+
+	case kafka.TopicTypeTestUpdated:
+		var e events.TypeTestUpdatedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🧪 Test type updated: %s (code=%s, action=%s)",
+			e.Payload.Name, e.Payload.Code, e.Payload.Action)
+
+	case kafka.TopicTypeTestDeleted:
+		var e events.TypeTestDeletedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🗑️ Type test deleted: %s (code=%s, action=%s)",
+			e.Payload.Name, e.Payload.Code, e.Payload.Action)
+
+	case kafka.TopicTypeTestRestored:
+		var e events.TypeTestRestoredEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] ♻️ Test type restored: %s (code=%s)", e.Payload.Name, e.Payload.Code)
+
+	// ── MedicineType Events ──────────────────────────────────────────────────────
+
+	case kafka.TopicMedicineTypeCreated:
+		var e events.MedicineTypeCreatedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 💊 New medicine type added: %s (code=%s)",
+			e.Payload.Name, e.Payload.Code)
+
+	case kafka.TopicMedicineTypeUpdated:
+		var e events.MedicineTypeUpdatedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 💊 Medicine type updated: %s (code=%s, action=%s)",
+			e.Payload.Name, e.Payload.Code, e.Payload.Action)
+
+	case kafka.TopicMedicineTypeDeleted:
+		var e events.MedicineTypeDeletedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🗑️ Medicine type deleted: %s (code=%s, action=%s)",
+			e.Payload.Name, e.Payload.Code, e.Payload.Action)
+
+	case kafka.TopicMedicineTypeRestored:
+		var e events.MedicineTypeRestoredEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] ♻️ Medicine type restored: %s (code=%s)", e.Payload.Name, e.Payload.Code)
+
+	// ── Medicine Events ──────────────────────────────────────────────────────────
+
+	case kafka.TopicMedicineCreated:
+		var e events.MedicineCreatedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 💊 New medicine added: %s (generic: %s, brand: %s, type_id=%d)",
+			e.Payload.Name, e.Payload.GenericName, e.Payload.BrandName, e.Payload.MedicineTypeID)
+
+	case kafka.TopicMedicineUpdated:
+		var e events.MedicineUpdatedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 💊 Medicine updated: %s (type_id=%d, action=%s)",
+			e.Payload.Name, e.Payload.MedicineTypeID, e.Payload.Action)
+
+	case kafka.TopicMedicineDeleted:
+		var e events.MedicineDeletedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🗑️ Medicine deleted: %s (action=%s)",
+			e.Payload.Name, e.Payload.Action)
+
+	case kafka.TopicMedicineRestored:
+		var e events.MedicineRestoredEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] ♻️ Medicine restored: %s", e.Payload.Name)
+
+	case kafka.TopicMedicineActivated:
+		var e events.MedicineActivatedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] ✅ Medicine activated: %s", e.Payload.Name)
+
+	case kafka.TopicMedicineDeactivated:
+		var e events.MedicineDeactivatedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] ❌ Medicine deactivated: %s", e.Payload.Name)
+
+	case kafka.TopicMedicineStockAdded:
+		var e events.MedicineStockAddedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 📦 Medicine stock added: %s (+%d, total: %d)", e.Payload.Name, e.Payload.DeltaQuantity, e.Payload.StockQuantity)
+
+	case kafka.TopicMedicineStockReduced:
+		var e events.MedicineStockReducedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 📦 Medicine stock reduced: %s (-%d, total: %d)", e.Payload.Name, e.Payload.DeltaQuantity, e.Payload.StockQuantity)
+
+	// ── Appointment Events ──────────────────────────────────────────────────────
+
+	case kafka.TopicAppointmentCreated:
+		var e events.AppointmentCreatedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 📅 New appointment booked: ID=%d, Date=%s %s, Status=%s",
+			e.Payload.ID, e.Payload.AppointmentDate, e.Payload.AppointmentTime, e.Payload.Status)
+
+	case kafka.TopicAppointmentUpdated:
+		var e events.AppointmentUpdatedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 📅 Appointment updated: ID=%d, Status=%s", e.Payload.ID, e.Payload.Status)
+
+	case kafka.TopicAppointmentDeleted:
+		var e events.AppointmentDeletedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🗑️ Appointment deleted: ID=%d, Action=%s", e.Payload.ID, e.Payload.Action)
+
+	case kafka.TopicAppointmentRestored:
+		var e events.AppointmentRestoredEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] ♻️ Appointment restored: ID=%d", e.Payload.ID)
+
+	case kafka.TopicAppointmentConfirmed:
+		var e events.AppointmentConfirmedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] ✅ Appointment confirmed: ID=%d", e.Payload.ID)
+
+	case kafka.TopicAppointmentStarted:
+		var e events.AppointmentStartedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🩺 Appointment started (in progress): ID=%d", e.Payload.ID)
+
+	case kafka.TopicAppointmentCompleted:
+		var e events.AppointmentCompletedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🏁 Appointment completed: ID=%d", e.Payload.ID)
+
+	case kafka.TopicAppointmentCancelled:
+		var e events.AppointmentCancelledEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] ❌ Appointment cancelled: ID=%d, Reason=%s", e.Payload.ID, e.Payload.Reason)
+
+	case kafka.TopicAppointmentRescheduled:
+		var e events.AppointmentRescheduledEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🔄 Appointment rescheduled: ID=%d, New Date=%s %s",
+			e.Payload.ID, e.Payload.AppointmentDate, e.Payload.AppointmentTime)
+
+	case kafka.TopicAppointmentNoShow:
+		var e events.AppointmentNoShowEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🚫 Appointment marked as no-show: ID=%d", e.Payload.ID)
+
+	// ── Medical Record Events ──────────────────────────────────────────────────
+
+	case kafka.TopicMedicalRecordCreated:
+		var e events.MedicalRecordCreatedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 📝 New medical record created: ID=%d, PatientID=%d, DoctorID=%d", e.Payload.ID, e.Payload.PatientID, e.Payload.DoctorID)
+
+	case kafka.TopicMedicalRecordUpdated:
+		var e events.MedicalRecordUpdatedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 📝 Medical record updated: ID=%d, Action=%s", e.Payload.ID, e.Payload.Action)
+
+	case kafka.TopicMedicalRecordDeleted:
+		var e events.MedicalRecordDeletedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🗑️  Medical record deleted: ID=%d, Action=%s", e.Payload.ID, e.Payload.Action)
+
+	case kafka.TopicMedicalRecordRestored:
+		var e events.MedicalRecordRestoredEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] ♻️  Medical record restored: ID=%d", e.Payload.ID)
+
+	case kafka.TopicMedicalRecordFinalized:
+		var e events.MedicalRecordFinalizedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🔒 Medical record finalized: ID=%d", e.Payload.ID)
+
+	case kafka.TopicLabTestCreated:
+		var e events.LabTestCreatedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🧪 Lab test ordered: ID=%d, RecordID=%d", e.Payload.ID, e.Payload.MedicalRecordID)
+
+	case kafka.TopicLabTestUpdated:
+		var e events.LabTestUpdatedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🧪 Lab test updated: ID=%d, Action=%s", e.Payload.ID, e.Payload.Action)
+
+	case kafka.TopicLabTestSampleCollected:
+		var e events.LabTestSampleCollectedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🩸 Lab test sample collected: ID=%d", e.Payload.ID)
+
+	case kafka.TopicLabTestStarted:
+		var e events.LabTestStartedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🔬 Lab test started: ID=%d", e.Payload.ID)
+
+	case kafka.TopicLabTestCompleted:
+		var e events.LabTestCompletedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] ✅ Lab test completed: ID=%d", e.Payload.ID)
+
+	case kafka.TopicLabTestCancelled:
+		var e events.LabTestCancelledEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] ❌ Lab test cancelled: ID=%d", e.Payload.ID)
+
+	case kafka.TopicLabTestDeleted:
+		var e events.LabTestDeletedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🗑️  Lab test deleted: ID=%d, Action=%s", e.Payload.ID, e.Payload.Action)
+
+	case kafka.TopicLabTestRestored:
+		var e events.LabTestRestoredEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] ♻️  Lab test restored: ID=%d", e.Payload.ID)
+
+	case kafka.TopicPrescriptionCreated:
+		var e events.PrescriptionCreatedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 💊 New prescription created: ID=%d, RecordID=%d", e.Payload.ID, e.Payload.MedicalRecordID)
+
+	case kafka.TopicPrescriptionUpdated:
+		var e events.PrescriptionUpdatedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 💊 Prescription updated: ID=%d, Action=%s", e.Payload.ID, e.Payload.Action)
+
+	case kafka.TopicPrescriptionDispensed:
+		var e events.PrescriptionDispensedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 💊 Prescription dispensed: ID=%d", e.Payload.ID)
+
+	case kafka.TopicPrescriptionCancelled:
+		var e events.PrescriptionCancelledEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] ❌ Prescription cancelled: ID=%d", e.Payload.ID)
+
+	case kafka.TopicPrescriptionDeleted:
+		var e events.PrescriptionDeletedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🗑️  Prescription deleted: ID=%d, Action=%s", e.Payload.ID, e.Payload.Action)
+
+	case kafka.TopicPrescriptionRestored:
+		var e events.PrescriptionRestoredEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] ♻️  Prescription restored: ID=%d", e.Payload.ID)
+
+	case kafka.TopicPrescriptionItemCreated:
+		var e events.PrescriptionItemCreatedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 💊 Prescription item added: ID=%d, PrescriptionID=%d, MedicineID=%d", e.Payload.ID, e.Payload.PrescriptionID, e.Payload.MedicineID)
+
+	case kafka.TopicPrescriptionItemUpdated:
+		var e events.PrescriptionItemUpdatedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 💊 Prescription item updated: ID=%d", e.Payload.ID)
+
+	case kafka.TopicPrescriptionItemDeleted:
+		var e events.PrescriptionItemDeletedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🗑️  Prescription item deleted: ID=%d", e.Payload.ID)
+
+	case kafka.TopicVitalSignCreated:
+		var e events.VitalSignCreatedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 📊 Vital sign recorded: ID=%d, RecordID=%d", e.Payload.ID, e.Payload.MedicalRecordID)
+
+	case kafka.TopicVitalSignUpdated:
+		var e events.VitalSignUpdatedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 📊 Vital sign updated: ID=%d", e.Payload.ID)
+
+	case kafka.TopicVitalSignDeleted:
+		var e events.VitalSignDeletedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🗑️  Vital sign deleted: ID=%d, Action=%s", e.Payload.ID, e.Payload.Action)
+
+	case kafka.TopicVitalSignRestored:
+		var e events.VitalSignRestoredEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] ♻️  Vital sign restored: ID=%d", e.Payload.ID)
+
+	// ── Referral Events ────────────────────────────────────────────────────────
+
+	case kafka.TopicReferralCreated:
+		var e events.ReferralCreatedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 📨 New referral created: ID=%d, Number=%s, PatientID=%d", e.Payload.ID, e.Payload.ReferralNumber, e.Payload.PatientID)
+
+	case kafka.TopicReferralUpdated:
+		var e events.ReferralUpdatedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 📨 Referral updated: ID=%d, Number=%s", e.Payload.ID, e.Payload.ReferralNumber)
+
+	case kafka.TopicReferralDeleted:
+		var e events.ReferralDeletedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🗑️  Referral deleted: ID=%d, Action=%s", e.Payload.ID, e.Payload.Action)
+
+	case kafka.TopicReferralRestored:
+		var e events.ReferralRestoredEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] ♻️  Referral restored: ID=%d", e.Payload.ID)
+
+	case kafka.TopicReferralAccepted:
+		var e events.ReferralStatusChangedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] ✅ Referral accepted: ID=%d", e.Payload.ID)
+
+	case kafka.TopicReferralRejected:
+		var e events.ReferralStatusChangedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] ❌ Referral rejected: ID=%d", e.Payload.ID)
+
+	case kafka.TopicReferralCompleted:
+		var e events.ReferralStatusChangedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🏁 Referral completed: ID=%d", e.Payload.ID)
+
+	case kafka.TopicReferralCancelled:
+		var e events.ReferralStatusChangedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🚫 Referral cancelled: ID=%d", e.Payload.ID)
+
+	// ── Billing Events ─────────────────────────────────────────────────────────
+
+	case kafka.TopicBillingCreated:
+		var e events.BillingCreatedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 💵 New billing created: ID=%d, Invoice=%s", e.Payload.ID, e.Payload.InvoiceNumber)
+
+	case kafka.TopicBillingUpdated:
+		var e events.BillingUpdatedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 💵 Billing updated: ID=%d, Invoice=%s", e.Payload.ID, e.Payload.InvoiceNumber)
+
+	case kafka.TopicBillingDeleted:
+		var e events.BillingDeletedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🗑️  Billing deleted: ID=%d, Action=%s", e.Payload.ID, e.Payload.Action)
+
+	case kafka.TopicBillingRestored:
+		var e events.BillingRestoredEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] ♻️  Billing restored: ID=%d", e.Payload.ID)
+
+	case kafka.TopicBillingPaid:
+		var e events.BillingStatusChangedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] ✅ Billing paid: ID=%d, Invoice=%s, AmountPaid=%.2f", e.Payload.ID, e.Payload.InvoiceNumber, e.Payload.PaidAmount)
+
+	case kafka.TopicBillingCancelled:
+		var e events.BillingStatusChangedEvent
+		if err := json.Unmarshal(value, &e); err != nil {
+			return err
+		}
+		log.Printf("[NOTIFICATION] 🚫 Billing cancelled: ID=%d, Invoice=%s", e.Payload.ID, e.Payload.InvoiceNumber)
+
+	default:
+		log.Printf("[NOTIFICATION] ⚠️  Received unsupported topic: %s", topic)
 	}
 
 	return nil
@@ -223,9 +927,9 @@ func (h *NotificationEventHandler) sendPatientRegistrationConfirmation(email, fu
 	// TODO: Send booklet / patient welcome kit info
 }
 
-func (h *NotificationEventHandler) sendDoctorOnboardingNotification(email, fullName, specialization string) {
-	log.Printf("[NOTIFICATION] 📧 [EMAIL] Doctor onboarding → %s (%s) spec=%s",
-		email, fullName, specialization)
+func (h *NotificationEventHandler) sendDoctorOnboardingNotification(email, fullName string, specializationID uint) {
+	log.Printf("[NOTIFICATION] 📧 [EMAIL] Doctor onboarding → %s (%s) specialization_id=%d",
+		email, fullName, specializationID)
 	// TODO: Send onboarding materials
 }
 

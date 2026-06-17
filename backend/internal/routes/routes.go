@@ -11,14 +11,32 @@ import (
 )
 
 type RouteConfig struct {
-	Config            *config.Config
-	UserHandler       *handler.UserHandler
-	DepartmentHandler *handler.DepartmentHandler
-	PatientHandler    *handler.PatientHandler
-	DoctorHandler     *handler.DoctorHandler
-	RoomHandler       *handler.RoomHandler
-	TypeTestHandler   *handler.TypeTestHandler
-	MedicineHandler   *handler.MedicineHandler
+	Config                      *config.Config
+	UserHandler                 *handler.UserHandler
+	DepartmentHandler           *handler.DepartmentHandler
+	PatientHandler              *handler.PatientHandler
+	DoctorSpecializationHandler *handler.DoctorSpecializationHandler
+	DoctorHandler               *handler.DoctorHandler
+	RoomTypeHandler             *handler.RoomTypeHandler
+	RoomHandler                 *handler.RoomHandler
+	TypeTestCategoryHandler     *handler.TypeTestCategoryHandler
+	TypeTestHandler             *handler.TypeTestHandler
+	MedicineHandler             *handler.MedicineHandler
+	MedicineTypeHandler         *handler.MedicineTypeHandler
+	AppointmentHandler          *handler.AppointmentHandler
+	MedicalRecordHandler        *handler.MedicalRecordHandler
+	HospitalizationHandler      *handler.HospitalizationHandler
+	LabTestHandler              *handler.LabTestHandler
+	PrescriptionHandler         *handler.PrescriptionHandler
+	VitalSignHandler            *handler.VitalSignHandler
+	AllergyHandler              *handler.AllergyHandler
+	MedicalConditionHandler     *handler.MedicalConditionHandler
+	SurgicalHistoryHandler      *handler.SurgicalHistoryHandler
+	FamilyHistoryHandler        *handler.FamilyHistoryHandler
+	MedicalHistoryHandler       *handler.MedicalHistoryHandler
+	ReferralHandler             *handler.ReferralHandler
+	DashboardHandler            *handler.DashboardHandler
+	BillingHandler              *handler.BillingHandler
 }
 
 func SetupRouter(cfg *RouteConfig) *gin.Engine {

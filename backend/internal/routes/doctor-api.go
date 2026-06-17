@@ -20,8 +20,9 @@ func SetupDoctorRouter(rg *gin.RouterGroup, cfg *RouteConfig, doctorHandler *han
 		}
 
 		doctorGroup.GET("", doctorHandler.ListDoctors)
+		doctorGroup.GET("/active", doctorHandler.ActiveList)
+		doctorGroup.GET("/inactive", doctorHandler.InactiveList)
 		doctorGroup.GET("/:id", doctorHandler.GetDoctorByID)
-		doctorGroup.GET("/specialization/:spec", doctorHandler.GetDoctorBySpecialization)
 
 		adminRoutes := doctorGroup.Group("")
 		adminRoutes.Use(middleware.RoleMiddleware(models.RoleAdmin, models.RoleSuperAdmin))

@@ -16,10 +16,8 @@ func SetupRoomsRouter(rg *gin.RouterGroup, cfg *RouteConfig, roomHandler *handle
 		// All authenticated users can view rooms
 		roomGroup.GET("", roomHandler.ListRooms)
 		roomGroup.GET("/available", roomHandler.GetAvailableRoom)
+		roomGroup.GET("/active", roomHandler.GetByActiveRoom)
 		roomGroup.GET("/:id", roomHandler.GetRoomByID)
-		roomGroup.GET("/number/:room_number", roomHandler.GetRoomByRoomNumber)
-		roomGroup.GET("/type/:room_type", roomHandler.GetRoomByRoomType)
-		roomGroup.GET("/department/:dept_id", roomHandler.GetRoomByDepartmentID)
 
 		// Staff routes (Doctor, Receptionist, Admin, SuperAdmin) - can view occupied rooms
 		staffRoutes := roomGroup.Group("")

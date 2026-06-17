@@ -91,9 +91,9 @@ type DeletedPatientResponse struct {
 }
 
 type PatientPaginationQuery struct {
-	Page              int    `form:"page,default=1" binding:"omitempty,min=1"`
-	PageSize          int    `form:"page_size,default=10" binding:"omitempty,min=1,max=100"`
-	Search            string `form:"search" binding:"omitempty"`
+	Page     int `form:"page,default=1" binding:"omitempty,min=1"`
+	PageSize int `form:"page_size,default=10" binding:"omitempty,min=1,max=100"`
+
 	Gender            string `form:"gender" binding:"omitempty"`
 	BloodType         string `form:"blood_type" binding:"omitempty"`
 	InsuranceProvider string `form:"insurance_provider" binding:"omitempty"`

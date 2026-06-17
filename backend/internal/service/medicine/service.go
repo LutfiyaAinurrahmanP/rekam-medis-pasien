@@ -1,6 +1,7 @@
 package medicine
 
 import (
+	"errors"
 	"math"
 
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/config"
@@ -12,23 +13,22 @@ import (
 type MedicineService interface {
 	List(query *dto.MedicinePaginationQuery) (*dto.MedicineListResponse, error)
 	DeletedList(query *dto.MedicinePaginationQuery) (*dto.MedicineDeletedListResponse, error)
-	ListByAvailable(query *dto.MedicinePaginationQuery) (*dto.MedicineAvailableResponse, error)
-	ListByLowStock(query *dto.MedicinePaginationQuery) (*dto.MedicineLowStockResponse, error)
-	ListByOutStock(query *dto.MedicinePaginationQuery) (*dto.MedicineOutOfStockResponse, error)
-	ListByInactive(query *dto.MedicinePaginationQuery) (*dto.MedicineInactiveResponse, error)
+	AvailableList(query *dto.MedicinePaginationQuery) (*dto.MedicineListResponse, error)
+	LowStockList(query *dto.MedicinePaginationQuery) (*dto.MedicineListResponse, error)
+	OutStockList(query *dto.MedicinePaginationQuery) (*dto.MedicineListResponse, error)
+	ActiveList(query *dto.MedicinePaginationQuery) (*dto.MedicineListResponse, error)
+	InactiveList(query *dto.MedicinePaginationQuery) (*dto.MedicineListResponse, error)
 	FindByID(id uint) (*dto.MedicineResponse, error)
-	FindByName(name string) (*dto.MedicineResponse, error)
-	ListByType(query *dto.MedicinePaginationQuery) (*dto.MedicineByTypeResponse, error)
-	// Search()
-	// Create()
-	// Update()
-	// UpdateStock()
-	// UpdateMedicineReduceStock()
-	// UpdateActivate()
-	// UpdateDeactivate()
-	// SoftDelete()
-	// Restore()
-	// HardDelete()
+	FindByIDUnscoped(id uint) (*dto.DeletedMedicineResponse, error)
+	Create(req *dto.CreateMedicineRequest) (*dto.MedicineResponse, error)
+	Update(id uint, req *dto.UpdateMedicineRequest) (*dto.MedicineResponse, error)
+	AddStock(id uint, req *dto.AddStockRequest) error
+	ReduceStock(id uint, req *dto.ReduceStockRequest) error
+	Activate(id uint) error
+	Deactivate(id uint, req *dto.DeactivateMedicineRequest) error
+	SoftDelete(id uint) error
+	Restore(id uint) error
+	HardDelete(id uint) error
 }
 
 type medicineService struct {
@@ -66,7 +66,7 @@ func (s *medicineService) normalizeQuery(query *dto.MedicinePaginationQuery, def
 }
 
 func (s *medicineService) List(query *dto.MedicinePaginationQuery) (*dto.MedicineListResponse, error) {
-	s.normalizeQuery(query, "name", "asc")
+	s.normalizeQuery(query, "created_at", "desc")
 
 	medicines, total, err := s.repo.List(query)
 	if err != nil {
@@ -91,14 +91,14 @@ func (s *medicineService) List(query *dto.MedicinePaginationQuery) (*dto.Medicin
 }
 
 func (s *medicineService) DeletedList(query *dto.MedicinePaginationQuery) (*dto.MedicineDeletedListResponse, error) {
-	s.normalizeQuery(query, "name", "asc")
+	s.normalizeQuery(query, "created_at", "desc")
 
 	medicines, total, err := s.repo.DeletedList(query)
 	if err != nil {
 		return nil, err
 	}
 
-	responses := make([]dto.MedicineDeletedResponse, len(medicines))
+	responses := make([]dto.DeletedMedicineResponse, len(medicines))
 	for i, m := range medicines {
 		responses[i] = *s.toDeletedResponse(&m)
 	}
@@ -115,10 +115,9 @@ func (s *medicineService) DeletedList(query *dto.MedicinePaginationQuery) (*dto.
 	}, nil
 }
 
-func (s *medicineService) ListByAvailable(query *dto.MedicinePaginationQuery) (*dto.MedicineAvailableResponse, error) {
-	s.normalizeQuery(query, "name", "asc")
-
-	medicines, total, err := s.repo.ListByAvailable(query)
+func (s *medicineService) AvailableList(query *dto.MedicinePaginationQuery) (*dto.MedicineListResponse, error) {
+	s.normalizeQuery(query, "created_at", "desc")
+	medicines, total, err := s.repo.AvailableList(query)
 	if err != nil {
 		return nil, err
 	}
@@ -129,9 +128,8 @@ func (s *medicineService) ListByAvailable(query *dto.MedicinePaginationQuery) (*
 	}
 
 	totalPages := int(math.Ceil(float64(total) / float64(query.PageSize)))
-	return &dto.MedicineAvailableResponse{
-		TotalAvailable: total,
-		Data:           responses,
+	return &dto.MedicineListResponse{
+		Data: responses,
 		Meta: dto.MedicinePaginationMeta{
 			Page:       query.Page,
 			PageSize:   query.PageSize,
@@ -141,10 +139,9 @@ func (s *medicineService) ListByAvailable(query *dto.MedicinePaginationQuery) (*
 	}, nil
 }
 
-func (s *medicineService) ListByLowStock(query *dto.MedicinePaginationQuery) (*dto.MedicineLowStockResponse, error) {
-	s.normalizeQuery(query, "name", "asc")
-
-	medicines, total, err := s.repo.ListByLowStock(query)
+func (s *medicineService) LowStockList(query *dto.MedicinePaginationQuery) (*dto.MedicineListResponse, error) {
+	s.normalizeQuery(query, "stock", "asc")
+	medicines, total, err := s.repo.LowStockList(query)
 	if err != nil {
 		return nil, err
 	}
@@ -155,10 +152,8 @@ func (s *medicineService) ListByLowStock(query *dto.MedicinePaginationQuery) (*d
 	}
 
 	totalPages := int(math.Ceil(float64(total) / float64(query.PageSize)))
-	return &dto.MedicineLowStockResponse{
-		Threshold:     10,
-		TotalLowStock: total,
-		Data:          responses,
+	return &dto.MedicineListResponse{
+		Data: responses,
 		Meta: dto.MedicinePaginationMeta{
 			Page:       query.Page,
 			PageSize:   query.PageSize,
@@ -168,10 +163,9 @@ func (s *medicineService) ListByLowStock(query *dto.MedicinePaginationQuery) (*d
 	}, nil
 }
 
-func (s *medicineService) ListByOutStock(query *dto.MedicinePaginationQuery) (*dto.MedicineOutOfStockResponse, error) {
-	s.normalizeQuery(query, "name", "asc")
-
-	medicines, total, err := s.repo.ListByOutStock(query)
+func (s *medicineService) OutStockList(query *dto.MedicinePaginationQuery) (*dto.MedicineListResponse, error) {
+	s.normalizeQuery(query, "stock", "asc")
+	medicines, total, err := s.repo.OutStockList(query)
 	if err != nil {
 		return nil, err
 	}
@@ -182,9 +176,8 @@ func (s *medicineService) ListByOutStock(query *dto.MedicinePaginationQuery) (*d
 	}
 
 	totalPages := int(math.Ceil(float64(total) / float64(query.PageSize)))
-	return &dto.MedicineOutOfStockResponse{
-		TotalOutOfStock: total,
-		Data:            responses,
+	return &dto.MedicineListResponse{
+		Data: responses,
 		Meta: dto.MedicinePaginationMeta{
 			Page:       query.Page,
 			PageSize:   query.PageSize,
@@ -194,10 +187,9 @@ func (s *medicineService) ListByOutStock(query *dto.MedicinePaginationQuery) (*d
 	}, nil
 }
 
-func (s *medicineService) ListByInactive(query *dto.MedicinePaginationQuery) (*dto.MedicineInactiveResponse, error) {
-	s.normalizeQuery(query, "name", "asc")
-
-	medicines, total, err := s.repo.ListByInactive(query)
+func (s *medicineService) ActiveList(query *dto.MedicinePaginationQuery) (*dto.MedicineListResponse, error) {
+	s.normalizeQuery(query, "created_at", "desc")
+	medicines, total, err := s.repo.ActiveList(query)
 	if err != nil {
 		return nil, err
 	}
@@ -208,9 +200,32 @@ func (s *medicineService) ListByInactive(query *dto.MedicinePaginationQuery) (*d
 	}
 
 	totalPages := int(math.Ceil(float64(total) / float64(query.PageSize)))
-	return &dto.MedicineInactiveResponse{
-		TotalInactive: total,
-		Data:          responses,
+	return &dto.MedicineListResponse{
+		Data: responses,
+		Meta: dto.MedicinePaginationMeta{
+			Page:       query.Page,
+			PageSize:   query.PageSize,
+			TotalItems: total,
+			TotalPages: totalPages,
+		},
+	}, nil
+}
+
+func (s *medicineService) InactiveList(query *dto.MedicinePaginationQuery) (*dto.MedicineListResponse, error) {
+	s.normalizeQuery(query, "created_at", "desc")
+	medicines, total, err := s.repo.InactiveList(query)
+	if err != nil {
+		return nil, err
+	}
+
+	responses := make([]dto.MedicineResponse, len(medicines))
+	for i, m := range medicines {
+		responses[i] = *s.toResponse(&m)
+	}
+
+	totalPages := int(math.Ceil(float64(total) / float64(query.PageSize)))
+	return &dto.MedicineListResponse{
+		Data: responses,
 		Meta: dto.MedicinePaginationMeta{
 			Page:       query.Page,
 			PageSize:   query.PageSize,
@@ -228,77 +243,196 @@ func (s *medicineService) FindByID(id uint) (*dto.MedicineResponse, error) {
 	return s.toResponse(m), nil
 }
 
-func (s *medicineService) FindByName(name string) (*dto.MedicineResponse, error) {
-	m, err := s.repo.FindByName(name)
+func (s *medicineService) FindByIDUnscoped(id uint) (*dto.DeletedMedicineResponse, error) {
+	m, err := s.repo.FindByIDUnscoped(id)
 	if err != nil {
 		return nil, err
 	}
+	return s.toDeletedResponse(m), nil
+}
+
+func (s *medicineService) Create(req *dto.CreateMedicineRequest) (*dto.MedicineResponse, error) {
+	m := &models.Medicine{
+		Name:           req.Name,
+		GenericName:    req.GenericName,
+		BrandName:      req.BrandName,
+		MedicineTypeID: *req.MedicineTypeID,
+		Strength:       req.Strength,
+		Manufacturer:   req.Manufacturer,
+		Unit:           req.Unit,
+		StockQuantity:  *req.StockQuantity,
+	}
+
+	if req.Price != nil {
+		m.Price = *req.Price
+	}
+	if req.IsActive != nil {
+		m.IsActive = *req.IsActive
+	} else {
+		m.IsActive = true
+	}
+
+	if err := s.repo.Create(m); err != nil {
+		return nil, err
+	}
+
 	return s.toResponse(m), nil
 }
 
-func (s *medicineService) ListByType(query *dto.MedicinePaginationQuery) (*dto.MedicineByTypeResponse, error) {
-	s.normalizeQuery(query, "name", "asc")
-
-	medicines, total, err := s.repo.ListByType(query)
+func (s *medicineService) Update(id uint, req *dto.UpdateMedicineRequest) (*dto.MedicineResponse, error) {
+	m, err := s.repo.FindByID(id)
 	if err != nil {
 		return nil, err
 	}
 
-	responses := make([]dto.MedicineResponse, len(medicines))
-	for i, m := range medicines {
-		responses[i] = *s.toResponse(&m)
+	if req.Name != nil {
+		m.Name = *req.Name
+	}
+	if req.GenericName != nil {
+		m.GenericName = *req.GenericName
+	}
+	if req.BrandName != nil {
+		m.BrandName = *req.BrandName
+	}
+	if req.MedicineTypeID != nil {
+		m.MedicineTypeID = *req.MedicineTypeID
+	}
+	if req.Strength != nil {
+		m.Strength = *req.Strength
+	}
+	if req.Manufacturer != nil {
+		m.Manufacturer = *req.Manufacturer
+	}
+	if req.Unit != nil {
+		m.Unit = *req.Unit
+	}
+	if req.Price != nil {
+		m.Price = *req.Price
 	}
 
-	totalPages := int(math.Ceil(float64(total) / float64(query.PageSize)))
-	return &dto.MedicineByTypeResponse{
-		TotalMedicines: total,
-		Data:           responses,
-		Meta: dto.MedicinePaginationMeta{
-			Page:       query.Page,
-			PageSize:   query.PageSize,
-			TotalItems: total,
-			TotalPages: totalPages,
-		},
-	}, nil
+	if err := s.repo.Update(m); err != nil {
+		return nil, err
+	}
+
+	return s.toResponse(m), nil
+}
+
+func (s *medicineService) AddStock(id uint, req *dto.AddStockRequest) error {
+	m, err := s.repo.FindByID(id)
+	if err != nil {
+		return err
+	}
+	if !m.IsActive {
+		return errors.New("medicine is not active")
+	}
+	return s.repo.AddStock(id, req.Quantity)
+}
+
+func (s *medicineService) ReduceStock(id uint, req *dto.ReduceStockRequest) error {
+	m, err := s.repo.FindByID(id)
+	if err != nil {
+		return err
+	}
+
+	if !m.IsActive {
+		return errors.New("medicine is not active")
+	}
+
+	if m.StockQuantity < req.Quantity {
+		return errors.New("insufficient stock")
+	}
+
+	return s.repo.ReduceStock(id, req.Quantity)
+}
+
+func (s *medicineService) Activate(id uint) error {
+	m, err := s.repo.FindByID(id)
+	if err != nil {
+		return err
+	}
+	if m.IsActive {
+		return errors.New("medicine is already active")
+	}
+	return s.repo.Activate(id)
+}
+
+func (s *medicineService) Deactivate(id uint, req *dto.DeactivateMedicineRequest) error {
+	m, err := s.repo.FindByID(id)
+	if err != nil {
+		return err
+	}
+	if !m.IsActive {
+		return errors.New("medicine is already inactive")
+	}
+	return s.repo.Deactivate(id)
+}
+
+func (s *medicineService) SoftDelete(id uint) error {
+	m, err := s.repo.FindByID(id)
+	if err != nil {
+		return err
+	}
+	if m.DeletedAt.Valid {
+		return errors.New("medicine is already deleted")
+	}
+	return s.repo.SoftDelete(id)
+}
+
+func (s *medicineService) Restore(id uint) error {
+	m, _ := s.repo.FindByIDUnscoped(id)
+	if m == nil {
+		return errors.New("medicine not found")
+	}
+	if !m.DeletedAt.Valid {
+		return errors.New("medicine is not deleted")
+	}
+	return s.repo.Restore(id)
+}
+
+func (s *medicineService) HardDelete(id uint) error {
+	m, _ := s.repo.FindByIDUnscoped(id)
+	if m == nil {
+		return errors.New("medicine not found")
+	}
+	if !m.DeletedAt.Valid {
+		return errors.New("medicine is not deleted")
+	}
+	return s.repo.HardDelete(id)
 }
 
 func (s *medicineService) toResponse(m *models.Medicine) *dto.MedicineResponse {
 	return &dto.MedicineResponse{
-		ID:            m.ID,
-		Name:          m.Name,
-		GenericName:   m.GenericName,
-		BrandName:     m.BrandName,
-		Type:          m.Type,
-		Strength:      m.Strength,
-		Manufacturer:  m.Manufacturer,
-		Unit:          m.Unit,
-		StockQuantity: m.StockQuantity,
-		Price:         m.Price,
-		IsActive:      m.IsActive,
-		IsLowStock:    m.StockQuantity == 10,
-		IsOutOfStock:  m.StockQuantity == 0,
-		CreatedAt:     m.CreatedAt,
-		UpdatedAt:     m.UpdatedAt,
+		ID:             m.ID,
+		Name:           m.Name,
+		GenericName:    m.GenericName,
+		BrandName:      m.BrandName,
+		MedicineTypeID: m.MedicineTypeID,
+		Strength:       m.Strength,
+		Manufacturer:   m.Manufacturer,
+		Unit:           m.Unit,
+		StockQuantity:  m.StockQuantity,
+		Price:          m.Price,
+		IsActive:       m.IsActive,
+		CreatedAt:      m.CreatedAt,
+		UpdatedAt:      m.UpdatedAt,
 	}
 }
 
-func (s *medicineService) toDeletedResponse(m *models.Medicine) *dto.MedicineDeletedResponse {
-	return &dto.MedicineDeletedResponse{
-		ID:            m.ID,
-		Name:          m.Name,
-		GenericName:   m.GenericName,
-		BrandName:     m.BrandName,
-		Type:          m.Type,
-		Strength:      m.Strength,
-		Manufacturer:  m.Manufacturer,
-		Unit:          m.Unit,
-		StockQuantity: m.StockQuantity,
-		Price:         m.Price,
-		IsActive:      m.IsActive,
-		IsLowStock:    m.StockQuantity == 10,
-		IsOutOfStock:  m.StockQuantity == 0,
-		CreatedAt:     m.CreatedAt,
-		UpdatedAt:     m.UpdatedAt,
-		DeletedAt:     &m.DeletedAt.Time,
+func (s *medicineService) toDeletedResponse(m *models.Medicine) *dto.DeletedMedicineResponse {
+	return &dto.DeletedMedicineResponse{
+		ID:             m.ID,
+		Name:           m.Name,
+		GenericName:    m.GenericName,
+		BrandName:      m.BrandName,
+		MedicineTypeID: m.MedicineTypeID,
+		Strength:       m.Strength,
+		Manufacturer:   m.Manufacturer,
+		Unit:           m.Unit,
+		StockQuantity:  m.StockQuantity,
+		Price:          m.Price,
+		IsActive:       m.IsActive,
+		CreatedAt:      m.CreatedAt,
+		UpdatedAt:      m.UpdatedAt,
+		DeletedAt:      &m.DeletedAt.Time,
 	}
 }

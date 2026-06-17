@@ -8,14 +8,13 @@ import (
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/dto"
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/models"
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/repository"
-	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/utils"
 )
 
 type PatientService interface {
 	ListPatients(query *dto.PatientPaginationQuery) (*dto.PatientListResponse, error)
 	DeleteListPatients(query *dto.PatientPaginationQuery) (*dto.PatientDeletedListResponse, error)
 	GetPatientByID(id uint) (*dto.PatientResponse, error)
-	GetPatientByCode(code string) (*dto.PatientResponse, error)
+
 	GetMyPatientData(userID uint) (*dto.PatientResponse, error)
 	UpdateMyPatientData(userID uint, req *dto.UpdatePatientRequest) (*dto.PatientResponse, error)
 	CreatePatient(req *dto.CreatePatientRequest) (*dto.PatientResponse, error)
@@ -127,14 +126,6 @@ func (s *patientService) DeleteListPatients(query *dto.PatientPaginationQuery) (
 
 func (s *patientService) GetPatientByID(id uint) (*dto.PatientResponse, error) {
 	patient, err := s.repo.FindById(id)
-	if err != nil {
-		return nil, err
-	}
-	return s.toPatientResponse(patient), nil
-}
-
-func (s *patientService) GetPatientByCode(code string) (*dto.PatientResponse, error) {
-	patient, err := s.repo.FindByCode(code)
 	if err != nil {
 		return nil, err
 	}
@@ -312,17 +303,13 @@ func (s *patientService) HardDeletePatient(id uint) error {
 }
 
 func (s *patientService) toPatientResponse(patient *models.Patient) *dto.PatientResponse {
-	age, err := utils.CalculateAge(patient.DateOfBirth)
-	if err != nil {
-		age = 0
-	}
 	return &dto.PatientResponse{
 		ID:                    patient.ID,
 		UserID:                patient.UserID,
 		PatientCode:           patient.PatientCode,
 		FullName:              patient.FullName,
 		DateOfBirth:           patient.DateOfBirth,
-		Age:                   age,
+		Age:                   patient.Age(),
 		Gender:                patient.Gender,
 		BloodType:             patient.BloodType,
 		Phone:                 patient.Phone,
@@ -339,17 +326,13 @@ func (s *patientService) toPatientResponse(patient *models.Patient) *dto.Patient
 }
 
 func (s *patientService) toDeletePatientResponse(patient *models.Patient) *dto.DeletedPatientResponse {
-	age, err := utils.CalculateAge(patient.DateOfBirth)
-	if err != nil {
-		age = 0
-	}
 	return &dto.DeletedPatientResponse{
 		ID:                    patient.ID,
 		UserID:                patient.UserID,
 		PatientCode:           patient.PatientCode,
 		FullName:              patient.FullName,
 		DateOfBirth:           patient.DateOfBirth,
-		Age:                   age,
+		Age:                   patient.Age(),
 		Gender:                patient.Gender,
 		BloodType:             patient.BloodType,
 		Phone:                 patient.Phone,

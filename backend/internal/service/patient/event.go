@@ -35,10 +35,6 @@ func (s *eventPatientService) GetPatientByID(id uint) (*dto.PatientResponse, err
 	return s.inner.GetPatientByID(id)
 }
 
-func (s *eventPatientService) GetPatientByCode(code string) (*dto.PatientResponse, error) {
-	return s.inner.GetPatientByCode(code)
-}
-
 func (s *eventPatientService) GetMyPatientData(userID uint) (*dto.PatientResponse, error) {
 	return s.inner.GetMyPatientData(userID)
 }

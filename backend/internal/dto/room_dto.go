@@ -14,7 +14,7 @@ type RoomDeletedListResponse struct {
 
 type CreateRoomRequest struct {
 	RoomNumber    string   `json:"room_number" binding:"required,min=1,max=20"`
-	RoomType      string   `json:"room_type" binding:"required,oneof=vip class_1 class_2 class_3 icu emergency"`
+	RoomTypeID    *uint    `json:"room_type_id" binding:"required"`
 	DepartmentID  *uint    `json:"department_id" binding:"omitempty"`
 	BedCapacity   int      `json:"bed_capacity" binding:"required,min=1"`
 	AvailableBeds *int     `json:"available_beds" binding:"omitempty,min=0"`
@@ -24,7 +24,7 @@ type CreateRoomRequest struct {
 
 type UpdateRoomRequest struct {
 	RoomNumber   *string  `json:"room_number" binding:"omitempty,min=1,max=20"`
-	RoomType     *string  `json:"room_type" binding:"omitempty,oneof=vip class_1 class_2 class_3 icu emergency"`
+	RoomTypeID   *uint    `json:"room_type_id" binding:"omitempty"`
 	DepartmentID *uint    `json:"department_id" binding:"omitempty"`
 	BedCapacity  *int     `json:"bed_capacity" binding:"omitempty,min=1"`
 	PricePerDay  *float64 `json:"price_per_day" binding:"omitempty,min=0"`
@@ -40,41 +40,33 @@ type ReleaseRoomRequest struct {
 }
 
 type RoomResponse struct {
-	ID            uint            `json:"id"`
-	RoomNumber    string          `json:"room_number"`
-	RoomType      string          `json:"room_type"`
-	DepartmentID  *uint           `json:"department_id,omitempty"`
-	Department    *DepartmentInfo `json:"department,omitempty"`
-	BedCapacity   int             `json:"bed_capacity"`
-	AvailableBeds int             `json:"available_beds"`
-	PricePerDay   float64         `json:"price_per_day"`
-	IsActive      bool            `json:"is_active"`
-	OccupancyRate float64         `json:"occupancy_rate"`
-	IsAvailable   bool            `json:"is_available,omitempty"`
-	IsFull        bool            `json:"is_full,omitempty"`
-	CreatedAt     time.Time       `json:"created_at"`
-	UpdatedAt     time.Time       `json:"updated_at,omitempty"`
+	ID            uint      `json:"id"`
+	RoomNumber    string    `json:"room_number"`
+	RoomTypeID    *uint     `json:"room_type_id,omitempty"`
+	DepartmentID  *uint     `json:"department_id,omitempty"`
+	BedCapacity   int       `json:"bed_capacity"`
+	AvailableBeds int       `json:"available_beds"`
+	PricePerDay   float64   `json:"price_per_day"`
+	IsActive      bool      `json:"is_active"`
+	OccupancyRate float64   `json:"occupancy_rate"`
+	IsAvailable   bool      `json:"is_available,omitempty"`
+	IsFull        bool      `json:"is_full,omitempty"`
+	CreatedAt     time.Time `json:"created_at"`
+	UpdatedAt     time.Time `json:"updated_at,omitempty"`
 }
 
 type DeletedRoomResponse struct {
-	ID            uint            `json:"id"`
-	RoomNumber    string          `json:"room_number"`
-	RoomType      string          `json:"room_type"`
-	DepartmentID  *uint           `json:"department_id,omitempty"`
-	Department    *DepartmentInfo `json:"department,omitempty"`
-	BedCapacity   int             `json:"bed_capacity"`
-	AvailableBeds int             `json:"available_beds"`
-	PricePerDay   float64         `json:"price_per_day"`
-	IsActive      bool            `json:"is_active"`
-	CreatedAt     time.Time       `json:"created_at"`
-	UpdatedAt     time.Time       `json:"updated_at,omitempty"`
-	DeletedAt     *time.Time      `json:"deleted_at"`
-}
-
-type DepartmentInfo struct {
-	ID   uint   `json:"id"`
-	Name string `json:"name"`
-	Code string `json:"code,omitempty"`
+	ID            uint       `json:"id"`
+	RoomNumber    string     `json:"room_number"`
+	RoomTypeID    *uint      `json:"room_type_id,omitempty"`
+	DepartmentID  *uint      `json:"department_id,omitempty"`
+	BedCapacity   int        `json:"bed_capacity"`
+	AvailableBeds int        `json:"available_beds"`
+	PricePerDay   float64    `json:"price_per_day"`
+	IsActive      bool       `json:"is_active"`
+	CreatedAt     time.Time  `json:"created_at"`
+	UpdatedAt     time.Time  `json:"updated_at,omitempty"`
+	DeletedAt     *time.Time `json:"deleted_at"`
 }
 
 type RoomPaginationQuery struct {

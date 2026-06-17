@@ -44,14 +44,6 @@ func (m *MockPatientRepository) FindByUserID(userID uint) (*models.Patient, erro
 	return args.Get(0).(*models.Patient), args.Error(1)
 }
 
-func (m *MockPatientRepository) FindByCode(code string) (*models.Patient, error) {
-	args := m.Called(code)
-	if args.Get(0) == nil {
-		return nil, args.Error(1)
-	}
-	return args.Get(0).(*models.Patient), args.Error(1)
-}
-
 func (m *MockPatientRepository) Create(patient *models.Patient) error {
 	args := m.Called(patient)
 	return args.Error(0)

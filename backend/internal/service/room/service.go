@@ -15,11 +15,9 @@ type RoomService interface {
 	DeleteListRooms(query *dto.RoomPaginationQuery) (*dto.RoomDeletedListResponse, error)
 	GetAvailableRooms(query *dto.RoomPaginationQuery) (*dto.RoomListResponse, error)
 	GetOccupiedRooms(query *dto.RoomPaginationQuery) (*dto.RoomListResponse, error)
+	GetActiveRooms(query *dto.RoomPaginationQuery) (*dto.RoomListResponse, error)
 	GetInactiveRooms(query *dto.RoomPaginationQuery) (*dto.RoomListResponse, error)
 	GetRoomByID(id uint) (*dto.RoomResponse, error)
-	GetByRoomNumber(roomNumber string) (*dto.RoomResponse, error)
-	GetByRoomType(roomType string) (*dto.RoomResponse, error)
-	GetByDepatymentID(deptID string) (*dto.RoomResponse, error)
 	CreateRoom(req *dto.CreateRoomRequest) (*dto.RoomResponse, error)
 	UpdateRoom(id uint, req *dto.UpdateRoomRequest) (*dto.RoomResponse, error)
 	ActivateRoom(id uint) (*dto.RoomResponse, error)
@@ -219,6 +217,50 @@ func (s roomService) GetOccupiedRooms(query *dto.RoomPaginationQuery) (*dto.Room
 	}, nil
 }
 
+func (s roomService) GetActiveRooms(query *dto.RoomPaginationQuery) (*dto.RoomListResponse, error) {
+	if query.Page < 1 {
+		query.Page = 1
+	}
+
+	if query.PageSize < 1 {
+		query.PageSize = s.config.Pagination.DefaultPageSize
+	}
+
+	if query.PageSize > s.config.Pagination.MaxPageSize {
+		query.PageSize = s.config.Pagination.MaxPageSize
+	}
+
+	if query.SortBy == "" {
+		query.SortBy = "created_at"
+	}
+
+	if query.SortDir == "" {
+		query.SortDir = "desc"
+	}
+
+	rooms, total, err := s.repo.FindActiveRooms(query)
+	if err != nil {
+		return nil, err
+	}
+
+	roomResponses := make([]dto.RoomResponse, len(rooms))
+	for i, room := range rooms {
+		roomResponses[i] = *s.toRoomResponse(&room)
+	}
+
+	totalPages := int(math.Ceil(float64(total) / float64(query.PageSize)))
+
+	return &dto.RoomListResponse{
+		Data: roomResponses,
+		Meta: dto.RoomPaginationMeta{
+			Page:       query.Page,
+			PageSize:   query.PageSize,
+			TotalItems: total,
+			TotalPages: totalPages,
+		},
+	}, nil
+}
+
 func (s roomService) GetInactiveRooms(query *dto.RoomPaginationQuery) (*dto.RoomListResponse, error) {
 	if query.Page < 1 {
 		query.Page = 1
@@ -271,31 +313,6 @@ func (s roomService) GetRoomByID(id uint) (*dto.RoomResponse, error) {
 	return s.toRoomResponse(room), nil
 }
 
-func (s roomService) GetByRoomNumber(roomNumber string) (*dto.RoomResponse, error) {
-	room, err := s.repo.FindByRoomNumber(roomNumber)
-	if err != nil {
-		return nil, err
-	}
-	return s.toRoomResponse(room), nil
-}
-
-func (s roomService) GetByRoomType(roomType string) (*dto.RoomResponse, error) {
-	room, err := s.repo.FindByRoomType(roomType)
-	if err != nil {
-		return nil, err
-	}
-	return s.toRoomResponse(room), nil
-}
-
-func (s roomService) GetByDepatymentID(deptID string) (*dto.RoomResponse, error) {
-	dept, err := s.repo.FindByDepartmentID(deptID)
-	if err != nil {
-		return nil, err
-	}
-
-	return s.toRoomResponse(dept), nil
-}
-
 func (s roomService) CreateRoom(req *dto.CreateRoomRequest) (*dto.RoomResponse, error) {
 	exists, err := s.repo.IsRoomNumberExists(req.RoomNumber)
 	if err != nil {
@@ -324,7 +341,7 @@ func (s roomService) CreateRoom(req *dto.CreateRoomRequest) (*dto.RoomResponse, 
 
 	room := &models.Room{
 		RoomNumber:    req.RoomNumber,
-		RoomType:      req.RoomType,
+		RoomTypeID:    req.RoomTypeID,
 		DepartmentID:  req.DepartmentID,
 		BedCapacity:   req.BedCapacity,
 		AvailableBeds: availableBeds,
@@ -356,8 +373,8 @@ func (s roomService) UpdateRoom(id uint, req *dto.UpdateRoomRequest) (*dto.RoomR
 		room.RoomNumber = *req.RoomNumber
 	}
 
-	if req.RoomType != nil {
-		room.RoomType = *req.RoomType
+	if req.RoomTypeID != nil {
+		room.RoomTypeID = req.RoomTypeID
 	}
 
 	if req.DepartmentID != nil {
@@ -469,26 +486,10 @@ func (s roomService) SoftDeleteRoom(id uint) error {
 }
 
 func (s roomService) RestoreRoom(id uint) error {
-	// Use FindByIDIncludingDeleted to find soft-deleted records
-	_, err := s.repo.(interface {
-		FindByIDIncludingDeleted(uint) (*models.Room, error)
-	}).FindByIDIncludingDeleted(id)
-	if err != nil {
-		return err
-	}
-
 	return s.repo.Restore(id)
 }
 
 func (s roomService) HardDeleteRoom(id uint) error {
-	// Use FindByIDIncludingDeleted to find soft-deleted records
-	_, err := s.repo.(interface {
-		FindByIDIncludingDeleted(uint) (*models.Room, error)
-	}).FindByIDIncludingDeleted(id)
-	if err != nil {
-		return err
-	}
-
 	return s.repo.HardDelete(id)
 }
 
@@ -496,7 +497,7 @@ func (s *roomService) toRoomResponse(room *models.Room) *dto.RoomResponse {
 	return &dto.RoomResponse{
 		ID:            room.ID,
 		RoomNumber:    room.RoomNumber,
-		RoomType:      room.RoomType,
+		RoomTypeID:    room.RoomTypeID,
 		DepartmentID:  room.DepartmentID,
 		BedCapacity:   room.BedCapacity,
 		AvailableBeds: room.AvailableBeds,
@@ -508,10 +509,11 @@ func (s *roomService) toRoomResponse(room *models.Room) *dto.RoomResponse {
 }
 
 func (s *roomService) toDeleteRoomResponse(room *models.Room) *dto.DeletedRoomResponse {
+
 	return &dto.DeletedRoomResponse{
 		ID:            room.ID,
 		RoomNumber:    room.RoomNumber,
-		RoomType:      room.RoomType,
+		RoomTypeID:    room.RoomTypeID,
 		DepartmentID:  room.DepartmentID,
 		BedCapacity:   room.BedCapacity,
 		AvailableBeds: room.AvailableBeds,

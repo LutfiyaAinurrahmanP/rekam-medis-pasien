@@ -38,24 +38,16 @@ func (s *eventRoomService) GetOccupiedRooms(query *dto.RoomPaginationQuery) (*dt
 	return s.inner.GetOccupiedRooms(query)
 }
 
+func (s *eventRoomService) GetActiveRooms(query *dto.RoomPaginationQuery) (*dto.RoomListResponse, error) {
+	return s.inner.GetActiveRooms(query)
+}
+
 func (s *eventRoomService) GetInactiveRooms(query *dto.RoomPaginationQuery) (*dto.RoomListResponse, error) {
 	return s.inner.GetInactiveRooms(query)
 }
 
 func (s *eventRoomService) GetRoomByID(id uint) (*dto.RoomResponse, error) {
 	return s.inner.GetRoomByID(id)
-}
-
-func (s *eventRoomService) GetByRoomNumber(roomNumber string) (*dto.RoomResponse, error) {
-	return s.inner.GetByRoomNumber(roomNumber)
-}
-
-func (s *eventRoomService) GetByRoomType(roomType string) (*dto.RoomResponse, error) {
-	return s.inner.GetByRoomType(roomType)
-}
-
-func (s *eventRoomService) GetByDepatymentID(deptID string) (*dto.RoomResponse, error) {
-	return s.inner.GetByDepatymentID(deptID)
 }
 
 // ─── Write operations ─────────────────────────────────────────────────────────
@@ -67,7 +59,7 @@ func (s *eventRoomService) CreateRoom(req *dto.CreateRoomRequest) (*dto.RoomResp
 	}
 	s.publisher.PublishAsync(kafka.TopicRoomCreated,
 		events.NewRoomCreatedEvent(
-			result.ID, result.RoomNumber, result.RoomType, result.DepartmentID,
+			result.ID, result.RoomNumber, result.RoomTypeID, result.DepartmentID,
 			result.BedCapacity, result.AvailableBeds, result.PricePerDay, result.IsActive,
 		))
 	return result, nil
@@ -80,7 +72,7 @@ func (s *eventRoomService) UpdateRoom(id uint, req *dto.UpdateRoomRequest) (*dto
 	}
 	s.publisher.PublishAsync(kafka.TopicRoomUpdated,
 		events.NewRoomUpdatedEvent(
-			result.ID, result.RoomNumber, result.RoomType, result.DepartmentID,
+			result.ID, result.RoomNumber, result.RoomTypeID, result.DepartmentID,
 			result.BedCapacity, result.AvailableBeds, result.PricePerDay, result.IsActive, "update",
 		))
 	return result, nil
@@ -93,7 +85,7 @@ func (s *eventRoomService) ActivateRoom(id uint) (*dto.RoomResponse, error) {
 	}
 	s.publisher.PublishAsync(kafka.TopicRoomUpdated,
 		events.NewRoomUpdatedEvent(
-			result.ID, result.RoomNumber, result.RoomType, result.DepartmentID,
+			result.ID, result.RoomNumber, result.RoomTypeID, result.DepartmentID,
 			result.BedCapacity, result.AvailableBeds, result.PricePerDay, result.IsActive, "activate",
 		))
 	return result, nil
@@ -106,7 +98,7 @@ func (s *eventRoomService) DeactivateRoom(id uint) (*dto.RoomResponse, error) {
 	}
 	s.publisher.PublishAsync(kafka.TopicRoomUpdated,
 		events.NewRoomUpdatedEvent(
-			result.ID, result.RoomNumber, result.RoomType, result.DepartmentID,
+			result.ID, result.RoomNumber, result.RoomTypeID, result.DepartmentID,
 			result.BedCapacity, result.AvailableBeds, result.PricePerDay, result.IsActive, "deactivate",
 		))
 	return result, nil
@@ -119,7 +111,7 @@ func (s *eventRoomService) OccupyRoom(id uint, beds int) (*dto.RoomResponse, err
 	}
 	s.publisher.PublishAsync(kafka.TopicRoomUpdated,
 		events.NewRoomUpdatedEvent(
-			result.ID, result.RoomNumber, result.RoomType, result.DepartmentID,
+			result.ID, result.RoomNumber, result.RoomTypeID, result.DepartmentID,
 			result.BedCapacity, result.AvailableBeds, result.PricePerDay, result.IsActive, "occupy",
 		))
 	return result, nil
@@ -132,7 +124,7 @@ func (s *eventRoomService) ReleaseRoom(id uint, beds int) (*dto.RoomResponse, er
 	}
 	s.publisher.PublishAsync(kafka.TopicRoomUpdated,
 		events.NewRoomUpdatedEvent(
-			result.ID, result.RoomNumber, result.RoomType, result.DepartmentID,
+			result.ID, result.RoomNumber, result.RoomTypeID, result.DepartmentID,
 			result.BedCapacity, result.AvailableBeds, result.PricePerDay, result.IsActive, "release",
 		))
 	return result, nil

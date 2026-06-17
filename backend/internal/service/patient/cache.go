@@ -35,7 +35,6 @@ func (s *cachedPatientService) ListPatients(query *dto.PatientPaginationQuery) (
 	key := cache.PatientListQueryKey(
 		query.Page,
 		query.PageSize,
-		normalizeCachePart(query.Search),
 		normalizeCachePart(query.Gender),
 		normalizeCachePart(query.BloodType),
 		normalizeCachePart(query.InsuranceProvider),
@@ -60,7 +59,6 @@ func (s *cachedPatientService) DeleteListPatients(query *dto.PatientPaginationQu
 	key := cache.PatientDeletedListQueryKey(
 		query.Page,
 		query.PageSize,
-		normalizeCachePart(query.Search),
 		normalizeCachePart(query.Gender),
 		normalizeCachePart(query.BloodType),
 		normalizeCachePart(query.InsuranceProvider),
@@ -88,20 +86,6 @@ func (s *cachedPatientService) GetPatientByID(id uint) (*dto.PatientResponse, er
 		return &resp, nil
 	}
 	result, err := s.inner.GetPatientByID(id)
-	if err != nil {
-		return nil, err
-	}
-	s.setCache(key, result)
-	return result, nil
-}
-
-func (s *cachedPatientService) GetPatientByCode(code string) (*dto.PatientResponse, error) {
-	key := cache.PatientByCodeKey(code)
-	var resp dto.PatientResponse
-	if err := s.redis.Get(context.Background(), key, &resp); err == nil {
-		return &resp, nil
-	}
-	result, err := s.inner.GetPatientByCode(code)
 	if err != nil {
 		return nil, err
 	}

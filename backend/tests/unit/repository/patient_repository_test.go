@@ -56,23 +56,6 @@ func TestPatientRepository_FindByUserID_NotFound(t *testing.T) {
 	assert.Error(t, err)
 }
 
-// ============= Test Cases: FindByCode =============
-
-func TestPatientRepository_FindByCode_Success(t *testing.T) {
-	patient := mocks.NewTestPatientWithData(1, "PAT001", "John Doe", "1990-01-01", "male", "O")
-
-	assert.NotNil(t, patient)
-	assert.Equal(t, "PAT001", patient.PatientCode)
-}
-
-func TestPatientRepository_FindByCode_NotFound(t *testing.T) {
-	var patient *mocks.MockPatientRepository
-	err := errors.New("patient not found")
-
-	assert.Nil(t, patient)
-	assert.Error(t, err)
-}
-
 // ============= Test Cases: List =============
 
 func TestPatientRepository_List_Success(t *testing.T) {

@@ -14,7 +14,7 @@ type PatientRepository interface {
 	DeleteList(query *dto.PatientPaginationQuery) ([]models.Patient, int64, error)
 	FindById(id uint) (*models.Patient, error)
 	FindByUserID(userID uint) (*models.Patient, error)
-	FindByCode(code string) (*models.Patient, error)
+
 	Create(patient *models.Patient) error
 	Update(patient *models.Patient) error
 	SoftDelete(id uint) error
@@ -40,11 +40,6 @@ func (r patientRepository) List(query *dto.PatientPaginationQuery) ([]models.Pat
 	)
 
 	db := r.db.Model(&models.Patient{})
-
-	if query.Search != "" {
-		searchPattern := fmt.Sprintf("%%%s%%", query.Search)
-		db = db.Where("full_name ILIKE ? OR patient_code ILIKE ? OR phone ILIKE ? OR email ILIKE ?", searchPattern, searchPattern, searchPattern, searchPattern)
-	}
 
 	if query.Gender != "" {
 		db = db.Where("gender = ?", query.Gender)
@@ -85,11 +80,6 @@ func (r patientRepository) DeleteList(query *dto.PatientPaginationQuery) ([]mode
 
 	db := r.db.Unscoped().Model(&models.Patient{}).Where("deleted_at IS NOT NULL")
 
-	if query.Search != "" {
-		searchPattern := fmt.Sprintf("%%%s%%", query.Search)
-		db = db.Where("full_name ILIKE ? OR patient_code ILIKE ? OR phone ILIKE ? OR email ILIKE ?", searchPattern, searchPattern, searchPattern, searchPattern)
-	}
-
 	if query.Gender != "" {
 		db = db.Where("gender = ?", query.Gender)
 	}
@@ -124,18 +114,6 @@ func (r patientRepository) FindById(id uint) (*models.Patient, error) {
 func (r patientRepository) FindByUserID(userID uint) (*models.Patient, error) {
 	var patient models.Patient
 	err := r.db.Where("user_id = ?", &userID).First(&patient).Error
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.New("patient not found")
-		}
-		return nil, err
-	}
-	return &patient, nil
-}
-
-func (r patientRepository) FindByCode(code string) (*models.Patient, error) {
-	var patient models.Patient
-	err := r.db.Where("patient_code = ?", code).First(&patient).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New("patient not found")

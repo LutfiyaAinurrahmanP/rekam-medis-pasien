@@ -9,7 +9,8 @@ import (
 type Room struct {
 	ID            uint           `gorm:"primaryKey" json:"id"`
 	RoomNumber    string         `gorm:"unique;not null;size:20;index" json:"room_number"`
-	RoomType      string         `gorm:"type:varchar(20);not null;index" json:"room_type"`
+	RoomTypeID    *uint          `gorm:"index;constraint:OnUpdate:CASCADE,OnDelete:SET NULL" json:"room_type_id"`
+	RoomType      *RoomType      `gorm:"foreignKey:RoomTypeID;references:ID" json:"room_type,omitempty"`
 	DepartmentID  *uint          `gorm:"index;constraint:OnUpdate:CASCADE,OnDelete:SET NULL" json:"department_id"`
 	Department    *Department    `gorm:"foreignKey:DepartmentID;references:ID" json:"department,omitempty"`
 	BedCapacity   int            `gorm:"not null;default:1" json:"bed_capacity"`

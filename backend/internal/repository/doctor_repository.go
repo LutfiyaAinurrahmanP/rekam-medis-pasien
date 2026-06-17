@@ -15,7 +15,8 @@ type DoctorRepository interface {
 	FindByID(id uint) (*models.Doctor, error)
 	FindByUserID(userID uint) (*models.Doctor, error)
 	FindByDepartmentID(departmentID uint) (*models.Doctor, error)
-	FindBySpecialization(specialization string) (*models.Doctor, error)
+	ActiveList(query *dto.DoctorPaginationQuery) ([]models.Doctor, int64, error)
+	InactiveList(query *dto.DoctorPaginationQuery) ([]models.Doctor, int64, error)
 	Create(doctor *models.Doctor) error
 	Update(doctor *models.Doctor) error
 	SoftDelete(id uint) error
@@ -44,7 +45,11 @@ func (r *doctorRepository) List(query *dto.DoctorPaginationQuery) ([]models.Doct
 
 	if query.Search != "" {
 		searchPattern := fmt.Sprintf("%%%s%%", query.Search)
-		db = db.Where("full_name ILIKE ? OR specialization = ?", searchPattern, searchPattern)
+		db = db.Where("full_name ILIKE ?", searchPattern)
+	}
+
+	if query.SpecializationID != nil {
+		db = db.Where("specialization_id = ?", query.SpecializationID)
 	}
 
 	if err := db.Count(&total).Error; err != nil {
@@ -76,7 +81,11 @@ func (r *doctorRepository) DeleteList(query *dto.DoctorPaginationQuery) ([]model
 
 	if query.Search != "" {
 		searchPattern := fmt.Sprintf("%%%s%%", query.Search)
-		db = db.Where("full_name ILIKE ? OR specialization = ?", searchPattern, searchPattern)
+		db = db.Where("full_name ILIKE ?", searchPattern)
+	}
+
+	if query.SpecializationID != nil {
+		db = db.Where("specialization_id = ?", query.SpecializationID)
 	}
 
 	if err := db.Count(&total).Error; err != nil {
@@ -135,16 +144,76 @@ func (r *doctorRepository) FindByDepartmentID(departmentID uint) (*models.Doctor
 	return &doctor, nil
 }
 
-func (r *doctorRepository) FindBySpecialization(specialization string) (*models.Doctor, error) {
-	var doctor models.Doctor
-	err := r.db.Where("specialization = ?", specialization).First(&doctor).Error
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.New("doctor not found")
-		}
-		return nil, err
+func (r *doctorRepository) ActiveList(query *dto.DoctorPaginationQuery) ([]models.Doctor, int64, error) {
+	var (
+		doctors []models.Doctor
+		total   int64
+	)
+
+	db := r.db.Model(&models.Doctor{}).Where("is_active = ?", true)
+
+	if query.Search != "" {
+		searchPattern := fmt.Sprintf("%%%s%%", query.Search)
+		db = db.Where("full_name ILIKE ?", searchPattern)
 	}
-	return &doctor, nil
+
+	if query.SpecializationID != nil {
+		db = db.Where("specialization_id = ?", query.SpecializationID)
+	}
+
+	if err := db.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	orderClause := query.SortBy
+	if query.SortDir == "desc" {
+		orderClause += " desc"
+	} else {
+		orderClause += " asc"
+	}
+	db = db.Order(orderClause)
+
+	offset := (query.Page - 1) * query.PageSize
+	if err := db.Offset(offset).Limit(query.PageSize).Find(&doctors).Error; err != nil {
+		return nil, 0, err
+	}
+	return doctors, total, nil
+}
+
+func (r *doctorRepository) InactiveList(query *dto.DoctorPaginationQuery) ([]models.Doctor, int64, error) {
+	var (
+		doctors []models.Doctor
+		total   int64
+	)
+
+	db := r.db.Model(&models.Doctor{}).Where("is_active = ?", false)
+
+	if query.Search != "" {
+		searchPattern := fmt.Sprintf("%%%s%%", query.Search)
+		db = db.Where("full_name ILIKE ?", searchPattern)
+	}
+
+	if query.SpecializationID != nil {
+		db = db.Where("specialization_id = ?", query.SpecializationID)
+	}
+
+	if err := db.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	orderClause := query.SortBy
+	if query.SortDir == "desc" {
+		orderClause += " desc"
+	} else {
+		orderClause += " asc"
+	}
+	db = db.Order(orderClause)
+
+	offset := (query.Page - 1) * query.PageSize
+	if err := db.Offset(offset).Limit(query.PageSize).Find(&doctors).Error; err != nil {
+		return nil, 0, err
+	}
+	return doctors, total, nil
 }
 
 func (r *doctorRepository) Create(doctor *models.Doctor) error {

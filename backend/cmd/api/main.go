@@ -18,13 +18,32 @@ import (
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/kafka"
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/repository"
 	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/routes"
+	appointmentservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/appointment"
 	departmentservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/department"
 	doctorservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/doctor"
+	doctorspecializationservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/doctor-specialization"
+	hospitalizationservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/hospitalization"
+	labtestservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/lab-test"
+	medicalrecordservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/medical-record"
 	medicineservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/medicine"
+	medicinetypeservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/medicine-type"
 	patientservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/patient"
+	prescriptionservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/prescription"
+	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/referral"
 	roomservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/room"
-	typetestservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/typetest"
+	roomtypeservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/room-type"
+	typetestservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/type-test"
+	typetestcategorieservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/type-test-category"
 	userservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/user"
+	vitalsignservice "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/vital-sign"
+
+	"github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/medical-history/allergy"
+	familyHistory "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/medical-history/familyHistory"
+	medicalCondition "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/medical-history/medicalCondition"
+	surgicalHistory "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/medical-history/surgicalHistory"
+	medicalhistory "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/medical-history"
+	dashboard "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/dashboard"
+	billing "github.com/LutfiyaAinurrahmanP/sirekam-medis-pasien/internal/service/billing"
 	"gorm.io/gorm"
 )
 
@@ -91,14 +110,31 @@ func main() {
 
 	// Setup router with all routes
 	router := routes.SetupRouter(&routes.RouteConfig{
-		Config:            cfg,
-		UserHandler:       dependencies.UserHandler,
-		DepartmentHandler: dependencies.DepartmentHandler,
-		PatientHandler:    dependencies.PatientHandler,
-		DoctorHandler:     dependencies.DoctorHandler,
-		RoomHandler:       dependencies.RoomHandler,
-		TypeTestHandler:   dependencies.TypeTestHandler,
-		MedicineHandler:   dependencies.MedicineHandler,
+		Config:                      cfg,
+		UserHandler:                 dependencies.UserHandler,
+		DepartmentHandler:           dependencies.DepartmentHandler,
+		PatientHandler:              dependencies.PatientHandler,
+		DoctorSpecializationHandler: dependencies.DoctorSpecializationHandler,
+		DoctorHandler:               dependencies.DoctorHandler,
+		RoomTypeHandler:             dependencies.RoomTypeHandler,
+		RoomHandler:                 dependencies.RoomHandler,
+		TypeTestCategoryHandler:     dependencies.TypeTestCategoryHandler,
+		TypeTestHandler:             dependencies.TypeTestHandler,
+		MedicineHandler:             dependencies.MedicineHandler,
+		MedicineTypeHandler:         dependencies.MedicineTypeHandler,
+		AppointmentHandler:          dependencies.AppointmentHandler,
+		MedicalRecordHandler:        dependencies.MedicalRecordHandler,
+		HospitalizationHandler:      dependencies.HospitalizationHandler,
+		LabTestHandler:              dependencies.LabTestHandler,
+		PrescriptionHandler:         dependencies.PrescriptionHandler,
+		VitalSignHandler:            dependencies.VitalSignHandler,
+		AllergyHandler:              dependencies.AllergyHandler,
+		MedicalConditionHandler:     dependencies.MedicalConditionHandler,
+		SurgicalHistoryHandler:      dependencies.SurgicalHistoryHandler,
+		FamilyHistoryHandler:        dependencies.FamilyHistoryHandler,
+		MedicalHistoryHandler:       dependencies.MedicalHistoryHandler,
+		DashboardHandler:            dependencies.DashboardHandler,
+		BillingHandler:              dependencies.BillingHandler,
 	})
 
 	// Setup HTTP server
@@ -133,31 +169,97 @@ func main() {
 // Dependencies holds all application dependencies
 type Dependencies struct {
 	// Repositories
-	UserRepository       repository.UserRepository
-	DepartmentRepository repository.DepartmentRepository
-	PatientRepository    repository.PatientRepository
-	DoctorRepository     repository.DoctorRepository
-	RoomRepository       repository.RoomRepository
-	TypeTestRepository   repository.TypeTestRepository
-	MedicineRepository   repository.MedicineRepository
+	UserRepository                 repository.UserRepository
+	DepartmentRepository           repository.DepartmentRepository
+	PatientRepository              repository.PatientRepository
+	DoctorSpecializationRepository repository.DoctorSpecializationRepository
+	DoctorRepository               repository.DoctorRepository
+	RoomTypeRepository             repository.RoomTypeRepository
+	RoomRepository                 repository.RoomRepository
+	TypeTestCategoryRepository     repository.TypeTestCategoryRepository
+	TypeTestRepository             repository.TypeTestRepository
+	MedicineRepository             repository.MedicineRepository
+	MedicineTypeRepository         repository.MedicineTypeRepository
+	AppointmentRepository          repository.AppointmentRepository
+	MedicalRecordRepository        repository.MedicalRecordRepository
+	HospitalizationRepository      repository.HospitalizationRepository
+	LabTestRepository              repository.LabTestRepository
+	PrescriptionRepository         repository.PrescriptionRepository
+	VitalSignRepository            repository.VitalSignRepository
 
 	// Services
-	UserService       userservice.UserService
-	DepartmentService departmentservice.DepartmentService
-	PatientService    patientservice.PatientService
-	DoctorService     doctorservice.DoctorService
-	RoomService       roomservice.RoomService
-	TypeTestService   typetestservice.TypeTestService
-	MedicineService   medicineservice.MedicineService
+	UserService                 userservice.UserService
+	DepartmentService           departmentservice.DepartmentService
+	PatientService              patientservice.PatientService
+	DoctorSpecializationService doctorspecializationservice.DoctorSpecializationService
+	DoctorService               doctorservice.DoctorService
+	RoomTypeService             roomtypeservice.RoomTypeService
+	RoomService                 roomservice.RoomService
+	TypeTestCategoryService     typetestcategorieservice.TypeTestCategoryService
+	TypeTestService             typetestservice.TypeTestService
+	MedicineService             medicineservice.MedicineService
+	MedicineTypeService         medicinetypeservice.MedicineTypeService
+	AppointmentService          appointmentservice.AppointmentService
+	MedicalRecordService        medicalrecordservice.MedicalRecordService
+	HospitalizationService      hospitalizationservice.HospitalizationService
+	LabTestService              labtestservice.LabTestService
+	PrescriptionService         prescriptionservice.PrescriptionService
+	VitalSignService            vitalsignservice.VitalSignService
 
 	// Handlers
-	UserHandler       *handler.UserHandler
-	DepartmentHandler *handler.DepartmentHandler
-	PatientHandler    *handler.PatientHandler
-	DoctorHandler     *handler.DoctorHandler
-	RoomHandler       *handler.RoomHandler
-	TypeTestHandler   *handler.TypeTestHandler
-	MedicineHandler   *handler.MedicineHandler
+	UserHandler                 *handler.UserHandler
+	DepartmentHandler           *handler.DepartmentHandler
+	PatientHandler              *handler.PatientHandler
+	DoctorSpecializationHandler *handler.DoctorSpecializationHandler
+	DoctorHandler               *handler.DoctorHandler
+	RoomTypeHandler             *handler.RoomTypeHandler
+	RoomHandler                 *handler.RoomHandler
+	TypeTestCategoryHandler     *handler.TypeTestCategoryHandler
+	TypeTestHandler             *handler.TypeTestHandler
+	MedicineHandler             *handler.MedicineHandler
+	MedicineTypeHandler         *handler.MedicineTypeHandler
+	AppointmentHandler          *handler.AppointmentHandler
+	MedicalRecordHandler        *handler.MedicalRecordHandler
+	HospitalizationHandler      *handler.HospitalizationHandler
+	LabTestHandler              *handler.LabTestHandler
+	PrescriptionHandler         *handler.PrescriptionHandler
+	VitalSignHandler            *handler.VitalSignHandler
+
+	// Medical History Repositories
+	AllergyRepository          repository.AllergyRepository
+	MedicalConditionRepository repository.MedicalConditionRepository
+	SurgicalHistoryRepository  repository.SurgicalHistoryRepository
+	FamilyHistoryRepository    repository.FamilyHistoryRepository
+
+	// Medical History Services
+	AllergyService          allergy.AllergyService
+	MedicalConditionService medicalCondition.MedicalConditionService
+	SurgicalHistoryService  surgicalHistory.SurgicalHistoryService
+	FamilyHistoryService    familyHistory.FamilyHistoryService
+
+	// Medical History Handlers
+	AllergyHandler          *handler.AllergyHandler
+	MedicalConditionHandler *handler.MedicalConditionHandler
+	SurgicalHistoryHandler  *handler.SurgicalHistoryHandler
+	FamilyHistoryHandler    *handler.FamilyHistoryHandler
+	
+	// Medical History Aggregate Service
+	MedicalHistoryRepository repository.MedicalHistoryRepository
+	MedicalHistoryService    medicalhistory.MedicalHistoryService
+	MedicalHistoryHandler    *handler.MedicalHistoryHandler
+
+	// Dashboard Aggregate Service
+	DashboardRepository repository.DashboardRepository
+	DashboardService    dashboard.DashboardService
+	DashboardHandler    *handler.DashboardHandler
+
+	ReferralRepository repository.ReferralRepository
+	ReferralService    referral.ReferralService
+	ReferralHandler    *handler.ReferralHandler
+
+	BillingRepository repository.BillingRepository
+	BillingService    billing.BillingService
+	BillingHandler    *handler.BillingHandler
 }
 
 // initDependencies initializes all application dependencies
@@ -166,10 +268,30 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 	userRepo := repository.NewUserRepository(db)
 	departmentRepo := repository.NewDepartmentRepository(db)
 	patientRepo := repository.NewPatientRepository(db)
+	doctorSpecializationRepo := repository.NewDoctorSpecializationRepository(db)
 	doctorRepo := repository.NewDoctorRepository(db)
+	roomTypeRepo := repository.NewRoomTypeRepository(db)
 	roomRepo := repository.NewRoomRepository(db)
+	typeTestCategoryRepo := repository.NewTypeTestCategoryRepository(db)
 	typeTestRepo := repository.NewTypeTestRepository(db)
 	medicineRepo := repository.NewMedicineRepository(db)
+	medicineTypeRepo := repository.NewMedicineTypeRepository(db)
+	appointmentRepo := repository.NewAppointmentRepository(db)
+	medicalRecordRepo := repository.NewMedicalRecordRepository(db)
+	hospitalizationRepo := repository.NewHospitalizationRepository(db)
+	labTestRepo := repository.NewLabTestRepository(db)
+	prescriptionRepo := repository.NewPrescriptionRepository(db)
+	vitalSignRepo := repository.NewVitalSignRepository(db)
+
+	allergyRepo := repository.NewAllergyRepository(db)
+	medicalConditionRepo := repository.NewMedicalConditionRepository(db)
+	surgicalHistoryRepo := repository.NewSurgicalHistoryRepository(db)
+	familyHistoryRepo := repository.NewFamilyHistoryRepository(db)
+	
+	medicalHistoryRepo := repository.NewMedicalHistoryRepository(db)
+	dashboardRepo := repository.NewDashboardRepository(db)
+	referralRepo := repository.NewReferralRepository(db)
+	billingRepo := repository.NewBillingRepository(db)
 
 	// Konversi *RedisClient ke interface RedisStore hanya jika non-nil.
 	// Tanpa ini, passing typed-nil ke parameter interface menghasilkan non-nil
@@ -193,20 +315,90 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 		patientservice.NewCachedPatientService(patientservice.NewPatientService(patientRepo, cfg), redisClient),
 		publisher,
 	)
+
+	doctorSpecializationService := doctorspecializationservice.NewEventDoctorSpecializationService(
+		doctorspecializationservice.NewCachedDoctorSpecializationService(doctorspecializationservice.NewDoctorSpecializationService(doctorSpecializationRepo, cfg), redisClient),
+		publisher,
+	)
+
 	doctorService := doctorservice.NewEventDoctorService(
 		doctorservice.NewCachedDoctorService(doctorservice.NewDoctorService(doctorRepo, cfg), redisClient),
+		publisher,
+	)
+	roomTypeService := roomtypeservice.NewEventRoomTypeService(
+		roomtypeservice.NewCachedRoomTypeService(roomtypeservice.NewRoomTypeService(roomTypeRepo, cfg), redisClient),
 		publisher,
 	)
 	roomService := roomservice.NewEventRoomService(
 		roomservice.NewCachedRoomService(roomservice.NewRoomService(roomRepo, cfg), redisClient),
 		publisher,
 	)
+	typeTestCategoryService := typetestcategorieservice.NewEventTypeTestCategoryService(
+		typetestcategorieservice.NewCachedTypeTestCategoryService(typetestcategorieservice.NewTypeTestCategoryService(typeTestCategoryRepo, cfg), redisClient),
+		publisher,
+	)
 	typeTestService := typetestservice.NewEventTypeTestService(
 		typetestservice.NewCachedTypeTestService(typetestservice.NewTypeTestService(typeTestRepo, cfg), redisClient),
 		publisher,
 	)
-	medicineService := medicineservice.NewMedicineEventService(
+	medicineService := medicineservice.NewEventMedicineService(
 		medicineservice.NewCachedMedicineService(medicineservice.NewMedicineService(medicineRepo, cfg), redisClient),
+		publisher,
+	)
+	medicineTypeService := medicinetypeservice.NewEventMedicineTypeService(
+		medicinetypeservice.NewCachedMedicineTypeService(medicinetypeservice.NewMedicineTypeService(medicineTypeRepo, cfg), redisClient),
+		publisher,
+	)
+	appointmentService := appointmentservice.NewEventAppointmentService(
+		appointmentservice.NewCachedAppointmentService(appointmentservice.NewAppointmentService(appointmentRepo, cfg), redisClient),
+		publisher,
+	)
+	medicalRecordService := medicalrecordservice.NewEventedMedicalRecordService(
+		medicalrecordservice.NewCachedMedicalRecordService(medicalrecordservice.NewMedicalRecordService(medicalRecordRepo, cfg), redisClient),
+		publisher,
+	)
+	hospitalizationService := hospitalizationservice.NewEventedHospitalizationService(
+		hospitalizationservice.NewCachedHospitalizationService(hospitalizationservice.NewHospitalizationService(hospitalizationRepo, cfg), redisClient),
+		publisher,
+	)
+	labTestService := labtestservice.NewEventedLabTestService(
+		labtestservice.NewCachedLabTestService(labtestservice.NewLabTestService(labTestRepo, cfg), redisClient),
+		publisher,
+	)
+	prescriptionService := prescriptionservice.NewEventPrescriptionService(
+		prescriptionservice.NewCachedPrescriptionService(prescriptionservice.NewPrescriptionService(prescriptionRepo, cfg), redisClient),
+		publisher,
+	)
+	vitalSignService := vitalsignservice.NewEventedVitalSignService(
+		vitalsignservice.NewCachedVitalSignService(vitalsignservice.NewVitalSignService(vitalSignRepo, cfg, medicalRecordRepo), redisClient),
+		publisher,
+	)
+
+	allergyService := allergy.NewEventedAllergyService(
+		allergy.NewCachedAllergyService(allergy.NewAllergyService(allergyRepo, cfg), redisClient),
+		publisher,
+	)
+	medicalConditionService := medicalCondition.NewEventedMedicalConditionService(
+		medicalCondition.NewCachedMedicalConditionService(medicalCondition.NewMedicalConditionService(medicalConditionRepo, cfg), redisClient),
+		publisher,
+	)
+	surgicalHistoryService := surgicalHistory.NewEventedSurgicalHistoryService(
+		surgicalHistory.NewCachedSurgicalHistoryService(surgicalHistory.NewSurgicalHistoryService(surgicalHistoryRepo, cfg), redisClient),
+		publisher,
+	)
+	familyHistoryService := familyHistory.NewEventedFamilyHistoryService(
+		familyHistory.NewCachedFamilyHistoryService(familyHistory.NewFamilyHistoryService(familyHistoryRepo, cfg), redisClient),
+		publisher,
+	)
+
+	medicalHistoryService := medicalhistory.NewCachedMedicalHistoryService(medicalhistory.NewMedicalHistoryService(medicalHistoryRepo, cfg), redisClient)
+	dashboardService := dashboard.NewCachedDashboardService(dashboard.NewDashboardService(dashboardRepo), redisClient)
+	referralService := referral.NewEventReferralService(
+		referral.NewCachedReferralService(referral.NewReferralService(referralRepo), redisClient),
+		publisher,
+	)
+	billingService := billing.NewEventBillingService(
+		billing.NewCachedBillingService(billing.NewBillingService(billingRepo), redisClient),
 		publisher,
 	)
 
@@ -214,10 +406,29 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 	userHandler := handler.NewUserHandler(userService)
 	departmentHandler := handler.NewDepartmentHandler(departmentService)
 	patientHandler := handler.NewPatientHandler(patientService)
+	doctorSpecializationHandler := handler.NewDoctorSpecializationHandler(doctorSpecializationService)
 	doctorHandler := handler.NewDoctorHandler(doctorService)
+	roomTypeHandler := handler.NewRoomTypeHandler(roomTypeService)
 	roomHandler := handler.NewRoomHandler(roomService)
+	typeTestCategoryHandler := handler.NewTypeTestCategoryHandler(typeTestCategoryService)
 	typeTestHandler := handler.NewTypeTestHandler(typeTestService)
 	medicineHandler := handler.NewMedicineHandler(medicineService)
+	medicineTypeHandler := handler.NewMedicineTypeHandler(medicineTypeService)
+	appointmentHandler := handler.NewAppointmentHandler(appointmentService, doctorRepo, patientRepo)
+	medicalRecordHandler := handler.NewMedicalRecordHandler(medicalRecordService, doctorRepo, patientRepo)
+	hospitalizationHandler := handler.NewHospitalizationHandler(hospitalizationService)
+	labTestHandler := handler.NewLabTestHandler(labTestService, doctorRepo)
+	prescriptionHandler := handler.NewPrescriptionHandler(prescriptionService, doctorRepo, patientRepo)
+	vitalSignHandler := handler.NewVitalSignHandler(vitalSignService)
+
+	allergyHandler := handler.NewAllergyHandler(allergyService)
+	medicalConditionHandler := handler.NewMedicalConditionHandler(medicalConditionService)
+	surgicalHistoryHandler := handler.NewSurgicalHistoryHandler(surgicalHistoryService)
+	familyHistoryHandler := handler.NewFamilyHistoryHandler(familyHistoryService)
+	medicalHistoryHandler := handler.NewMedicalHistoryHandler(medicalHistoryService)
+	dashboardHandler := handler.NewDashboardHandler(dashboardService, doctorRepo, patientRepo)
+	referralHandler := handler.NewReferralHandler(referralService)
+	billingHandler := handler.NewBillingHandler(billingService)
 
 	return &Dependencies{
 		UserRepository: userRepo,
@@ -232,13 +443,25 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 		PatientService:    patientService,
 		PatientHandler:    patientHandler,
 
+		DoctorSpecializationRepository: doctorSpecializationRepo,
+		DoctorSpecializationService:    doctorSpecializationService,
+		DoctorSpecializationHandler:    doctorSpecializationHandler,
+
 		DoctorRepository: doctorRepo,
 		DoctorService:    doctorService,
 		DoctorHandler:    doctorHandler,
 
+		RoomTypeRepository: roomTypeRepo,
+		RoomTypeService:    roomTypeService,
+		RoomTypeHandler:    roomTypeHandler,
+
 		RoomRepository: roomRepo,
 		RoomService:    roomService,
 		RoomHandler:    roomHandler,
+
+		TypeTestCategoryRepository: typeTestCategoryRepo,
+		TypeTestCategoryService:    typeTestCategoryService,
+		TypeTestCategoryHandler:    typeTestCategoryHandler,
 
 		TypeTestRepository: typeTestRepo,
 		TypeTestService:    typeTestService,
@@ -247,6 +470,66 @@ func initDependencies(db *gorm.DB, cfg *config.Config, redisClient *cache.RedisC
 		MedicineRepository: medicineRepo,
 		MedicineService:    medicineService,
 		MedicineHandler:    medicineHandler,
+
+		MedicineTypeRepository: medicineTypeRepo,
+		MedicineTypeService:    medicineTypeService,
+		MedicineTypeHandler:    medicineTypeHandler,
+
+		AppointmentRepository: appointmentRepo,
+		AppointmentService:    appointmentService,
+		AppointmentHandler:    appointmentHandler,
+
+		MedicalRecordRepository: medicalRecordRepo,
+		MedicalRecordService:    medicalRecordService,
+		MedicalRecordHandler:    medicalRecordHandler,
+
+		HospitalizationRepository: hospitalizationRepo,
+		HospitalizationService:    hospitalizationService,
+		HospitalizationHandler:    hospitalizationHandler,
+
+		LabTestRepository: labTestRepo,
+		LabTestService:    labTestService,
+		LabTestHandler:    labTestHandler,
+
+		PrescriptionRepository: prescriptionRepo,
+		PrescriptionService:    prescriptionService,
+		PrescriptionHandler:    prescriptionHandler,
+
+		VitalSignRepository: vitalSignRepo,
+		VitalSignService:    vitalSignService,
+		VitalSignHandler:    vitalSignHandler,
+
+		AllergyRepository: allergyRepo,
+		AllergyService:    allergyService,
+		AllergyHandler:    allergyHandler,
+
+		MedicalConditionRepository: medicalConditionRepo,
+		MedicalConditionService:    medicalConditionService,
+		MedicalConditionHandler:    medicalConditionHandler,
+
+		SurgicalHistoryRepository: surgicalHistoryRepo,
+		SurgicalHistoryService:    surgicalHistoryService,
+		SurgicalHistoryHandler:    surgicalHistoryHandler,
+
+		FamilyHistoryRepository: familyHistoryRepo,
+		FamilyHistoryService:    familyHistoryService,
+		FamilyHistoryHandler:    familyHistoryHandler,
+
+		MedicalHistoryRepository: medicalHistoryRepo,
+		MedicalHistoryService:    medicalHistoryService,
+		MedicalHistoryHandler:    medicalHistoryHandler,
+
+		DashboardRepository: dashboardRepo,
+		DashboardService:    dashboardService,
+		DashboardHandler:    dashboardHandler,
+
+		ReferralRepository: referralRepo,
+		ReferralService:    referralService,
+		ReferralHandler:    referralHandler,
+
+		BillingRepository: billingRepo,
+		BillingService:    billingService,
+		BillingHandler:    billingHandler,
 	}
 }
 

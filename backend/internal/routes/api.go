@@ -17,6 +17,10 @@ func SetupAPIRouter(rg *gin.RouterGroup, cfg *RouteConfig) {
 		SetupDepartmentsRouter(rg, cfg, cfg.DepartmentHandler)
 	}
 
+	if cfg.DoctorSpecializationHandler != nil {
+		SetupDoctorSpecializationRouter(rg, cfg, cfg.DoctorSpecializationHandler)
+	}
+
 	// Setup Doctors routes
 	if cfg.DoctorHandler != nil {
 		SetupDoctorRouter(rg, cfg, cfg.DoctorHandler)
@@ -27,9 +31,19 @@ func SetupAPIRouter(rg *gin.RouterGroup, cfg *RouteConfig) {
 		SetupPatientsRouter(rg, cfg, cfg.PatientHandler)
 	}
 
+	// Setup Room Types routes
+	if cfg.RoomTypeHandler != nil {
+		SetupRoomTypeRouter(rg, cfg, cfg.RoomTypeHandler)
+	}
+
 	// Setup Rooms routes
 	if cfg.RoomHandler != nil {
 		SetupRoomsRouter(rg, cfg, cfg.RoomHandler)
+	}
+
+	// Setup Type Test Categories routes
+	if cfg.TypeTestCategoryHandler != nil {
+		SetupTypeTestCategoryRouter(rg, cfg, cfg.TypeTestCategoryHandler)
 	}
 
 	// Setup Type Tests routes
@@ -39,5 +53,65 @@ func SetupAPIRouter(rg *gin.RouterGroup, cfg *RouteConfig) {
 
 	if cfg.MedicineHandler != nil {
 		SetupMedicineRouter(rg, cfg, cfg.MedicineHandler)
+	}
+
+	if cfg.MedicineTypeHandler != nil {
+		SetupMedicineTypeRouter(rg, cfg, cfg.MedicineTypeHandler)
+	}
+
+	if cfg.AppointmentHandler != nil {
+		SetupAppointmentRouter(rg, cfg, cfg.AppointmentHandler)
+	}
+
+	if cfg.MedicalRecordHandler != nil {
+		SetupMedicalRecordRouter(rg, cfg, cfg.MedicalRecordHandler)
+	}
+
+	if cfg.HospitalizationHandler != nil {
+		SetupHospitalizationRouter(rg, cfg, cfg.HospitalizationHandler)
+	}
+
+	if cfg.LabTestHandler != nil {
+		SetupLabTestRouter(rg, cfg, cfg.LabTestHandler)
+	}
+
+	if cfg.PrescriptionHandler != nil {
+		SetupPrescriptionRoutes(rg, cfg, cfg.PrescriptionHandler)
+	}
+
+	if cfg.VitalSignHandler != nil {
+		SetupVitalSignRoutes(rg, cfg, cfg.VitalSignHandler)
+	}
+
+	if cfg.AllergyHandler != nil {
+		SetupAllergyRoutes(rg, cfg, cfg.AllergyHandler)
+	}
+
+	if cfg.MedicalConditionHandler != nil {
+		SetupMedicalConditionRoutes(rg, cfg, cfg.MedicalConditionHandler)
+	}
+
+	if cfg.SurgicalHistoryHandler != nil {
+		SetupSurgicalHistoryRoutes(rg, cfg, cfg.SurgicalHistoryHandler)
+	}
+
+	if cfg.FamilyHistoryHandler != nil {
+		SetupFamilyHistoryRoutes(rg, cfg, cfg.FamilyHistoryHandler)
+	}
+
+	if cfg.ReferralHandler != nil {
+		SetupReferralRoutes(rg, cfg, cfg.ReferralHandler)
+	}
+
+	if cfg.MedicalHistoryHandler != nil {
+		SetupMedicalHistoryRoutes(rg, cfg, cfg.MedicalHistoryHandler)
+	}
+
+	if cfg.DashboardHandler != nil {
+		SetupDashboardRouter(rg, cfg, cfg.DashboardHandler)
+	}
+
+	if cfg.BillingHandler != nil {
+		SetupBillingRoutes(rg, cfg, cfg.BillingHandler)
 	}
 }
