@@ -286,8 +286,8 @@ curl -X GET "http://localhost:8080/api/v1/referrals/my-referrals?status=pending"
     "priority": "urgent",
     "status": "accepted",
     "accepted_at": "2024-01-15T14:00:00Z",
-    "completed_at": null,
     "rejection_reason": null,
+    "cancellation_reason": null,
     "notes": "Harap segera diperiksa, pasien mengeluh jantung berdebar-debar sejak 3 hari",
     "created_at": "2024-01-15T10:00:00Z",
     "updated_at": "2024-01-15T14:00:00Z",
@@ -807,15 +807,15 @@ curl -X PATCH "http://localhost:8080/api/v1/referrals/1/complete" \
 
 **Request Body:**
 
-| Field  | Type   | Required | Description       |
-| ------ | ------ | -------- | ----------------- |
-| reason | string | No       | Alasan pembatalan |
+| Field               | Type   | Required | Description               |
+| ------------------- | ------ | -------- | ------------------------- |
+| cancellation_reason | string | No       | Alasan pembatalan rujukan |
 
 **Example Request Body:**
 
 ```json
 {
-  "reason": "Pasien meninggal dunia sebelum sempat menjalani rujukan"
+  "cancellation_reason": "Pasien meninggal dunia sebelum sempat menjalani rujukan"
 }
 ```
 
@@ -839,7 +839,7 @@ curl -X PATCH "http://localhost:8080/api/v1/referrals/1/complete" \
 curl -X PATCH "http://localhost:8080/api/v1/referrals/1/cancel" \
   -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" \
-  -d '{"reason": "Pasien memilih berobat ke luar kota"}'
+  -d '{"cancellation_reason": "Pasien memilih berobat ke luar kota"}'
 ```
 
 ---
@@ -997,15 +997,23 @@ curl -X DELETE "http://localhost:8080/api/v1/referrals/1" \
 | Field | Type | Constraints | Description |
 | --- | --- | --- | --- |
 | id | BIGINT | PRIMARY KEY, AUTO_INCREMENT | Unique identifier |
+| referral_number | VARCHAR(50) | UNIQUE, NOT NULL, INDEX | Nomor surat rujukan otomatis |
 | patient_id | BIGINT | FOREIGN KEY (patients.id), NOT NULL, INDEX | Reference ke pasien |
-| from_doctor_id | BIGINT | FOREIGN KEY (doctors.id), NOT NULL, INDEX | Dokter pengirim rujukan |
-| to_doctor_id | BIGINT | FOREIGN KEY (doctors.id), NULLABLE, INDEX | Dokter penerima rujukan |
 | medical_record_id | BIGINT | FOREIGN KEY (medical_records.id), NULLABLE | Reference ke medical record |
+| referring_doctor_id | BIGINT | FOREIGN KEY (doctors.id), NOT NULL, INDEX | Dokter pengirim rujukan |
+| referred_to_doctor_id | BIGINT | FOREIGN KEY (doctors.id), NULLABLE, INDEX | Dokter penerima rujukan |
+| referred_to_department_id | BIGINT | FOREIGN KEY (departments.id), NULLABLE, INDEX | Departemen penerima rujukan |
+| referred_to_facility | VARCHAR(255) | NULLABLE | Fasilitas penerima rujukan |
+| referral_type | VARCHAR(20) | NOT NULL, DEFAULT 'internal' | Tipe rujukan (internal, external) |
+| priority | VARCHAR(20) | NOT NULL, DEFAULT 'routine' | Prioritas (routine, urgent, emergency) |
 | referral_date | DATE | NOT NULL | Tanggal pembuat rujukan |
 | reason | TEXT | NOT NULL | Alasan rujukan |
+| diagnosis | TEXT | NULLABLE | Diagnosis sementara atau kerja |
 | status | VARCHAR(20) | NOT NULL, DEFAULT 'pending', INDEX | Status (pending, accepted, rejected, completed, cancelled) |
-| acceptance_date | DATE | NULLABLE | Tanggal dokter menerima rujukan |
-| completion_date | DATE | NULLABLE | Tanggal rujukan selesai |
+| rejection_reason | TEXT | NULLABLE | Alasan penolakan rujukan |
+| cancellation_reason | TEXT | NULLABLE | Alasan pembatalan rujukan |
+| accepted_at | TIMESTAMP | NULLABLE | Waktu dokter menerima rujukan |
+| completed_at | TIMESTAMP | NULLABLE | Waktu rujukan selesai |
 | notes | TEXT | NULLABLE | Catatan tambahan |
 | created_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | Waktu pembuatan |
 | updated_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | Waktu update |
@@ -1013,19 +1021,21 @@ curl -X DELETE "http://localhost:8080/api/v1/referrals/1" \
 
 **Indexes:**
 - Primary Key: id
-- Foreign Keys: patient_id, from_doctor_id, to_doctor_id, medical_record_id
-- Regular Index: referral_date, status, deleted_at
+- Unique Index: referral_number
+- Foreign Keys: patient_id, referring_doctor_id, referred_to_doctor_id, referred_to_department_id, medical_record_id
+- Regular Index: referral_date, status, referral_type, priority, deleted_at
 
 **Relationships:**
 - Belongs To Patient (many-to-one)
-- Belongs To From Doctor (many-to-one)
-- Belongs To To Doctor (many-to-one, optional)
+- Belongs To Referring Doctor (many-to-one)
+- Belongs To Referred To Doctor (many-to-one, optional)
+- Belongs To Referred To Department (many-to-one, optional)
 - Belongs To Medical Record (many-to-one, optional)
 
 **Notes:**
 - Status flow: pending -> accepted -> completed (atau rejected/cancelled)
-- to_doctor_id optional jika general referral
-- acceptance_date dan completion_date diisi saat dokter accept/complete
+- referred_to_doctor_id optional jika general referral
+- accepted_at dan completed_at diisi saat dokter accept/complete
 - Important untuk patient routing dan specialty care
 
 ---
@@ -1064,5 +1074,6 @@ accepted → cancelled
 > - Untuk rujukan `internal`, wajib mengisi `referred_to_department_id`
 > - Untuk rujukan `external`, wajib mengisi `referred_to_facility`
 > - `rejection_reason` wajib diisi ketika status diubah ke `rejected`
+> - `cancellation_reason` dapat diisi ketika status diubah ke `cancelled`
 > - Nomor rujukan (`referral_number`) digenerate otomatis jika tidak diisi secara manual
 > - Pada konteks BPJS, dokter umum di FKTP (Fasilitas Kesehatan Tingkat Pertama) hanya dapat merujuk ke FKRTL (Rumah Sakit) sesuai aturan yang berlaku
