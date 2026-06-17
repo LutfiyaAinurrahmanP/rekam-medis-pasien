@@ -56,3 +56,16 @@ export function getRoleDepartmentsPath(role?: string): string {
 
   return `/${normalizeRolePathSegment(role)}/departments`;
 }
+
+/**
+ * Get patients management path based on user role
+ * @param role User role
+ * @returns Patients management path for the role
+ */
+export function getRolePatientsPath(role?: string): string {
+  if (!role) {
+    return "/admin/patients";
+  }
+
+  return `/${normalizeRolePathSegment(role)}/patients`;
+}

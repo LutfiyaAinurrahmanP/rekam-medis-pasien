@@ -92,12 +92,14 @@ export default function ShowUserModal({
         {
           key: "created_at",
           label: "Created At",
-          render: (v) => formatDateIndonesian(v),
+          render: (v) =>
+            formatDateIndonesian((v as string | null | undefined) ?? null),
         },
         {
           key: "updated_at",
           label: "Updated At",
-          render: (v) => formatDateIndonesian(v),
+          render: (v) =>
+            formatDateIndonesian((v as string | null | undefined) ?? null),
         },
       ]}
       onClose={close}

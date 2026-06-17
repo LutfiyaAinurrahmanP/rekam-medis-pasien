@@ -4,6 +4,7 @@ import RoleDashboardPage from "../pages/Roles/RoleDashboardPage";
 import RoleReportsPage from "../pages/Roles/RoleReportsPage";
 import UsersIndex from "../pages/Admin/Users/Index";
 import DepartmentsIndex from "../pages/Admin/Departments/Index";
+import PatientsIndex from "../pages/Admin/Patients/Index";
 // import DepartmentsCreate from "../pages/Admin/Departments/Create";
 // import DepartmentsEdit from "../pages/Admin/Departments/Edit";
 // import DepartmentsShow from "../pages/Admin/Departments/Show";
@@ -16,6 +17,7 @@ export default function AdminRoutes() {
 
       <Route path="/admin/users" element={<UsersIndex />} />
       <Route path="/admin/departments" element={<DepartmentsIndex />} />
+      <Route path="/admin/patients" element={<PatientsIndex />} />
     </Fragment>
   );
 }

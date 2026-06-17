@@ -12,6 +12,7 @@ interface EditUserModalProps {
   isOpen: boolean;
   id?: string;
   role?: string;
+  forcedRole?: string;
   onClose?: () => void;
   onSuccess?: () => void;
 }
@@ -20,6 +21,7 @@ export default function EditUserModal({
   isOpen,
   id,
   role,
+  forcedRole,
   onClose,
   onSuccess,
 }: EditUserModalProps) {
@@ -30,7 +32,7 @@ export default function EditUserModal({
     username: "",
     email: "",
     phone: "",
-    role: role || "",
+    role: forcedRole || role || "",
     is_active: "true",
   });
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -76,7 +78,7 @@ export default function EditUserModal({
             username: String(data.username ?? ""),
             email: String(data.email ?? ""),
             phone: String(data.phone ?? ""),
-            role: String(data.role ?? role ?? ""),
+            role: String(forcedRole ?? data.role ?? role ?? ""),
             is_active: String(Boolean(data.is_active)),
           });
         }
@@ -91,12 +93,19 @@ export default function EditUserModal({
     return () => {
       mounted = false;
     };
-  }, [id, isOpen, role]);
+  }, [forcedRole, id, isOpen, role]);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >,
   ) => {
     const { name, value } = e.target;
+
+    if (forcedRole && name === "role") {
+      return;
+    }
+
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -226,7 +235,7 @@ export default function EditUserModal({
         username: formData.username,
         email: formData.email,
         phone: formData.phone,
-        role: formData.role || undefined,
+        role: forcedRole || formData.role || undefined,
         is_active: formData.is_active === "true",
       });
 
@@ -285,19 +294,23 @@ export default function EditUserModal({
     { name: "username", label: "Username", type: "text", required: true },
     { name: "email", label: "Email", type: "email", required: true },
     { name: "phone", label: "Phone", type: "tel", required: true },
-    {
-      name: "role",
-      label: "Role",
-      type: "select",
-      required: true,
-      options: [
-        { value: "patient", label: "Patient" },
-        { value: "doctor", label: "Doctor" },
-        { value: "receptionist", label: "Receptionist" },
-        { value: "admin", label: "Admin" },
-        { value: "super_admin", label: "Super Admin" },
-      ],
-    },
+    ...(forcedRole
+      ? []
+      : [
+          {
+            name: "role",
+            label: "Role",
+            type: "select" as const,
+            required: true,
+            options: [
+              { value: "patient", label: "Patient" },
+              { value: "doctor", label: "Doctor" },
+              { value: "receptionist", label: "Receptionist" },
+              { value: "admin", label: "Admin" },
+              { value: "super_admin", label: "Super Admin" },
+            ],
+          },
+        ]),
     {
       name: "is_active",
       label: "Status",
