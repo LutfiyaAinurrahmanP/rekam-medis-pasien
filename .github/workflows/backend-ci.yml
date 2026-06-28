@@ -1,0 +1,46 @@
+name: Backend CI
+
+on:
+  push:
+    branches: [ "main" ]
+    # Workflow ini hanya akan berjalan jika ada perubahan di folder backend
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend-ci.yml'
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend-ci.yml'
+
+jobs:
+  build-and-test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    
+    # Atur working-directory agar semua perintah `run` dijalankan di dalam ./backend
+    defaults:
+      run:
+        working-directory: ./backend
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Setup Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.25.x' # Berdasarkan versi go di backend/go.mod (1.25.4)
+        cache-dependency-path: backend/go.sum # Cache dependencies untuk mempercepat CI
+
+    - name: Download Dependencies
+      run: make mod-download
+
+    - name: Verify Dependencies
+      run: make mod-tidy
+      
+    - name: Run Tests (CI Mode)
+      run: make test-ci
+
+    - name: Build Application
+      run: make build
